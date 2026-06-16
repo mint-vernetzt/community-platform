@@ -15,12 +15,15 @@ const __dirname = dirname(__filename);
 
 async function main() {
   console.log("Retrieving current image data");
+
   const old = {
     profiles: await prismaClient.profile.findMany({
       select: {
         id: true,
         avatar: true,
         background: true,
+        backgroundImageMetaData: true,
+        avatarImageMetaData: true,
       },
     }),
     organizations: await prismaClient.organization.findMany({
@@ -28,6 +31,8 @@ async function main() {
         id: true,
         logo: true,
         background: true,
+        backgroundImageMetaData: true,
+        logoImageMetaData: true,
       },
     }),
     projects: await prismaClient.project.findMany({
@@ -35,25 +40,55 @@ async function main() {
         id: true,
         logo: true,
         background: true,
+        backgroundImageMetaData: true,
+        logoImageMetaData: true,
       },
     }),
     events: await prismaClient.event.findMany({
       select: {
         id: true,
         background: true,
+        backgroundImageMetaData: true,
       },
     }),
   };
-  const changes: {
-    old: typeof old;
-    new: typeof old;
-  } = {
+  type CreateImageMetaData =
+    | {
+        create: {
+          path: string;
+          filename: string;
+          extension: string;
+          sizeInMB: number;
+          mimeType: string;
+        };
+      }
+    | undefined;
+  type ProfileQuery = {
+    id: string;
+    backgroundImageMetaData: CreateImageMetaData;
+    avatarImageMetaData: CreateImageMetaData;
+  };
+  type OrganizationQuery = {
+    id: string;
+    backgroundImageMetaData: CreateImageMetaData;
+    logoImageMetaData: CreateImageMetaData;
+  };
+  type ProjectQuery = {
+    id: string;
+    backgroundImageMetaData: CreateImageMetaData;
+    logoImageMetaData: CreateImageMetaData;
+  };
+  type EventQuery = {
+    id: string;
+    backgroundImageMetaData: CreateImageMetaData;
+  };
+  const changes = {
     old,
     new: {
-      profiles: [],
-      organizations: [],
-      projects: [],
-      events: [],
+      profiles: Array<ProfileQuery>(),
+      organizations: Array<OrganizationQuery>(),
+      projects: Array<ProjectQuery>(),
+      events: Array<EventQuery>(),
     },
   };
 
@@ -71,7 +106,10 @@ async function main() {
   >();
 
   for (const oldProfile of changes.old.profiles) {
-    if (oldProfile.background !== null) {
+    if (
+      oldProfile.background !== null &&
+      oldProfile.backgroundImageMetaData === null
+    ) {
       const { error, data: blob } = await authClient.storage
         .from("images")
         .download(oldProfile.background);
@@ -103,7 +141,7 @@ async function main() {
       });
     }
 
-    if (oldProfile.avatar !== null) {
+    if (oldProfile.avatar !== null && oldProfile.avatarImageMetaData === null) {
       const { error, data: blob } = await authClient.storage
         .from("images")
         .download(oldProfile.avatar);
@@ -137,7 +175,10 @@ async function main() {
   }
 
   for (const oldOrganization of changes.old.organizations) {
-    if (oldOrganization.background !== null) {
+    if (
+      oldOrganization.background !== null &&
+      oldOrganization.backgroundImageMetaData === null
+    ) {
       const { error, data: blob } = await authClient.storage
         .from("images")
         .download(oldOrganization.background);
@@ -169,7 +210,10 @@ async function main() {
       });
     }
 
-    if (oldOrganization.logo !== null) {
+    if (
+      oldOrganization.logo !== null &&
+      oldOrganization.logoImageMetaData === null
+    ) {
       const { error, data: blob } = await authClient.storage
         .from("images")
         .download(oldOrganization.logo);
@@ -203,7 +247,10 @@ async function main() {
   }
 
   for (const oldEvent of changes.old.events) {
-    if (oldEvent.background !== null) {
+    if (
+      oldEvent.background !== null &&
+      oldEvent.backgroundImageMetaData === null
+    ) {
       const { error, data: blob } = await authClient.storage
         .from("images")
         .download(oldEvent.background);
@@ -237,7 +284,10 @@ async function main() {
   }
 
   for (const oldProject of changes.old.projects) {
-    if (oldProject.background !== null) {
+    if (
+      oldProject.background !== null &&
+      oldProject.backgroundImageMetaData === null
+    ) {
       const { error, data: blob } = await authClient.storage
         .from("images")
         .download(oldProject.background);
@@ -269,7 +319,7 @@ async function main() {
       });
     }
 
-    if (oldProject.logo !== null) {
+    if (oldProject.logo !== null && oldProject.logoImageMetaData === null) {
       const { error, data: blob } = await authClient.storage
         .from("images")
         .download(oldProject.logo);
@@ -306,24 +356,16 @@ async function main() {
 
   for (const oldProfile of changes.old.profiles) {
     const backgroundMetaData =
-      oldProfile.background !== null
+      oldProfile.background !== null &&
+      oldProfile.backgroundImageMetaData === null
         ? metaDataByPath.get(oldProfile.background)
         : undefined;
     const avatarMetaData =
-      oldProfile.avatar !== null
+      oldProfile.avatar !== null && oldProfile.avatarImageMetaData === null
         ? metaDataByPath.get(oldProfile.avatar)
         : undefined;
     const newProfile = {
-      ...oldProfile,
-      background:
-        oldProfile.background !== null &&
-        typeof backgroundMetaData === "undefined"
-          ? oldProfile.background
-          : null,
-      avatar:
-        oldProfile.avatar !== null && typeof avatarMetaData === "undefined"
-          ? oldProfile.avatar
-          : null,
+      id: oldProfile.id,
       backgroundImageMetaData:
         typeof backgroundMetaData !== "undefined"
           ? {
@@ -342,24 +384,17 @@ async function main() {
 
   for (const oldOrganization of changes.old.organizations) {
     const backgroundMetaData =
-      oldOrganization.background !== null
+      oldOrganization.background !== null &&
+      oldOrganization.backgroundImageMetaData === null
         ? metaDataByPath.get(oldOrganization.background)
         : undefined;
     const logoMetaData =
-      oldOrganization.logo !== null
+      oldOrganization.logo !== null &&
+      oldOrganization.logoImageMetaData === null
         ? metaDataByPath.get(oldOrganization.logo)
         : undefined;
     const newOrganization = {
-      ...oldOrganization,
-      background:
-        oldOrganization.background !== null &&
-        typeof backgroundMetaData === "undefined"
-          ? oldOrganization.background
-          : null,
-      logo:
-        oldOrganization.logo !== null && typeof logoMetaData === "undefined"
-          ? oldOrganization.logo
-          : null,
+      id: oldOrganization.id,
       backgroundImageMetaData:
         typeof backgroundMetaData !== "undefined"
           ? {
@@ -378,24 +413,16 @@ async function main() {
 
   for (const oldProject of changes.old.projects) {
     const backgroundMetaData =
-      oldProject.background !== null
+      oldProject.background !== null &&
+      oldProject.backgroundImageMetaData === null
         ? metaDataByPath.get(oldProject.background)
         : undefined;
     const logoMetaData =
-      oldProject.logo !== null
+      oldProject.logo !== null && oldProject.logoImageMetaData === null
         ? metaDataByPath.get(oldProject.logo)
         : undefined;
     const newProject = {
-      ...oldProject,
-      background:
-        oldProject.background !== null &&
-        typeof backgroundMetaData === "undefined"
-          ? oldProject.background
-          : null,
-      logo:
-        oldProject.logo !== null && typeof logoMetaData === "undefined"
-          ? oldProject.logo
-          : null,
+      id: oldProject.id,
       backgroundImageMetaData:
         typeof backgroundMetaData !== "undefined"
           ? {
@@ -414,16 +441,11 @@ async function main() {
 
   for (const oldEvent of changes.old.events) {
     const backgroundMetaData =
-      oldEvent.background !== null
+      oldEvent.background !== null && oldEvent.backgroundImageMetaData === null
         ? metaDataByPath.get(oldEvent.background)
         : undefined;
     const newEvent = {
-      ...oldEvent,
-      background:
-        oldEvent.background !== null &&
-        typeof backgroundMetaData === "undefined"
-          ? oldEvent.background
-          : null,
+      id: oldEvent.id,
       backgroundImageMetaData:
         typeof backgroundMetaData !== "undefined"
           ? {
@@ -450,9 +472,7 @@ async function main() {
     const { id, ...newFields } = newProfile;
     await prismaClient.profile.update({
       where: { id },
-      data: {
-        ...newFields,
-      },
+      data: newFields,
     });
   }
   for (const newOrganization of changes.new.organizations) {
