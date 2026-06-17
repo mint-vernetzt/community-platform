@@ -36,6 +36,16 @@ async function main() {
         },
       },
     });
+  if (allParticipantsOnChildEvents.length === 0) {
+    console.log(
+      "No participants on child events, skipping participation migration"
+    );
+  } else {
+    console.log(
+      `There are ${allParticipantsOnChildEvents.length} participants on child events, migrating participation to parent events`
+    );
+  }
+
   for (const entry of allParticipantsOnChildEvents) {
     if (entry.event.parentEventId === null) {
       // Make Typescript happy, but should always be not null due to the query condition
@@ -47,28 +57,38 @@ async function main() {
     );
   }
 
-  // Option 1: If the user is not allowed to be on the waiting list (he is not yet participant of the parent event) -> he has to move up in the parent event waiting list
-  // & be removed on the current waiting list(recursively)
-  // Problem (1): We need to communicate this to the user
-
-  // Option 2: CheckNecessityOfWaitingListMovement script
-  // Checks if there are users that are on the waiting list of a child event
-  // & are not participants of the parent
-  // & can not be added as participant to the parent
-  // & are not in the past
-
-  // What's about waiting list
-  // Same iteration of adding participant to waiting list as Participants, but with exceptions
-  // We ignore events that are in the past
-  // If the parent event has spots left, add participant automatically instead of putting him on the waiting list
-  // In order add a participant from the waiting list, the user must first be added to all n-parent events as participant
-  // Problem: What if there are no spots left?
+  // What we know: There are no people on the waiting list of a child event that are not participant of the parent event
+  // So we can skip handle waiting list entries
 
   // Enforce that published child events should have published parent event
-  // 1. check database if this is a case
-  //
+  // What we know: There are published child events that have unpublished parent events
+  // Affected parent: 3a177d10-e379-473b-b46f-cceff07a2e1f "Tech4Kids  Durchgang 2026/2027"
+  // Question: Does this affect any functionality?
+  // Nope: You can actually participate on child event if parent event is not published (mode == "canParticipate") because parentEvent will be null
+  // We handle this case by setting participationRequired to false on published child events with unpublished parent events
+
+  const updatedChildEvents = await prismaClient.event.updateMany({
+    where: {
+      published: true,
+      parentEvent: {
+        published: false,
+      },
+    },
+    data: {
+      parentParticipationRequired: false,
+    },
+  });
+
+  console.log(
+    `Updated ${updatedChildEvents.count} published child events with unpublished parent events to have parentParticipationRequired set to false`
+  );
 
   // Attention: Check if n level deep events handled properly
+
+  // Test Scenario
+  // child event has participants that are not participant of the parent event
+  // child event has participants that are not participants of parent and grand parent event
+  // published child event has unpublished parent event
 }
 
 async function recursivelyAddParticipantsToParentEvent(
