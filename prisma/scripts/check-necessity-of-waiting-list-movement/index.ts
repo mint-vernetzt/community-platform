@@ -47,34 +47,39 @@ async function main() {
     return;
   }
 
-  //   for (const waitingListEntry of usersOnChildWaitingList) {
-  //     if (waitingListEntry.event.parentEventId === null) {
-  //       // Make Typescript happy, but should always be not null due to the query condition
-  //       continue;
-  //     }
-  //     const participantEntry = await prismaClient.participantOfEvent.findFirst({
-  //       where: {
-  //         eventId: waitingListEntry.event.parentEventId,
-  //         profileId: waitingListEntry.profileId,
-  //       },
-  //     });
+  for (const waitingListEntry of usersOnChildWaitingList) {
+    if (waitingListEntry.event.parentEventId === null) {
+      // Make Typescript happy, but should always be not null due to the query condition
+      continue;
+    }
+    const participantEntry = await prismaClient.participantOfEvent.findFirst({
+      where: {
+        eventId: waitingListEntry.event.parentEventId,
+        profileId: waitingListEntry.profileId,
+      },
+    });
 
-  //     const isUserParticipantOfParentEvent = participantEntry !== null
+    const isUserParticipantOfParentEvent = participantEntry !== null;
 
-  //     if (isUserParticipantOfParentEvent === false){
-  //         const parentEvent = await prismaClient.event.findFirst({
-  //             where: {
-  //                 id: waitingListEntry.event.parentEventId
-  //             }
-  //         })
+    if (isUserParticipantOfParentEvent === false) {
+      const parentEvent = await prismaClient.event.findFirst({
+        where: {
+          id: waitingListEntry.event.parentEventId,
+        },
+      });
 
-  //         await prismaClient.event.findFirst({
-  //             where: {
+      await prismaClient.event.findFirst({
+        where: {},
+      });
 
-  //             }
-  //         })
-  //     }
-  //   }
+      // Recursively check if the user can participate on parent event -> collect how many (which persons on which event (Unique persons?))
+
+      // can not participate -> collect how many (which persons on which event (Unique persons?))
+    } else {
+      // Is already participant
+      // -> Other script already ensures that you are participant of all consecutive parent events
+    }
+  }
 }
 
 main()
