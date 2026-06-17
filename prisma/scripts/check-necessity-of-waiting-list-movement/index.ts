@@ -11,6 +11,7 @@ async function main() {
   // Option 1: If the user is not allowed to be on the waiting list (he is not yet participant of the parent event) -> he has to move up in the parent event waiting list
   // & be removed on the current waiting list(recursively)
   // Problem (1): We need to communicate this to the user
+  // Don't do this
 
   // Option 2: CheckNecessityOfWaitingListMovement script
   // Checks if there are users that are on the waiting list of a child event
@@ -47,6 +48,10 @@ async function main() {
     return;
   }
 
+  console.log(
+    `There are ${usersOnChildWaitingList.length} users on the waiting list of child events`
+  );
+
   for (const waitingListEntry of usersOnChildWaitingList) {
     if (waitingListEntry.event.parentEventId === null) {
       // Make Typescript happy, but should always be not null due to the query condition
@@ -62,15 +67,65 @@ async function main() {
     const isUserParticipantOfParentEvent = participantEntry !== null;
 
     if (isUserParticipantOfParentEvent === false) {
+      // What do we want to know
+      // 1. Can we add the user as participant to the parent event (are there free spots left?)
       const parentEvent = await prismaClient.event.findFirst({
         where: {
           id: waitingListEntry.event.parentEventId,
         },
+        select: {
+          id: true,
+          participantLimit: true,
+          _count: {
+            select: {
+              participants: true,
+            },
+          },
+        },
       });
 
-      await prismaClient.event.findFirst({
-        where: {},
-      });
+      if (parentEvent === null) {
+        console.error(
+          `Parent event with id ${waitingListEntry.event.parentEventId} not found`
+        );
+        continue;
+      }
+
+      const freeSpotsLeft =
+        parentEvent.participantLimit === null ||
+        parentEvent._count.participants < parentEvent.participantLimit;
+
+      const listOfProfilesThatCanBeAddedAsParticipantToParentEvent: {
+        profileId: string;
+        eventId: string;
+      }[] = [];
+      const listOfProfilesThatCanNotBeAddedAsParticipantToParentEvent: {
+        profileId: string;
+        eventId: string;
+      }[] = [];
+
+      if (freeSpotsLeft) {
+        listOfProfilesThatCanBeAddedAsParticipantToParentEvent.push({
+          profileId: waitingListEntry.profileId,
+          eventId: waitingListEntry.event.parentEventId,
+        });
+      } else {
+        listOfProfilesThatCanNotBeAddedAsParticipantToParentEvent.push({
+          profileId: waitingListEntry.profileId,
+          eventId: waitingListEntry.event.parentEventId,
+        });
+      }
+
+      console.log(
+        `number of profiles that can be add: ${listOfProfilesThatCanBeAddedAsParticipantToParentEvent.length}`
+      );
+      console.log(
+        `number of profiles that can NOT be add: ${listOfProfilesThatCanNotBeAddedAsParticipantToParentEvent.length}`
+      );
+
+      // await prismaClient.event.findFirst({
+      //   where: {},
+      // });
 
       // Recursively check if the user can participate on parent event -> collect how many (which persons on which event (Unique persons?))
 
