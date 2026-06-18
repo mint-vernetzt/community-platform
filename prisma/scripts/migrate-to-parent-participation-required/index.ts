@@ -10,6 +10,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 async function main() {
+  const now = new Date();
+
   // Aggregate data to change
   const parentEventsWithoutParentParticipationRequiredSetToTrue =
     await prismaClient.event.findMany({
@@ -17,7 +19,10 @@ async function main() {
         childEvents: {
           some: {},
         },
-        parentParticipationRequired: null,
+        parentParticipationRequired: null, // check that field wasn't set manually
+        endTime: {
+          gt: now,
+        },
       },
       select: {
         id: true,
@@ -32,7 +37,12 @@ async function main() {
           parentEventId: {
             not: null,
           },
-          parentParticipationRequired: true,
+          parentEvent: {
+            parentParticipationRequired: null, // check that field wasn't set manually
+            endTime: {
+              gt: now,
+            },
+          },
         },
       },
       select: {
