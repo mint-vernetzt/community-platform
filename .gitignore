@@ -37,3 +37,4 @@ node_modules
 /prisma/scripts/migrate-rte-fields/*.json
 /prisma/scripts/sanitize-rte-fields/*.json
 /prisma/scripts/migrate-images-to-relations/*.json
+/prisma/scripts/migrate-to-parent-participation-required/*.json
