@@ -27,11 +27,6 @@ const entitiesSchema = z.object({
       parentParticipationRequired: z.boolean().nullable(),
     })
   ),
-  childEventsWithUnpublishedParentEvent: z.array(
-    z.object({
-      id: z.string(),
-    })
-  ),
   allParticipantsAddedToParentEvents: z.array(
     z.object({
       profileId: z.string(),
@@ -54,21 +49,6 @@ async function main() {
   } catch (error) {
     console.error("Failed to parse migration protocol", error);
     process.exit(1);
-  }
-
-  // Rollback published child events with unpublished parent event parent participation required set to false
-  for (const childEvent of data.childEventsWithUnpublishedParentEvent) {
-    await prismaClient.event.update({
-      where: {
-        id: childEvent.id,
-      },
-      data: {
-        parentParticipationRequired: null,
-      },
-    });
-    console.log(
-      `Rolled back parentParticipationRequired for child event with id ${childEvent.id} to null`
-    );
   }
 
   // Rollback participants of child events added to parent events

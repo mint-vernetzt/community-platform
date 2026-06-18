@@ -24,19 +24,6 @@ async function main() {
         parentParticipationRequired: true,
       },
     });
-  const childEventsWithUnpublishedParentEvent =
-    await prismaClient.event.findMany({
-      where: {
-        published: true,
-        parentEvent: {
-          published: false,
-        },
-        parentParticipationRequired: null,
-      },
-      select: {
-        id: true,
-      },
-    });
 
   const allParticipantsOnChildEvents =
     await prismaClient.participantOfEvent.findMany({
@@ -45,6 +32,7 @@ async function main() {
           parentEventId: {
             not: null,
           },
+          parentParticipationRequired: true,
         },
       },
       select: {
@@ -90,7 +78,6 @@ async function main() {
     path,
     {
       parentEventsWithoutParentParticipationRequiredSetToTrue,
-      childEventsWithUnpublishedParentEvent,
       allParticipantsAddedToParentEvents,
     },
     {
@@ -137,25 +124,6 @@ async function main() {
 
   console.log(
     `Added ${allParticipantsAddedToParentEvents.length} participants to parent events`
-  );
-
-  const updatedChildEventsWithUnpublishedParentEvent =
-    await prismaClient.event.updateMany({
-      where: {
-        id: {
-          in: childEventsWithUnpublishedParentEvent.map((event) => {
-            return event.id;
-          }),
-        },
-        parentParticipationRequired: null,
-      },
-      data: {
-        parentParticipationRequired: false,
-      },
-    });
-
-  console.log(
-    `Updated ${updatedChildEventsWithUnpublishedParentEvent.count} published child events with unpublished parent events to have parentParticipationRequired set to false`
   );
 }
 
