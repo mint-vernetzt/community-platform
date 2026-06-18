@@ -1,20 +1,42 @@
 import { prismaClient } from "~/prisma.server";
+import fs from "fs-extra";
+
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+
+// Get the current file path
+const __filename = fileURLToPath(import.meta.url);
+// Get the current directory path
+const __dirname = dirname(__filename);
 
 async function main() {
-  const updatedEvents = await prismaClient.event.updateMany({
-    where: {
-      childEvents: {
-        some: {},
+  // Aggregate data to change
+  const parentEventsWithoutParentParticipationRequiredSetToTrue =
+    await prismaClient.event.findMany({
+      where: {
+        childEvents: {
+          some: {},
+        },
+        parentParticipationRequired: null,
       },
-      parentParticipationRequired: null,
-    },
-    data: {
-      parentParticipationRequired: true,
-    },
-  });
-  console.log(
-    `Updated ${updatedEvents.count} events to have parentParticipationRequired set to true`
-  );
+      select: {
+        id: true,
+        parentParticipationRequired: true,
+      },
+    });
+  const childEventsWithUnpublishedParentEvent =
+    await prismaClient.event.findMany({
+      where: {
+        published: true,
+        parentEvent: {
+          published: false,
+        },
+        parentParticipationRequired: null,
+      },
+      select: {
+        id: true,
+      },
+    });
 
   const allParticipantsOnChildEvents =
     await prismaClient.participantOfEvent.findMany({
@@ -45,50 +67,116 @@ async function main() {
     );
   }
 
+  const allParticipantsAddedToParentEvents: {
+    profileId: string;
+    eventId: string;
+  }[] = [];
+
   for (const entry of allParticipantsOnChildEvents) {
     if (entry.event.parentEventId === null) {
       continue;
     }
-    await recursivelyAddParticipantsToParentEvent(
+    await recursivelyCollectParticipantsToBeAddedToParentEvent(
       entry.event.parentEventId,
-      entry.profileId
+      entry.profileId,
+      allParticipantsAddedToParentEvents
     );
   }
 
-  const updatedChildEvents = await prismaClient.event.updateMany({
-    where: {
-      published: true,
-      parentEvent: {
-        published: false,
+  const currentTimestamp = new Date().toISOString();
+  const path = `${__dirname}/affected_entries_${currentTimestamp}.json`;
+  console.log(`Saving changes JSON to: ${path}`);
+  await fs.writeJSON(
+    path,
+    {
+      parentEventsWithoutParentParticipationRequiredSetToTrue,
+      childEventsWithUnpublishedParentEvent,
+      allParticipantsAddedToParentEvents,
+    },
+    {
+      spaces: 4,
+      encoding: "utf8",
+    }
+  );
+
+  const updatedParentEventsWithoutParentParticipationRequiredSetToTrue =
+    await prismaClient.event.updateMany({
+      where: {
+        id: {
+          in: parentEventsWithoutParentParticipationRequiredSetToTrue.map(
+            (event) => {
+              return event.id;
+            }
+          ),
+        },
       },
-      parentParticipationRequired: null,
-    },
-    data: {
-      parentParticipationRequired: false,
-    },
-  });
+      data: {
+        parentParticipationRequired: true,
+      },
+    });
 
   console.log(
-    `Updated ${updatedChildEvents.count} published child events with unpublished parent events to have parentParticipationRequired set to false`
+    `Updated ${updatedParentEventsWithoutParentParticipationRequiredSetToTrue.count} events to have parentParticipationRequired set to true`
+  );
+
+  for (const entry of allParticipantsAddedToParentEvents) {
+    await prismaClient.participantOfEvent.upsert({
+      where: {
+        profileId_eventId: {
+          eventId: entry.eventId,
+          profileId: entry.profileId,
+        },
+      },
+      update: {},
+      create: {
+        eventId: entry.eventId,
+        profileId: entry.profileId,
+      },
+    });
+  }
+
+  console.log(
+    `Added ${allParticipantsAddedToParentEvents.length} participants to parent events`
+  );
+
+  const updatedChildEventsWithUnpublishedParentEvent =
+    await prismaClient.event.updateMany({
+      where: {
+        id: {
+          in: childEventsWithUnpublishedParentEvent.map((event) => {
+            return event.id;
+          }),
+        },
+        parentParticipationRequired: null,
+      },
+      data: {
+        parentParticipationRequired: false,
+      },
+    });
+
+  console.log(
+    `Updated ${updatedChildEventsWithUnpublishedParentEvent.count} published child events with unpublished parent events to have parentParticipationRequired set to false`
   );
 }
 
-async function recursivelyAddParticipantsToParentEvent(
+async function recursivelyCollectParticipantsToBeAddedToParentEvent(
   eventId: string,
-  profileId: string
+  profileId: string,
+  collection: { profileId: string; eventId: string }[]
 ) {
-  await prismaClient.participantOfEvent.upsert({
+  const relation = await prismaClient.participantOfEvent.findFirst({
     where: {
-      profileId_eventId: {
-        eventId: eventId,
-        profileId,
-      },
-    },
-    update: {},
-    create: {
-      eventId: eventId,
+      eventId,
       profileId,
     },
+  });
+  if (relation !== null) {
+    return;
+  }
+
+  collection.push({
+    profileId,
+    eventId,
   });
   const parentEvent = await prismaClient.event.findFirst({
     where: {
@@ -102,7 +190,11 @@ async function recursivelyAddParticipantsToParentEvent(
   if (parentEvent === null) {
     return;
   }
-  await recursivelyAddParticipantsToParentEvent(parentEvent.id, profileId);
+  await recursivelyCollectParticipantsToBeAddedToParentEvent(
+    parentEvent.id,
+    profileId,
+    collection
+  );
 }
 
 main()
