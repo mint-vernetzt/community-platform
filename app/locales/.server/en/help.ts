@@ -490,6 +490,7 @@ export const locale = {
           question: "I want to delete my event. How do I proceed?",
           answer:
             "<p>You can directly delete unpublished events. To do this, go to the event settings <b>Critical Area > Delete Event</b>.<br /><br />If you want to delete an already published event, you must first cancel it. You can do this under <b>Critical Area > Cancel Event</b>. After that, you can delete it. If there are other admins in your event, they will be informed about the deletion.</p>",
+          featureFlag: "events",
         },
       },
     },

@@ -502,6 +502,7 @@ export const locale = {
           question: "Ich möchte mein Event löschen. Wie gehe ich vor?",
           answer:
             "<p>Unveröffentlichte Events kannst Du einfach direkt löschen. Gehe dafür in die Event-Einstellungen <b>Kritischer Bereich > Event löschen</b>.<br /><br />Wenn Du Dein bereits veröffentlichtes Event löschen möchtest, dann musst Du es zunächst absagen. Das Absagen kannst Du im Punkt <b>Kritischer Bereich > Event absagen</b> vornehmen. Danach kannst Du es löschen. Wenn es andere Admins in Deinem Event gibt, werden sie über das Löschen informiert.</p>",
+          featureFlag: "events",
         },
       },
     },
