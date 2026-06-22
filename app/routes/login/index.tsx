@@ -14,22 +14,22 @@ import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
+import { HoneypotInputs } from "remix-utils/honeypot/react";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { ShowPasswordButton } from "~/components-next/ShowPasswordButton";
 import { PrivateVisibility } from "~/components-next/icons/PrivateVisibility";
 import { PublicVisibility } from "~/components-next/icons/PublicVisibility";
 import { RichText } from "~/components/legacy/Richtext/RichText";
+import { checkHoneypot } from "~/honeypot.server";
 import { detectLanguage } from "~/i18n.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
+import { isBotRequest } from "~/utils.server";
 import { createAuthClient, getSessionUser } from "../../auth.server";
 import { login } from "./index.server";
 import { createLoginSchema } from "./index.shared";
-import { HoneypotInputs } from "remix-utils/honeypot/react";
-import { checkHoneypot } from "~/honeypot.server";
-import { isBotRequest } from "~/utils.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { useNonce } from "~/nonce-provider";
+import { HONEYPOT_CLASSNAME } from "~/honeypot.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -109,7 +109,6 @@ export default function Index() {
   const navigation = useNavigation();
   const isHydrated = useHydrated();
   const isSubmitting = useIsSubmitting();
-  const nonce = useNonce();
   const [urlSearchParams] = useSearchParams();
 
   const loginRedirect = urlSearchParams.get("login_redirect");
@@ -139,7 +138,7 @@ export default function Index() {
 
   return (
     <Form {...getFormProps(loginForm)} method="post" autoComplete="off">
-      <HoneypotInputs nonce={nonce} />
+      <HoneypotInputs className={HONEYPOT_CLASSNAME} />
       <>
         <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
           <div className="flex flex-col w-full items-center">

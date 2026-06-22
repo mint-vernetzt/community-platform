@@ -13,22 +13,22 @@ import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
+import { HoneypotInputs } from "remix-utils/honeypot/react";
 import { useHydrated } from "remix-utils/use-hydrated";
+import { checkHoneypot } from "~/honeypot.server";
 import { detectLanguage } from "~/i18n.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import {
   insertComponentsIntoLocale,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
+import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
+import { isBotRequest } from "~/utils.server";
 import { createAuthClient, getSessionUser } from "../../auth.server";
 import { requestPasswordChange } from "./index.server";
 import { createRequestPasswordChangeSchema } from "./index.shared";
-import { checkHoneypot } from "~/honeypot.server";
-import { HoneypotInputs } from "remix-utils/honeypot/react";
-import { isBotRequest } from "~/utils.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { useNonce } from "~/nonce-provider";
+import { HONEYPOT_CLASSNAME } from "~/honeypot.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -94,7 +94,6 @@ export default function Index() {
   const navigation = useNavigation();
   const isHydrated = useHydrated();
   const isSubmitting = useIsSubmitting();
-  const nonce = useNonce();
   const [urlSearchParams] = useSearchParams();
 
   const loginRedirect = urlSearchParams.get("login_redirect");
@@ -176,7 +175,7 @@ export default function Index() {
               preventScrollReset
               autoComplete="off"
             >
-              <HoneypotInputs nonce={nonce} />
+              <HoneypotInputs className={HONEYPOT_CLASSNAME} />
               <p className="mb-4">{locales.form.intro}</p>
               <div className="mb-10">
                 <Input
