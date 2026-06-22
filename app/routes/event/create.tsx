@@ -55,10 +55,7 @@ export async function loader(args: LoaderFunctionArgs) {
   if (sessionUser === null && redirectPath !== null) {
     return redirect(redirectPath);
   }
-  await checkFeatureAbilitiesOrThrow(authClient, [
-    "events",
-    "next_event_create",
-  ]);
+  await checkFeatureAbilitiesOrThrow(authClient, ["events"]);
 
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["event/create"];
@@ -80,10 +77,7 @@ export async function action(args: ActionFunctionArgs) {
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
 
-  await checkFeatureAbilitiesOrThrow(authClient, [
-    "events",
-    "next_event_create",
-  ]);
+  await checkFeatureAbilitiesOrThrow(authClient, ["events"]);
 
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["event/create"];

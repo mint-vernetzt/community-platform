@@ -53,10 +53,7 @@ export async function loader(args: LoaderFunctionArgs) {
   if (redirectPath !== null) {
     return redirect(redirectPath);
   }
-  await checkFeatureAbilitiesOrThrow(authClient, [
-    "events",
-    "next_event_settings",
-  ]);
+  await checkFeatureAbilitiesOrThrow(authClient, ["events"]);
 
   const language = await detectLanguage(request);
   const locales =
@@ -87,10 +84,7 @@ export async function action(args: ActionFunctionArgs) {
   });
 
   const { authClient } = createAuthClient(request);
-  await checkFeatureAbilitiesOrThrow(authClient, [
-    "events",
-    "next_event_settings",
-  ]);
+  await checkFeatureAbilitiesOrThrow(authClient, ["events"]);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const redirectPath = await getRedirectPathOnProtectedEventRoute({
     request,

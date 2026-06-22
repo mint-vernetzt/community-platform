@@ -78,10 +78,7 @@ export async function loader(args: LoaderFunctionArgs) {
     return redirect(redirectPath);
   }
   invariantResponse(sessionUser, "User not authenticated", { status: 401 });
-  await checkFeatureAbilitiesOrThrow(authClient, [
-    "events",
-    "next_event_settings",
-  ]);
+  await checkFeatureAbilitiesOrThrow(authClient, ["events"]);
 
   const language = await detectLanguage(request);
   const locales =
@@ -114,6 +111,20 @@ export async function action(args: ActionFunctionArgs) {
   invariantResponse(typeof slug === "string", "slug is not defined", {
     status: 400,
   });
+
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  const redirectPath = await getRedirectPathOnProtectedEventRoute({
+    request,
+    slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
+  await checkFeatureAbilitiesOrThrow(authClient, ["events"]);
 
   const eventId = await getEventIdBySlug(slug);
   invariantResponse(eventId !== null, "Event not found", { status: 404 });

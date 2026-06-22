@@ -65,7 +65,7 @@ export const locale = {
     report: "Melden",
     reported: "Meldung wird geprüft",
     reportFaq: "Weitere Infos zum Melden",
-    changeBackground: "Hintergrund ändern",
+    changeBackground: "Bild bearbeiten",
     overlayMenu: {
       close: "Schließen",
     },

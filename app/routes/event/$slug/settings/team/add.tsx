@@ -69,10 +69,7 @@ export async function loader(args: LoaderFunctionArgs) {
     return redirect(redirectPath);
   }
   invariantResponse(sessionUser, "User not authenticated", { status: 401 });
-  await checkFeatureAbilitiesOrThrow(authClient, [
-    "events",
-    "next_event_settings",
-  ]);
+  await checkFeatureAbilitiesOrThrow(authClient, ["events"]);
 
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["event/$slug/settings/team/add"];
@@ -112,10 +109,7 @@ export async function action(args: ActionFunctionArgs) {
   });
 
   const { authClient } = createAuthClient(request);
-  await checkFeatureAbilitiesOrThrow(authClient, [
-    "events",
-    "next_event_settings",
-  ]);
+  await checkFeatureAbilitiesOrThrow(authClient, ["events"]);
 
   const sessionUser = await getSessionUserOrThrow(authClient);
   const redirectPath = await getRedirectPathOnProtectedEventRoute({

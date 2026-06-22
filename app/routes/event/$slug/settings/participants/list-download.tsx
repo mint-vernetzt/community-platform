@@ -28,10 +28,7 @@ export async function loader(args: LoaderFunctionArgs) {
     return redirect(redirectPath);
   }
   invariantResponse(sessionUser, "User not authenticated", { status: 401 });
-  await checkFeatureAbilitiesOrThrow(authClient, [
-    "events",
-    "next_event_settings",
-  ]);
+  await checkFeatureAbilitiesOrThrow(authClient, ["events"]);
 
   const eventName = await getEventNameBySlug(params.slug);
   invariantResponse(eventName !== null, "Event not found", { status: 404 });

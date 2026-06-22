@@ -358,10 +358,7 @@ export async function loader(args: LoaderFunctionArgs) {
     isMember,
   };
 
-  const abilities = await getFeatureAbilities(
-    authClient,
-    "next_event_settings"
-  );
+  const abilities = await getFeatureAbilities(authClient, "events");
 
   return {
     event: enhancedEvent,
@@ -693,26 +690,13 @@ function Detail() {
           src={loaderData.event.background}
           blurredSrc={loaderData.event.blurredBackground}
         />
-        {loaderData.mode === "admin" && (
-          <>
+        {loaderData.mode === "admin" &&
+          loaderData.abilities["events"].hasAccess && (
             <EventsOverview.EditBackground
               locales={loaderData.locales.route.content}
-              next={loaderData.abilities["next_event_settings"].hasAccess}
               to={`/event/${loaderData.event.slug}/settings/details/background?${Deep}=true`}
             />
-            <EventsOverview.EditBackgroundModal
-              background={loaderData.event.background}
-              blurredBackground={loaderData.event.blurredBackground}
-              locales={{
-                ...loaderData.locales.route.changeBackground,
-                alt: insertParametersIntoLocale(
-                  loaderData.locales.route.changeBackground.alt,
-                  { eventName: loaderData.event.name }
-                ),
-              }}
-            />
-          </>
-        )}
+          )}
         {loaderData.event.published === false && (
           <EventsOverview.StateFlag>
             {loaderData.locales.route.content.draft}
