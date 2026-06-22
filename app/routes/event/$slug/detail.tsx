@@ -49,8 +49,6 @@ import {
   createParticipationSchema,
 } from "./details.shared";
 import { formatDateTime } from "./index.shared";
-
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { captureException } from "@sentry/node";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
@@ -647,19 +645,6 @@ function Detail() {
 
   return (
     <BasicStructure>
-      {loaderData.abilities["next_event_settings"].hasAccess ? (
-        <Button
-          as="link"
-          to={
-            loaderData.event.published && loaderData.event.external === false
-              ? `/next/event/${loaderData.event.slug}/settings/participants?${Deep}=false`
-              : `/next/event/${loaderData.event.slug}/settings/time-period?${Deep}=false`
-          }
-          prefetch="intent"
-        >
-          Zu den neuen Event-Einstellungen
-        </Button>
-      ) : null}
       {hasContent(loaderData.event.parentEvent) ? (
         <BreadCrump>
           <BreadCrump.Link
@@ -713,7 +698,7 @@ function Detail() {
             <EventsOverview.EditBackground
               locales={loaderData.locales.route.content}
               next={loaderData.abilities["next_event_settings"].hasAccess}
-              to={`/next/event/${loaderData.event.slug}/settings/details/background?${Deep}=true`}
+              to={`/event/${loaderData.event.slug}/settings/details/background?${Deep}=true`}
             />
             <EventsOverview.EditBackgroundModal
               background={loaderData.event.background}
@@ -870,7 +855,11 @@ function Detail() {
               reasons={loaderData.abuseReportReasons}
             />
             {loaderData.mode === "admin" && (
-              <EventsOverview.Edit slug={loaderData.event.slug}>
+              <EventsOverview.Edit
+                slug={loaderData.event.slug}
+                published={loaderData.event.published}
+                external={loaderData.event.external}
+              >
                 {loaderData.locales.route.content.edit}
               </EventsOverview.Edit>
             )}

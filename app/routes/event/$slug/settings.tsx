@@ -174,7 +174,7 @@ export default function Settings() {
 
   const location = useLocation();
   const leafPathname = location.pathname
-    .replace(`/next/event/${event.slug}/settings/`, "")
+    .replace(`/event/${event.slug}/settings/`, "")
     .split("/")[0];
   const links: Array<{
     to: string;

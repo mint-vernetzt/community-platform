@@ -75,7 +75,7 @@ export async function loader(args: LoaderFunctionArgs) {
   });
 
   if (organizations.length === 0) {
-    return redirect(`/next/event/${params.slug}/settings/responsible-orgs/add`);
+    return redirect(`/event/${params.slug}/settings/responsible-orgs/add`);
   }
 
   return { locales, language, organizations, submission };

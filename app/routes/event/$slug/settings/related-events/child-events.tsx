@@ -539,7 +539,7 @@ function ChildEvents() {
             </div>
             <Button
               as="link"
-              to={`/next/event/create?parent=${event.slug}`}
+              to={`/event/create?parent=${event.slug}`}
               size="small"
               variant="outline"
               fullSize

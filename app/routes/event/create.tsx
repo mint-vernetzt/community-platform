@@ -148,7 +148,7 @@ export async function action(args: ActionFunctionArgs) {
 
   return redirect(
     parentEvent !== null
-      ? `/next/event/${parentEvent.slug}/settings/related-events/child-events?${Deep}=true`
+      ? `/event/${parentEvent.slug}/settings/related-events/child-events?${Deep}=true`
       : `/event/${slug}/detail/about`
   );
 }
@@ -221,7 +221,7 @@ export default function Create() {
             to={
               parentEvent === null
                 ? "/my/events"
-                : `/next/event/${parentEvent.slug}/settings/related-events/child-events?${Deep}=true`
+                : `/event/${parentEvent.slug}/settings/related-events/child-events?${Deep}=true`
             }
             aria-label={locales.route.close}
             prefetch="intent"
@@ -510,7 +510,7 @@ export default function Create() {
                   to={
                     parentEvent === null
                       ? "/my/events"
-                      : `/next/event/${parentEvent.slug}/settings/related-events/child-events?${Deep}=true`
+                      : `/event/${parentEvent.slug}/settings/related-events/child-events?${Deep}=true`
                   }
                   variant="outline"
                   fullSize

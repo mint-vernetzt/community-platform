@@ -14,6 +14,7 @@ import { INTENT_FIELD_NAME } from "~/form-helpers";
 import type { SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
 import { copyToClipboard } from "~/lib/utils/clipboard";
+import { Deep, extendSearchParams } from "~/lib/utils/searchParams";
 import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
 import type { ArrayElement } from "~/lib/utils/types";
 import type { languageModuleMap } from "~/locales/.server";
@@ -29,7 +30,6 @@ import ImageCropper, {
 } from "../legacy/ImageCropper/ImageCropper";
 import { RichText } from "../legacy/Richtext/RichText"; // refactor?
 import { OverlayMenu as OverlayMenuComponent } from "./OverlayMenu"; // refactor?
-import { extendSearchParams } from "~/lib/utils/searchParams";
 
 // Design:
 // Name: Events_Overview
@@ -1067,11 +1067,22 @@ function AbuseReportModal(props: {
   );
 }
 
-function Edit(props: { children: React.ReactNode; slug: string }) {
+function Edit(props: {
+  children: React.ReactNode;
+  slug: string;
+  published: boolean;
+  external: boolean;
+}) {
+  const { slug, published, external } = props;
+
   return (
     <Button
       as="link"
-      to={`/event/${props.slug}/settings/general`}
+      to={
+        published && external === false
+          ? `/event/${slug}/settings/participants?${Deep}=false`
+          : `/event/${slug}/settings/time-period?${Deep}=false`
+      }
       prefetch="intent"
       fullSize
     >

@@ -132,7 +132,7 @@ export async function action(args: ActionFunctionArgs) {
   }
 
   const url = new URL(request.url);
-  url.pathname = `/next/event/${submission.value.slug}/settings/danger-zone/change-url`;
+  url.pathname = `/event/${submission.value.slug}/settings/danger-zone/change-url`;
 
   return redirectWithToast(`${url.pathname}?${Deep}=true`, {
     id: "change-url-success",

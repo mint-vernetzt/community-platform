@@ -97,7 +97,7 @@ export async function loader(args: LoaderFunctionArgs) {
       event.parentParticipationRequired === false)
   ) {
     return redirect(
-      `/next/event/${params.slug}/settings/registration/access?${Deep}=true`,
+      `/event/${params.slug}/settings/registration/access?${Deep}=true`,
       {
         status: 302,
       }

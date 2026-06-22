@@ -72,7 +72,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   if (event.canceled || event.published === false) {
     const url = new URL(request.url);
-    url.pathname = `/next/event/${params.slug}/settings/danger-zone/change-url`;
+    url.pathname = `/event/${params.slug}/settings/danger-zone/change-url`;
     return redirect(url.toString());
   }
 

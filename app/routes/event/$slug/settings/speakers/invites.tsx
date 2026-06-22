@@ -75,7 +75,7 @@ export async function loader(args: LoaderFunctionArgs) {
   );
 
   if (profiles.length === 0) {
-    return redirect(`/next/event/${params.slug}/settings/speakers/add`);
+    return redirect(`/event/${params.slug}/settings/speakers/add`);
   }
 
   return { locales, language, profiles, submission };

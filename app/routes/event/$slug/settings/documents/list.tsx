@@ -78,7 +78,7 @@ export async function loader(args: LoaderFunctionArgs) {
   });
 
   if (documents.length === 0) {
-    return redirect(`/next/event/${params.slug}/settings/documents/add`);
+    return redirect(`/event/${params.slug}/settings/documents/add`);
   }
 
   return { locales, submission, documents, event: { slug: params.slug } };
