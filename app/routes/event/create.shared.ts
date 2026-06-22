@@ -1,41 +1,238 @@
-import { type InferType, object, string } from "yup";
-import { type CreateEventLocales } from "./create.server";
-import { format } from "date-fns-tz";
-import {
-  greaterThanDate,
-  greaterThanTimeOnSameDate,
-  nullOrString,
-} from "~/lib/utils/yup";
+import { zonedTimeToUtc } from "date-fns-tz";
+import { z } from "zod";
+import { type TIME_PERIOD_MULTI, TIME_PERIOD_SINGLE } from "./utils.shared";
 
-export const createSchema = (locales: CreateEventLocales) => {
-  return object({
-    name: string().trim().required(locales.validation.name.required),
-    startDate: string()
-      .trim()
-      .transform((value) => {
-        const date = new Date(value);
-        return format(date, "yyyy-MM-dd");
+export const NAME_MIN_LENGTH = 3;
+
+export function createEventCreationSchema(options: {
+  locales: {
+    nameRequired: string;
+    nameMinLength: string;
+    startDateRequired: string;
+    startDateInPast: string;
+    startTimeInPast: string;
+    endDateRequired: string;
+    endDateInPast: string;
+    endTimeInPast: string;
+    endDateBeforeStartDate: string;
+    endTimeBeforeStartTime: string;
+    startTimeRequired: string;
+    endTimeRequired: string;
+    eventNotInParentEventBoundaries: string;
+    multiDaySameDay: string;
+  };
+  timePeriod: typeof TIME_PERIOD_SINGLE | typeof TIME_PERIOD_MULTI;
+  parentEvent: {
+    id: string;
+    startTime: Date;
+    endTime: Date;
+  } | null;
+}) {
+  const { locales, timePeriod, parentEvent } = options;
+  let schema;
+
+  if (timePeriod === TIME_PERIOD_SINGLE) {
+    schema = z
+      .object({
+        name: z
+          .string({
+            required_error: locales.nameRequired,
+          })
+          .trim()
+          .min(NAME_MIN_LENGTH, {
+            message: locales.nameMinLength,
+          }),
+        startDate: z.date({
+          required_error: locales.startDateRequired,
+        }),
+        startTime: z.string({
+          required_error: locales.startTimeRequired,
+        }),
+        endTime: z.string({
+          required_error: locales.endTimeRequired,
+        }),
       })
-      .required(locales.validation.startDate.required),
-    startTime: string().trim().required(locales.validation.startTime.required),
-    endDate: greaterThanDate(
-      "endDate",
-      "startDate",
-      locales.validation.endDate.required,
-      locales.validation.endDate.greaterThan
-    ),
-    endTime: greaterThanTimeOnSameDate(
-      "endTime",
-      "startTime",
-      "startDate",
-      "endDate",
-      locales.validation.endTime.required,
-      locales.validation.endTime.greaterThan
-    ),
-    child: nullOrString(string().trim()),
-    parent: nullOrString(string().trim()),
-  });
-};
+      .transform((data, context) => {
+        const today = new Date();
+        const startTime = zonedTimeToUtc(
+          `${data.startDate.toISOString().split("T")[0]} ${data.startTime}`,
+          "Europe/Berlin"
+        );
+        const endTime = zonedTimeToUtc(
+          `${data.startDate.toISOString().split("T")[0]} ${data.endTime}`,
+          "Europe/Berlin"
+        );
+        // start time in the past
+        if (startTime <= today) {
+          if (startTime.getDate() < today.getDate()) {
+            context.addIssue({
+              path: ["startDate"],
+              code: z.ZodIssueCode.custom,
+              message: locales.startDateInPast,
+            });
+          } else {
+            context.addIssue({
+              path: ["startTime"],
+              code: z.ZodIssueCode.custom,
+              message: locales.startTimeInPast,
+            });
+          }
+          return z.NEVER;
+        }
+        // end time in the past
+        if (endTime <= today) {
+          context.addIssue({
+            path: ["endTime"],
+            code: z.ZodIssueCode.custom,
+            message: locales.endTimeInPast,
+          });
+          return z.NEVER;
+        }
+        // end time before start time
+        if (endTime <= startTime) {
+          context.addIssue({
+            path: ["endTime"],
+            code: z.ZodIssueCode.custom,
+            message: locales.endTimeBeforeStartTime,
+          });
+          return z.NEVER;
+        }
 
-export type SchemaType = ReturnType<typeof createSchema>;
-export type FormType = InferType<SchemaType>;
+        const participationUntil = startTime;
+
+        if (parentEvent !== null) {
+          // validate against parentEvent
+          if (startTime < parentEvent.startTime) {
+            if (startTime.getDate() < parentEvent.startTime.getDate()) {
+              context.addIssue({
+                path: ["startDate"],
+                code: z.ZodIssueCode.custom,
+                message: locales.eventNotInParentEventBoundaries,
+              });
+            } else {
+              context.addIssue({
+                path: ["startTime"],
+                code: z.ZodIssueCode.custom,
+                message: locales.eventNotInParentEventBoundaries,
+              });
+            }
+            return z.NEVER;
+          }
+          if (endTime > parentEvent.endTime) {
+            context.addIssue({
+              path: ["endTime"],
+              code: z.ZodIssueCode.custom,
+              message: locales.eventNotInParentEventBoundaries,
+            });
+            return z.NEVER;
+          }
+        }
+
+        return {
+          name: data.name,
+          startTime,
+          endTime,
+          participationUntil,
+          parentEventId: parentEvent === null ? null : parentEvent.id,
+        };
+      });
+  } else {
+    schema = z
+      .object({
+        name: z
+          .string({
+            required_error: locales.nameRequired,
+          })
+          .trim()
+          .min(3, {
+            message: locales.nameMinLength,
+          }),
+        startDate: z.date({
+          required_error: locales.startDateRequired,
+        }),
+        endDate: z.date({
+          required_error: locales.endDateRequired,
+        }),
+      })
+      .transform((data, context) => {
+        const today = new Date();
+        const startDateISO = data.startDate.toISOString().split("T")[0];
+        const endDateISO = data.endDate.toISOString().split("T")[0];
+
+        // multi day events should not be on the same day
+        if (startDateISO === endDateISO) {
+          context.addIssue({
+            path: ["endDate"],
+            code: z.ZodIssueCode.custom,
+            message: locales.multiDaySameDay,
+          });
+          return z.NEVER;
+        }
+
+        const startTime = zonedTimeToUtc(
+          `${startDateISO} 00:00`,
+          "Europe/Berlin"
+        );
+        const endTime = zonedTimeToUtc(`${endDateISO} 23:59`, "Europe/Berlin");
+
+        // start time in the past
+        if (startTime <= today) {
+          context.addIssue({
+            path: ["startDate"],
+            code: z.ZodIssueCode.custom,
+            message: locales.startDateInPast,
+          });
+          return z.NEVER;
+        }
+        // end time in the past
+        if (endTime <= today) {
+          context.addIssue({
+            path: ["endDate"],
+            code: z.ZodIssueCode.custom,
+            message: locales.endDateInPast,
+          });
+          return z.NEVER;
+        }
+        // end time before start time
+        if (endTime <= startTime) {
+          context.addIssue({
+            path: ["endDate"],
+            code: z.ZodIssueCode.custom,
+            message: locales.endDateBeforeStartDate,
+          });
+          return z.NEVER;
+        }
+
+        const participationUntil = startTime;
+
+        if (parentEvent !== null) {
+          // validate against parentEvent
+          if (startTime < parentEvent.startTime) {
+            context.addIssue({
+              path: ["startDate"],
+              code: z.ZodIssueCode.custom,
+              message: locales.eventNotInParentEventBoundaries,
+            });
+            return z.NEVER;
+          }
+          if (endTime > parentEvent.endTime) {
+            context.addIssue({
+              path: ["endDate"],
+              code: z.ZodIssueCode.custom,
+              message: locales.eventNotInParentEventBoundaries,
+            });
+            return z.NEVER;
+          }
+        }
+
+        return {
+          name: data.name,
+          startTime,
+          endTime,
+          participationUntil,
+          parentEventId: parentEvent === null ? null : parentEvent.id,
+        };
+      });
+  }
+  return schema;
+}

@@ -1,43 +1,22 @@
 import { prismaClient } from "~/prisma.server";
-import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
-import { type ArrayElement } from "~/lib/utils/types";
-import { type languageModuleMap } from "~/locales/.server";
 
-export type EventTeamSettingsLocales = (typeof languageModuleMap)[ArrayElement<
-  typeof SUPPORTED_COOKIE_LANGUAGES
->]["event/$slug/settings/team"];
-
-export async function getEvent(slug: string) {
-  return await prismaClient.event.findUnique({
+export async function getEventBySlug(slug: string) {
+  const event = await prismaClient.event.findUnique({
+    where: { slug },
     select: {
-      id: true,
-      published: true,
-      teamMembers: {
+      _count: {
         select: {
-          profile: {
-            select: {
-              id: true,
-              username: true,
-              firstName: true,
-              lastName: true,
-              avatarImageMetaData: {
-                select: {
-                  path: true,
-                },
-              },
-              position: true,
+          teamMembers: true,
+          profileJoinInvites: {
+            where: {
+              role: "member",
+              status: "pending",
             },
-          },
-        },
-        orderBy: {
-          profile: {
-            firstName: "asc",
           },
         },
       },
     },
-    where: {
-      slug,
-    },
   });
+
+  return event;
 }
