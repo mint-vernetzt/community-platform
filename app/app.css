@@ -287,3 +287,7 @@
 .rc-slider-handle-dragging.rc-slider-handle-dragging.rc-slider-handle-dragging {
   box-shadow: 0 0 0 5px #2d6be1 !important;
 }
+
+.honeypot_inputs {
+  display: none;
+}

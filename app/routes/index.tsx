@@ -16,6 +16,7 @@ import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
+import { HoneypotInputs } from "remix-utils/honeypot/react";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Accordion } from "~/components-next/Accordion";
@@ -25,10 +26,13 @@ import { PrivateVisibility } from "~/components-next/icons/PrivateVisibility";
 import { PublicVisibility } from "~/components-next/icons/PublicVisibility";
 import { H1 } from "~/components/legacy/Heading/Heading";
 import { RichText } from "~/components/legacy/Richtext/RichText";
+import { checkHoneypot } from "~/honeypot.server";
 import { detectLanguage } from "~/i18n.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
+import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
+import { isBotRequest } from "~/utils.server";
 import { login } from "./login/index.server";
 import { createLoginSchema } from "./login/index.shared";
 import {
@@ -37,11 +41,7 @@ import {
   getProfileCount,
   getProjectCount,
 } from "./utils.server";
-import { checkHoneypot } from "~/honeypot.server";
-import { HoneypotInputs } from "remix-utils/honeypot/react";
-import { isBotRequest } from "~/utils.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { useNonce } from "~/nonce-provider";
+import { HONEYPOT_CLASSNAME } from "~/honeypot.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -132,7 +132,6 @@ export default function Index() {
   const navigation = useNavigation();
   const isHydrated = useHydrated();
   const isSubmitting = useIsSubmitting();
-  const nonce = useNonce();
   const [urlSearchParams] = useSearchParams();
 
   const loginRedirect = urlSearchParams.get("login_redirect");
@@ -251,7 +250,7 @@ export default function Index() {
                       method="post"
                       autoComplete="off"
                     >
-                      <HoneypotInputs nonce={nonce} />
+                      <HoneypotInputs className={HONEYPOT_CLASSNAME} />
                       {typeof loginForm.errors !== "undefined" &&
                       loginForm.errors.length > 0 ? (
                         <div>
