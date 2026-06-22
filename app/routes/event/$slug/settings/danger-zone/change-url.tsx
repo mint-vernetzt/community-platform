@@ -63,9 +63,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const language = await detectLanguage(request);
   const locales =
-    languageModuleMap[language][
-      "next/event/$slug/settings/danger-zone/change-url"
-    ];
+    languageModuleMap[language]["event/$slug/settings/danger-zone/change-url"];
 
   const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
@@ -98,9 +96,7 @@ export async function action(args: ActionFunctionArgs) {
 
   const language = await detectLanguage(request);
   const locales =
-    languageModuleMap[language][
-      "next/event/$slug/settings/danger-zone/change-url"
-    ];
+    languageModuleMap[language]["event/$slug/settings/danger-zone/change-url"];
 
   const formData = await request.formData();
   const schema = createChangeURLSchema({ locales: locales.route });

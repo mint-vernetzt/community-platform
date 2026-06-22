@@ -62,9 +62,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const language = await detectLanguage(request);
   const locales =
-    languageModuleMap[language][
-      "next/event/$slug/settings/participants/invites"
-    ];
+    languageModuleMap[language]["event/$slug/settings/participants/invites"];
 
   const url = new URL(request.url);
   const searchParams = url.searchParams;
@@ -129,9 +127,7 @@ export async function action(args: ActionFunctionArgs) {
 
   const language = await detectLanguage(request);
   const locales =
-    languageModuleMap[language][
-      "next/event/$slug/settings/participants/invites"
-    ];
+    languageModuleMap[language]["event/$slug/settings/participants/invites"];
 
   const formData = await request.formData();
   const submission = await parseWithZod(formData, {

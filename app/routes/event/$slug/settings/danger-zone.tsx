@@ -42,7 +42,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const language = await detectLanguage(request);
   const locales =
-    languageModuleMap[language]["next/event/$slug/settings/danger-zone"];
+    languageModuleMap[language]["event/$slug/settings/danger-zone"];
 
   const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });

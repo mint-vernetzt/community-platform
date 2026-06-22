@@ -79,8 +79,7 @@ export async function loader(args: LoaderFunctionArgs) {
   ]);
 
   const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["next/event/$slug/settings/location"];
+  const locales = languageModuleMap[language]["event/$slug/settings/location"];
 
   const event = await prismaClient.event.findFirst({
     where: {
@@ -109,7 +108,7 @@ export async function loader(args: LoaderFunctionArgs) {
     const eventForIssues = await getEventBySlugForIssues(slug);
     issues = getIssues({
       event: eventForIssues,
-      locales: languageModuleMap[language]["next/event/$slug/settings"].route,
+      locales: languageModuleMap[language]["event/$slug/settings"].route,
       section: "location",
     });
   }
@@ -134,8 +133,7 @@ export async function action(args: ActionFunctionArgs) {
   ]);
 
   const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["next/event/$slug/settings/location"];
+  const locales = languageModuleMap[language]["event/$slug/settings/location"];
 
   const redirectPath = await getRedirectPathOnProtectedEventRoute({
     request,

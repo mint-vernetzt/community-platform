@@ -61,7 +61,7 @@ export async function loader(args: LoaderFunctionArgs) {
   ]);
 
   const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["next/event/create"];
+  const locales = languageModuleMap[language]["event/create"];
 
   const url = new URL(request.url);
   const searchParams = url.searchParams;
@@ -86,7 +86,7 @@ export async function action(args: ActionFunctionArgs) {
   ]);
 
   const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["next/event/create"];
+  const locales = languageModuleMap[language]["event/create"];
 
   const formData = await request.formData();
   const timePeriod = formData.get("timePeriod");

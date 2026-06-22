@@ -75,7 +75,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const language = await detectLanguage(request);
   const locales =
-    languageModuleMap[language]["next/event/$slug/settings/admins/add"];
+    languageModuleMap[language]["event/$slug/settings/admins/add"];
 
   const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
@@ -128,7 +128,7 @@ export async function action(args: ActionFunctionArgs) {
 
   const language = await detectLanguage(request);
   const locales =
-    languageModuleMap[language]["next/event/$slug/settings/admins/add"];
+    languageModuleMap[language]["event/$slug/settings/admins/add"];
 
   const formData = await request.formData();
   const intent = formData.get(INTENT_FIELD_NAME);

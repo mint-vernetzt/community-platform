@@ -68,7 +68,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language][
-      "next/event/$slug/settings/participants/waiting-list"
+      "event/$slug/settings/participants/waiting-list"
     ];
 
   const event = await getEventBySlug(params.slug);
@@ -128,7 +128,7 @@ export async function action(args: ActionFunctionArgs) {
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language][
-      "next/event/$slug/settings/participants/waiting-list"
+      "event/$slug/settings/participants/waiting-list"
     ];
 
   const event = await getEventBySlug(slug);

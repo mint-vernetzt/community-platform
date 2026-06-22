@@ -61,7 +61,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language][
-      "next/event/$slug/settings/responsible-orgs/invites"
+      "event/$slug/settings/responsible-orgs/invites"
     ];
 
   const eventId = await getEventIdBySlug(params.slug);
@@ -110,7 +110,7 @@ export async function action(args: ActionFunctionArgs) {
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language][
-      "next/event/$slug/settings/responsible-orgs/invites"
+      "event/$slug/settings/responsible-orgs/invites"
     ];
 
   const formData = await request.formData();

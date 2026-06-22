@@ -40,8 +40,7 @@ export async function loader(args: LoaderFunctionArgs) {
   ]);
 
   const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["next/event/$slug/settings/details"];
+  const locales = languageModuleMap[language]["event/$slug/settings/details"];
 
   return { locales };
 }

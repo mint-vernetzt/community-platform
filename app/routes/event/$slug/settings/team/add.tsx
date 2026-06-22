@@ -75,8 +75,7 @@ export async function loader(args: LoaderFunctionArgs) {
   ]);
 
   const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["next/event/$slug/settings/team/add"];
+  const locales = languageModuleMap[language]["event/$slug/settings/team/add"];
 
   const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "event not found", {
@@ -130,8 +129,7 @@ export async function action(args: ActionFunctionArgs) {
   }
 
   const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["next/event/$slug/settings/team/add"];
+  const locales = languageModuleMap[language]["event/$slug/settings/team/add"];
 
   const formData = await request.formData();
   const intent = formData.get(INTENT_FIELD_NAME);

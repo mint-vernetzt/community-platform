@@ -102,7 +102,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const language = await detectLanguage(request);
   const locales =
-    languageModuleMap[language]["next/event/$slug/settings/details/background"];
+    languageModuleMap[language]["event/$slug/settings/details/background"];
 
   const event = await getEventBySlugWithBackground(slug, authClient);
   invariantResponse(event, "Event not found", { status: 404 });
@@ -112,7 +112,7 @@ export async function loader(args: LoaderFunctionArgs) {
     const eventForIssues = await getEventBySlugForIssues(slug);
     issues = getIssues({
       event: eventForIssues,
-      locales: languageModuleMap[language]["next/event/$slug/settings"].route,
+      locales: languageModuleMap[language]["event/$slug/settings"].route,
       section: "details",
     });
   }
@@ -144,7 +144,7 @@ export async function action(args: ActionFunctionArgs) {
 
   const language = await detectLanguage(request);
   const locales =
-    languageModuleMap[language]["next/event/$slug/settings/details/background"];
+    languageModuleMap[language]["event/$slug/settings/details/background"];
 
   const { formData, error } = await parseMultipartFormData(request);
   if (error !== null || formData === null) {

@@ -60,7 +60,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const language = await detectLanguage(request);
   const locales =
-    languageModuleMap[language]["next/event/$slug/settings/team/invites"];
+    languageModuleMap[language]["event/$slug/settings/team/invites"];
 
   const eventId = await getEventIdBySlug(params.slug);
   invariantResponse(eventId !== null, "Event not found", { status: 404 });
@@ -108,7 +108,7 @@ export async function action(args: ActionFunctionArgs) {
 
   const language = await detectLanguage(request);
   const locales =
-    languageModuleMap[language]["next/event/$slug/settings/team/invites"];
+    languageModuleMap[language]["event/$slug/settings/team/invites"];
 
   const formData = await request.formData();
   const submission = await parseWithZod(formData, {

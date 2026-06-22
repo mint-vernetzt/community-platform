@@ -1,23 +1,9 @@
 export const locale = {
-  error: {
-    notFound: "Event not found",
-    notPrivileged: "Not privileged",
-  },
-  content: {
-    headline: "Speakers",
-    intro:
-      "Who is a speaker at your event? Add more speakers here or remove them.",
-    add: {
-      headline: "Add speakers",
-      intro: "Add a person as a speaker to your event here.",
-      label: "Name or email of the speaker",
-    },
-    current: {
-      headline: "Current speakers",
-      intro: "Here you can see all the speakers of the event at a glance.",
-      remove: "Remove",
-    },
-    publish: "Publish",
-    hide: "Hide",
+  explanation:
+    "Speakers can see unpublished events. They will be displayed on the event page.",
+  tabbar: {
+    list: "Speakers",
+    add: "Add Speakers",
+    invites: "Invites",
   },
 } as const;

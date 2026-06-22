@@ -67,7 +67,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const language = await detectLanguage(request);
   const locales =
-    languageModuleMap[language]["next/event/$slug/settings/documents/list"];
+    languageModuleMap[language]["event/$slug/settings/documents/list"];
 
   const url = new URL(request.url);
   const searchParams = url.searchParams;
@@ -107,7 +107,7 @@ export async function action(args: ActionFunctionArgs) {
 
   const language = await detectLanguage(request);
   const locales =
-    languageModuleMap[language]["next/event/$slug/settings/documents/list"];
+    languageModuleMap[language]["event/$slug/settings/documents/list"];
 
   const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });

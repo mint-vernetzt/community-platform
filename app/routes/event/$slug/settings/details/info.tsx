@@ -83,7 +83,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const language = await detectLanguage(request);
   const locales =
-    languageModuleMap[language]["next/event/$slug/settings/details/info"];
+    languageModuleMap[language]["event/$slug/settings/details/info"];
 
   const event = await getEventBySlug(slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
@@ -100,7 +100,7 @@ export async function loader(args: LoaderFunctionArgs) {
     if (eventForIssues !== null) {
       issues = getIssues({
         event: eventForIssues,
-        locales: languageModuleMap[language]["next/event/$slug/settings"].route,
+        locales: languageModuleMap[language]["event/$slug/settings"].route,
         section: "details",
       });
     }
@@ -140,7 +140,7 @@ export async function action(args: ActionFunctionArgs) {
   }
   const language = await detectLanguage(request);
   const locales =
-    languageModuleMap[language]["next/event/$slug/settings/details/info"];
+    languageModuleMap[language]["event/$slug/settings/details/info"];
 
   const formData = await request.formData();
 
