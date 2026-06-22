@@ -1,54 +1,22 @@
 import { prismaClient } from "~/prisma.server";
-import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
-import { type ArrayElement } from "~/lib/utils/types";
-import { type languageModuleMap } from "~/locales/.server";
-
-export type EventSpeakersSettingsLocales =
-  (typeof languageModuleMap)[ArrayElement<
-    typeof SUPPORTED_COOKIE_LANGUAGES
-  >]["event/$slug/settings/speakers"];
 
 export async function getEventBySlug(slug: string) {
-  return await prismaClient.event.findUnique({
+  const event = await prismaClient.event.findUnique({
+    where: { slug },
     select: {
-      id: true,
-      published: true,
-      speakers: {
+      _count: {
         select: {
-          profile: {
-            select: {
-              id: true,
-              avatarImageMetaData: {
-                select: {
-                  path: true,
-                },
-              },
-              firstName: true,
-              lastName: true,
-              username: true,
-              position: true,
+          speakers: true,
+          profileJoinInvites: {
+            where: {
+              role: "speaker",
+              status: "pending",
             },
-          },
-        },
-        orderBy: {
-          profile: {
-            firstName: "asc",
           },
         },
       },
     },
-    where: {
-      slug,
-    },
   });
-}
 
-export function getSpeakerProfileDataFromEvent(
-  event: NonNullable<Awaited<ReturnType<typeof getEventBySlug>>>
-) {
-  const profileData = event.speakers.map((speaker) => {
-    const { profile } = speaker;
-    return profile;
-  });
-  return profileData;
+  return event;
 }

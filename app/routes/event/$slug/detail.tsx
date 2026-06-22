@@ -49,15 +49,12 @@ import {
   createParticipationSchema,
 } from "./details.shared";
 import { formatDateTime } from "./index.shared";
-
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { captureException } from "@sentry/node";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import { IMAGE_CROPPER_DISCONNECT_INTENT_VALUE } from "~/components/legacy/ImageCropper/ImageCropper";
 import ContactPerson from "~/components/next/ContactPerson";
 import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { type loader as rootLoader } from "~/root";
 import { getFeatureAbilities } from "~/routes/feature-access.server";
@@ -360,10 +357,7 @@ export async function loader(args: LoaderFunctionArgs) {
     isMember,
   };
 
-  const abilities = await getFeatureAbilities(
-    authClient,
-    "next_event_settings"
-  );
+  const abilities = await getFeatureAbilities(authClient, "events");
 
   return {
     event: enhancedEvent,
@@ -647,19 +641,6 @@ function Detail() {
 
   return (
     <BasicStructure>
-      {loaderData.abilities["next_event_settings"].hasAccess ? (
-        <Button
-          as="link"
-          to={
-            loaderData.event.published && loaderData.event.external === false
-              ? `/next/event/${loaderData.event.slug}/settings/participants?${Deep}=false`
-              : `/next/event/${loaderData.event.slug}/settings/time-period?${Deep}=false`
-          }
-          prefetch="intent"
-        >
-          Zu den neuen Event-Einstellungen
-        </Button>
-      ) : null}
       {hasContent(loaderData.event.parentEvent) ? (
         <BreadCrump>
           <BreadCrump.Link
@@ -708,26 +689,13 @@ function Detail() {
           src={loaderData.event.background}
           blurredSrc={loaderData.event.blurredBackground}
         />
-        {loaderData.mode === "admin" && (
-          <>
+        {loaderData.mode === "admin" &&
+          loaderData.abilities["events"].hasAccess && (
             <EventsOverview.EditBackground
               locales={loaderData.locales.route.content}
-              next={loaderData.abilities["next_event_settings"].hasAccess}
-              to={`/next/event/${loaderData.event.slug}/settings/details/background?${Deep}=true`}
+              to={`/event/${loaderData.event.slug}/settings/details/background?${Deep}=true`}
             />
-            <EventsOverview.EditBackgroundModal
-              background={loaderData.event.background}
-              blurredBackground={loaderData.event.blurredBackground}
-              locales={{
-                ...loaderData.locales.route.changeBackground,
-                alt: insertParametersIntoLocale(
-                  loaderData.locales.route.changeBackground.alt,
-                  { eventName: loaderData.event.name }
-                ),
-              }}
-            />
-          </>
-        )}
+          )}
         {loaderData.event.published === false && (
           <EventsOverview.StateFlag>
             {loaderData.locales.route.content.draft}
@@ -870,7 +838,11 @@ function Detail() {
               reasons={loaderData.abuseReportReasons}
             />
             {loaderData.mode === "admin" && (
-              <EventsOverview.Edit slug={loaderData.event.slug}>
+              <EventsOverview.Edit
+                slug={loaderData.event.slug}
+                published={loaderData.event.published}
+                external={loaderData.event.external}
+              >
                 {loaderData.locales.route.content.edit}
               </EventsOverview.Edit>
             )}

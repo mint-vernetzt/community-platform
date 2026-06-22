@@ -1,567 +1,106 @@
-import { getFormProps, getInputProps, useForm } from "@conform-to/react";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { captureException } from "@sentry/node";
-import { useEffect, useState } from "react";
 import {
-  Form,
   Link,
+  Outlet,
   redirect,
-  useActionData,
   useLoaderData,
-  useNavigation,
-  useParams,
-  useSearchParams,
-  type ActionFunctionArgs,
+  useLocation,
   type LoaderFunctionArgs,
 } from "react-router";
-import { useHydrated } from "remix-utils/use-hydrated";
-import { createAuthClient, getSessionUser } from "~/auth.server";
-import { FileInput, type SelectedFile } from "~/components-next/FileInput";
-import { MaterialList } from "~/components-next/MaterialList";
-import { Modal } from "~/components-next/Modal";
-import { RemixFormsForm } from "~/components/legacy/RemixFormsForm/RemixFormsForm";
-import { INTENT_FIELD_NAME } from "~/form-helpers";
+import BasicStructure from "~/components/next/BasicStructure";
+import { Counter } from "~/components/next/Counter";
+import TabBar from "~/components/next/TabBar";
 import { detectLanguage } from "~/i18n.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
-import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { Deep } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
-import { parseMultipartFormData } from "~/storage.server";
-import {
-  BUCKET_FIELD_NAME,
-  BUCKET_NAME_DOCUMENTS,
-  DOCUMENT_MIME_TYPES,
-  FILE_FIELD_NAME,
-  getUploadDocumentSchema,
-  MAX_UPLOAD_FILE_SIZE,
-  UPLOAD_DOCUMENT_INTENT_VALUE,
-} from "~/storage.shared";
-import { redirectWithToast } from "~/toast.server";
-import {
-  disconnectDocument,
-  editDocument,
-  getEventBySlug,
-  uploadFile,
-} from "./documents.server";
-import { publishSchema } from "./events/publish";
-import { getRedirectPathOnProtectedEventRoute } from "./utils.server";
-import {
-  createEditDocumentSchema,
-  disconnectAttachmentSchema,
-  DOCUMENT_DESCRIPTION_MAX_LENGTH,
-} from "./documents.shared";
+import { getEventBySlug } from "./documents.server";
+import { createAuthClient, getSessionUser } from "~/auth.server";
+import { getRedirectPathOnProtectedEventRoute } from "../settings.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  const slug = getParamValueOrThrow(params, "slug");
-  const { authClient } = createAuthClient(request);
 
+  invariantResponse(typeof params.slug === "string", "slug is not defined", {
+    status: 400,
+  });
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const redirectPath = await getRedirectPathOnProtectedEventRoute({
     request,
-    slug,
+    slug: params.slug,
     sessionUser,
     authClient,
   });
   if (redirectPath !== null) {
     return redirect(redirectPath);
   }
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["event/$slug/settings/documents"];
-  const event = await getEventBySlug(slug);
-  invariantResponse(event, locales.route.error.eventNotFound, { status: 404 });
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
+  await checkFeatureAbilitiesOrThrow(authClient, ["events"]);
 
-  return {
-    event: event,
-    locales,
-  };
-}
-
-export async function action(args: ActionFunctionArgs) {
-  const { request, params } = args;
-  const slug = getParamValueOrThrow(params, "slug");
-  const { authClient } = createAuthClient(request);
-  const sessionUser = await getSessionUser(authClient);
-  const redirectPath = await getRedirectPathOnProtectedEventRoute({
-    request,
-    slug,
-    sessionUser,
-    authClient,
-  });
-  if (redirectPath !== null) {
-    return redirect(redirectPath);
-  }
-  // TODO: Above function should assert the session user is not null to avoid below check that has already been done -> The function itself cannot know if we actually redirected afterwards, so the type is imho correct. If the redirect would happen inside the function asserting would be correct (maybe even happens automatically)
-  invariantResponse(sessionUser !== null, "Forbidden", { status: 403 });
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["event/$slug/settings/documents"];
 
-  const { formData, error } = await parseMultipartFormData(request);
-  if (error !== null || formData === null) {
-    console.error({ error });
-    captureException(error);
-    return redirectWithToast(request.url, {
-      id: "upload-failed",
-      key: `${new Date().getTime()}`,
-      message: locales.route.error.onStoring,
-      level: "negative",
-    });
-  }
+  const event = await getEventBySlug(params.slug);
+  invariantResponse(event !== null, "Event not found", { status: 404 });
 
-  const intent = formData.get(INTENT_FIELD_NAME);
-  let submission;
-  let toast;
-  let redirectUrl: string | null = request.url;
-
-  if (intent === UPLOAD_DOCUMENT_INTENT_VALUE) {
-    const result = await uploadFile({
-      formData,
-      authClient,
-      slug,
-      locales,
-    });
-    submission = result.submission;
-    toast = result.toast;
-  } else if (intent === "edit-document") {
-    const result = await editDocument({ request, formData, locales });
-    submission = result.submission;
-    toast = result.toast;
-    redirectUrl = result.redirectUrl || request.url;
-  } else if (intent === "disconnect-document") {
-    const result = await disconnectDocument({ formData, locales });
-    submission = result.submission;
-    toast = result.toast;
-  } else {
-    return redirectWithToast(request.url, {
-      id: "invalid-action",
-      key: `${new Date().getTime()}`,
-      message: locales.route.error.invalidAction,
-      level: "negative",
-    });
-  }
-
-  if (submission !== null) {
-    return { submission: submission.reply(), intent: intent };
-  }
-  if (toast === null) {
-    return redirect(redirectUrl);
-  }
-  return redirectWithToast(redirectUrl, toast);
+  return { locales, event };
 }
 
-function Documents() {
+export default function Documents() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
-  const { slug } = useParams();
-  const actionData = useActionData<typeof action>();
-  const navigation = useNavigation();
-  const isHydrated = useHydrated();
-  const [searchParams] = useSearchParams();
+  const { locales, event } = loaderData;
 
-  // Document upload form
-  const [selectedDocumentFileNames, setSelectedDocumentFileNames] = useState<
-    SelectedFile[]
-  >([]);
-  const [documentUploadForm, documentUploadFields] = useForm({
-    id: "upload-document-form",
-    constraint: getZodConstraint(
-      getUploadDocumentSchema({
-        maxSize: locales.upload.validation.document.size,
-        invalidType: locales.upload.validation.document.type,
-      })
-    ),
-    defaultValue: {
-      [FILE_FIELD_NAME]: null,
-      [BUCKET_FIELD_NAME]: BUCKET_NAME_DOCUMENTS,
-      [INTENT_FIELD_NAME]: UPLOAD_DOCUMENT_INTENT_VALUE,
-    },
-    shouldValidate: "onInput",
-    shouldRevalidate: "onInput",
-    lastResult:
-      navigation.state === "idle" &&
-      actionData?.intent === UPLOAD_DOCUMENT_INTENT_VALUE
-        ? actionData.submission
-        : null,
-    onValidate: (args) => {
-      const { formData } = args;
-      const submission = parseWithZod(formData, {
-        schema: getUploadDocumentSchema({
-          maxSize: locales.upload.validation.document.size,
-          invalidType: locales.upload.validation.document.type,
-        }),
-      });
-      return submission;
-    },
-  });
-  useEffect(() => {
-    setSelectedDocumentFileNames([]);
-  }, [loaderData]);
-
-  // Edit document form
-  const [editDocumentForm, editDocumentFields] = useForm({
-    id: "edit-document-form",
-    constraint: getZodConstraint(createEditDocumentSchema(locales)),
-    shouldValidate: "onInput",
-    shouldRevalidate: "onInput",
-    lastResult:
-      navigation.state === "idle" && actionData?.intent === "edit-document"
-        ? actionData.submission
-        : null,
-    onValidate: (args) => {
-      const { formData } = args;
-      const submission = parseWithZod(formData, {
-        schema: createEditDocumentSchema(locales),
-      });
-      return submission;
-    },
-  });
-
-  // Disconnect document form
-  // eslint ignore is intended
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [disconnectDocumentForm, disconnectDocumentFields] = useForm({
-    id: "disconnect-document-form",
-    constraint: getZodConstraint(disconnectAttachmentSchema),
-    shouldValidate: "onInput",
-    shouldRevalidate: "onInput",
-    lastResult:
-      navigation.state === "idle" &&
-      actionData?.intent === "disconnect-document"
-        ? actionData.submission
-        : null,
-    onValidate: (args) => {
-      const { formData } = args;
-      const submission = parseWithZod(formData, {
-        schema: disconnectAttachmentSchema,
-      });
-      return submission;
-    },
-  });
+  const location = useLocation();
+  const { pathname } = location;
 
   return (
-    <>
-      <h1 className="mb-8">{locales.route.content.headline}</h1>
-      <p className="my-6 @md:mt-0">{locales.route.content.description}</p>
-      <div className="flex flex-col gap-6 @md:gap-4">
-        <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
-          <h2 className="text-primary text-lg font-semibold mb-0">
-            {locales.route.content.document.upload}
-          </h2>
-          <p>
-            {insertParametersIntoLocale(locales.route.content.document.type, {
-              max: MAX_UPLOAD_FILE_SIZE / 1000 / 1000,
-            })}
-          </p>
-          <Form
-            {...getFormProps(documentUploadForm)}
-            method="post"
-            encType="multipart/form-data"
-            preventScrollReset
-          >
-            <FileInput
-              selectedFileNames={selectedDocumentFileNames}
-              errors={
-                typeof documentUploadFields[FILE_FIELD_NAME].errors ===
-                "undefined"
-                  ? undefined
-                  : documentUploadFields[FILE_FIELD_NAME].errors.map(
-                      (error) => {
-                        return {
-                          id: documentUploadFields[FILE_FIELD_NAME].errorId,
-                          message: error,
-                        };
-                      }
-                    )
-              }
-              locales={locales}
-              fileInputProps={{
-                ...getInputProps(documentUploadFields[FILE_FIELD_NAME], {
-                  type: "file",
-                }),
-                id: `document-${FILE_FIELD_NAME}`,
-                key: `document-${FILE_FIELD_NAME}`,
-                className: "hidden",
-                accept: DOCUMENT_MIME_TYPES.join(", "),
-                onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
-                  setSelectedDocumentFileNames(
-                    event.target.files !== null
-                      ? Array.from(event.target.files).map((file) => {
-                          return {
-                            name: file.name,
-                            sizeInMB:
-                              Math.round((file.size / 1000 / 1000) * 100) / 100,
-                          };
-                        })
-                      : []
-                  );
-                  documentUploadForm.validate();
-                },
-              }}
-              bucketInputProps={{
-                ...getInputProps(documentUploadFields[BUCKET_FIELD_NAME], {
-                  type: "hidden",
-                }),
-                key: BUCKET_FIELD_NAME,
-              }}
-              noscriptInputProps={{
-                ...getInputProps(documentUploadFields[FILE_FIELD_NAME], {
-                  type: "file",
-                }),
-                id: `noscript-document-${FILE_FIELD_NAME}`,
-                key: `noscript-document-${FILE_FIELD_NAME}`,
-                className: "mb-2",
-                accept: DOCUMENT_MIME_TYPES.join(", "),
-              }}
-            >
-              <FileInput.Text>{locales.upload.selection.select}</FileInput.Text>
-              <FileInput.Controls>
-                <input
-                  {...getInputProps(documentUploadFields[INTENT_FIELD_NAME], {
-                    type: "hidden",
-                  })}
-                  key={`document-${UPLOAD_DOCUMENT_INTENT_VALUE}`}
-                />
-                <Button
-                  type="submit"
-                  fullSize
-                  // Don't disable button when js is disabled
-                  disabled={
-                    isHydrated
-                      ? selectedDocumentFileNames.length === 0 ||
-                        documentUploadForm.dirty === false ||
-                        documentUploadForm.valid === false
-                      : false
-                  }
-                >
-                  {locales.route.content.document.action}
-                </Button>
-              </FileInput.Controls>
-            </FileInput>
-          </Form>
-        </div>
-        <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
-          <>
-            <h2 className="text-primary text-lg font-semibold mb-0">
-              {locales.route.content.document.current}
-            </h2>
-            {loaderData.event.documents.length > 0 ? (
-              <>
-                <MaterialList>
-                  {loaderData.event.documents.map((relation) => {
-                    const editSearchParams = new URLSearchParams(searchParams);
-                    editSearchParams.set(
-                      `modal-edit-${relation.document.id}`,
-                      "true"
-                    );
-                    return (
-                      <div key={`document-${relation.document.id}`}>
-                        <Modal
-                          searchParam={`modal-edit-${relation.document.id}`}
-                        >
-                          <Modal.Title>
-                            {locales.route.content.editModal.editDocument}
-                          </Modal.Title>
-                          <Modal.Section>
-                            <Form
-                              {...getFormProps(editDocumentForm)}
-                              method="post"
-                              preventScrollReset
-                              autoComplete="off"
-                            >
-                              <div className="flex flex-col gap-6">
-                                <Input
-                                  {...getInputProps(editDocumentFields.title, {
-                                    type: "text",
-                                  })}
-                                  key={`edit-document-title-${relation.document.id}`}
-                                  defaultValue={
-                                    relation.document.title || undefined
-                                  }
-                                >
-                                  <Input.Label>
-                                    {locales.route.content.editModal.title}
-                                  </Input.Label>
-                                  {typeof editDocumentFields.title.errors !==
-                                    "undefined" && (
-                                    <Input.Error>
-                                      {editDocumentFields.title.errors}
-                                    </Input.Error>
-                                  )}
-                                </Input>
-                                <Input
-                                  {...getInputProps(
-                                    editDocumentFields.description,
-                                    {
-                                      type: "text",
-                                    }
-                                  )}
-                                  key={`edit-document-description-${relation.document.id}`}
-                                  defaultValue={
-                                    relation.document.description || undefined
-                                  }
-                                  maxLength={DOCUMENT_DESCRIPTION_MAX_LENGTH}
-                                >
-                                  <Input.Label>
-                                    {
-                                      locales.route.content.editModal
-                                        .description.label
-                                    }
-                                  </Input.Label>
-                                  {typeof editDocumentFields.description
-                                    .errors !== "undefined" && (
-                                    <Input.Error>
-                                      {editDocumentFields.description.errors}
-                                    </Input.Error>
-                                  )}
-                                </Input>
-                                <input
-                                  {...getInputProps(editDocumentFields.id, {
-                                    type: "hidden",
-                                  })}
-                                  key={`edit-document-id-${relation.document.id}`}
-                                  defaultValue={relation.document.id}
-                                />
-                              </div>
-                            </Form>
-                          </Modal.Section>
-                          <Modal.SubmitButton
-                            type="submit"
-                            name={INTENT_FIELD_NAME}
-                            value="edit-document"
-                            form={editDocumentForm.id}
-                          >
-                            {locales.route.content.editModal.submit}
-                          </Modal.SubmitButton>
-                          <Modal.CloseButton>
-                            {locales.route.content.editModal.reset}
-                          </Modal.CloseButton>
-                        </Modal>
-                        <MaterialList.Item
-                          id={`material-list-item-${relation.document.id}`}
-                        >
-                          {relation.document.mimeType === "application/pdf" && (
-                            <MaterialList.Item.PDFIcon />
-                          )}
-                          <MaterialList.Item.Title>
-                            {relation.document.title !== null
-                              ? relation.document.title
-                              : relation.document.filename}
-                          </MaterialList.Item.Title>
-                          <MaterialList.Item.Meta>
-                            ({relation.document.extension},{" "}
-                            {relation.document.sizeInMB} MB)
-                          </MaterialList.Item.Meta>
-                          {relation.document.description !== null && (
-                            <MaterialList.Item.Paragraph>
-                              {relation.document.description}
-                            </MaterialList.Item.Paragraph>
-                          )}
-                          <div className="shrink-0 p-4 flex gap-2 @lg:gap-4 ml-auto">
-                            <Form
-                              id={`disconnect-document-form-${relation.document.id}`}
-                              method="post"
-                              preventScrollReset
-                              autoComplete="off"
-                              hidden
-                            >
-                              <input
-                                id={`disconnect-document-form-${relation.document.id}-id`}
-                                type="hidden"
-                                name="id"
-                                key={`disconnect-document-id-${relation.document.id}`}
-                                defaultValue={relation.document.id}
-                                aria-invalid={
-                                  typeof disconnectDocumentFields.id.errors !==
-                                  "undefined"
-                                }
-                                aria-describedby={`disconnect-document-form-${relation.document.id}-id-error`}
-                              />
-                            </Form>
-                            <MaterialList.Item.Controls.Delete
-                              type="submit"
-                              name={INTENT_FIELD_NAME}
-                              value="disconnect-document"
-                              form={`disconnect-document-form-${relation.document.id}`}
-                            />
-                            <Link
-                              to={`?${editSearchParams.toString()}`}
-                              preventScrollReset
-                              prefetch="intent"
-                            >
-                              <MaterialList.Item.Controls.Edit />
-                            </Link>
-                            <Link
-                              to={`/event/${loaderData.event.slug}/documents-download?document_id=${relation.document.id}`}
-                              reloadDocument
-                            >
-                              <MaterialList.Item.Controls.Download />
-                            </Link>
-                          </div>
-                        </MaterialList.Item>
-                        {typeof disconnectDocumentFields.id.errors !==
-                          "undefined" && (
-                          <Input.Error
-                            id={`disconnect-document-form-${relation.document.id}-id-error`}
-                          >
-                            {editDocumentFields.id.errors}
-                          </Input.Error>
-                        )}
-                      </div>
-                    );
-                  })}
-                </MaterialList>
-                <div className="w-full @md:max-w-fit">
-                  <Button
-                    as="link"
-                    to={`/event/${loaderData.event.slug}/documents-download`}
-                    reloadDocument
-                    variant="outline"
-                    fullSize
-                  >
-                    {locales.route.content.document.downloadAll}
-                  </Button>
-                </div>
-              </>
+    <div className="w-full flex flex-col p-4 gap-8 lg:p-6 lg:gap-6">
+      <BasicStructure.Container
+        deflatedUntil="lg"
+        gaps={{ base: "gap-4", md: "gap-4", xl: "gap-4" }}
+        rounded="rounded-lg"
+      >
+        <TabBar>
+          <TabBar.Item active={pathname.endsWith("/list")}>
+            {event._count.documents > 0 ? (
+              <Link
+                to={`./list?${Deep}=true`}
+                {...TabBar.getItemElementClasses(pathname.endsWith("/list"))}
+                preventScrollReset
+                prefetch="intent"
+              >
+                <TabBar.Item.Title>
+                  {locales.route.tabbar.list}
+                </TabBar.Item.Title>
+                <TabBar.Item.Counter>
+                  {loaderData.event._count.documents}
+                </TabBar.Item.Counter>
+              </Link>
             ) : (
-              <p>{locales.route.content.document.empty}</p>
+              <>
+                <h2 className="text-lg font-semibold text-neutral-300 mb-3 p-2 flex gap-2 items-center cursor-not-allowed">
+                  {locales.route.tabbar.list}
+                  <Counter active={false}>
+                    {loaderData.event._count.documents}
+                  </Counter>
+                </h2>
+              </>
             )}
-          </>
-        </div>
-      </div>
-      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
-        <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl">
-          <div className="flex flex-row flex-nowrap items-center justify-end my-4">
-            <RemixFormsForm
-              schema={publishSchema}
-              method="post"
-              action={`/event/${slug}/settings/events/publish`}
+          </TabBar.Item>
+          <TabBar.Item active={pathname.endsWith("/add")}>
+            <Link
+              to={`./add?${Deep}=true`}
+              {...TabBar.getItemElementClasses(pathname.endsWith("/add"))}
+              preventScrollReset
+              prefetch="intent"
             >
-              {(remixFormsProps) => {
-                const { Button, Field } = remixFormsProps;
-                return (
-                  <>
-                    <div className="hidden">
-                      <Field
-                        name="publish"
-                        value={!loaderData.event.published}
-                      />
-                    </div>
-                    <Button className="border border-primary bg-white text-primary h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer selct-none flex-wrap items-center justify-center rounded-lg text-center font-semibold gap-2 hover:bg-primary hover:text-white">
-                      {loaderData.event.published
-                        ? locales.route.content.form.hide.label
-                        : locales.route.content.form.publish.label}
-                    </Button>
-                  </>
-                );
-              }}
-            </RemixFormsForm>
-          </div>
-        </div>
-      </footer>
-    </>
+              <TabBar.Item.Title>{locales.route.tabbar.add}</TabBar.Item.Title>
+            </Link>
+          </TabBar.Item>
+        </TabBar>
+        <Outlet />
+      </BasicStructure.Container>
+    </div>
   );
 }
-
-export default Documents;

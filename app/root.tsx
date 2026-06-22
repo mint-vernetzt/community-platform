@@ -634,8 +634,8 @@ export default function App() {
     ];
     isSettings = otherSettingsRoutes.includes(matches[1].id);
     isMap = matches[1].id === "routes/map";
-    isEventCreate = matches[1].id === "routes/next/event/create";
-    isEventSettings = matches[1].id === "routes/next/event/$slug/settings";
+    isEventCreate = matches[1].id === "routes/event/create";
+    isEventSettings = matches[1].id === "routes/event/$slug/settings";
   }
 
   const [searchParams] = useSearchParams();

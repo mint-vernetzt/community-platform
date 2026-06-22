@@ -37,81 +37,50 @@ import { locale as deEventDetail } from "./de/routes/event/$slug/detail";
 import { locale as deAboutEvent } from "./de/routes/event/$slug/detail/about";
 import { locale as deEventParticipants } from "./de/routes/event/$slug/detail/participants";
 import { locale as deChildEvents } from "./de/routes/event/$slug/detail/child-events";
-import { locale as deAddEventAdmin } from "./de/routes/event/$slug/settings/admins/add-admin";
-import { locale as deRemoveEventAdmin } from "./de/routes/event/$slug/settings/admins/remove-admin";
-import { locale as deAddChildEvent } from "./de/routes/event/$slug/settings/events/add-child";
-import { locale as deCancelEvent } from "./de/routes/event/$slug/settings/events/cancel";
-import { locale as dePublishEvent } from "./de/routes/event/$slug/settings/events/publish";
-import { locale as deRemoveChildEvent } from "./de/routes/event/$slug/settings/events/remove-child";
-import { locale as deSetParentEvent } from "./de/routes/event/$slug/settings/events/set-parent";
-import { locale as deAddOrganizationToEvent } from "./de/routes/event/$slug/settings/organizations/add-organization";
-import { locale as deRemoveOrganizationFromEvent } from "./de/routes/event/$slug/settings/organizations/remove-organization";
-import { locale as deAddParticipantToEvent } from "./de/routes/event/$slug/settings/participants/add-participant";
-import { locale as deRemoveParticipantFromEvent } from "./de/routes/event/$slug/settings/participants/remove-participant";
-import { locale as deAddSpeakerToEvent } from "./de/routes/event/$slug/settings/speakers/add-speaker";
-import { locale as deRemoveSpeakerFromEvent } from "./de/routes/event/$slug/settings/speakers/remove-speaker";
-import { locale as deAddTeamMemberToEvent } from "./de/routes/event/$slug/settings/team/add-member";
-import { locale as deRemoveTeamMemberFromEvent } from "./de/routes/event/$slug/settings/team/remove-member";
-import { locale as deAddProfileToEventWaitingList } from "./de/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
-import { locale as deMoveProfileFromEventWaitingListToParticipants } from "./de/routes/event/$slug/settings/waiting-list/move-to-participants";
-import { locale as deRemoveProfileFromEventWaitingList } from "./de/routes/event/$slug/settings/waiting-list/remove-from-waiting-list";
-import { locale as deEventAdmins } from "./de/routes/event/$slug/settings/admins";
-import { locale as deEventCsvDownload } from "./de/routes/event/$slug/settings/csv-download";
-import { locale as deDeleteEvent } from "./de/routes/event/$slug/settings/delete";
-import { locale as deEventDocuments } from "./de/routes/event/$slug/settings/documents";
-import { locale as deConnectEventsWithEvent } from "./de/routes/event/$slug/settings/events";
-import { locale as deGeneralEventSettings } from "./de/routes/event/$slug/settings/general";
-import { locale as deResponsibleOrganizationsOfEvent } from "./de/routes/event/$slug/settings/organizations";
-import { locale as deEventSettingsParticipants } from "./de/routes/event/$slug/settings/participants";
-import { locale as deAddSpeakersToEvent } from "./de/routes/event/$slug/settings/speakers";
-import { locale as deEventTeam } from "./de/routes/event/$slug/settings/team";
-import { locale as deEventWaitingList } from "./de/routes/event/$slug/settings/waiting-list";
 import { locale as deDownloadEventDocuments } from "./de/routes/event/$slug/documents-download";
-import { locale as deEventSettings } from "./de/routes/event/$slug/settings";
-import { locale as deCreateEvent } from "./de/routes/event/create";
 // next event routes
-import { locale as deNextCreateEvent } from "./de/routes/next/event/create";
-import { locale as deNextEventSettings } from "./de/routes/next/event/$slug/settings";
-import { locale as deNextEventSettingsAdmins } from "./de/routes/next/event/$slug/settings/admins";
-import { locale as deNextEventSettingsAdminsList } from "./de/routes/next/event/$slug/settings/admins/list";
-import { locale as deNextEventSettingsAdminsAdd } from "./de/routes/next/event/$slug/settings/admins/add";
-import { locale as deNextEventSettingsAdminsInvites } from "./de/routes/next/event/$slug/settings/admins/invites";
-import { locale as deNextEventSettingsDangerZone } from "./de/routes/next/event/$slug/settings/danger-zone";
-import { locale as deNextEventSettingsChangeURL } from "./de/routes/next/event/$slug/settings/danger-zone/change-url";
-import { locale as deNextEventSettingsCancel } from "./de/routes/next/event/$slug/settings/danger-zone/cancel";
-import { locale as deNextEventSettingsDelete } from "./de/routes/next/event/$slug/settings/danger-zone/delete";
-import { locale as deNextEventSettingsDetails } from "./de/routes/next/event/$slug/settings/details";
-import { locale as deNextEventSettingsDetailsInfo } from "./de/routes/next/event/$slug/settings/details/info";
-import { locale as deNextEventSettingsDetailsBackground } from "./de/routes/next/event/$slug/settings/details/background";
-import { locale as deNextEventSettingsDocuments } from "./de/routes/next/event/$slug/settings/documents";
-import { locale as deNextEventSettingsDocumentsList } from "./de/routes/next/event/$slug/settings/documents/list";
-import { locale as deNextEventSettingsDocumentsAdd } from "./de/routes/next/event/$slug/settings/documents/add";
-import { locale as deNextEventSettingsLocation } from "./de/routes/next/event/$slug/settings/location";
-import { locale as deNextEventSettingsParticipants } from "./de/routes/next/event/$slug/settings/participants";
-import { locale as deNextEventSettingsParticipantsList } from "./de/routes/next/event/$slug/settings/participants/list";
-import { locale as deNextEventSettingsParticipantsWaitingList } from "./de/routes/next/event/$slug/settings/participants/waiting-list";
-import { locale as deNextEventSettingsParticipantsAdd } from "./de/routes/next/event/$slug/settings/participants/add";
-import { locale as deNextEventSettingsParticipantsInvites } from "./de/routes/next/event/$slug/settings/participants/invites";
-import { locale as deNextEventSettingsRegistration } from "./de/routes/next/event/$slug/settings/registration";
-import { locale as deNextEventSettingsRegistrationAccess } from "./de/routes/next/event/$slug/settings/registration/access";
-import { locale as deNextEventSettingsRegistrationPeriod } from "./de/routes/next/event/$slug/settings/registration/period";
-import { locale as deNextEventSettingsRegistrationLimit } from "./de/routes/next/event/$slug/settings/registration/limit";
-import { locale as deNextEventSettingsRelatedEvents } from "./de/routes/next/event/$slug/settings/related-events";
-import { locale as deNextEventSettingsRelatedEventsParentEvent } from "./de/routes/next/event/$slug/settings/related-events/parent-event";
-import { locale as deNextEventSettingsRelatedEventsChildEvents } from "./de/routes/next/event/$slug/settings/related-events/child-events";
-import { locale as deNextEventSettingsResponsibleOrgs } from "./de/routes/next/event/$slug/settings/responsible-orgs";
-import { locale as deNextEventSettingsResponsibleOrgsList } from "./de/routes/next/event/$slug/settings/responsible-orgs/list";
-import { locale as deNextEventSettingsResponsibleOrgsAdd } from "./de/routes/next/event/$slug/settings/responsible-orgs/add";
-import { locale as deNextEventSettingsResponsibleOrgsInvites } from "./de/routes/next/event/$slug/settings/responsible-orgs/invites";
-import { locale as deNextEventSettingsSpeakers } from "./de/routes/next/event/$slug/settings/speakers";
-import { locale as deNextEventSettingsSpeakersList } from "./de/routes/next/event/$slug/settings/speakers/list";
-import { locale as deNextEventSettingsSpeakersAdd } from "./de/routes/next/event/$slug/settings/speakers/add";
-import { locale as deNextEventSettingsSpeakersInvites } from "./de/routes/next/event/$slug/settings/speakers/invites";
-import { locale as deNextEventSettingsTeam } from "./de/routes/next/event/$slug/settings/team";
-import { locale as deNextEventSettingsTeamList } from "./de/routes/next/event/$slug/settings/team/list";
-import { locale as deNextEventSettingsTeamAdd } from "./de/routes/next/event/$slug/settings/team/add";
-import { locale as deNextEventSettingsTeamInvites } from "./de/routes/next/event/$slug/settings/team/invites";
-import { locale as deNextEventSettingsTimePeriod } from "./de/routes/next/event/$slug/settings/time-period";
+import { locale as deCreateEvent } from "./de/routes/event/create";
+import { locale as deEventSettings } from "./de/routes/event/$slug/settings";
+import { locale as deEventSettingsAdmins } from "./de/routes/event/$slug/settings/admins";
+import { locale as deEventSettingsAdminsList } from "./de/routes/event/$slug/settings/admins/list";
+import { locale as deEventSettingsAdminsAdd } from "./de/routes/event/$slug/settings/admins/add";
+import { locale as deEventSettingsAdminsInvites } from "./de/routes/event/$slug/settings/admins/invites";
+import { locale as deEventSettingsDangerZone } from "./de/routes/event/$slug/settings/danger-zone";
+import { locale as deEventSettingsChangeURL } from "./de/routes/event/$slug/settings/danger-zone/change-url";
+import { locale as deEventSettingsCancel } from "./de/routes/event/$slug/settings/danger-zone/cancel";
+import { locale as deEventSettingsDelete } from "./de/routes/event/$slug/settings/danger-zone/delete";
+import { locale as deEventSettingsDetails } from "./de/routes/event/$slug/settings/details";
+import { locale as deEventSettingsDetailsInfo } from "./de/routes/event/$slug/settings/details/info";
+import { locale as deEventSettingsDetailsBackground } from "./de/routes/event/$slug/settings/details/background";
+import { locale as deEventSettingsDocuments } from "./de/routes/event/$slug/settings/documents";
+import { locale as deEventSettingsDocumentsList } from "./de/routes/event/$slug/settings/documents/list";
+import { locale as deEventSettingsDocumentsAdd } from "./de/routes/event/$slug/settings/documents/add";
+import { locale as deEventSettingsLocation } from "./de/routes/event/$slug/settings/location";
+import { locale as deEventSettingsParticipants } from "./de/routes/event/$slug/settings/participants";
+import { locale as deEventSettingsParticipantsList } from "./de/routes/event/$slug/settings/participants/list";
+import { locale as deEventSettingsParticipantsWaitingList } from "./de/routes/event/$slug/settings/participants/waiting-list";
+import { locale as deEventSettingsParticipantsAdd } from "./de/routes/event/$slug/settings/participants/add";
+import { locale as deEventSettingsParticipantsInvites } from "./de/routes/event/$slug/settings/participants/invites";
+import { locale as deEventSettingsRegistration } from "./de/routes/event/$slug/settings/registration";
+import { locale as deEventSettingsRegistrationAccess } from "./de/routes/event/$slug/settings/registration/access";
+import { locale as deEventSettingsRegistrationPeriod } from "./de/routes/event/$slug/settings/registration/period";
+import { locale as deEventSettingsRegistrationLimit } from "./de/routes/event/$slug/settings/registration/limit";
+import { locale as deEventSettingsRelatedEvents } from "./de/routes/event/$slug/settings/related-events";
+import { locale as deEventSettingsRelatedEventsParentEvent } from "./de/routes/event/$slug/settings/related-events/parent-event";
+import { locale as deEventSettingsRelatedEventsChildEvents } from "./de/routes/event/$slug/settings/related-events/child-events";
+import { locale as deEventSettingsResponsibleOrgs } from "./de/routes/event/$slug/settings/responsible-orgs";
+import { locale as deEventSettingsResponsibleOrgsList } from "./de/routes/event/$slug/settings/responsible-orgs/list";
+import { locale as deEventSettingsResponsibleOrgsAdd } from "./de/routes/event/$slug/settings/responsible-orgs/add";
+import { locale as deEventSettingsResponsibleOrgsInvites } from "./de/routes/event/$slug/settings/responsible-orgs/invites";
+import { locale as deEventSettingsSpeakers } from "./de/routes/event/$slug/settings/speakers";
+import { locale as deEventSettingsSpeakersList } from "./de/routes/event/$slug/settings/speakers/list";
+import { locale as deEventSettingsSpeakersAdd } from "./de/routes/event/$slug/settings/speakers/add";
+import { locale as deEventSettingsSpeakersInvites } from "./de/routes/event/$slug/settings/speakers/invites";
+import { locale as deEventSettingsTeam } from "./de/routes/event/$slug/settings/team";
+import { locale as deEventSettingsTeamList } from "./de/routes/event/$slug/settings/team/list";
+import { locale as deEventSettingsTeamAdd } from "./de/routes/event/$slug/settings/team/add";
+import { locale as deEventSettingsTeamInvites } from "./de/routes/event/$slug/settings/team/invites";
+import { locale as deEventSettingsTimePeriod } from "./de/routes/event/$slug/settings/time-period";
 // explore routes
 import { locale as deExplore } from "./de/routes/explore";
 import { locale as deExploreIndex } from "./de/routes/explore/index";
@@ -251,81 +220,50 @@ import { locale as enEventDetail } from "./en/routes/event/$slug/detail";
 import { locale as enAboutEvent } from "./en/routes/event/$slug/detail/about";
 import { locale as enEventParticipants } from "./en/routes/event/$slug/detail/participants";
 import { locale as enChildEvents } from "./en/routes/event/$slug/detail/child-events";
-import { locale as enAddEventAdmin } from "./en/routes/event/$slug/settings/admins/add-admin";
-import { locale as enRemoveEventAdmin } from "./en/routes/event/$slug/settings/admins/remove-admin";
-import { locale as enAddChildEvent } from "./en/routes/event/$slug/settings/events/add-child";
-import { locale as enCancelEvent } from "./en/routes/event/$slug/settings/events/cancel";
-import { locale as enPublishEvent } from "./en/routes/event/$slug/settings/events/publish";
-import { locale as enRemoveChildEvent } from "./en/routes/event/$slug/settings/events/remove-child";
-import { locale as enSetParentEvent } from "./en/routes/event/$slug/settings/events/set-parent";
-import { locale as enAddOrganizationToEvent } from "./en/routes/event/$slug/settings/organizations/add-organization";
-import { locale as enRemoveOrganizationFromEvent } from "./en/routes/event/$slug/settings/organizations/remove-organization";
-import { locale as enAddParticipantToEvent } from "./en/routes/event/$slug/settings/participants/add-participant";
-import { locale as enRemoveParticipantFromEvent } from "./en/routes/event/$slug/settings/participants/remove-participant";
-import { locale as enAddSpeakerToEvent } from "./en/routes/event/$slug/settings/speakers/add-speaker";
-import { locale as enRemoveSpeakerFromEvent } from "./en/routes/event/$slug/settings/speakers/remove-speaker";
-import { locale as enAddTeamMemberToEvent } from "./en/routes/event/$slug/settings/team/add-member";
-import { locale as enRemoveTeamMemberFromEvent } from "./en/routes/event/$slug/settings/team/remove-member";
-import { locale as enAddProfileToEventWaitingList } from "./en/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
-import { locale as enMoveProfileFromEventWaitingListToParticipants } from "./en/routes/event/$slug/settings/waiting-list/move-to-participants";
-import { locale as enRemoveProfileFromEventWaitingList } from "./en/routes/event/$slug/settings/waiting-list/remove-from-waiting-list";
-import { locale as enEventAdmins } from "./en/routes/event/$slug/settings/admins";
-import { locale as enEventCsvDownload } from "./en/routes/event/$slug/settings/csv-download";
-import { locale as enDeleteEvent } from "./en/routes/event/$slug/settings/delete";
-import { locale as enEventDocuments } from "./en/routes/event/$slug/settings/documents";
-import { locale as enConnectEventsWithEvent } from "./en/routes/event/$slug/settings/events";
-import { locale as enGeneralEventSettings } from "./en/routes/event/$slug/settings/general";
-import { locale as enResponsibleOrganizationsOfEvent } from "./en/routes/event/$slug/settings/organizations";
-import { locale as enEventSettingsParticipants } from "./en/routes/event/$slug/settings/participants";
-import { locale as enAddSpeakersToEvent } from "./en/routes/event/$slug/settings/speakers";
-import { locale as enEventTeam } from "./en/routes/event/$slug/settings/team";
-import { locale as enEventWaitingList } from "./en/routes/event/$slug/settings/waiting-list";
 import { locale as enDownloadEventDocuments } from "./en/routes/event/$slug/documents-download";
-import { locale as enEventSettings } from "./en/routes/event/$slug/settings";
-import { locale as enCreateEvent } from "./en/routes/event/create";
 // next event routes
-import { locale as enNextCreateEvent } from "./en/routes/next/event/create";
-import { locale as enNextEventSettings } from "./en/routes/next/event/$slug/settings";
-import { locale as enNextEventSettingsAdmins } from "./en/routes/next/event/$slug/settings/admins";
-import { locale as enNextEventSettingsAdminsList } from "./en/routes/next/event/$slug/settings/admins/list";
-import { locale as enNextEventSettingsAdminsAdd } from "./en/routes/next/event/$slug/settings/admins/add";
-import { locale as enNextEventSettingsAdminsInvites } from "./en/routes/next/event/$slug/settings/admins/invites";
-import { locale as enNextEventSettingsDangerZone } from "./en/routes/next/event/$slug/settings/danger-zone";
-import { locale as enNextEventSettingsChangeURL } from "./en/routes/next/event/$slug/settings/danger-zone/change-url";
-import { locale as enNextEventSettingsCancel } from "./en/routes/next/event/$slug/settings/danger-zone/cancel";
-import { locale as enNextEventSettingsDelete } from "./en/routes/next/event/$slug/settings/danger-zone/delete";
-import { locale as enNextEventSettingsDetails } from "./en/routes/next/event/$slug/settings/details";
-import { locale as enNextEventSettingsDetailsInfo } from "./en/routes/next/event/$slug/settings/details/info";
-import { locale as enNextEventSettingsDetailsBackground } from "./en/routes/next/event/$slug/settings/details/background";
-import { locale as enNextEventSettingsDocuments } from "./en/routes/next/event/$slug/settings/documents";
-import { locale as enNextEventSettingsDocumentsList } from "./en/routes/next/event/$slug/settings/documents/list";
-import { locale as enNextEventSettingsDocumentsAdd } from "./en/routes/next/event/$slug/settings/documents/add";
-import { locale as enNextEventSettingsLocation } from "./en/routes/next/event/$slug/settings/location";
-import { locale as enNextEventSettingsParticipants } from "./en/routes/next/event/$slug/settings/participants";
-import { locale as enNextEventSettingsParticipantsList } from "./en/routes/next/event/$slug/settings/participants/list";
-import { locale as enNextEventSettingsParticipantsWaitingList } from "./en/routes/next/event/$slug/settings/participants/waiting-list";
-import { locale as enNextEventSettingsParticipantsAdd } from "./en/routes/next/event/$slug/settings/participants/add";
-import { locale as enNextEventSettingsParticipantsInvites } from "./en/routes/next/event/$slug/settings/participants/invites";
-import { locale as enNextEventSettingsRegistration } from "./en/routes/next/event/$slug/settings/registration";
-import { locale as enNextEventSettingsRegistrationAccess } from "./en/routes/next/event/$slug/settings/registration/access";
-import { locale as enNextEventSettingsRegistrationPeriod } from "./en/routes/next/event/$slug/settings/registration/period";
-import { locale as enNextEventSettingsRegistrationLimit } from "./en/routes/next/event/$slug/settings/registration/limit";
-import { locale as enNextEventSettingsRelatedEvents } from "./en/routes/next/event/$slug/settings/related-events";
-import { locale as enNextEventSettingsRelatedEventsParentEvent } from "./en/routes/next/event/$slug/settings/related-events/parent-event";
-import { locale as enNextEventSettingsRelatedEventsChildEvents } from "./en/routes/next/event/$slug/settings/related-events/child-events";
-import { locale as enNextEventSettingsResponsibleOrgs } from "./en/routes/next/event/$slug/settings/responsible-orgs";
-import { locale as enNextEventSettingsResponsibleOrgsList } from "./en/routes/next/event/$slug/settings/responsible-orgs/list";
-import { locale as enNextEventSettingsResponsibleOrgsAdd } from "./en/routes/next/event/$slug/settings/responsible-orgs/add";
-import { locale as enNextEventSettingsResponsibleOrgsInvites } from "./en/routes/next/event/$slug/settings/responsible-orgs/invites";
-import { locale as enNextEventSettingsSpeakers } from "./en/routes/next/event/$slug/settings/speakers";
-import { locale as enNextEventSettingsSpeakersList } from "./en/routes/next/event/$slug/settings/speakers/list";
-import { locale as enNextEventSettingsSpeakersAdd } from "./en/routes/next/event/$slug/settings/speakers/add";
-import { locale as enNextEventSettingsSpeakersInvites } from "./en/routes/next/event/$slug/settings/speakers/invites";
-import { locale as enNextEventSettingsTeam } from "./en/routes/next/event/$slug/settings/team";
-import { locale as enNextEventSettingsTeamList } from "./en/routes/next/event/$slug/settings/team/list";
-import { locale as enNextEventSettingsTeamAdd } from "./en/routes/next/event/$slug/settings/team/add";
-import { locale as enNextEventSettingsTeamInvites } from "./en/routes/next/event/$slug/settings/team/invites";
-import { locale as enNextEventSettingsTimePeriod } from "./en/routes/next/event/$slug/settings/time-period";
+import { locale as enCreateEvent } from "./en/routes/event/create";
+import { locale as enEventSettings } from "./en/routes/event/$slug/settings";
+import { locale as enEventSettingsAdmins } from "./en/routes/event/$slug/settings/admins";
+import { locale as enEventSettingsAdminsList } from "./en/routes/event/$slug/settings/admins/list";
+import { locale as enEventSettingsAdminsAdd } from "./en/routes/event/$slug/settings/admins/add";
+import { locale as enEventSettingsAdminsInvites } from "./en/routes/event/$slug/settings/admins/invites";
+import { locale as enEventSettingsDangerZone } from "./en/routes/event/$slug/settings/danger-zone";
+import { locale as enEventSettingsChangeURL } from "./en/routes/event/$slug/settings/danger-zone/change-url";
+import { locale as enEventSettingsCancel } from "./en/routes/event/$slug/settings/danger-zone/cancel";
+import { locale as enEventSettingsDelete } from "./en/routes/event/$slug/settings/danger-zone/delete";
+import { locale as enEventSettingsDetails } from "./en/routes/event/$slug/settings/details";
+import { locale as enEventSettingsDetailsInfo } from "./en/routes/event/$slug/settings/details/info";
+import { locale as enEventSettingsDetailsBackground } from "./en/routes/event/$slug/settings/details/background";
+import { locale as enEventSettingsDocuments } from "./en/routes/event/$slug/settings/documents";
+import { locale as enEventSettingsDocumentsList } from "./en/routes/event/$slug/settings/documents/list";
+import { locale as enEventSettingsDocumentsAdd } from "./en/routes/event/$slug/settings/documents/add";
+import { locale as enEventSettingsLocation } from "./en/routes/event/$slug/settings/location";
+import { locale as enEventSettingsParticipants } from "./en/routes/event/$slug/settings/participants";
+import { locale as enEventSettingsParticipantsList } from "./en/routes/event/$slug/settings/participants/list";
+import { locale as enEventSettingsParticipantsWaitingList } from "./en/routes/event/$slug/settings/participants/waiting-list";
+import { locale as enEventSettingsParticipantsAdd } from "./en/routes/event/$slug/settings/participants/add";
+import { locale as enEventSettingsParticipantsInvites } from "./en/routes/event/$slug/settings/participants/invites";
+import { locale as enEventSettingsRegistration } from "./en/routes/event/$slug/settings/registration";
+import { locale as enEventSettingsRegistrationAccess } from "./en/routes/event/$slug/settings/registration/access";
+import { locale as enEventSettingsRegistrationPeriod } from "./en/routes/event/$slug/settings/registration/period";
+import { locale as enEventSettingsRegistrationLimit } from "./en/routes/event/$slug/settings/registration/limit";
+import { locale as enEventSettingsRelatedEvents } from "./en/routes/event/$slug/settings/related-events";
+import { locale as enEventSettingsRelatedEventsParentEvent } from "./en/routes/event/$slug/settings/related-events/parent-event";
+import { locale as enEventSettingsRelatedEventsChildEvents } from "./en/routes/event/$slug/settings/related-events/child-events";
+import { locale as enEventSettingsResponsibleOrgs } from "./en/routes/event/$slug/settings/responsible-orgs";
+import { locale as enEventSettingsResponsibleOrgsList } from "./en/routes/event/$slug/settings/responsible-orgs/list";
+import { locale as enEventSettingsResponsibleOrgsAdd } from "./en/routes/event/$slug/settings/responsible-orgs/add";
+import { locale as enEventSettingsResponsibleOrgsInvites } from "./en/routes/event/$slug/settings/responsible-orgs/invites";
+import { locale as enEventSettingsSpeakers } from "./en/routes/event/$slug/settings/speakers";
+import { locale as enEventSettingsSpeakersList } from "./en/routes/event/$slug/settings/speakers/list";
+import { locale as enEventSettingsSpeakersAdd } from "./en/routes/event/$slug/settings/speakers/add";
+import { locale as enEventSettingsSpeakersInvites } from "./en/routes/event/$slug/settings/speakers/invites";
+import { locale as enEventSettingsTeam } from "./en/routes/event/$slug/settings/team";
+import { locale as enEventSettingsTeamList } from "./en/routes/event/$slug/settings/team/list";
+import { locale as enEventSettingsTeamAdd } from "./en/routes/event/$slug/settings/team/add";
+import { locale as enEventSettingsTeamInvites } from "./en/routes/event/$slug/settings/team/invites";
+import { locale as enEventSettingsTimePeriod } from "./en/routes/event/$slug/settings/time-period";
 // explore routes
 import { locale as enExplore } from "./en/routes/explore";
 import { locale as enExploreIndex } from "./en/routes/explore/index";
@@ -453,84 +391,7 @@ const de = {
   "auth/verify": deVerify,
   "auth/keycloak.callback": deKeycloakCallback,
   // event routes
-  "event/$slug/settings/admins/add-admin": deAddEventAdmin,
-  "event/$slug/settings/admins/remove-admin": deRemoveEventAdmin,
-  "event/$slug/settings/events/add-child": deAddChildEvent,
-  "event/$slug/settings/events/cancel": deCancelEvent,
-  "event/$slug/settings/events/publish": dePublishEvent,
-  "event/$slug/settings/events/remove-child": deRemoveChildEvent,
-  "event/$slug/settings/events/set-parent": deSetParentEvent,
-  "event/$slug/settings/organizations/add-organization":
-    deAddOrganizationToEvent,
-  "event/$slug/settings/organizations/remove-organization":
-    deRemoveOrganizationFromEvent,
-  "event/$slug/settings/participants/add-participant": deAddParticipantToEvent,
-  "event/$slug/settings/participants/remove-participant":
-    deRemoveParticipantFromEvent,
-  "event/$slug/settings/speakers/add-speaker": deAddSpeakerToEvent,
-  "event/$slug/settings/speakers/remove-speaker": deRemoveSpeakerFromEvent,
-  "event/$slug/settings/team/add-member": deAddTeamMemberToEvent,
-  "event/$slug/settings/team/remove-member": deRemoveTeamMemberFromEvent,
-  "event/$slug/settings/waiting-list/add-to-waiting-list":
-    deAddProfileToEventWaitingList,
-  "event/$slug/settings/waiting-list/move-to-participants":
-    deMoveProfileFromEventWaitingListToParticipants,
-  "event/$slug/settings/waiting-list/remove-from-waiting-list":
-    deRemoveProfileFromEventWaitingList,
-  "event/$slug/settings/admins": {
-    route: deEventAdmins,
-    organizationTypes: deOrganizationTypes,
-    stages: deStages,
-  },
-  "event/$slug/settings/csv-download": deEventCsvDownload,
-  "event/$slug/settings/delete": deDeleteEvent,
-  "event/$slug/settings/documents": {
-    route: deEventDocuments,
-    upload: deUpload,
-  },
-  "event/$slug/settings/events": {
-    route: deConnectEventsWithEvent,
-    organizationTypes: deOrganizationTypes,
-    stages: deStages,
-  },
-  "event/$slug/settings/general": {
-    route: deGeneralEventSettings,
-    stages: deStages,
-    experienceLevels: deExperienceLevels,
-    eventTypes: deEventTypes,
-    focuses: deFocuses,
-    tags: deTags,
-    eventTargetGroups: deEventTargetGroups,
-    rte: deRTE,
-  },
-  "event/$slug/settings/organizations": {
-    route: deResponsibleOrganizationsOfEvent,
-    organizationTypes: deOrganizationTypes,
-    stages: deStages,
-  },
-  "event/$slug/settings/participants": {
-    route: deEventSettingsParticipants,
-    organizationTypes: deOrganizationTypes,
-    stages: deStages,
-  },
-  "event/$slug/settings/speakers": {
-    route: deAddSpeakersToEvent,
-    organizationTypes: deOrganizationTypes,
-    stages: deStages,
-  },
-  "event/$slug/settings/team": {
-    route: deEventTeam,
-    organizationTypes: deOrganizationTypes,
-    stages: deStages,
-  },
-  "event/$slug/settings/waiting-list": {
-    route: deEventWaitingList,
-    organizationTypes: deOrganizationTypes,
-    stages: deStages,
-  },
   "event/$slug/documents-download": deDownloadEventDocuments,
-  "event/$slug/settings": deEventSettings,
-  "event/create": deCreateEvent,
   "event/$slug/detail": {
     route: deEventDetail,
     stages: deStages,
@@ -554,44 +415,44 @@ const de = {
     stages: deStages,
   },
   // next event routes
-  "next/event/create": {
-    route: deNextCreateEvent,
+  "event/create": {
+    route: deCreateEvent,
     stages: deStages,
   },
-  "next/event/$slug/settings": {
-    route: deNextEventSettings,
+  "event/$slug/settings": {
+    route: deEventSettings,
   },
-  "next/event/$slug/settings/admins": {
-    route: deNextEventSettingsAdmins,
+  "event/$slug/settings/admins": {
+    route: deEventSettingsAdmins,
   },
-  "next/event/$slug/settings/admins/add": {
-    route: deNextEventSettingsAdminsAdd,
+  "event/$slug/settings/admins/add": {
+    route: deEventSettingsAdminsAdd,
   },
-  "next/event/$slug/settings/admins/list": {
-    route: deNextEventSettingsAdminsList,
+  "event/$slug/settings/admins/list": {
+    route: deEventSettingsAdminsList,
   },
-  "next/event/$slug/settings/admins/invites": {
-    route: deNextEventSettingsAdminsInvites,
+  "event/$slug/settings/admins/invites": {
+    route: deEventSettingsAdminsInvites,
   },
-  "next/event/$slug/settings/danger-zone": {
-    route: deNextEventSettingsDangerZone,
+  "event/$slug/settings/danger-zone": {
+    route: deEventSettingsDangerZone,
   },
-  "next/event/$slug/settings/danger-zone/change-url": {
-    route: deNextEventSettingsChangeURL,
+  "event/$slug/settings/danger-zone/change-url": {
+    route: deEventSettingsChangeURL,
     components: deComponents,
   },
-  "next/event/$slug/settings/danger-zone/cancel": {
-    route: deNextEventSettingsCancel,
+  "event/$slug/settings/danger-zone/cancel": {
+    route: deEventSettingsCancel,
     stages: deStages,
   },
-  "next/event/$slug/settings/danger-zone/delete": {
-    route: deNextEventSettingsDelete,
+  "event/$slug/settings/danger-zone/delete": {
+    route: deEventSettingsDelete,
   },
-  "next/event/$slug/settings/details": {
-    route: deNextEventSettingsDetails,
+  "event/$slug/settings/details": {
+    route: deEventSettingsDetails,
   },
-  "next/event/$slug/settings/details/info": {
-    route: deNextEventSettingsDetailsInfo,
+  "event/$slug/settings/details/info": {
+    route: deEventSettingsDetailsInfo,
     types: deEventTypes,
     tags: deTags,
     eventTargetGroups: deEventTargetGroups,
@@ -600,104 +461,104 @@ const de = {
     components: deComponents,
     rte: deRTE,
   },
-  "next/event/$slug/settings/details/background": {
-    route: deNextEventSettingsDetailsBackground,
+  "event/$slug/settings/details/background": {
+    route: deEventSettingsDetailsBackground,
     components: deComponents,
   },
-  "next/event/$slug/settings/documents": {
-    route: deNextEventSettingsDocuments,
+  "event/$slug/settings/documents": {
+    route: deEventSettingsDocuments,
   },
-  "next/event/$slug/settings/documents/list": {
-    route: deNextEventSettingsDocumentsList,
+  "event/$slug/settings/documents/list": {
+    route: deEventSettingsDocumentsList,
   },
-  "next/event/$slug/settings/documents/add": {
-    route: deNextEventSettingsDocumentsAdd,
+  "event/$slug/settings/documents/add": {
+    route: deEventSettingsDocumentsAdd,
   },
-  "next/event/$slug/settings/location": {
-    route: deNextEventSettingsLocation,
+  "event/$slug/settings/location": {
+    route: deEventSettingsLocation,
     stages: deStages,
     components: deComponents,
     rte: deRTE,
   },
-  "next/event/$slug/settings/participants": {
-    route: deNextEventSettingsParticipants,
+  "event/$slug/settings/participants": {
+    route: deEventSettingsParticipants,
   },
-  "next/event/$slug/settings/participants/list": {
-    route: deNextEventSettingsParticipantsList,
+  "event/$slug/settings/participants/list": {
+    route: deEventSettingsParticipantsList,
   },
-  "next/event/$slug/settings/participants/waiting-list": {
-    route: deNextEventSettingsParticipantsWaitingList,
+  "event/$slug/settings/participants/waiting-list": {
+    route: deEventSettingsParticipantsWaitingList,
   },
-  "next/event/$slug/settings/participants/add": {
-    route: deNextEventSettingsParticipantsAdd,
+  "event/$slug/settings/participants/add": {
+    route: deEventSettingsParticipantsAdd,
   },
-  "next/event/$slug/settings/participants/invites": {
-    route: deNextEventSettingsParticipantsInvites,
+  "event/$slug/settings/participants/invites": {
+    route: deEventSettingsParticipantsInvites,
   },
-  "next/event/$slug/settings/registration": {
-    route: deNextEventSettingsRegistration,
+  "event/$slug/settings/registration": {
+    route: deEventSettingsRegistration,
   },
-  "next/event/$slug/settings/registration/access": {
-    route: deNextEventSettingsRegistrationAccess,
+  "event/$slug/settings/registration/access": {
+    route: deEventSettingsRegistrationAccess,
     components: deComponents,
   },
-  "next/event/$slug/settings/registration/period": {
-    route: deNextEventSettingsRegistrationPeriod,
+  "event/$slug/settings/registration/period": {
+    route: deEventSettingsRegistrationPeriod,
     components: deComponents,
   },
-  "next/event/$slug/settings/registration/limit": {
-    route: deNextEventSettingsRegistrationLimit,
+  "event/$slug/settings/registration/limit": {
+    route: deEventSettingsRegistrationLimit,
     components: deComponents,
   },
-  "next/event/$slug/settings/related-events": {
-    route: deNextEventSettingsRelatedEvents,
+  "event/$slug/settings/related-events": {
+    route: deEventSettingsRelatedEvents,
   },
-  "next/event/$slug/settings/related-events/parent-event": {
-    route: deNextEventSettingsRelatedEventsParentEvent,
+  "event/$slug/settings/related-events/parent-event": {
+    route: deEventSettingsRelatedEventsParentEvent,
     stages: deStages,
   },
-  "next/event/$slug/settings/related-events/child-events": {
-    route: deNextEventSettingsRelatedEventsChildEvents,
+  "event/$slug/settings/related-events/child-events": {
+    route: deEventSettingsRelatedEventsChildEvents,
     stages: deStages,
   },
-  "next/event/$slug/settings/responsible-orgs": {
-    route: deNextEventSettingsResponsibleOrgs,
+  "event/$slug/settings/responsible-orgs": {
+    route: deEventSettingsResponsibleOrgs,
   },
-  "next/event/$slug/settings/responsible-orgs/add": {
-    route: deNextEventSettingsResponsibleOrgsAdd,
+  "event/$slug/settings/responsible-orgs/add": {
+    route: deEventSettingsResponsibleOrgsAdd,
   },
-  "next/event/$slug/settings/responsible-orgs/list": {
-    route: deNextEventSettingsResponsibleOrgsList,
+  "event/$slug/settings/responsible-orgs/list": {
+    route: deEventSettingsResponsibleOrgsList,
   },
-  "next/event/$slug/settings/responsible-orgs/invites": {
-    route: deNextEventSettingsResponsibleOrgsInvites,
+  "event/$slug/settings/responsible-orgs/invites": {
+    route: deEventSettingsResponsibleOrgsInvites,
   },
-  "next/event/$slug/settings/speakers": {
-    route: deNextEventSettingsSpeakers,
+  "event/$slug/settings/speakers": {
+    route: deEventSettingsSpeakers,
   },
-  "next/event/$slug/settings/speakers/add": {
-    route: deNextEventSettingsSpeakersAdd,
+  "event/$slug/settings/speakers/add": {
+    route: deEventSettingsSpeakersAdd,
   },
-  "next/event/$slug/settings/speakers/list": {
-    route: deNextEventSettingsSpeakersList,
+  "event/$slug/settings/speakers/list": {
+    route: deEventSettingsSpeakersList,
   },
-  "next/event/$slug/settings/speakers/invites": {
-    route: deNextEventSettingsSpeakersInvites,
+  "event/$slug/settings/speakers/invites": {
+    route: deEventSettingsSpeakersInvites,
   },
-  "next/event/$slug/settings/team": {
-    route: deNextEventSettingsTeam,
+  "event/$slug/settings/team": {
+    route: deEventSettingsTeam,
   },
-  "next/event/$slug/settings/team/add": {
-    route: deNextEventSettingsTeamAdd,
+  "event/$slug/settings/team/add": {
+    route: deEventSettingsTeamAdd,
   },
-  "next/event/$slug/settings/team/list": {
-    route: deNextEventSettingsTeamList,
+  "event/$slug/settings/team/list": {
+    route: deEventSettingsTeamList,
   },
-  "next/event/$slug/settings/team/invites": {
-    route: deNextEventSettingsTeamInvites,
+  "event/$slug/settings/team/invites": {
+    route: deEventSettingsTeamInvites,
   },
-  "next/event/$slug/settings/time-period": {
-    route: deNextEventSettingsTimePeriod,
+  "event/$slug/settings/time-period": {
+    route: deEventSettingsTimePeriod,
     stages: deStages,
     components: deComponents,
   },
@@ -851,10 +712,6 @@ const de = {
   "profile/$username/settings/security": deProfileSecurity,
   "profile/$username/index": {
     route: deProfileDetail,
-    addParticipant: deAddParticipantToEvent,
-    removeParticipant: deRemoveParticipantFromEvent,
-    addToWaitingList: deAddProfileToEventWaitingList,
-    removeFromWaitingList: deRemoveProfileFromEventWaitingList,
     offers: deOffers,
     stages: deStages,
     organizationTypes: deOrganizationTypes,
@@ -1019,84 +876,7 @@ const en = {
   "auth/verify": enVerify,
   "auth/keycloak.callback": enKeycloakCallback,
   // event routes
-  "event/$slug/settings/admins/add-admin": enAddEventAdmin,
-  "event/$slug/settings/admins/remove-admin": enRemoveEventAdmin,
-  "event/$slug/settings/events/add-child": enAddChildEvent,
-  "event/$slug/settings/events/cancel": enCancelEvent,
-  "event/$slug/settings/events/publish": enPublishEvent,
-  "event/$slug/settings/events/remove-child": enRemoveChildEvent,
-  "event/$slug/settings/events/set-parent": enSetParentEvent,
-  "event/$slug/settings/organizations/add-organization":
-    enAddOrganizationToEvent,
-  "event/$slug/settings/organizations/remove-organization":
-    enRemoveOrganizationFromEvent,
-  "event/$slug/settings/participants/add-participant": enAddParticipantToEvent,
-  "event/$slug/settings/participants/remove-participant":
-    enRemoveParticipantFromEvent,
-  "event/$slug/settings/speakers/add-speaker": enAddSpeakerToEvent,
-  "event/$slug/settings/speakers/remove-speaker": enRemoveSpeakerFromEvent,
-  "event/$slug/settings/team/add-member": enAddTeamMemberToEvent,
-  "event/$slug/settings/team/remove-member": enRemoveTeamMemberFromEvent,
-  "event/$slug/settings/waiting-list/add-to-waiting-list":
-    enAddProfileToEventWaitingList,
-  "event/$slug/settings/waiting-list/move-to-participants":
-    enMoveProfileFromEventWaitingListToParticipants,
-  "event/$slug/settings/waiting-list/remove-from-waiting-list":
-    enRemoveProfileFromEventWaitingList,
-  "event/$slug/settings/admins": {
-    route: enEventAdmins,
-    stages: enStages,
-    organizationTypes: enOrganizationTypes,
-  },
-  "event/$slug/settings/csv-download": enEventCsvDownload,
-  "event/$slug/settings/delete": enDeleteEvent,
-  "event/$slug/settings/documents": {
-    route: enEventDocuments,
-    upload: enUpload,
-  },
-  "event/$slug/settings/events": {
-    route: enConnectEventsWithEvent,
-    stages: enStages,
-    organizationTypes: enOrganizationTypes,
-  },
-  "event/$slug/settings/general": {
-    route: enGeneralEventSettings,
-    stages: enStages,
-    experienceLevels: enExperienceLevels,
-    focuses: enFocuses,
-    eventTypes: enEventTypes,
-    eventTargetGroups: enEventTargetGroups,
-    tags: enTags,
-    rte: enRTE,
-  },
-  "event/$slug/settings/organizations": {
-    route: enResponsibleOrganizationsOfEvent,
-    organizationTypes: enOrganizationTypes,
-    stages: enStages,
-  },
-  "event/$slug/settings/participants": {
-    route: enEventSettingsParticipants,
-    stages: enStages,
-    organizationTypes: enOrganizationTypes,
-  },
-  "event/$slug/settings/speakers": {
-    route: enAddSpeakersToEvent,
-    stages: enStages,
-    organizationTypes: enOrganizationTypes,
-  },
-  "event/$slug/settings/team": {
-    route: enEventTeam,
-    organizationTypes: enOrganizationTypes,
-    stages: enStages,
-  },
-  "event/$slug/settings/waiting-list": {
-    route: enEventWaitingList,
-    organizationTypes: enOrganizationTypes,
-    stages: enStages,
-  },
   "event/$slug/documents-download": enDownloadEventDocuments,
-  "event/$slug/settings": enEventSettings,
-  "event/create": enCreateEvent,
   "event/$slug/detail": {
     route: enEventDetail,
     stages: enStages,
@@ -1120,44 +900,44 @@ const en = {
     stages: enStages,
   },
   // next event routes
-  "next/event/create": {
-    route: enNextCreateEvent,
+  "event/create": {
+    route: enCreateEvent,
     stages: enStages,
   },
-  "next/event/$slug/settings": {
-    route: enNextEventSettings,
+  "event/$slug/settings": {
+    route: enEventSettings,
   },
-  "next/event/$slug/settings/admins": {
-    route: enNextEventSettingsAdmins,
+  "event/$slug/settings/admins": {
+    route: enEventSettingsAdmins,
   },
-  "next/event/$slug/settings/admins/add": {
-    route: enNextEventSettingsAdminsAdd,
+  "event/$slug/settings/admins/add": {
+    route: enEventSettingsAdminsAdd,
   },
-  "next/event/$slug/settings/admins/list": {
-    route: enNextEventSettingsAdminsList,
+  "event/$slug/settings/admins/list": {
+    route: enEventSettingsAdminsList,
   },
-  "next/event/$slug/settings/admins/invites": {
-    route: enNextEventSettingsAdminsInvites,
+  "event/$slug/settings/admins/invites": {
+    route: enEventSettingsAdminsInvites,
   },
-  "next/event/$slug/settings/danger-zone": {
-    route: enNextEventSettingsDangerZone,
+  "event/$slug/settings/danger-zone": {
+    route: enEventSettingsDangerZone,
   },
-  "next/event/$slug/settings/danger-zone/change-url": {
-    route: enNextEventSettingsChangeURL,
+  "event/$slug/settings/danger-zone/change-url": {
+    route: enEventSettingsChangeURL,
     components: enComponents,
   },
-  "next/event/$slug/settings/danger-zone/cancel": {
-    route: enNextEventSettingsCancel,
+  "event/$slug/settings/danger-zone/cancel": {
+    route: enEventSettingsCancel,
     stages: enStages,
   },
-  "next/event/$slug/settings/danger-zone/delete": {
-    route: enNextEventSettingsDelete,
+  "event/$slug/settings/danger-zone/delete": {
+    route: enEventSettingsDelete,
   },
-  "next/event/$slug/settings/details": {
-    route: enNextEventSettingsDetails,
+  "event/$slug/settings/details": {
+    route: enEventSettingsDetails,
   },
-  "next/event/$slug/settings/details/info": {
-    route: enNextEventSettingsDetailsInfo,
+  "event/$slug/settings/details/info": {
+    route: enEventSettingsDetailsInfo,
     types: enEventTypes,
     tags: enTags,
     eventTargetGroups: enEventTargetGroups,
@@ -1166,104 +946,104 @@ const en = {
     components: enComponents,
     rte: enRTE,
   },
-  "next/event/$slug/settings/details/background": {
-    route: enNextEventSettingsDetailsBackground,
+  "event/$slug/settings/details/background": {
+    route: enEventSettingsDetailsBackground,
     components: enComponents,
   },
-  "next/event/$slug/settings/documents": {
-    route: enNextEventSettingsDocuments,
+  "event/$slug/settings/documents": {
+    route: enEventSettingsDocuments,
   },
-  "next/event/$slug/settings/documents/list": {
-    route: enNextEventSettingsDocumentsList,
+  "event/$slug/settings/documents/list": {
+    route: enEventSettingsDocumentsList,
   },
-  "next/event/$slug/settings/documents/add": {
-    route: enNextEventSettingsDocumentsAdd,
+  "event/$slug/settings/documents/add": {
+    route: enEventSettingsDocumentsAdd,
   },
-  "next/event/$slug/settings/location": {
-    route: enNextEventSettingsLocation,
+  "event/$slug/settings/location": {
+    route: enEventSettingsLocation,
     stages: enStages,
     rte: enRTE,
     components: enComponents,
   },
-  "next/event/$slug/settings/participants": {
-    route: enNextEventSettingsParticipants,
+  "event/$slug/settings/participants": {
+    route: enEventSettingsParticipants,
   },
-  "next/event/$slug/settings/participants/list": {
-    route: enNextEventSettingsParticipantsList,
+  "event/$slug/settings/participants/list": {
+    route: enEventSettingsParticipantsList,
   },
-  "next/event/$slug/settings/participants/waiting-list": {
-    route: enNextEventSettingsParticipantsWaitingList,
+  "event/$slug/settings/participants/waiting-list": {
+    route: enEventSettingsParticipantsWaitingList,
   },
-  "next/event/$slug/settings/participants/add": {
-    route: enNextEventSettingsParticipantsAdd,
+  "event/$slug/settings/participants/add": {
+    route: enEventSettingsParticipantsAdd,
   },
-  "next/event/$slug/settings/participants/invites": {
-    route: enNextEventSettingsParticipantsInvites,
+  "event/$slug/settings/participants/invites": {
+    route: enEventSettingsParticipantsInvites,
   },
-  "next/event/$slug/settings/registration": {
-    route: enNextEventSettingsRegistration,
+  "event/$slug/settings/registration": {
+    route: enEventSettingsRegistration,
   },
-  "next/event/$slug/settings/registration/access": {
-    route: enNextEventSettingsRegistrationAccess,
+  "event/$slug/settings/registration/access": {
+    route: enEventSettingsRegistrationAccess,
     components: enComponents,
   },
-  "next/event/$slug/settings/registration/period": {
-    route: enNextEventSettingsRegistrationPeriod,
+  "event/$slug/settings/registration/period": {
+    route: enEventSettingsRegistrationPeriod,
     components: enComponents,
   },
-  "next/event/$slug/settings/registration/limit": {
-    route: enNextEventSettingsRegistrationLimit,
+  "event/$slug/settings/registration/limit": {
+    route: enEventSettingsRegistrationLimit,
     components: enComponents,
   },
-  "next/event/$slug/settings/related-events": {
-    route: enNextEventSettingsRelatedEvents,
+  "event/$slug/settings/related-events": {
+    route: enEventSettingsRelatedEvents,
   },
-  "next/event/$slug/settings/related-events/parent-event": {
-    route: enNextEventSettingsRelatedEventsParentEvent,
+  "event/$slug/settings/related-events/parent-event": {
+    route: enEventSettingsRelatedEventsParentEvent,
     stages: enStages,
   },
-  "next/event/$slug/settings/related-events/child-events": {
-    route: enNextEventSettingsRelatedEventsChildEvents,
+  "event/$slug/settings/related-events/child-events": {
+    route: enEventSettingsRelatedEventsChildEvents,
     stages: enStages,
   },
-  "next/event/$slug/settings/responsible-orgs": {
-    route: enNextEventSettingsResponsibleOrgs,
+  "event/$slug/settings/responsible-orgs": {
+    route: enEventSettingsResponsibleOrgs,
   },
-  "next/event/$slug/settings/responsible-orgs/add": {
-    route: enNextEventSettingsResponsibleOrgsAdd,
+  "event/$slug/settings/responsible-orgs/add": {
+    route: enEventSettingsResponsibleOrgsAdd,
   },
-  "next/event/$slug/settings/responsible-orgs/list": {
-    route: enNextEventSettingsResponsibleOrgsList,
+  "event/$slug/settings/responsible-orgs/list": {
+    route: enEventSettingsResponsibleOrgsList,
   },
-  "next/event/$slug/settings/responsible-orgs/invites": {
-    route: enNextEventSettingsResponsibleOrgsInvites,
+  "event/$slug/settings/responsible-orgs/invites": {
+    route: enEventSettingsResponsibleOrgsInvites,
   },
-  "next/event/$slug/settings/speakers": {
-    route: enNextEventSettingsSpeakers,
+  "event/$slug/settings/speakers": {
+    route: enEventSettingsSpeakers,
   },
-  "next/event/$slug/settings/speakers/add": {
-    route: enNextEventSettingsSpeakersAdd,
+  "event/$slug/settings/speakers/add": {
+    route: enEventSettingsSpeakersAdd,
   },
-  "next/event/$slug/settings/speakers/list": {
-    route: enNextEventSettingsSpeakersList,
+  "event/$slug/settings/speakers/list": {
+    route: enEventSettingsSpeakersList,
   },
-  "next/event/$slug/settings/speakers/invites": {
-    route: enNextEventSettingsSpeakersInvites,
+  "event/$slug/settings/speakers/invites": {
+    route: enEventSettingsSpeakersInvites,
   },
-  "next/event/$slug/settings/team": {
-    route: enNextEventSettingsTeam,
+  "event/$slug/settings/team": {
+    route: enEventSettingsTeam,
   },
-  "next/event/$slug/settings/team/add": {
-    route: enNextEventSettingsTeamAdd,
+  "event/$slug/settings/team/add": {
+    route: enEventSettingsTeamAdd,
   },
-  "next/event/$slug/settings/team/list": {
-    route: enNextEventSettingsTeamList,
+  "event/$slug/settings/team/list": {
+    route: enEventSettingsTeamList,
   },
-  "next/event/$slug/settings/team/invites": {
-    route: enNextEventSettingsTeamInvites,
+  "event/$slug/settings/team/invites": {
+    route: enEventSettingsTeamInvites,
   },
-  "next/event/$slug/settings/time-period": {
-    route: enNextEventSettingsTimePeriod,
+  "event/$slug/settings/time-period": {
+    route: enEventSettingsTimePeriod,
     stages: enStages,
     components: enComponents,
   },
@@ -1417,10 +1197,6 @@ const en = {
   "profile/$username/settings/security": enProfileSecurity,
   "profile/$username/index": {
     route: enProfileDetail,
-    addParticipant: enAddParticipantToEvent,
-    removeParticipant: enRemoveParticipantFromEvent,
-    addToWaitingList: enAddProfileToEventWaitingList,
-    removeFromWaitingList: enRemoveProfileFromEventWaitingList,
     offers: enOffers,
     stages: enStages,
     organizationTypes: enOrganizationTypes,

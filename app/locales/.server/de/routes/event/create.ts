@@ -1,49 +1,78 @@
 export const locale = {
-  validation: {
-    name: {
-      required: "Bitte einen Eventnamen angeben",
+  headline: "Event erstellen",
+  close: "Zurück zu meinen Events",
+  info: "Erstelle kostenfreie und nicht kommerzielle Veranstaltungen für die MINT-Community und Interessierte der MINT-Bildung. Angebote für <0>Kinder und Jugendliche</0> können leider <0>nicht</0> abgebildet werden. <1>Weitere Informationen findest Du auf unserer Hilfeseite.</1>",
+  parentHint: "Du erstellst eine Unterveranstaltung für folgendes Event",
+  list: {
+    waitinglist: "Wartelistenplätze",
+    seatsFree: "Plätzen frei",
+    unlimitedSeats: "Unbegrenzte Plätze",
+    more: "{{count}} weitere anzeigen",
+    less: "{{count}} weniger anzeigen",
+  },
+  name: {
+    headline: "Wie heißt Dein Event?",
+    label: "Titel des Events*",
+    helperText:
+      "Mit max. 55 Zeichen im Titel kann Dein Event in der Übersicht gut dargestellt werden.",
+  },
+  timePeriod: {
+    headline: "Handelt es sich um eine ein- oder mehrtägige Veranstaltung?",
+    single: {
+      label: "Eintägige Veranstaltung",
     },
+    multi: {
+      label: "Mehrtägige Veranstaltung",
+    },
+  },
+  timings: {
+    headline: "Wann findet Dein Event statt?",
     startDate: {
-      required: "Bitte gib den Beginn des Events an",
-    },
-    startTime: {
-      required: "Bitte eine Startzeit angeben",
+      single: {
+        label: "Datum*",
+      },
+      multi: {
+        label: "Startdatum*",
+      },
     },
     endDate: {
-      required: "Bitte gib das Ende des Events an",
-      greaterThan: "Das Enddatum darf nicht vor dem Startdatum liegen",
+      label: "Enddatum*",
+    },
+    startTime: {
+      label: "Startzeit*",
     },
     endTime: {
-      required: "Bitte gib das Ende des Events an",
-      greaterThan:
-        "Das Event findet an einem Tag statt. Dabei darf die Startzeit nicht nach der Endzeit liegen",
+      label: "Ende*",
     },
   },
-  error: {
-    validationFailed: "Validation failed",
-  },
-  content: {
-    back: "Zurück",
-    headline: "Event anlegen",
-  },
+  requiredHint: "*Erforderliche Angaben",
+  cta: "Entwurf anlegen",
+  cancel: "Verwerfen",
   form: {
-    name: {
-      label: "Name des Events",
+    validation: {
+      nameRequired: "Bitte gib einen Titel ein.",
+      nameMinLength:
+        "Der Titel des Events muss mindestens 3 Zeichen lang sein.",
+      startDateRequired: "Bitte gib das Startdatum Deines Events an.",
+      startDateInPast: "Dein Datum liegt in der Vergangenheit.",
+      startTimeInPast: "Die Startzeit liegt in der Vergangenheit.",
+      endDateRequired: "Bitte gib das Enddatum Deines Events an.",
+      endDateInPast: "Dein Enddatum liegt in der Vergangenheit.",
+      endTimeInPast: "Die Endzeit liegt in der Vergangenheit.",
+      endDateBeforeStartDate: "Dein Enddatum liegt vor dem Startdatum.",
+      endTimeBeforeStartTime: "Die Endzeit liegt vor der Startzeit.",
+      startTimeRequired: "Bitte gib die Startzeit an.",
+      endTimeRequired: "Bitte gib die Endzeit an.",
+      eventNotInParentEventBoundaries:
+        "Dein Event liegt nicht im Zeitraum der Rahmenveranstaltung.",
+      multiDaySameDay:
+        "Bei mehrtägigen Events müssen Start- und Enddatum unterschiedlich sein.",
     },
-    startDate: {
-      label: "Startdatum",
-    },
-    startTime: {
-      label: "Startzeit",
-    },
-    endDate: {
-      label: "Enddatum",
-    },
-    endTime: {
-      label: "Endzeit",
-    },
-    submit: {
-      label: "Anlegen",
-    },
+  },
+  errors: {
+    createEventFailed:
+      "Beim Erstellen Deines Events ist ein Fehler aufgetreten. Bitte versuche es später erneut.",
+    invalidTimePeriod:
+      "Es ist nur eine ein- oder mehrtägige Veranstaltung zulässig.",
   },
 } as const;

@@ -28,7 +28,6 @@ import {
 import { useRef } from "react";
 import { type UseFormRegisterReturn } from "react-hook-form";
 import { useHydrated } from "remix-utils/use-hydrated";
-import { type GeneralEventSettingsLocales } from "~/routes/event/$slug/settings/general.server";
 import { type GeneralOrganizationSettingsLocales } from "~/routes/organization/$slug/settings/general.server";
 import { type GeneralProfileSettingsLocales } from "~/routes/profile/$username/settings/general.server";
 import { type ProjectDetailsSettingsLocales } from "~/routes/project/$slug/settings/details.server";
@@ -51,7 +50,6 @@ export type RTELocales =
   | GeneralOrganizationSettingsLocales
   | ProjectDetailsSettingsLocales
   | ProjectRequirementsSettingsLocales
-  | GeneralEventSettingsLocales
   | {
       rte: {
         title: string;

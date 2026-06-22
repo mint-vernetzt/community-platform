@@ -1,33 +1,50 @@
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { useForm } from "react-hook-form";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { captureException } from "@sentry/node";
+import classNames from "classnames";
+import { useState } from "react";
 import {
   Form,
+  Link,
   redirect,
   useActionData,
   useLoaderData,
-  useNavigate,
-  type LoaderFunctionArgs,
+  useNavigation,
+  useSearchParams,
   type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from "react-router";
+import { useHydrated } from "remix-utils/use-hydrated";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
   getSessionUserOrThrow,
 } from "~/auth.server";
-import Input from "~/components/legacy/FormElements/Input/Input";
+import BasicStructure from "~/components/next/BasicStructure";
+import List from "~/components/next/List";
+import ListItemEvent from "~/components/next/ListItemEvent";
+import MobileSettingsHeader from "~/components/next/MobileSettingsHeader";
+import RadioButtonSettings from "~/components/next/RadioButtonSettings";
+import SettingsHeading from "~/components/next/SettingsHeading";
+import TitleSection from "~/components/next/TitleSection";
 import { detectLanguage } from "~/i18n.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { getFormValues, validateForm, type FormError } from "~/lib/utils/yup";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
+import { invariant, invariantResponse } from "~/lib/utils/response";
+import { Deep, extendSearchParams } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
-import {
-  checkFeatureAbilitiesOrThrow,
-  getFeatureAbilities,
-} from "~/routes/feature-access.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
+import { redirectWithToast } from "~/toast.server";
 import { generateEventSlug } from "~/utils.server";
-import { validateTimePeriods } from "./$slug/settings/utils.server";
-import { getEventById } from "./create.server";
-import { createEventOnProfile, transformFormToEvent } from "./utils.server";
-import { createSchema, type FormType, type SchemaType } from "./create.shared";
+import {
+  createEvent,
+  getParentEventBySlug,
+  getParentEventBySlugForAction,
+} from "./create.server";
+import { createEventCreationSchema } from "./create.shared";
+import { TIME_PERIOD_MULTI, TIME_PERIOD_SINGLE } from "./utils.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -38,195 +55,468 @@ export async function loader(args: LoaderFunctionArgs) {
   if (sessionUser === null && redirectPath !== null) {
     return redirect(redirectPath);
   }
+  await checkFeatureAbilitiesOrThrow(authClient, ["events"]);
 
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["event/create"];
 
   const url = new URL(request.url);
-  const child = url.searchParams.get("child") || "";
-  const parent = url.searchParams.get("parent") || "";
+  const searchParams = url.searchParams;
+  const parentSlug = searchParams.get("parent");
 
-  await checkFeatureAbilitiesOrThrow(authClient, "events");
+  let parentEvent = null;
+  if (parentSlug !== null) {
+    parentEvent = await getParentEventBySlug(parentSlug);
+  }
 
-  const abilities = await getFeatureAbilities(authClient, "next_event_create");
-
-  return { child, parent, locales, abilities };
+  return { locales, language, parentEvent };
 }
 
 export async function action(args: ActionFunctionArgs) {
   const { request } = args;
-
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["event/create"];
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
 
-  const schema = createSchema(locales);
+  await checkFeatureAbilitiesOrThrow(authClient, ["events"]);
 
-  const parsedFormData = await getFormValues<SchemaType>(request, schema);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["event/create"];
 
-  let errors: FormError | null;
-  let data;
+  const formData = await request.formData();
+  const timePeriod = formData.get("timePeriod");
+  invariantResponse(
+    timePeriod === TIME_PERIOD_SINGLE || timePeriod === TIME_PERIOD_MULTI,
+    locales.route.errors.invalidTimePeriod,
+    {
+      status: 400,
+    }
+  );
+
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
+  const parentSlug = searchParams.get("parent");
+
+  let parentEvent = null;
+  if (parentSlug !== null) {
+    parentEvent = await getParentEventBySlugForAction(
+      parentSlug,
+      sessionUser.id
+    );
+    invariantResponse(
+      parentEvent !== null,
+      "Parent Event not found or not authorized",
+      {
+        status: 404,
+      }
+    );
+  }
+
+  const schema = createEventCreationSchema({
+    locales: locales.route.form.validation,
+    timePeriod,
+    parentEvent,
+  });
+  const submission = await parseWithZod(formData, { schema });
+
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
+
+  const slug = generateEventSlug(submission.value.name);
 
   try {
-    const result = await validateForm<SchemaType>(schema, parsedFormData);
-    errors = result.errors;
-    data = result.data;
+    await createEvent({
+      userId: sessionUser.id,
+      slug,
+      data: submission.value,
+    });
   } catch (error) {
-    console.error({ error });
-    invariantResponse(false, locales.error.validationFailed, { status: 400 });
+    captureException(error);
+    return redirectWithToast(request.url, {
+      id: "event-creation-error",
+      key: `event-creation-error-${Date.now()}`,
+      message: locales.route.errors.createEventFailed,
+      level: "negative",
+    });
   }
 
-  const eventData = transformFormToEvent(data);
-  // Time Period Validation
-  // startTime and endTime of this event is in the boundary of parentEvents startTime and endTime
-  // startTime and endTime of all childEvents is in the boundary of this event
-  // Did not add this to schema as it is much more code and worse to read
-  if (data.parent !== null) {
-    const parentEvent = await getEventById(data.parent);
-    errors = validateTimePeriods(eventData, parentEvent, [], errors);
-  }
-  if (errors === null) {
-    const slug = generateEventSlug(data.name);
-    await createEventOnProfile(
-      sessionUser.id,
-      {
-        slug,
-        name: eventData.name,
-        startTime: eventData.startTime,
-        endTime: eventData.endTime,
-        participationUntil: eventData.participationUntil,
-        participationFrom: eventData.participationFrom,
-      },
-      { child: eventData.child, parent: eventData.parent }
-    );
-    return redirect(`/event/${slug}/detail/about`);
-  }
-  return { data, errors };
+  return redirect(
+    parentEvent !== null
+      ? `/event/${parentEvent.slug}/settings/related-events/child-events?${Deep}=true`
+      : `/event/${slug}/detail/about`
+  );
 }
 
 export default function Create() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, abilities } = loaderData;
   const actionData = useActionData<typeof action>();
-  const navigate = useNavigate();
-  const { register } = useForm<FormType>();
+  const { locales, language, parentEvent } = loaderData;
+
+  const [searchParams] = useSearchParams();
+  const timePeriodParam = searchParams.get("timePeriod");
+
+  const [timePeriod, setTimePeriod] = useState<
+    typeof TIME_PERIOD_SINGLE | typeof TIME_PERIOD_MULTI
+  >(
+    timePeriodParam === TIME_PERIOD_MULTI
+      ? TIME_PERIOD_MULTI
+      : TIME_PERIOD_SINGLE
+  );
+
+  const isHydrated = useHydrated();
+  const isSubmitting = useIsSubmitting();
+  const navigation = useNavigation();
+  const [form, fields] = useForm({
+    id: "create-event-form",
+    constraint: getZodConstraint(
+      createEventCreationSchema({
+        locales: locales.route.form.validation,
+        timePeriod,
+        parentEvent,
+      })
+    ),
+    shouldDirtyConsider(name) {
+      return name !== "timePeriod";
+    },
+    shouldValidate: "onBlur",
+    onValidate: (values) => {
+      const formData = values.formData;
+      const timePeriod = formData.get("timePeriod");
+      invariant(
+        timePeriod === TIME_PERIOD_SINGLE || timePeriod === TIME_PERIOD_MULTI,
+        locales.route.errors.invalidTimePeriod
+      );
+      const submission = parseWithZod(values.formData, {
+        schema: createEventCreationSchema({
+          locales: locales.route.form.validation,
+          timePeriod,
+          parentEvent,
+        }),
+      });
+      return submission;
+    },
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData : undefined,
+  });
+
+  const timingInputContainerClasses = classNames(
+    "flex-1",
+    timePeriod === TIME_PERIOD_SINGLE ? "md:flex-1/3" : "md:flex-1/2"
+  );
 
   return (
     <>
-      <section className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl @md:mt-2">
-        <div className="font-semibold text-neutral-600 flex items-center">
-          {abilities["next_event_create"].hasAccess ? (
-            <Button as="link" to="/next/event/create" prefetch="intent">
-              Zur neuen Event Erstellung
-            </Button>
-          ) : null}
-          {/* TODO: get back route from loader */}
-          <button onClick={() => navigate(-1)} className="flex items-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              className="h-auto w-6"
-              fill="currentColor"
-              viewBox="0 0 16 16"
+      <MobileSettingsHeader visibleUntil="xl">
+        <MobileSettingsHeader.Heading>
+          {locales.route.headline}
+        </MobileSettingsHeader.Heading>
+        <MobileSettingsHeader.Close>
+          <Link
+            to={
+              parentEvent === null
+                ? "/my/events"
+                : `/event/${parentEvent.slug}/settings/related-events/child-events?${Deep}=true`
+            }
+            aria-label={locales.route.close}
+            prefetch="intent"
+          >
+            <MobileSettingsHeader.CloseIcon />
+          </Link>
+        </MobileSettingsHeader.Close>
+      </MobileSettingsHeader>
+
+      <div className="w-full flex flex-col gap-4 p-4 bg-primary-50 xl:hidden">
+        <p className="text-primary-700 text-base leading-5">
+          {parentEvent === null
+            ? insertComponentsIntoLocale(locales.route.info, [
+                <span key="highlight" className="font-bold" />,
+                <Link
+                  key="help-link"
+                  to="/help#events-eventCreationConsiderations"
+                  target="_blank"
+                  className="font-bold underline"
+                  prefetch="intent"
+                />,
+              ])
+            : locales.route.parentHint}
+        </p>
+        {parentEvent !== null ? (
+          <List
+            id="parent-event-list"
+            locales={locales.route.list}
+            hideAfter={0}
+          >
+            <ListItemEvent
+              index={0}
+              to={`/event/${parentEvent.slug}/detail/about`}
             >
-              <path
-                fillRule="evenodd"
-                d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"
-              />
-            </svg>
-            <span className="ml-2">{locales.content.back}</span>
-          </button>
-        </div>
-      </section>
-      <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
-        <div className="flex -mx-4 justify-center w-full">
-          <div className="@lg:shrink-0 @lg:grow-0 @lg:basis-1/2 px-4 pt-10 w-full">
-            <h4 className="font-semibold">{locales.content.headline}</h4>
-            <div>
-              <Form method="post">
-                <input name="child" defaultValue={loaderData.child} hidden />
-                <input name="parent" defaultValue={loaderData.parent} hidden />
-                <div className="mb-2">
-                  <Input
-                    id="name"
-                    label={locales.form.name.label}
-                    required
-                    {...register("name")}
-                    errorMessage={actionData?.errors?.name?.message}
-                  />
-                  {actionData?.errors?.name?.message ? (
-                    <div>{actionData.errors.name.message}</div>
-                  ) : null}
-                </div>
-                <div className="mb-2 flex flex-col gap-2 w-full">
-                  {/* TODO: Date Input Component */}
-                  <Input
-                    id="startDate"
-                    label={locales.form.startDate.label}
-                    type="date"
-                    {...register("startDate")}
-                    required
-                    errorMessage={actionData?.errors?.startDate?.message}
-                  />
-                  {actionData?.errors?.startDate?.message ? (
-                    <div>{actionData.errors.startDate.message}</div>
-                  ) : null}
-                </div>
-                <div className="mb-2 flex flex-col gap-2 w-full">
-                  {/* TODO: Time Input Component */}
-                  <Input
-                    id="startTime"
-                    label={locales.form.startTime.label}
-                    type="time"
-                    {...register("startTime")}
-                    required
-                    errorMessage={actionData?.errors?.startTime?.message}
-                  />
-                  {actionData?.errors?.startTime?.message ? (
-                    <div>{actionData.errors.startTime.message}</div>
-                  ) : null}
-                </div>
-                <div className="mb-2 flex flex-col gap-2 w-full">
-                  {/* TODO: Date Input Component */}
-                  <Input
-                    id="endDate"
-                    label={locales.form.endDate.label}
-                    type="date"
-                    {...register("endDate")}
-                    required
-                    errorMessage={actionData?.errors?.endDate?.message}
-                  />
-                  {actionData?.errors?.endDate?.message ? (
-                    <div>{actionData.errors.endDate.message}</div>
-                  ) : null}
-                </div>
-                <div className="mb-4 flex flex-col gap-2 w-full">
-                  {/* TODO: Time Input Component */}
-                  <Input
-                    id="endTime"
-                    label={locales.form.endTime.label}
-                    type="time"
-                    {...register("endTime")}
-                    required
-                    errorMessage={actionData?.errors?.endTime?.message}
-                  />
-                  {actionData?.errors?.endTime?.message ? (
-                    <div>{actionData.errors.endTime.message}</div>
-                  ) : null}
-                </div>
-                <button
-                  type="submit"
-                  className="ml-auto border border-primary bg-white text-primary h-auto min-h-0 whitespace-nowrap py-[.375rem] px-6 normal-case leading-[1.125rem] inline-flex cursor-pointer selct-none flex-wrap items-center justify-center rounded-lg text-center text-sm font-semibold gap-2 hover:bg-primary hover:text-white"
+              <ListItemEvent.Info
+                {...parentEvent}
+                stage={parentEvent.stage}
+                participantCount={parentEvent._count.participants}
+                locales={{
+                  stages: locales.stages,
+                  ...locales.route.list,
+                }}
+                language={language}
+              ></ListItemEvent.Info>
+              <ListItemEvent.Headline>
+                {parentEvent.name}
+              </ListItemEvent.Headline>
+            </ListItemEvent>
+          </List>
+        ) : null}
+      </div>
+      <Form {...getFormProps(form)} method="post">
+        <BasicStructure>
+          <div className="hidden xl:block w-full">
+            <SettingsHeading>{locales.route.headline}</SettingsHeading>
+          </div>
+          <div className="hidden xl:flex w-full flex-col gap-4 p-6 bg-primary-50 border border-neutral-200 rounded-2xl">
+            <p className="text-primary-700 text-base leading-5">
+              {parentEvent === null
+                ? insertComponentsIntoLocale(locales.route.info, [
+                    <span key="highlight" className="font-bold" />,
+                    <Link
+                      key="help-link"
+                      to="/help#events-eventCreationConsiderations"
+                      target="_blank"
+                      className="font-bold underline"
+                      prefetch="intent"
+                    />,
+                  ])
+                : locales.route.parentHint}
+            </p>
+            {parentEvent !== null ? (
+              <List id="parent-event-list" locales={locales.route.list}>
+                <ListItemEvent
+                  index={0}
+                  to={`/event/${parentEvent.slug}/detail/about`}
                 >
-                  {locales.form.submit.label}
-                </button>
-              </Form>
+                  <ListItemEvent.Info
+                    {...parentEvent}
+                    stage={parentEvent.stage}
+                    participantCount={parentEvent._count.participants}
+                    locales={{
+                      stages: locales.stages,
+                      ...locales.route.list,
+                    }}
+                    language={language}
+                  ></ListItemEvent.Info>
+                  <ListItemEvent.Headline>
+                    {parentEvent.name}
+                  </ListItemEvent.Headline>
+                </ListItemEvent>
+              </List>
+            ) : null}
+          </div>
+          <BasicStructure.Container
+            deflatedUntil="xl"
+            gaps={{ base: "gap-4", md: "gap-4", xl: "gap-4" }}
+          >
+            <TitleSection>
+              <TitleSection.Headline>
+                {locales.route.name.headline}
+              </TitleSection.Headline>
+            </TitleSection>
+            <Input
+              {...getInputProps(fields.name, { type: "text" })}
+              key="name"
+              countCharacters
+            >
+              <Input.Label htmlFor={fields.name.id}>
+                {locales.route.name.label}
+              </Input.Label>
+              {typeof fields.name.errors !== "undefined" &&
+                fields.name.errors.length > 0 &&
+                fields.name.errors.map((error) => (
+                  <Input.Error id={fields.name.errorId} key={error}>
+                    {error}
+                  </Input.Error>
+                ))}
+              <Input.HelperText>
+                {locales.route.name.helperText}
+              </Input.HelperText>
+            </Input>
+          </BasicStructure.Container>
+          <BasicStructure.Container
+            deflatedUntil="xl"
+            gaps={{ base: "gap-4", md: "gap-4", xl: "gap-4" }}
+          >
+            <TitleSection>
+              <TitleSection.Headline>
+                {locales.route.timePeriod.headline}
+              </TitleSection.Headline>
+            </TitleSection>
+            <div className="w-full flex flex-col md:flex-row gap-4">
+              <RadioButtonSettings
+                to={`?${extendSearchParams(searchParams, {
+                  addOrReplace: { timePeriod: TIME_PERIOD_SINGLE },
+                }).toString()}`}
+                active={timePeriod === TIME_PERIOD_SINGLE}
+                onClick={(event) => {
+                  event.preventDefault();
+                  setTimePeriod(TIME_PERIOD_SINGLE);
+                }}
+              >
+                {locales.route.timePeriod[TIME_PERIOD_SINGLE].label}
+              </RadioButtonSettings>
+              <RadioButtonSettings
+                to={`?${extendSearchParams(searchParams, {
+                  addOrReplace: { timePeriod: TIME_PERIOD_MULTI },
+                }).toString()}`}
+                active={timePeriod === TIME_PERIOD_MULTI}
+                onClick={(event) => {
+                  event.preventDefault();
+                  setTimePeriod(TIME_PERIOD_MULTI);
+                }}
+              >
+                {locales.route.timePeriod[TIME_PERIOD_MULTI].label}
+              </RadioButtonSettings>
+              <input type="hidden" name="timePeriod" value={timePeriod} />
+            </div>
+          </BasicStructure.Container>
+          <BasicStructure.Container
+            deflatedUntil="xl"
+            gaps={{ base: "gap-4", md: "gap-4", xl: "gap-4" }}
+          >
+            <TitleSection>
+              <TitleSection.Headline>
+                {locales.route.timings.headline}
+              </TitleSection.Headline>
+            </TitleSection>
+            <div className="w-full flex flex-col md:flex-row gap-4">
+              <div className={timingInputContainerClasses}>
+                <Input
+                  {...getInputProps(fields.startDate, { type: "date" })}
+                  type="date"
+                  key="startDate"
+                >
+                  <Input.Label htmlFor={fields.startDate.id}>
+                    {timePeriod === TIME_PERIOD_SINGLE
+                      ? locales.route.timings.startDate[TIME_PERIOD_SINGLE]
+                          .label
+                      : locales.route.timings.startDate[TIME_PERIOD_MULTI]
+                          .label}
+                  </Input.Label>
+                  {typeof fields.startDate.errors !== "undefined" &&
+                  fields.startDate.errors.length > 0
+                    ? fields.startDate.errors.map((error) => (
+                        <Input.Error id={fields.startDate.errorId} key={error}>
+                          {error}
+                        </Input.Error>
+                      ))
+                    : null}
+                </Input>
+              </div>
+              <div
+                className={timingInputContainerClasses}
+                hidden={timePeriod === TIME_PERIOD_SINGLE}
+              >
+                <Input
+                  {...getInputProps(fields.endDate, { type: "date" })}
+                  type="date"
+                  key="endDate"
+                >
+                  <Input.Label htmlFor={fields.endDate.id}>
+                    {locales.route.timings.endDate.label}
+                  </Input.Label>
+                  {typeof fields.endDate.errors !== "undefined" &&
+                  fields.endDate.errors.length > 0
+                    ? fields.endDate.errors.map((error) => (
+                        <Input.Error id={fields.endDate.errorId} key={error}>
+                          {error}
+                        </Input.Error>
+                      ))
+                    : null}
+                </Input>
+              </div>
+              <div
+                className={timingInputContainerClasses}
+                hidden={timePeriod === TIME_PERIOD_MULTI}
+              >
+                <Input
+                  {...getInputProps(fields.startTime, { type: "time" })}
+                  type="time"
+                  key="startTime"
+                >
+                  <Input.Label htmlFor={fields.startTime.id}>
+                    {locales.route.timings.startTime.label}
+                  </Input.Label>
+                  {typeof fields.startTime.errors !== "undefined" &&
+                  fields.startTime.errors.length > 0
+                    ? fields.startTime.errors.map((error) => (
+                        <Input.Error id={fields.startTime.errorId} key={error}>
+                          {error}
+                        </Input.Error>
+                      ))
+                    : null}
+                </Input>
+              </div>
+              <div
+                className={timingInputContainerClasses}
+                hidden={timePeriod === TIME_PERIOD_MULTI}
+              >
+                <Input
+                  {...getInputProps(fields.endTime, { type: "time" })}
+                  type="time"
+                  key="endTime"
+                >
+                  <Input.Label htmlFor={fields.endTime.id}>
+                    {locales.route.timings.endTime.label}
+                  </Input.Label>
+                  {typeof fields.endTime.errors !== "undefined" &&
+                  fields.endTime.errors.length > 0
+                    ? fields.endTime.errors.map((error) => (
+                        <Input.Error id={fields.endTime.errorId} key={error}>
+                          {error}
+                        </Input.Error>
+                      ))
+                    : null}
+                </Input>
+              </div>
+            </div>
+          </BasicStructure.Container>
+          <div className="w-full flex flex-col md:flex-row md:justify-between gap-4">
+            <p className="text-neutral-700 text-sm font-normal leading-4.5">
+              {locales.route.requiredHint}
+            </p>
+            <div className="w-full md:w-fit flex flex-col md:flex-row-reverse gap-4">
+              <div className="w-full md:w-fit">
+                <Button
+                  type="submit"
+                  fullSize
+                  form={form.id} // Don't disable button when js is disabled
+                  disabled={
+                    isHydrated
+                      ? form.dirty === false ||
+                        form.valid === false ||
+                        isSubmitting
+                      : false
+                  }
+                >
+                  {locales.route.cta}
+                </Button>
+              </div>
+              <div className="w-full md:w-fit">
+                <Button
+                  as="link"
+                  to={
+                    parentEvent === null
+                      ? "/my/events"
+                      : `/event/${parentEvent.slug}/settings/related-events/child-events?${Deep}=true`
+                  }
+                  variant="outline"
+                  fullSize
+                  prefetch="intent"
+                >
+                  {locales.route.cancel}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </BasicStructure>
+      </Form>
     </>
   );
 }

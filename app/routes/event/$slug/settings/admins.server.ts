@@ -1,39 +1,37 @@
 import { prismaClient } from "~/prisma.server";
-import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
-import { type ArrayElement } from "~/lib/utils/types";
-import { type languageModuleMap } from "~/locales/.server";
 
-export type EventAdminsSettingsLocales =
-  (typeof languageModuleMap)[ArrayElement<
-    typeof SUPPORTED_COOKIE_LANGUAGES
-  >]["event/$slug/settings/admins"];
-
-export async function getEvent(slug: string) {
-  return await prismaClient.event.findUnique({
+export async function getEventBySlug(slug: string) {
+  const event = await prismaClient.event.findUnique({
+    where: { slug },
     select: {
-      id: true,
-      published: true,
-      admins: {
+      _count: {
         select: {
-          profile: {
-            select: {
-              id: true,
-              username: true,
-              firstName: true,
-              lastName: true,
-              avatarImageMetaData: {
-                select: {
-                  path: true,
-                },
-              },
-              position: true,
+          admins: true,
+          profileJoinInvites: {
+            where: {
+              role: "admin",
+              status: "pending",
             },
           },
         },
       },
     },
-    where: {
-      slug,
+  });
+
+  return event;
+}
+
+export async function getEventIdBySlug(slug: string) {
+  const event = await prismaClient.event.findUnique({
+    where: { slug },
+    select: {
+      id: true,
     },
   });
+
+  if (event === null) {
+    return null;
+  }
+
+  return event.id;
 }

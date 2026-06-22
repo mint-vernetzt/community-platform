@@ -48,8 +48,6 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDuration } from "~/lib/utils/time";
 import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { languageModuleMap } from "~/locales/.server";
-import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
-import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
 import { addUserParticipationStatus } from "~/routes/event/$slug/utils.server";
 import { getFeatureAbilities } from "~/routes/feature-access.server";
 import { parseMultipartFormData } from "~/storage.server";
@@ -1170,31 +1168,11 @@ export default function Index() {
                                   </p>
                                 </div>
                               ) : null}
-                              {loaderData.mode !== "anon" &&
-                              canUserParticipate(event) ? (
-                                <div className="flex items-center ml-auto pr-4 py-6">
-                                  <AddParticipantButton
-                                    action={`/event/${event.slug}/settings/participants/add-participant`}
-                                    profileId={loaderData.userId}
-                                    locales={locales}
-                                  />
-                                </div>
-                              ) : null}
                               {event.isOnWaitingList &&
                               !event.canceled &&
                               loaderData.mode !== "owner" ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
                                   <p>{locales.route.section.event.waiting}</p>
-                                </div>
-                              ) : null}
-                              {loaderData.mode !== "anon" &&
-                              canUserBeAddedToWaitingList(event) ? (
-                                <div className="flex items-center ml-auto pr-4 py-6">
-                                  <AddToWaitingListButton
-                                    action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
-                                    profileId={loaderData.userId}
-                                    locales={locales}
-                                  />
                                 </div>
                               ) : null}
                               {(!event.isParticipant &&
@@ -1342,29 +1320,9 @@ export default function Index() {
                                   </p>
                                 </div>
                               ) : null}
-                              {loaderData.mode !== "anon" &&
-                              canUserParticipate(event) ? (
-                                <div className="flex items-center ml-auto pr-4 py-6">
-                                  <AddParticipantButton
-                                    action={`/event/${event.slug}/settings/participants/add-participant`}
-                                    profileId={loaderData.userId}
-                                    locales={locales}
-                                  />
-                                </div>
-                              ) : null}
                               {event.isOnWaitingList && !event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
                                   <p>{locales.route.section.event.waiting}</p>
-                                </div>
-                              ) : null}
-                              {loaderData.mode !== "anon" &&
-                              canUserBeAddedToWaitingList(event) ? (
-                                <div className="flex items-center ml-auto pr-4 py-6">
-                                  <AddToWaitingListButton
-                                    action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
-                                    profileId={loaderData.userId}
-                                    locales={locales}
-                                  />
                                 </div>
                               ) : null}
                               {(!event.isParticipant &&
@@ -1511,29 +1469,13 @@ export default function Index() {
                                   </p>
                                 </div>
                               ) : null}
-                              {canUserParticipate(event) ? (
-                                <div className="flex items-center ml-auto pr-4 py-6">
-                                  <AddParticipantButton
-                                    action={`/event/${event.slug}/settings/participants/add-participant`}
-                                    profileId={loaderData.userId}
-                                    locales={locales}
-                                  />
-                                </div>
-                              ) : null}
+
                               {event.isOnWaitingList && !event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
                                   <p>{locales.route.section.event.waiting}</p>
                                 </div>
                               ) : null}
-                              {canUserBeAddedToWaitingList(event) ? (
-                                <div className="flex items-center ml-auto pr-4 py-6">
-                                  <AddToWaitingListButton
-                                    action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
-                                    profileId={loaderData.userId}
-                                    locales={locales}
-                                  />
-                                </div>
-                              ) : null}
+
                               {!event.isParticipant &&
                               !canUserParticipate(event) &&
                               !event.isOnWaitingList &&

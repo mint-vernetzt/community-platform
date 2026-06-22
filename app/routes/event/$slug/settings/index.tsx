@@ -1,9 +1,20 @@
-import { redirect, type LoaderFunctionArgs } from "react-router";
-import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { type LoaderFunctionArgs, redirect } from "react-router";
+import { invariantResponse } from "~/lib/utils/response";
+import { getEventBySlug } from "./index.server";
+import { Deep } from "~/lib/utils/searchParams";
 
-// handle "/general" as default route
-export async function loader(args: LoaderFunctionArgs) {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { params } = args;
-  const slug = getParamValueOrThrow(params, "slug");
-  return redirect(`/event/${slug}/settings/general`);
-}
+  const { slug } = params;
+  invariantResponse(typeof slug === "string", "slug is not defined", {
+    status: 400,
+  });
+  const event = await getEventBySlug(slug);
+  invariantResponse(event !== null, "Event not found", { status: 404 });
+
+  if (event.published && event.external === false) {
+    return redirect(`./participants?${Deep}=false`);
+  }
+
+  return redirect(`./time-period?${Deep}=false`);
+};

@@ -1,49 +1,76 @@
 export const locale = {
-  validation: {
-    name: {
-      required: "Please provide an event name",
+  headline: "Create Event",
+  close: "Back to my events",
+  info: "Create free and non-commercial events for the STEM community and those interested in STEM education. Unfortunately, offers for <0>children and adolescents</0> cannot be represented. <1>You can find more information on our help page.</1>",
+  parentHint: "You are creating a sub-event for the following event",
+  list: {
+    waitinglist: "Waiting list places",
+    seatsFree: "Seats available",
+    unlimitedSeats: "Unlimited seats",
+    more: "{{count}} more",
+    less: "{{count}} less",
+  },
+  name: {
+    headline: "What is the name of your event?",
+    label: "Event title*",
+    helperText:
+      "With a maximum of 55 characters in the title, your event can be well displayed in the overview.",
+  },
+  timePeriod: {
+    headline: "Is it a one-day or multi-day event?",
+    single: {
+      label: "One-day event",
     },
+    multi: {
+      label: "Multi-day event",
+    },
+  },
+  timings: {
+    headline: "When does your event take place?",
     startDate: {
-      required: "Please specify the start date of the event",
-    },
-    startTime: {
-      required: "Please provide a start time",
+      single: {
+        label: "Date*",
+      },
+      multi: {
+        label: "Start date*",
+      },
     },
     endDate: {
-      required: "Please specify the end date of the event",
-      greaterThan: "The end date must not be before the start date",
+      label: "End date*",
+    },
+    startTime: {
+      label: "Start time*",
     },
     endTime: {
-      required: "Please specify the end time of the event",
-      greaterThan:
-        "The event takes place on a single day. The start time must not be after the end time",
+      label: "End time*",
     },
   },
-  error: {
-    validationFailed: "Validation failed",
-  },
-  content: {
-    back: "Back",
-    headline: "Create event",
-  },
+  requiredHint: "*Required information",
+  cta: "Create draft",
+  cancel: "Discard",
   form: {
-    name: {
-      label: "Event name",
+    validation: {
+      nameRequired: "Please enter a title.",
+      nameMinLength: "The event title must be at least 3 characters long.",
+      startDateRequired: "Please enter the start date of your event.",
+      startDateInPast: "Your date is in the past.",
+      startTimeInPast: "The start time is in the past.",
+      endDateRequired: "Please enter the end date of your event.",
+      endDateInPast: "Your end date is in the past.",
+      endTimeInPast: "The end time is in the past.",
+      endDateBeforeStartDate: "Your end date is before the start date.",
+      endTimeBeforeStartTime: "The end time is before the start time.",
+      startTimeRequired: "Please enter the start time.",
+      endTimeRequired: "Please enter the end time.",
+      eventNotInParentEventBoundaries:
+        "Your event is not within the timeframe of the parent event.",
+      multiDaySameDay:
+        "For multi-day events, the start and end dates must be different.",
     },
-    startDate: {
-      label: "Start date",
-    },
-    startTime: {
-      label: "Start time",
-    },
-    endDate: {
-      label: "End date",
-    },
-    endTime: {
-      label: "End time",
-    },
-    submit: {
-      label: "Create",
-    },
+  },
+  errors: {
+    createEventFailed:
+      "An error occurred while creating your event. Please try again later.",
+    invalidTimePeriod: "Only one-day or multi-day events are allowed.",
   },
 } as const;
