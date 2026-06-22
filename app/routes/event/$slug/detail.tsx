@@ -55,7 +55,6 @@ import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import { IMAGE_CROPPER_DISCONNECT_INTENT_VALUE } from "~/components/legacy/ImageCropper/ImageCropper";
 import ContactPerson from "~/components/next/ContactPerson";
 import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { type loader as rootLoader } from "~/root";
 import { getFeatureAbilities } from "~/routes/feature-access.server";
