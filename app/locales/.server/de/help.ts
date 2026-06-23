@@ -323,7 +323,7 @@ export const locale = {
           question:
             "Ich habe mich zu einem Event angemeldet und kann doch nicht teilnehmen – muss ich mich abmelden?",
           answer:
-            "<p>Wenn Du Dich versehentlich angemeldet hast, oder Du feststellst, dass Du doch nicht teilnehmen kannst, dann ziehe bitte Deine Teilnahme auf der Eventseite per Klick auf den Button <b>“Nicht mehr teilnehmen”</b> wieder zurück. So gibst Du ggf. Plätze für andere frei.</br></br>Alle Events, für die Du Dich angemeldet hast, findest Du unter <b>Mein MINT-Bereich > Meine Events</b>. Per Klick auf ein Event, gelangst Du auf die Eventseite, dort kannst Du Dich vom Event abmelden.</p>",
+            "<p>Wenn Du Dich versehentlich angemeldet hast, oder Du feststellst, dass Du doch nicht teilnehmen kannst, dann ziehe bitte Deine Teilnahme auf der Eventseite per Klick auf den Button <b>“Nicht mehr teilnehmen”</b> wieder zurück. So gibst Du ggf. Plätze für andere frei.</br></br>Alle Events, für die Du Dich angemeldet hast, findest Du unter <b>Mein MINT-Bereich > Meine Events</b>. Per Klick auf ein Event gelangst Du auf die Eventseite, dort kannst Du Dich vom Event abmelden.</p>",
         },
       },
     },
@@ -382,20 +382,20 @@ export const locale = {
           question:
             "Ich möchte mein Event unvollständig veröffentlichen. Wie gehe ich am besten vor?",
           answer:
-            "<p>Es kann sehr sinnvoll eine <b>„Save the Date”-Veranstaltung</b> anzulegen. So kannst Du Dein Event bereits veröffentlichen, auch wenn noch nicht alle Inhalte feststehen, wie z.B. zugehörige Veranstaltungen (Unterevents). Diese kannst Du jederzeit später ergänzen.<br /><br />Wenn von anderen Admins erstelle Unterevents Deinem Rahmenevent zugeordnet werden sollen, ist es hilfreich, wenn Dein Rahmenevent bereits veröffentlicht ist – so kann die Verknüpfung direkt erfolgen.<br /><br />Es gibt aber auch den Fall, dass Du ein unvollständiges Event veröffentlichst, in dem z.b. für die Teilnehmer:innen wichtige Infos, wie z.B. der Konferenzlink, fehlt. Die Plattform weist Dich beim Veröffentlichen darauf hin, aber ermöglicht es Dir trotzdem das Event zu veröffentlichen. Bedenke aber, rechtzeitig den Link zu ergänzen.</p>",
+            "<p>Es kann sehr sinnvoll eine <b>„Save the Date”-Veranstaltung</b> anzulegen. So kannst Du Dein Event bereits veröffentlichen, auch wenn noch nicht alle Inhalte feststehen, wie z.B. zugehörige Veranstaltungen (Unterevents). Diese kannst Du jederzeit später ergänzen.<br /><br />Wenn von anderen Admins erstelle Unterevents Deinem Rahmenevent zugeordnet werden sollen, ist es hilfreich, wenn Dein Rahmenevent bereits veröffentlicht ist – so kann die Verknüpfung direkt erfolgen.<br /><br />Es gibt aber auch den Fall, dass Du ein unvollständiges Event veröffentlichst, in dem z.B. für die Teilnehmer:innen wichtige Infos, wie z.B. der Konferenzlink, fehlt. Die Plattform weist Dich beim Veröffentlichen darauf hin, aber ermöglicht es Dir trotzdem das Event zu veröffentlichen. Bedenke aber, rechtzeitig den Link zu ergänzen.</p>",
           featureFlag: "events",
         },
         publishEvent: {
           question: "Wie kann ich mein Event veröffentlichen?",
           answer:
-            "<p>Du findest Deine Events unter <b>Mein MINT-Bereich > Meine Events</b>. Gehe auf Dein Event und klicke auf der Eventseite den Button <b>“Event bearbeiten”</b>, so gelangst Du in die Event Einstellungen. Dort findest Du den Button <b>“Event veröffentlichen”</b>.<br /><br />Nach dem Veröffentlichen kannst Du Dein Event nicht wieder in den Entwurfstatus zurückversetzen. Du kannst es dann nur noch absagen und auch anschließend löschen.</p>",
+            "<p>Du findest Deine Events unter <b>Mein MINT-Bereich > Meine Events</b>. Gehe auf Dein Event und klicke auf der Eventseite den Button <b>“Event bearbeiten”</b>, so gelangst Du in die Event-Einstellungen. Dort findest Du den Button <b>“Event veröffentlichen”</b>.<br /><br />Nach dem Veröffentlichen kannst Du Dein Event nicht wieder in den Entwurfstatus zurückversetzen. Du kannst es dann nur noch absagen und auch anschließend löschen.</p>",
           featureFlag: "events",
         },
         editEventAfterPublishing: {
           question:
             "Kann ich mein Event nach der Veröffentlichung noch bearbeiten?",
           answer:
-            "<p>Ja. Du findest Deine angelegten Events unter <b>Mein MINT-Bereich > Meine Events</b>. Klickst Du Dein Event an, gelangst Du auf die Eventseite. Über <b>„Event bearbeiten“</b> gelangst Du von der Deiner Eventseite in die Event-Settings. Dort kannst Du Änderungen vornehmen oder das Event auch absagen und löschen.</p>",
+            "<p>Ja. Du findest Deine angelegten Events unter <b>Mein MINT-Bereich > Meine Events</b>. Klickst Du Dein Event an, gelangst Du auf die Eventseite. Über <b>„Event bearbeiten“</b> gelangst Du von der Deiner Eventseite in die Event-Einstellungen. Dort kannst Du Änderungen vornehmen oder das Event auch absagen und löschen.</p>",
           featureFlag: "events",
         },
         leaveEventAsAdmin: {
@@ -425,7 +425,7 @@ export const locale = {
           question:
             "Wie erstelle ich möglichst barrierefreie Dokumente für den Upload?",
           answer:
-            "<p><ol><li><b>Klare Struktur nutzen</b><br />Arbeite mit Überschriften und festen Layouts – so können Inhalte besser gelesen und verstanden werden.</li><li><b>Alt-Texte ergänzen</b><br />Beschreibe Bilder und Grafiken kurz, damit auch Screenreader sie erfassen können.</li><li><b>Sprache & Titel angeben</b><br />Hinterlege die Dokumentensprache und einen aussagekräftigen Titel (nicht nur den Dateinamen). Hinweis: Einen Titel und eine Beschreibung zum Dokument kannst Du auch auf der Plattform innerhalb der Event Einstellungen im Bereich Dokumente verwalten einfügen.</li><li><b>Einfaches Layout wählen</b><br />Vermeide komplexe Anordnungen – Inhalte sollten logisch von oben nach unten lesbar sein.</li><li><b>Als barrierefreies PDF exportieren</b><br />Achte beim Export darauf, dass Struktur und Alt-Texte übernommen werden (“barrierefreies PDF” / “getaggtes PDF”).</li></ol></p>",
+            "<p><ol><li><b>Klare Struktur nutzen</b><br />Arbeite mit Überschriften und festen Layouts – so können Inhalte besser gelesen und verstanden werden.</li><li><b>Alt-Texte ergänzen</b><br />Beschreibe Bilder und Grafiken kurz, damit auch Screenreader sie erfassen können.</li><li><b>Sprache & Titel angeben</b><br />Hinterlege die Dokumentensprache und einen aussagekräftigen Titel (nicht nur den Dateinamen). Hinweis: Einen Titel und eine Beschreibung zum Dokument kannst Du auch auf der Plattform innerhalb der Event-Einstellungen im Bereich Dokumente verwalten einfügen.</li><li><b>Einfaches Layout wählen</b><br />Vermeide komplexe Anordnungen – Inhalte sollten logisch von oben nach unten lesbar sein.</li><li><b>Als barrierefreies PDF exportieren</b><br />Achte beim Export darauf, dass Struktur und Alt-Texte übernommen werden (“barrierefreies PDF” / “getaggtes PDF”).</li></ol></p>",
           featureFlag: "events",
         },
         altTagBackground: {
