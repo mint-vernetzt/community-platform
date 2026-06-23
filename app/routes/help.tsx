@@ -49,6 +49,29 @@ export default function Help() {
           {Object.entries(locales.faq).map(([topicKey]) => {
             const typedTopicKey = topicKey as keyof typeof locales.faq;
             const typedTopicValue = locales.faq[typedTopicKey];
+
+            const qAndAObject = locales.faq[typedTopicKey].qAndAs;
+            const items = Object.entries(qAndAObject).filter((entry) => {
+              const itemValue = entry[1] as {
+                question: string;
+                answer: string;
+                featureFlag?: string;
+              };
+
+              if (
+                itemValue.featureFlag &&
+                typeof abilities[itemValue.featureFlag] !== "undefined" &&
+                abilities[itemValue.featureFlag].hasAccess === false
+              ) {
+                return false;
+              }
+              return true;
+            });
+
+            if (items.length === 0) {
+              return null;
+            }
+
             return (
               <Accordion.Topic id={typedTopicKey} key={typedTopicKey}>
                 {typedTopicValue.headline}

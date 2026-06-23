@@ -294,7 +294,7 @@ export const locale = {
       },
     },
     events: {
-      headline: "Questions about events",
+      headline: "Questions about finding events and participation",
       qAndAs: {
         findEvents: {
           question:
@@ -311,29 +311,77 @@ export const locale = {
           question:
             "I have registered for an event, but I can no longer attend. How can I cancel my participation?",
           answer:
-            "<p>On the event page, you will find the button <b>“Cancel Participation”</b>. This allows you to withdraw your participation. This may free up spots for others.</br></br>You can find the events you have registered for under <b>My space > My events</b>. Clicking on your event will take you to the event page.</p>",
+            "<p>On the event page, you will find the button <b>“Cancel Participation”</b>. This allows you to withdraw your participation. This may free up spots for others.</br></br>All events you have registered for can be found under <b>My space > My events</b>. By clicking on an event, you will be taken to the event page, where you can cancel your participation.</p>",
         },
+      },
+    },
+    eventCreation: {
+      headline: "Questions about creating events",
+      qAndAs: {
         whoCanCreateEvents: {
           question: "Who can create events?",
           answer:
             '<p>Some BETA users of the platform can create their own free and non-commercial events. If you would like to test event creation as well, please contact us at <a href="mailto:community@mint-vernetzt.de">community@mint-vernetzt.de</a>.</br></br><b>Important:</b> Our platform is NOT aimed at children and young people, but exclusively at MINT actors, educational providers, network coordinators, etc., therefore events such as MINT holiday courses or weekly offerings in a student laboratory do not belong here.</p>',
         },
-        eventCreationConsiderations: {
-          question: "What do I need to consider when creating an event?",
-          answer:
-            '<p>On our platform, you can create events that serve to connect, exchange ideas, or provide further training for adults and professionals in STEM education. These events must always be free of charge and may not be profit-oriented.</br></br>Furthermore, events must not violate our <a href="/terms-of-use" rel="noreferrer noopener" target="_blank">terms of use</a>.</br></br><b>Not allowed are:</b><ul><li><b>Inappropriate content, such as offers specifically for children and young people</b></br>e.g.: MINT holiday camps for students or courses in schools or student laboratories</li><li><b>Commercial events, sales or promotional events</b></br>That is, events that are only offered for a fee in order to make a profit and product presentations or training courses that are primarily aimed at acquiring customers.</li><li><b>Events that violate our <a href="/terms-of-use" rel="noreferrer noopener" target="_blank">terms of use</a></b></br>Which for example show harassment, depictions of violence, pornographic or inhuman content or symbols of banned organizations or content that incites hatred or violence against people or against certain groups of people or content that denies or trivializes acts committed under the rule of national socialism or glorifies the rule of national socialism. More detailed information can be found in our terms of use.</li></ul></p>',
-          featureFlag: "events",
-        },
+        // whoCanCreateEvents: {
+        //   question: "Who can create events?",
+        //   answer:
+        //     '<p>Any registered user can create their own events.<br /><br /><b>Please note</b>: Our platform is NOT aimed at children and young people, but exclusively at MINT actors, educational providers, network coordinators, etc., therefore events such as MINT holiday courses or weekly offerings in a student laboratory for students do not belong here. This target group is not reached with the platform.<br /><br />We reserve the right to delete events that violate our <a href="/terms-of-use" rel="noreferrer noopener" target="_blank">terms of use</a>. Please refer to our information under the question <b>“What do I need to consider when creating an event?”</b></p>',
+        // },
         eventCreation: {
           question: "How can I create an event?",
           answer:
-            "<p>Go to the menu <b>My space > My Events</b> and click on <b>“Create Event”</b>. In just a few steps, you can create a <b>draft</b> of your event.</br></br><b>To create an event, you will need the following information, which can be edited later:</b></br></br><ul><li>Title of the event</li><li>Date, start time, and end time of the event</li></ul></p>",
+            "Go to the menu <b>My Space > My Events</b> and click on <b>“Create Event”</b>. In just a few steps, you can create a draft of your event.</br></br>To create an event, you will need the following information, which can be edited later:</br><ul><li>Title of the event</li><li>Decision whether it is a one-day or multi-day event.</li><li>Date</li><li>Start and end time of the event for one-day events. (Start and end times for multi-day events are determined by adding sub-events.)</li></ul></p>",
+          featureFlag: "events",
+        },
+        eventCreationConsiderations: {
+          question: "What do I need to consider when creating an event?",
+          answer:
+            '<p>On our platform, you can create events that serve to connect, exchange ideas, or provide further training for adults and professionals in STEM education. These events must always be free of charge and may not be profit-oriented.</br></br><b>Not allowed are:</b><ul><li>Inappropriate content, such as offers specifically for children and young people</br>e.g.: MINT holiday camps for students or regular clubs or courses in schools or student laboratories</li><li>Commercial events, sales or promotional events</br>That is, events that are only offered for a fee in order to make a profit and product presentations or training courses that are primarily aimed at acquiring customers.</li><li>Events that violate our <a href="/terms-of-use" rel="noreferrer noopener" target="_blank">terms of use</a></br>Which for example show harassment, depictions of violence, pornographic or inhuman content or symbols of banned organizations or content that incites hatred or violence against people or against certain groups of people or content that denies or trivializes acts committed under the rule of national socialism or glorifies the rule of national socialism. More detailed information can be found in our terms of use.</li></ul></p>',
+          featureFlag: "events",
+        },
+        externalRegistration: {
+          question:
+            "Can I also create events and provide my own registration link?",
+          answer:
+            "<p>Yes, you can create events with external registration. For events with external registration, participant management does not take place through the community platform.<br /><br />To create an event with external registration, first create your event draft. You will then be redirected to the view of your event. Click on <b>“Edit Event”</b> to access your event settings.<br /><br />Within the event settings, under registration, select <b>“External Registration”</b> and add an external registration link.<br /><br />Once you have published your event, it will be listed like other events in the event overview. Participants can access your external event registration through the external registration link on the event page.</p>",
+          featureFlag: "events",
+        },
+        externalRegistrationConsiderations: {
+          question:
+            "What should I consider when using my own registration link?",
+          answer:
+            "<p><ul><li>After publishing your event, you cannot change the registration type, which means you cannot convert an event with external registration into an internal event.</li><li>For events with external registration, you cannot use the participant management of the community platform and cannot set a registration period.</li></ul></p>",
+          featureFlag: "events",
+        },
+      },
+    },
+    eventManagement: {
+      headline: "Questions about editing & managing events",
+      qAndAs: {
+        visibilityOfDraftAndEdit: {
+          question: "Who can see my event draft, who can edit it?",
+          answer:
+            "<p>All persons you make an administrator of your event can edit your event draft.<br /><br />Team members and speakers can view your event draft but cannot edit it.</p>",
+          featureFlag: "events",
+        },
+        publishIncompleteEvent: {
+          question:
+            "I want to publish my event incompletely. How should I proceed?",
+          answer:
+            "<p>It can be very useful to create a <b>“Save the Date” event</b>. This way, you can publish your event even if not all content is finalized, such as related events (sub-events). You can add these at any time later.<br /><br />If sub-events created by other admins are to be assigned to your main event, it is helpful if your main event is already published – this way, the linking can be done directly.<br /><br />However, there is also the case where you publish an incomplete event, in which important information for participants, such as the conference link, is missing. The platform will notify you when publishing, but still allows you to publish the event. However, remember to add the link in time.</p>",
+          featureFlag: "events",
+        },
+        publishEvent: {
+          question: "How can I publish my event?",
+          answer:
+            "<p>You can find your events under <b>My Space > My Events</b>. Go to your event and click the <b>“Edit Event”</b> button on the event page to access the event settings. There you will find the <b>“Publish Event”</b> button.<br /><br />After publishing, you cannot revert your event to draft status. You can only cancel it and then delete it.</p>",
           featureFlag: "events",
         },
         editEventDraft: {
           question: "How can I edit my event draft?",
           answer:
-            "<p>If you have created an event draft, you will be redirected to the event view (event page). To edit your draft, click on <b>“Edit Event”</b>.</br></br>You can find your event at any time under <b>My Space > My Events</b>. Clicking on your event will take you to the event page, where you will find the <b>“Edit Event”</b> button.</br></br>By clicking on <b>“Edit Event”</b>, you will enter the event settings. Here you can make changes, such as publishing, canceling, deleting, and in the future also copying your event.</br></br>You can also edit your event after it has been published.</p>",
+            "<p>If you have created an event draft, you will be redirected to the event view (event page). To edit your draft, click on <b>“Edit Event”</b>.</br></br>Otherwise, you can find your event at any time under <b>My Space > My Events</b>. Clicking on your event will take you to the event page, where you will find the <b>“Edit Event”</b> button.</br></br>By clicking on <b>“Edit Event”</b>, you will enter the event settings. Here you can make changes, publish your event, or cancel and delete it after publication.</br></br>You can also continue to edit your event after it has been published.</p>",
           featureFlag: "events",
         },
         editEventAfterPublishing: {
@@ -342,27 +390,122 @@ export const locale = {
             "<p>Yes. You can find your created events under <b>My Space > My Events</b>. Clicking on your event will take you to the event page. From there, you can access the event settings by clicking on <b>“Edit Event”</b>. Here, you can make changes or also cancel and delete the event.</p>",
           featureFlag: "events",
         },
-        provideEventMaterial: {
+        leaveEventAsAdmin: {
           question:
-            "Can I provide materials such as presentations or participation certificates?",
+            "I no longer want to be an admin of my event. How can I remove myself as an admin?",
           answer:
-            "<p>Yes, you can upload or add files directly in the event settings under <b>“Manage Documents”</b>. Participants can find these on the event page.</p>",
+            "<p>If you want to remove yourself as an administrator of an event, you must first designate another person as the event administrator. Once the person has accepted the invitation, you can remove yourself as an administrator or have yourself removed.</p>",
           featureFlag: "events",
         },
-        reportEvent: {
-          question: "How can I report an event?",
+      },
+    },
+    uploadOnEvent: {
+      headline: "Questions about uploading materials to events",
+      qAndAs: {
+        provideEventMaterial: {
+          question: "Can I provide materials such as presentations?",
           answer:
-            '<p>Users have the option to report events. The report button is located on the event page in the upper area behind the 3-dot menu button <span class="w-5 h-5 inline-flex place-items-center justify-center rounded-md border border-primary bg-neutral-50"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span>.</br></br>In the following query, at least one reason for the report need to be provided.</br></br><b>The following reasons speak for reporting an event:</b></br></br><ul><li><b>Inappropriate content, such as offers specifically for children and young people</b></br>For example: MINT holiday camps for students or regular courses in schools or student laboratories.</li><li><b>Commercial events, sales or promotional events</b></br>That is, events that are only offered for a fee in order to make a profit and product presentations or training courses that are primarily aimed at acquiring customers.</li><li><b>Events that violate our <a href="/terms-of-use">terms of use</a></b></br>Which for example show harassment, depictions of violence, pornographic or inhuman content or symbols of banned organizations or content that incites hatred or violence against people or against certain groups of people or content that denies or trivializes acts committed under the rule of national socialism or glorifies the rule of national socialism. More detailed information can be found in our terms of use.</li></ul></br></br>After the event has been reported, it will be checked by us and possibly deactivated. If you have reported an event, you cannot report it again while it is being reviewed.</br></br>The creator of the event will be informed by us. A violation of the terms of use can lead to exclusion from the community platform and legal consequences.</p>',
+            "<p>Yes, you can upload files (PDFs) directly in the event settings under <b>Manage Documents</b> or add them later. Participants will find these on the event page. Participants can also download the documents even if the event has already taken place.</p>",
+          featureFlag: "events",
+        },
+        kindOFEventMaterial: {
+          question: "What can I upload in the “Manage Documents” section?",
+          answer: "You can upload PDFs with a maximum file size of 6 MB.",
+          featureFlag: "events",
+        },
+        a11yOfEventMaterial: {
+          question:
+            "How can I create as accessible documents as possible for upload?",
+          answer:
+            "<p><ol><li><b>Use a clear structure</b><br />Work with headings and fixed layouts – this makes content easier to read and understand.</li><li><b>Add alt texts</b><br />Briefly describe images and graphics so that screen readers can also capture them.</li><li><b>Specify language & title</b><br />Provide the document language and a meaningful title (not just the file name). Note: You can also add a title and description to the document on the platform within the event settings under Manage Documents.</li><li><b>Choose a simple layout</b><br />Avoid complex arrangements – content should be logically readable from top to bottom.</li><li><b>Export as an accessible PDF</b><br />When exporting, ensure that structure and alt texts are preserved (“accessible PDF” / “tagged PDF”).</li></ol></p>",
+          featureFlag: "events",
+        },
+        altTagBackground: {
+          question:
+            "Uploading a cover image – why am I asked for an image description?",
+          answer:
+            "<p>When you upload a cover image for your event, you help blind or visually impaired people by providing a descriptive text (ALT text) for your image. This will be read aloud to people using screen readers to navigate the platform. If your image is purely decorative, this is not necessary.</p>",
+          featureFlag: "events",
+        },
+      },
+    },
+    specialEvents: {
+      headline: "Questions about special event formats & settings",
+      qAndAs: {
+        externalEvent: {
+          question:
+            "Is it possible to create events with external registration?",
+          answer:
+            "<p>Yes, when you edit your event draft, you will find the option <b>“External Registration”</b> under the <b>Registration</b> settings. You can then add an external registration link, through which your participants will be redirected to the external registration.<br /><br />Closed events cannot be created with external registration.</p>",
+          featureFlag: "events",
+        },
+        closedEvent: {
+          question: "Is it possible to create closed events?",
+          answer:
+            "<p>Go to <b>“Edit Event”</b>. In the event settings, you will find the <b>Registration</b> section. There, you can select in the first tab <b>“Manage Registration”</b> that your event is a closed event. Participation in the event is then by invitation only. This option is not available for external registration.</p>",
+          featureFlag: "events",
+        },
+        participantsOnClosedEvent: {
+          question: "How can I invite people to my closed event?",
+          answer:
+            "<p>Go to <b>“Edit Event”</b>. In the event settings, you will find the <b>Participants</b> section. Here, in the <b>“Invite”</b> tab, you can invite participants to your event. Simply enter the name or email address of the participant in the input field. The people found will be listed below if they are already registered on the platform. Select the appropriate person and then click the “Invite” button. <br /><br />Currently, it is not possible to invite people to events who are not yet registered on the platform. However, you can send them the link to your event via email.</p>",
+          featureFlag: "events",
+        },
+        externalParticipants: {
+          question:
+            "Can I also invite people who are not on the platform to my closed event?",
+          answer:
+            "<p>Currently, it is not possible to invite people to events who are not yet registered on the platform. However, you can send them the link to your event via email.</p>",
+          featureFlag: "events",
+        },
+      },
+    },
+    parentAndChildEvents: {
+      headline: "Questions about related events (parent events, sub-events)",
+      qAndAs: {
+        explanation: {
+          question: "What is a parent event? What is a sub-event?",
+          answer:
+            "<p>When you add sub-events to an event, your event becomes a parent event. A parent event is a kind of “parent event” under which you can bundle several individual events, for example, a conference with multiple workshops.<br /><br />Example:<br /><i>“MINT Day 2026” (Parent Event)<br />11:15–13:15 Workshop: Design Thinking for Beginners” (Sub-Event)<br />14:15–16:15 Networking Meeting Alliance for Women in MINT Professions (Sub-Event)</i><br /><br />In the edit mode of your event, you can create sub-events within the <b>Event Settings</b> under <b>Related Events</b>, or if you have already created other events, add sub-events to your parent event. <b>The sub-events must be within the timeframe of the parent event and must not yet be published.</b><br /><br />It is not possible to create a sub-event within a sub-event. However, you also have the option to add your event to a parent event. The parent event must be entirely within the timeframe of your sub-event. If you are not an admin of an event that you want to set as a parent event, you cannot add your event directly. In this case, you send a request via the “Request to Add” button to the event administrator. Only after confirmation will your event be linked as a sub-event.<br /><br />You can see your request until it is confirmed or rejected in the “Parent Event” tab under “Pending Request”.<br /><br /><b>Please note</b>: Once your event is published, you can no longer make adjustments to the link to the parent event. <b>However</b>: Your parent event can be canceled and deleted independently of your sub-event. Your sub-event can then continue to exist as an independent event. Whether it remains or is canceled or deleted is decided by the administrator of the parent event.</p>",
+          featureFlag: "events",
+        },
+        deleteConnection: {
+          question: "Can I remove the link to a parent event or sub-events?",
+          answer:
+            "<p>You can remove the link if your event has not yet been published.<br /><br />To do this, go to the <b>Related Events</b> section within the event settings and click <b>Remove as Sub-Event</b>. Your event will then become independent again.</p>",
+          featureFlag: "events",
+        },
+      },
+    },
+    cancelAndDeleteEvent: {
+      headline: "Questions about canceling or deleting an event",
+      qAndAs: {
+        cancelEvent: {
+          question: "I want to cancel my event. How do I proceed?",
+          answer:
+            "<p>To cancel your event, go to your event settings (Edit Event) and navigate to <b>Critical Area > Cancel Event</b>.<br /><br />Once you cancel the event, all participants, speakers, team members, and any other admins will automatically receive an email with the cancellation information.<br /><br />If your event has not yet been published, you cannot cancel it; you can simply delete it directly: <b>Critical Area > Delete Event</b>.</p>",
+          featureFlag: "events",
+        },
+        deleteEvent: {
+          question: "I want to delete my event. How do I proceed?",
+          answer:
+            "<p>You can directly delete unpublished events. To do this, go to the event settings <b>Critical Area > Delete Event</b>.<br /><br />If you want to delete an already published event, you must first cancel it. You can do this under <b>Critical Area > Cancel Event</b>. After that, you can delete it. If there are other admins in your event, they will be informed about the deletion.</p>",
+          featureFlag: "events",
+        },
+      },
+    },
+    reportAnEvent: {
+      headline: "Questions about reporting events",
+      qAndAs: {
+        reportEvent: {
+          question: "How can I report events?",
+          answer:
+            '<p>Users have the option to report events. The report button is located on the event page in the upper area behind the 3-dot menu button <span class="w-5 h-5 inline-flex place-items-center justify-center rounded-md border border-primary bg-neutral-50"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span>.</br></br>In the following query, at least one reason must be provided for the report.</br></br><b>The following reasons justify reporting an event:</b></br></br><ul><li><b>Inappropriate content, such as offers specifically for children and adolescents</b></br>For example: MINT holiday camps for students or regular clubs or courses in schools or student laboratories.</li><li><b>Commercial events, sales or promotional events</b></br>Events that are only offered for a participation fee to make a profit and product presentations or trainings that primarily serve customer acquisition.</li><li><b>Events that violate our <a href="/terms-of-use">Terms of Use</a></b></br>For example, content that shows harassment, depictions of violence, pornographic or inhumane content, or symbols of prohibited organizations, or content that incites hatred or violence against people or specific groups of people, or content that denies or trivializes actions committed under the rule of National Socialism, or glorifies the rule of National Socialism. More detailed information can be found in our Terms of Use.</li></ul></br></br>After the event has been reported, it will be reviewed by us and possibly taken down. If you have reported an event, you cannot report it again while it is under review.</br></br>The creator of the event will be informed by us. A violation of the Terms of Use can lead to exclusion from the community platform and legal consequences.</p>',
         },
         iReportedAnEvent: {
-          question: "I reported an event, what happens next?",
+          question: "I have reported an event, what happens next?",
           answer:
-            '<p>Thank you for bringing inappropriate or illegal content to our attention.</br></br>What happens next?</br></br>After the event has been reported, it will be reviewed by us and possibly deactivated. If you have reported an event, you cannot report it again while it is being reviewed.</br></br>The creator of the event will be informed by us. A violation of the terms of use can lead to exclusion from the community platform and legal consequences.</br></br>If we determine that no violation has occurred, we will keep the event visible. If you are not satisfied with our decision after the review, please contact us at: <b><a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a></b></p>',
-        },
-        feedback: {
-          question: "Feedback about events",
-          answer:
-            '<p><b>Any questions or ideas for new features?</b> Then feel free to write to us at <b><a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a></b> – we look forward to your feedback!</p>',
+            '<p>Thank you for bringing inappropriate or illegal content to our attention.</br></br>What happens next?</br></br>After the event has been reported, it will be reviewed by us and possibly taken down. If you have reported an event, you cannot report it again while it is under review.</br></br>The creator of the event will be informed by us. A violation of the Terms of Use can lead to exclusion from the community platform and legal consequences. </br></br>If we determine that no violation has occurred, the event will remain visible. If you are not satisfied with our decision after the review, please contact us: <b><a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a></b></p>',
         },
       },
     },

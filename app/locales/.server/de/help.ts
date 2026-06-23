@@ -306,7 +306,7 @@ export const locale = {
       },
     },
     events: {
-      headline: "Fragen zu Events",
+      headline: "Fragen zum Finden von Events & Teilnahme",
       qAndAs: {
         findEvents: {
           question: "Wo finde ich passende Veranstaltungen?",
@@ -323,45 +323,192 @@ export const locale = {
           question:
             "Ich habe mich zu einem Event angemeldet und kann doch nicht teilnehmen – muss ich mich abmelden?",
           answer:
-            "<p>Wenn Du Dich versehentlich angemeldet hast, oder Du feststellst, dass Du doch nicht teilnehmen kannst, dann ziehe bitte Deine Teilnahme auf der Eventseite per Klick auf den Button <b>“Nicht mehr teilnehmen”</b> wieder zurück. So gibst Du ggf. Plätze für andere frei.</br></br>Du findest die Events für die Du Dich angemeldet hast unter <b>Mein MINT-Bereich > Meine Events</b>. Klickst Du das Event an, gelangst Du auf die Eventseite.</p>",
+            "<p>Wenn Du Dich versehentlich angemeldet hast, oder Du feststellst, dass Du doch nicht teilnehmen kannst, dann ziehe bitte Deine Teilnahme auf der Eventseite per Klick auf den Button <b>“Nicht mehr teilnehmen”</b> wieder zurück. So gibst Du ggf. Plätze für andere frei.</br></br>Alle Events, für die Du Dich angemeldet hast, findest Du unter <b>Mein MINT-Bereich > Meine Events</b>. Per Klick auf ein Event gelangst Du auf die Eventseite, dort kannst Du Dich vom Event abmelden.</p>",
         },
+      },
+    },
+    eventCreation: {
+      headline: "Fragen zur Eventerstellung",
+      qAndAs: {
         whoCanCreateEvents: {
           question: "Wer darf Events erstellen?",
           answer:
             '<p>Einige BETA-Nutzer:innen der Plattform können eigene kostenlose und nicht kommerzielle Events erstellen. Möchtest Du auch die Eventerstellung testen, kontaktiere uns unter <a href="mailto:community@mint-vernetzt.de">community@mint-vernetzt.de</a>.</br></br><b>Wichtig:</b> Unsere Plattform richtet sich NICHT an Kinder und Jugendliche, sondern ausschließlich an MINT-Akteur:innen, Bildungsanbieter:innen, Netzwerkkoordinator:innen, etc., daher gehören Veranstaltungen wie MINT-Ferienkurse oder wöchentliche Angebote in einem Schüler:innenlabor hier nicht hin.</p>',
         },
-        eventCreationConsiderations: {
-          question: "Was muss ich beim Erstellen eines Events beachten?",
-          answer:
-            '<p>Auf unserer Plattform kannst Du Events anlegen, die der Vernetzung, dem Austausch oder der Weiterbildung von Erwachsenen und Fachkräften in der MINT-Bildung dienen. Diese Events müssen immer kostenfrei sein und dürfen nicht auf Gewinnerzielung ausgerichtet sein.</br></br>Events dürfen des Weiteren nicht gegen unsere <a href="/terms-of-use" rel="noreferrer noopener" target="_blank">Nutzungsbedingungen</a> verstoßen.</br></br><b>Nicht erlaubt sind:</b><ul><li><b>Unpassende Inhalte, wie Angebote speziell für Kinder und Jugendliche</b></br>z.B.: MINT-Feriencamps für Schüler:innen oder regelmäßige AGs oder Kurse in Schulen oder Schüler:innenlaboren</li><li><b>Kommerzielle Veranstaltungen, Verkaufs- oder Werbeveranstaltungen</b></br>Also Veranstaltungen, die nur gegen Teilnahmegebühr angeboten werden, um Gewinn zu erzielen und Produktpräsentationen oder Trainings, die in erster Linie der Kundengewinnung dienen.</li><li><b>Events, die gegen unsere <a href="/terms-of-use" rel="noreferrer noopener" target="_blank">Nutzungsbedingungen</a> verstoßen</b></br>Die zum Beispiel Belästigungen, Gewaltdarstellungen, pornografische oder menschenverachtende Inhalte oder Kennzeichen verbotener Organisationen zeigen oder Inhalte, die zu Hass oder der Gewalt gegen Menschen oder gegen bestimmte Gruppen von Menschen aufstacheln oder Inhalte, die unter der Herrschaft des Nationalsozialismus begangene Handlungen leugnen oder verharmlosen oder die Herrschaft des Nationalsozialismus verherrlichen. Ausführlichere Informationen dazu findest Du in unseren Nutzungsbedingungen.</li></ul></p>',
-          featureFlag: "events",
-        },
+        // whoCanCreateEvents: {
+        //   question: "Wer darf Events erstellen?",
+        //   answer:
+        //     '<p>Jede:r angemeldete Nutzer:in kann eigene Events anlegen.<br /><br /><b>Bitte beachte</b>: Unsere Plattform richtet sich NICHT an Kinder und Jugendliche, sondern ausschließlich an MINT-Akteur:innen, Bildungsanbieter:innen, Netzwerkkoordinator:innen, etc., daher gehören Veranstaltungen wie MINT-Ferienkurse oder wöchentliche Angebote in einem Schüler:innenlabor für Schüler:innen hier nicht hin. Diese Zielgruppe wird mit der Plattform nicht erreicht.<br /><br />Wir behalten uns vor Events zu löschen, die gegen unsere <a href="/terms-of-use" rel="noreferrer noopener" target="_blank">Nutzungsbedingungen</a> verstoßen. Bitte beachte dafür unsere Information unter der Frage <b>“Was muss ich beim Erstellen eines Events beachten?”</b></p>',
+        // },
         eventCreation: {
           question: "Wie kann ich ein Event erstellen?",
           answer:
-            "<p>Gehe im Menü auf <b>Mein MINT-Bereich > Meine Events</b> und klicke auf <b>“Event anlegen”</b>. In wenigen Schritten erstellst Du dann einen <b>Entwurf</b> Deines Events.</br></br><b>Zum Erstellen benötigst Du folgende Angaben, die im Nachhinein bearbeitet werden können:</b></br></br><ul><li>Titel des Events</li><li>Datum, Startzeit und Ende des Events</li></ul></p>",
+            "<p>Gehe im Menü auf <b>Mein MINT-Bereich > Meine Events</b> und klicke auf <b>“Event anlegen”</b>. In wenigen Schritten erstellst Du dann einen Entwurf Deines Events.</br></br>Zum Erstellen benötigst Du folgende Angaben, die im Nachhinein bearbeitet werden können:</br><ul><li>Titel des Events</li><li>Entscheidung, ob es sich um ein eintägiges oder mehrtägiges Event handelt.</li><li>Datum</li><li>Startzeit und Ende des Events bei eintägigen Events. (Start- und Endzeit bei mehrtägigen Events ergeben sich durch das Hinzufügen von Unterveranstaltungen.)</li></ul></p>",
           featureFlag: "events",
         },
-        editEventDraft: {
-          question: "Wie kann ich den Entwurf meines Events bearbeiten?",
+        eventCreationConsiderations: {
+          question: "Was muss ich beim Erstellen eines Events beachten?",
           answer:
-            "<p>Wenn Du einen Evententwurf erstellt hast, wirst Du danach auf die Ansicht des Events (Eventseite) geleitet. Um Deinen Entwurf zu bearbeiten, klicke auf <b>“Event bearbeiten”</b>.</br></br>Du findest Dein Event jederzeit unter <b>Mein MINT-Bereich > Meine Events</b>. Klickst Du Dein Event an, gelangst Du auf die Eventseite, auf der Du den Button <b>“Event bearbeiten“</b> findest.</br></br>Über <b>“Event bearbeiten”</b> gelangst Du in die Event-Settings. Hier kannst Du Änderungen vornehmen, z.B. Dein Event veröffentlichen, absagen, löschen und zukünftig auch kopieren.</br></br>Du kannst auch nach der Veröffentlichung Dein Event noch bearbeiten.</p>",
+            '<p>Auf unserer Plattform kannst Du Events anlegen, die der Vernetzung, dem Austausch oder der Weiterbildung von Erwachsenen und Fachkräften in der MINT-Bildung dienen. Diese Events müssen immer kostenfrei sein und dürfen nicht auf Gewinnerzielung ausgerichtet sein.</br></br><b>Nicht erlaubt sind:</b><ul><li>Unpassende Inhalte, wie Angebote speziell für Kinder und Jugendliche</br>z.B.: MINT-Feriencamps für Schüler:innen oder regelmäßige AGs oder Kurse in Schulen oder Schüler:innenlaboren</li><li>Kommerzielle Veranstaltungen, Verkaufs- oder Werbeveranstaltungen</br>Also Veranstaltungen, die nur gegen Teilnahmegebühr angeboten werden, um Gewinn zu erzielen und Produktpräsentationen oder Trainings, die in erster Linie der Kundengewinnung dienen.</li><li>Events, die gegen unsere <a href="/terms-of-use" rel="noreferrer noopener" target="_blank">Nutzungsbedingungen</a> verstoßen</br>Die zum Beispiel Belästigungen, Gewaltdarstellungen, pornografische oder menschenverachtende Inhalte oder Kennzeichen verbotener Organisationen zeigen oder Inhalte, die zu Hass oder der Gewalt gegen Menschen oder gegen bestimmte Gruppen von Menschen aufstacheln oder Inhalte, die unter der Herrschaft des Nationalsozialismus begangene Handlungen leugnen oder verharmlosen oder die Herrschaft des Nationalsozialismus verherrlichen. Ausführlichere Informationen dazu findest Du in unseren Nutzungsbedingungen.</li></ul></p>',
+          featureFlag: "events",
+        },
+        externalRegistration: {
+          question:
+            "Kann ich auch Events erstellen und meinen eigenen Anmeldelink hinterlegen?",
+          answer:
+            "<p>Ja, Du kannst Events mit externer Registrierung anlegen. Bei Events mit externer Registrierung läuft die Teilnehmendenverwaltung nicht über die Community-Plattform.<br /><br />Um ein Event mit externer Registrierung zu erstellen, legst Du zunächst Deinen Event-Entwurf an. Du wirst danach auf die Ansicht Deines Events geleitet. Klicke dort auf <b>“Event bearbeiten”</b>, so gelangst Du in Deine Event-Einstellungen.<br /><br />Wähle innerhalb der Event-Einstellungen unter Registrierung <b>“externe Registrierung”</b> aus und füge einen externen Registrierungslink hinzu.<br /><br />Wenn Du Dein Event veröffentlicht hast, wird es wie die anderen Events in der Eventübersicht aufgeführt. Deine Teilnehmer:innen gelangen von der Eventseite durch den externen Registrierungslink zu Deiner externen Event-Registrierung.</p>",
+          featureFlag: "events",
+        },
+        externalRegistrationConsiderations: {
+          question:
+            "Was ist bei der Nutzung eines eigenen Anmeldelinks zu beachten?",
+          answer:
+            "<p><ul><li>Nach der Veröffentlichung Deines Events kannst Du die Registierungsart nicht mehr ändern, das heißt, Du kannst ein Event mit externer Registrierung nicht mehr in ein internes Event umwandeln.</li><li>Bei Events mit externer Registrierung, kannst Du nicht die Teilnehmendenverwaltung der Community-Plattform nutzen und keinen Registrierungszeitraum einstellen.</li></ul></p>",
+          featureFlag: "events",
+        },
+      },
+    },
+    eventManagement: {
+      headline: "Fragen zum Bearbeiten & Verwalten von Events",
+      qAndAs: {
+        visibilityOfDraftAndEdit: {
+          question:
+            "Wer kann meinen Event-Entwurf sehen, wer kann ihn bearbeiten?",
+          answer:
+            "<p>Alle Personen, die Du zum Administrator/zur Administratorin Deines Events machst, können Deinen Event-Entwurf bearbeiten.<br /><br />Teammitglieder und Speaker:innen können Deinen Event-Entwurf sehen, aber nicht bearbeiten.</p>",
+          featureFlag: "events",
+        },
+        publishIncompleteEvent: {
+          question:
+            "Ich möchte mein Event unvollständig veröffentlichen. Wie gehe ich am besten vor?",
+          answer:
+            "<p>Es kann sehr sinnvoll eine <b>„Save the Date”-Veranstaltung</b> anzulegen. So kannst Du Dein Event bereits veröffentlichen, auch wenn noch nicht alle Inhalte feststehen, wie z.B. zugehörige Veranstaltungen (Unterevents). Diese kannst Du jederzeit später ergänzen.<br /><br />Wenn von anderen Admins erstelle Unterevents Deinem Rahmenevent zugeordnet werden sollen, ist es hilfreich, wenn Dein Rahmenevent bereits veröffentlicht ist – so kann die Verknüpfung direkt erfolgen.<br /><br />Es gibt aber auch den Fall, dass Du ein unvollständiges Event veröffentlichst, in dem z.B. für die Teilnehmer:innen wichtige Infos, wie z.B. der Konferenzlink, fehlt. Die Plattform weist Dich beim Veröffentlichen darauf hin, aber ermöglicht es Dir trotzdem das Event zu veröffentlichen. Bedenke aber, rechtzeitig den Link zu ergänzen.</p>",
+          featureFlag: "events",
+        },
+        publishEvent: {
+          question: "Wie kann ich mein Event veröffentlichen?",
+          answer:
+            "<p>Du findest Deine Events unter <b>Mein MINT-Bereich > Meine Events</b>. Gehe auf Dein Event und klicke auf der Eventseite den Button <b>“Event bearbeiten”</b>, so gelangst Du in die Event-Einstellungen. Dort findest Du den Button <b>“Event veröffentlichen”</b>.<br /><br />Nach dem Veröffentlichen kannst Du Dein Event nicht wieder in den Entwurfstatus zurückversetzen. Du kannst es dann nur noch absagen und auch anschließend löschen.</p>",
           featureFlag: "events",
         },
         editEventAfterPublishing: {
           question:
             "Kann ich mein Event nach der Veröffentlichung noch bearbeiten?",
           answer:
-            "<p>Ja. Du findest Deine angelegten Events unter <b>Mein MINT-Bereich > Meine Events</b>. Klickst Du Dein Event an, gelangst Du auf die Eventseite. Über <b>„Event bearbeiten“</b> gelangst Du von der Deiner Eventseite in die Event-Settings. Dort kannst Du Änderungen vornehmen oder das Event auch absagen und löschen.</p>",
+            "<p>Ja. Du findest Deine angelegten Events unter <b>Mein MINT-Bereich > Meine Events</b>. Klickst Du Dein Event an, gelangst Du auf die Eventseite. Über <b>„Event bearbeiten“</b> gelangst Du von der Deiner Eventseite in die Event-Einstellungen. Dort kannst Du Änderungen vornehmen oder das Event auch absagen und löschen.</p>",
           featureFlag: "events",
         },
-        provideEventMaterial: {
+        leaveEventAsAdmin: {
           question:
-            "Kann ich Materialien wie Präsentationen oder Teilnahmebestätigungen bereitstellen?",
+            "Ich möchte nicht mehr Admin meines Events sein. Wie kann ich mich als Admin entfernen?",
           answer:
-            "<p>Ja, Du kannst Dateien direkt im Event in den Event-Settings unter <b>“Dokumente verwalten”</b> hochladen oder nachträglich ergänzen. Teilnehmende finden diese dann auf der Eventseite.</p>",
+            "<p>Wenn Du dich als Administrator:in eines Events entfernen möchtest, musst Du zunächst eine andere Person als Event-Administrator:in bestimmen. Sobald die Person die Einladung bestätigt hat, kannst Du Dich als Administrator:in entfernen bzw. Dich entfernen lassen.</p>",
           featureFlag: "events",
         },
+      },
+    },
+    uploadOnEvent: {
+      headline: "Fragen zum Dokumenten-Upload bei Events",
+      qAndAs: {
+        provideEventMaterial: {
+          question: "Kann ich Materialien wie Präsentationen bereitstellen?",
+          answer:
+            "<p>Ja, Du kannst Dateien (PDFs) direkt im Event in den Event-Einstellungen unter <b>Dokumente verwalten</b> hochladen oder nachträglich ergänzen. Teilnehmende finden diese dann auf der Eventseite. Teilnehmende können die Dokumente auch noch runterladen, wenn das Event bereits in der Vergangenheit liegt.</p>",
+          featureFlag: "events",
+        },
+        kindOFEventMaterial: {
+          question: "Was kann ich im Bereich “Dokumente verwalten” hochladen?",
+          answer: "Du kannst PDFs mit maximal 6 MB Dateigröße hochladen.",
+          featureFlag: "events",
+        },
+        a11yOfEventMaterial: {
+          question:
+            "Wie erstelle ich möglichst barrierefreie Dokumente für den Upload?",
+          answer:
+            "<p><ol><li><b>Klare Struktur nutzen</b><br />Arbeite mit Überschriften und festen Layouts – so können Inhalte besser gelesen und verstanden werden.</li><li><b>Alt-Texte ergänzen</b><br />Beschreibe Bilder und Grafiken kurz, damit auch Screenreader sie erfassen können.</li><li><b>Sprache & Titel angeben</b><br />Hinterlege die Dokumentensprache und einen aussagekräftigen Titel (nicht nur den Dateinamen). Hinweis: Einen Titel und eine Beschreibung zum Dokument kannst Du auch auf der Plattform innerhalb der Event-Einstellungen im Bereich Dokumente verwalten einfügen.</li><li><b>Einfaches Layout wählen</b><br />Vermeide komplexe Anordnungen – Inhalte sollten logisch von oben nach unten lesbar sein.</li><li><b>Als barrierefreies PDF exportieren</b><br />Achte beim Export darauf, dass Struktur und Alt-Texte übernommen werden (“barrierefreies PDF” / “getaggtes PDF”).</li></ol></p>",
+          featureFlag: "events",
+        },
+        altTagBackground: {
+          question:
+            "Titelbild hochladen – warum werde ich nach einer Bildbeschreibung gefragt?",
+          answer:
+            "<p>Wenn Du ein Titelbild für Dein Event hochlädst, dann hilfst Du blinden oder seheingeschränkten Personen, wenn Du einen beschreibenden Text (ALT-Text) für Dein Bild angibst. Dieser wird Personen, die die Plattform per Screenreader bedienen, als Bildbeschreibung vorgelesen. Ist Dein Bild nur dekorativ, dann ist das nicht nötig.</p>",
+          featureFlag: "events",
+        },
+      },
+    },
+    specialEvents: {
+      headline: "Fragen zu besonderen Event-Formaten & Einstellungen",
+      qAndAs: {
+        externalEvent: {
+          question:
+            "Ist es möglich Events mit externer Registrierung zu erstellen?",
+          answer:
+            "<p>Ja, wenn Du Deinen Evententwurf bearbeitest, dann findest Du in den Einstellungen unter dem Punkt <b>Registrierung</b> die Möglichkeit <b>“Externe Registrierung”</b> auszuwählen. Du fügst dann einen externen Registrierungslink ein, über den Deine Teilnehmer:innen zur externen Registrierung weitergeleitet werden.<br /><br />Geschlossene Events können nicht mit externer Registrierung angelegt werden.</p>",
+          featureFlag: "events",
+        },
+        closedEvent: {
+          question: "Ist es möglich geschlossene Events zu erstellen?",
+          answer:
+            "<p>Gehe auf “Event bearbeiten”. In den Event-Einstellungen findest Du den Punkt <b>Registrierung</b>. Dort kannst Du im ersten Reiter <b>“Registrierung verwalten”</b> auswählen, dass es sich bei Deinem Event um eine geschlossene Veranstaltung handelt. Die Teilnahme am Event ist dann nur auf Einladung möglich. Diese Option ist bei externer Registrierung nicht verfügbar.</p>",
+          featureFlag: "events",
+        },
+        participantsOnClosedEvent: {
+          question:
+            "Wie kann ich Personen zu meiner geschlossenen Veranstaltung einladen?",
+          answer:
+            "<p>Gehe auf “Event bearbeiten”. In den Event-Einstellungen findest Du den Punkt <b>Teilnehmende</b>. Hier kannst Du im Reiter <b>“Einladen”</b> Teilnehmende zu Deinem Event einladen. Gib dafür einfach den Namen oder die E-Mail-Adresse des Teilnehmenden in das Eingabefeld ein. Die Personen, die daraufhin gefunden wurden, erscheinen darunter aufgelistet, wenn sie sich bereits auf der Plattform registriert haben. Wähle die entsprechende Person aus und klicke anschließend auf den Button “Einladen”.<br /><br />Aktuell ist es noch nicht möglich hierüber Personen zu Veranstaltungen einzuladen, die noch nicht auf der Plattform registriert sind. Aber Du kannst ihnen den Link zu Deinem Event per E-Mail senden.</p>",
+          featureFlag: "events",
+        },
+        externalParticipants: {
+          question:
+            "Kann ich auch Personen, die nicht auf der Plattform sind, zu meiner geschlossenen Veranstaltung einladen?",
+          answer:
+            "<p>Aktuell ist es noch nicht möglich über die Event-Einstellungen Personen zu Veranstaltungen einzuladen, die noch nicht auf der Plattform registriert sind. Du kannst ihnen aber den Link zu Deinem Event per E-Mail senden und somit auf Dein Event hinweisen.</p>",
+          featureFlag: "events",
+        },
+      },
+    },
+    parentAndChildEvents: {
+      headline:
+        "Fragen zu zugehörigen Events (Rahmenevents, Unterveranstaltungen)",
+      qAndAs: {
+        explanation: {
+          question:
+            "Was ist ein Rahmenevent? Was ist ein Unterevent bzw. eine Unterveranstaltung?",
+          answer:
+            "<p>Wenn Du zu einem Event untergeordnete Events hinzufügst, wird Dein Event zum Rahmenevent. Ein Rahmenevent ist eine Art “Dachveranstaltung”, unter der Du mehrere Einzelveranstaltungen bündeln kannst, zum Beispiel eine Konferenz mit mehreren Workshops.<br /><br />Beispiel:<br /><i>“MINT-Tag 2026” (Rahmenevent)<br />11.15–13.15 Uhr Workshop: Design Thinking für Einsteiger:innen” (Unterevent)<br />14.15–16.15 Uhr Netzwerktreffen Bündnis für Frauen in MINT-Berufen (Unterevent)</i><br /><br />Im Beabreiten-Modus Deines Events, kannst Du innerhalb der <b>Event-Einstellungen</b> unter <b>Zugehörige Events</b> Unterveranstaltungen zu Deinem Event anlegen oder, falls Du schon andere Events erstellt hast, Unterveranstaltungen zu Deinem Rahmen-Event hinzufügen. <b>Die Unterveranstaltungen müssen im Zeitraum der Rahmenveranstaltung liegen und dürfen noch nicht veröffentlich sein.</b><br /><br />Es ist nicht möglich eine Unterveranstaltung innerhalb einer Unterveranstaltung zu erzeugen. Du hast aber auch die Möglichkeit Dein Event zu einer Rahmenveranstaltung hinzuzufügen. Die Rahmenveranstaltung muss zeitlich vollständig innerhalb des Zeitraums Deines Unterevents liegen. Wenn Du bei einer Veranstaltung, die Du als Rahmenevent setzen willst, kein Admin bist, kannst Du Dein Event nicht direkt hinzufügen. In diesem Fall sendest Du eine Anfrage per Button “Hinzufügen anfragen” an den bzw. die Event-Administratorin. Erst nach Bestätigung wird Dein Event als Unterevent verknüpft.<br /><br />Deine Anfrage siehst Du bis zur Bestätigung oder Ablehnung im Reiter “Rahmenevent” unter “Ausstehende Anfrage”.<br /><br /><b>Bitte beachte</b>: Sobald Dein Event veröffentlicht ist, kannst Du keine Anpassung in der Verknüpfung zur Rahmenveranstaltung mehr vornehmen. <b>Aber</b>: Deine Rahmenveranstaltung kann unabhängig von Deiner Unterveranstaltung abgesagt und gelöscht werden. Deine Unterveranstaltung kann dann weiterhin als selbstständige Veranstaltung bestehen bleiben. Ob sie bestehen bleibt oder mit abgesagt, bzw. mitgelöscht wird, entscheidet der/die Administrator:in der Rahmenveranstaltung.</p>",
+          featureFlag: "events",
+        },
+        deleteConnection: {
+          question:
+            "Kann ich die Verknüpfung zu einem Rahmenevent oder zu Unterevents wieder lösen?",
+          answer:
+            "<p>Du kannst die Verknüpfung entfernen, wenn Du Dein Event noch nicht veröffentlicht hast.<br /><br />Dafür klickst Du innerhalb der Einstellungen im Unterpunkt <b>“Zugehörige Events”</b> auf <b>“Als Unterevent entfernen”</b>. Danach ist Dein Event wieder eigenständig. </p>",
+          featureFlag: "events",
+        },
+      },
+    },
+    cancelAndDeleteEvent: {
+      headline: "Fragen zum Thema Event absagen oder Event löschen",
+      qAndAs: {
+        cancelEvent: {
+          question: "Ich möchte mein Event absagen. Wie gehe ich vor?",
+          answer:
+            "<p>Um Dein Event abzusagen, gehe in Deinen Event-Einstellungen (Event bearbeiten) auf <b>Kritischer Bereich > Event absagen</b>.<br /><br />Sobald Du das Event absagst, erhalten alle Teilnehmenden, Speaker:innen, Teammitglieder und ggf. weitere Admins automatisch eine E-Mail mit der Info zur Absage.<br /><br />Wenn Dein Event noch nicht veröffentlicht ist, dann kannst Du es nicht absagen, Du kannst es dann einfach direkt löschen: <b>Kritischer Bereich > Event löschen</b>.</p>",
+          featureFlag: "events",
+        },
+        deleteEvent: {
+          question: "Ich möchte mein Event löschen. Wie gehe ich vor?",
+          answer:
+            "<p>Unveröffentlichte Events kannst Du einfach direkt löschen. Gehe dafür in die Event-Einstellungen <b>Kritischer Bereich > Event löschen</b>.<br /><br />Wenn Du Dein bereits veröffentlichtes Event löschen möchtest, dann musst Du es zunächst absagen. Das Absagen kannst Du im Punkt <b>Kritischer Bereich > Event absagen</b> vornehmen. Danach kannst Du es löschen. Wenn es andere Admins in Deinem Event gibt, werden sie über das Löschen informiert.</p>",
+          featureFlag: "events",
+        },
+      },
+    },
+    reportAnEvent: {
+      headline: "Fragen zum Melden von Events",
+      qAndAs: {
         reportEvent: {
           question: "Wie kann ich Events melden?",
           answer:
@@ -371,11 +518,6 @@ export const locale = {
           question: "Ich habe ein Event gemeldet, was passiert jetzt?",
           answer:
             '<p>Danke, dass Du uns auf unpassende oder rechtswidrige Inhalte hinweist.</br></br>Wie geht es nun weiter?</br></br>Nachdem das Event gemeldet wurde, wird es von uns geprüft und ggf. abgeschaltet. Wenn Du ein Event gemeldet hast, kannst Du es, solange es in der Prüfung ist, nicht nochmal melden.</br></br>Der bzw. die Ersteller:in des Events wird von uns informiert. Ein Verstoß gegen die Nutzungsbedingungen kann zum Ausschluss von der Community-Plattform führen und rechtliche Konsequenzen nach sich ziehen. </br></br>Wenn wir feststellen, dass kein Verstoß stattgefunden hat, werden wir das Event weiterhin sichtbar lassen. Solltest Du mit unserer Entscheidung nach der Prüfung nicht zufrieden sein, nimm bitte Kontakt zu uns auf: <b><a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a></b></p>',
-        },
-        feedback: {
-          question: "Feedback zu den Events",
-          answer:
-            '<p><b>Noch Fragen oder Ideen für neue Funktionen?</b> Dann schreib uns jederzeit an <a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a> – wir freuen uns auf Dein Feedback!</p>',
         },
       },
     },
