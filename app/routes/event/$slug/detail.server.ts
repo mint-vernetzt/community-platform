@@ -411,6 +411,9 @@ export async function removeProfileFromParticipants(options: {
       parentParticipationRequired: true,
       childEvents: {
         where: {
+          parentParticipationRequired: {
+            not: false,
+          },
           OR: [
             {
               participants: {
@@ -440,6 +443,43 @@ export async function removeProfileFromParticipants(options: {
               profileId: true,
             },
           },
+          // For legacy reasons we need to check child events of child events
+          childEvents: {
+            where: {
+              parentParticipationRequired: {
+                not: false,
+              },
+              OR: [
+                {
+                  participants: {
+                    some: {
+                      profileId,
+                    },
+                  },
+                },
+                {
+                  waitingList: {
+                    some: {
+                      profileId,
+                    },
+                  },
+                },
+              ],
+            },
+            select: {
+              id: true,
+              participants: {
+                select: {
+                  profileId: true,
+                },
+              },
+              waitingList: {
+                select: {
+                  profileId: true,
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -450,13 +490,26 @@ export async function removeProfileFromParticipants(options: {
     return { error };
   }
 
+  const childEvents: {
+    id: string;
+    participants: { profileId: string }[];
+    waitingList: { profileId: string }[];
+  }[] = [];
+
+  for (const childEvent of event.childEvents) {
+    if (childEvent.childEvents.length > 0) {
+      childEvents.push(...childEvent.childEvents);
+    }
+    childEvents.push(childEvent);
+  }
+
   const childEventWithdrawTransaction =
-    event.childEvents.length > 0 && event.parentParticipationRequired
+    childEvents.length > 0 && event.parentParticipationRequired
       ? [
           prismaClient.participantOfEvent.deleteMany({
             where: {
               eventId: {
-                in: event.childEvents
+                in: childEvents
                   .filter((childEvent) =>
                     childEvent.participants.some(
                       (relation) => relation.profileId === profileId
@@ -470,7 +523,7 @@ export async function removeProfileFromParticipants(options: {
           prismaClient.waitingParticipantOfEvent.deleteMany({
             where: {
               eventId: {
-                in: event.childEvents
+                in: childEvents
                   .filter((childEvent) =>
                     childEvent.waitingList.some(
                       (relation) => relation.profileId === profileId
