@@ -411,19 +411,42 @@ export async function removeProfileFromParticipants(options: {
       parentParticipationRequired: true,
       childEvents: {
         where: {
-          participants: {
-            some: {
-              profileId,
+          AND: [
+            {
+              // parentParticipation: { not: false } doesn't work
+              // see: https://github.com/prisma/prisma/issues/22262
+              OR: [
+                {
+                  parentParticipationRequired: null,
+                },
+                {
+                  parentParticipationRequired: true,
+                },
+              ],
             },
-          },
-          waitingList: {
-            some: {
-              profileId,
+            {
+              OR: [
+                {
+                  participants: {
+                    some: {
+                      profileId,
+                    },
+                  },
+                },
+                {
+                  waitingList: {
+                    some: {
+                      profileId,
+                    },
+                  },
+                },
+              ],
             },
-          },
+          ],
         },
         select: {
           id: true,
+          parentParticipationRequired: true,
           participants: {
             select: {
               profileId: true,
@@ -432,6 +455,57 @@ export async function removeProfileFromParticipants(options: {
           waitingList: {
             select: {
               profileId: true,
+            },
+          },
+          // For legacy reasons we need to check child events of child events
+          childEvents: {
+            where: {
+              AND: [
+                {
+                  // parentParticipation: { not: false } doesn't work
+                  // see: https://github.com/prisma/prisma/issues/22262
+                  OR: [
+                    {
+                      parentParticipationRequired: null,
+                    },
+                    {
+                      parentParticipationRequired: true,
+                    },
+                  ],
+                },
+                {
+                  OR: [
+                    {
+                      participants: {
+                        some: {
+                          profileId,
+                        },
+                      },
+                    },
+                    {
+                      waitingList: {
+                        some: {
+                          profileId,
+                        },
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+            select: {
+              id: true,
+              parentParticipationRequired: true,
+              participants: {
+                select: {
+                  profileId: true,
+                },
+              },
+              waitingList: {
+                select: {
+                  profileId: true,
+                },
+              },
             },
           },
         },
@@ -444,13 +518,26 @@ export async function removeProfileFromParticipants(options: {
     return { error };
   }
 
+  const childEvents: {
+    id: string;
+    participants: { profileId: string }[];
+    waitingList: { profileId: string }[];
+  }[] = [];
+
+  for (const childEvent of event.childEvents) {
+    if (childEvent.childEvents.length > 0) {
+      childEvents.push(...childEvent.childEvents);
+    }
+    childEvents.push(childEvent);
+  }
+
   const childEventWithdrawTransaction =
-    event.childEvents.length > 0
+    childEvents.length > 0 && event.parentParticipationRequired
       ? [
           prismaClient.participantOfEvent.deleteMany({
             where: {
               eventId: {
-                in: event.childEvents
+                in: childEvents
                   .filter((childEvent) =>
                     childEvent.participants.some(
                       (relation) => relation.profileId === profileId
@@ -464,7 +551,7 @@ export async function removeProfileFromParticipants(options: {
           prismaClient.waitingParticipantOfEvent.deleteMany({
             where: {
               eventId: {
-                in: event.childEvents
+                in: childEvents
                   .filter((childEvent) =>
                     childEvent.waitingList.some(
                       (relation) => relation.profileId === profileId
@@ -500,7 +587,7 @@ export async function removeProfileFromParticipants(options: {
 
   // Try to move first profile from waiting list to participants
   try {
-    const eventForWaitingList = await prismaClient.event.findUnique({
+    const eventToMoveUpToParticipants = await prismaClient.event.findUnique({
       where: {
         id: eventId,
       },
@@ -521,44 +608,21 @@ export async function removeProfileFromParticipants(options: {
           },
           take: 1,
         },
-        childEvents: {
-          where: {
-            moveUpToParticipants: true,
-          },
-          select: {
-            id: true,
-            participantLimit: true,
-            _count: {
-              select: {
-                participants: true,
-              },
-            },
-            waitingList: {
-              select: {
-                profileId: true,
-              },
-              orderBy: {
-                createdAt: "asc",
-              },
-              take: 1,
-            },
-          },
-        },
       },
     });
 
-    if (eventForWaitingList === null) {
+    if (eventToMoveUpToParticipants === null) {
       throw new Error("Event not found");
     }
 
     if (
-      eventForWaitingList.moveUpToParticipants &&
-      eventForWaitingList.participantLimit !== null &&
-      eventForWaitingList._count.participants <
-        eventForWaitingList.participantLimit &&
-      eventForWaitingList.waitingList.length > 0
+      eventToMoveUpToParticipants.moveUpToParticipants &&
+      eventToMoveUpToParticipants.participantLimit !== null &&
+      eventToMoveUpToParticipants._count.participants <
+        eventToMoveUpToParticipants.participantLimit &&
+      eventToMoveUpToParticipants.waitingList.length > 0
     ) {
-      const firstInWaitingList = eventForWaitingList.waitingList[0];
+      const firstInWaitingList = eventToMoveUpToParticipants.waitingList[0];
       const result = await prismaClient.$transaction([
         prismaClient.participantOfEvent.create({
           data: {
@@ -618,51 +682,77 @@ export async function removeProfileFromParticipants(options: {
       await mailer(mailerOptions, sender, recipient, subject, text, html);
     }
 
-    if (eventForWaitingList.childEvents.length > 0) {
+    if (childEvents.length > 0) {
       const childEventsToMoveUpToParticipants =
-        eventForWaitingList.childEvents.filter(
-          (childEvent) =>
-            childEvent.participantLimit !== null &&
-            childEvent._count.participants < childEvent.participantLimit &&
-            childEvent.waitingList.length > 0
-        );
+        await prismaClient.event.findMany({
+          where: {
+            id: {
+              in: childEvents.map((childEvent) => childEvent.id),
+            },
+          },
+          select: {
+            id: true,
+            moveUpToParticipants: true,
+            participantLimit: true,
+            _count: {
+              select: {
+                participants: true,
+              },
+            },
+            waitingList: {
+              select: {
+                profileId: true,
+              },
+              orderBy: {
+                createdAt: "asc",
+              },
+              take: 1,
+            },
+          },
+        });
 
-      const childEventMoveUpTransactions =
-        childEventsToMoveUpToParticipants.length > 0
-          ? [
-              ...childEventsToMoveUpToParticipants.map((childEvent) =>
-                prismaClient.participantOfEvent.create({
-                  data: {
-                    eventId: childEvent.id,
+      const childEventMoveUpTransactions = [
+        ...childEventsToMoveUpToParticipants
+          .filter((childEvent) => {
+            return (
+              childEvent.participantLimit !== null &&
+              childEvent._count.participants < childEvent.participantLimit &&
+              childEvent.waitingList.length > 0
+            );
+          })
+          .map((childEvent) => {
+            const transaction = [
+              prismaClient.participantOfEvent.create({
+                data: {
+                  eventId: childEvent.id,
+                  profileId: childEvent.waitingList[0].profileId,
+                },
+                select: {
+                  profile: {
+                    select: {
+                      email: true,
+                      firstName: true,
+                    },
+                  },
+                  event: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              }),
+              prismaClient.waitingParticipantOfEvent.delete({
+                where: {
+                  profileId_eventId: {
                     profileId: childEvent.waitingList[0].profileId,
+                    eventId: childEvent.id,
                   },
-                  select: {
-                    profile: {
-                      select: {
-                        email: true,
-                        firstName: true,
-                      },
-                    },
-                    event: {
-                      select: {
-                        name: true,
-                      },
-                    },
-                  },
-                })
-              ),
-              ...childEventsToMoveUpToParticipants.map((childEvent) =>
-                prismaClient.waitingParticipantOfEvent.delete({
-                  where: {
-                    profileId_eventId: {
-                      profileId: childEvent.waitingList[0].profileId,
-                      eventId: childEvent.id,
-                    },
-                  },
-                })
-              ),
-            ]
-          : [];
+                },
+              }),
+            ];
+            return transaction;
+          }),
+      ].flat();
 
       const results = await prismaClient.$transaction(
         childEventMoveUpTransactions
