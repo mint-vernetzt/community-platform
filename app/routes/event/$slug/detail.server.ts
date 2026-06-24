@@ -451,7 +451,7 @@ export async function removeProfileFromParticipants(options: {
   }
 
   const childEventWithdrawTransaction =
-    event.childEvents.length > 0
+    event.childEvents.length > 0 && event.parentParticipationRequired
       ? [
           prismaClient.participantOfEvent.deleteMany({
             where: {
