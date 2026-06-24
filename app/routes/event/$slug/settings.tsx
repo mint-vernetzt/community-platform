@@ -507,7 +507,7 @@ export default function Settings() {
             {locales.route.modal.publishEventModal.withIssues.description}
             <Hint>
               {insertComponentsIntoLocale(
-                locales.route.modal.publishEventModal.hint.description,
+                locales.route.modal.publishEventModal.hint,
                 [<span key="semibold" className="font-semibold" />]
               )}
             </Hint>
@@ -564,7 +564,7 @@ export default function Settings() {
             {locales.route.modal.publishEventModal.noIssues.description}
             <Hint>
               {insertComponentsIntoLocale(
-                locales.route.modal.publishEventModal.hint.description,
+                locales.route.modal.publishEventModal.hint,
                 [<span key="semibold" className="font-semibold" />]
               )}
             </Hint>

@@ -50,10 +50,7 @@ export const locale = {
         submit: "Publish now",
         cancel: "Cancel",
       },
-      hint: {
-        description:
-          "<0>Note</0>: After publishing, your event will be visible to users and cannot be set back to draft. If necessary, you can still cancel and delete the event later.",
-      },
+      hint: "<0>Note</0>: After publishing, your event will be visible to users and cannot be set back to draft. If necessary, you can still cancel and delete the event later.",
     },
   },
   issues: {
