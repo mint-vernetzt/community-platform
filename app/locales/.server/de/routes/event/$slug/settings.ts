@@ -48,9 +48,12 @@ export const locale = {
         headline: "Event veröffentlichen",
         description:
           "Super! Dein Event ist vollständig ausgefüllt und bereit zur Veröffentlichung.",
-        hint: "<0>Hinweis</0>: Nach der Veröffentlichung ist Dein Event für Nutzer:innen sichtbar und kann nicht mehr in den Entwurf zurückgesetzt werden. Bei Bedarf kannst Du das Event später noch absagen und löschen.",
         submit: "Jetzt veröffentlichen",
         cancel: "Abbrechen",
+      },
+      hint: {
+        description:
+          "<0>Hinweis</0>: Nach der Veröffentlichung ist Dein Event für Nutzer:innen sichtbar und kann nicht mehr in den Entwurf zurückgesetzt werden. Bei Bedarf kannst Du das Event später noch absagen und löschen.",
       },
     },
   },

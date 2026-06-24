@@ -505,6 +505,12 @@ export default function Settings() {
           </Modal.Title>
           <Modal.Section>
             {locales.route.modal.publishEventModal.withIssues.description}
+            <Hint>
+              {insertComponentsIntoLocale(
+                locales.route.modal.publishEventModal.hint.description,
+                [<span key="semibold" className="font-semibold" />]
+              )}
+            </Hint>
             <div className="flex flex-col gap-4">
               {issues.map((issue, index) => {
                 return (
@@ -558,7 +564,7 @@ export default function Settings() {
             {locales.route.modal.publishEventModal.noIssues.description}
             <Hint>
               {insertComponentsIntoLocale(
-                locales.route.modal.publishEventModal.noIssues.hint,
+                locales.route.modal.publishEventModal.hint.description,
                 [<span key="semibold" className="font-semibold" />]
               )}
             </Hint>
