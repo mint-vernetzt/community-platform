@@ -411,16 +411,22 @@ export async function removeProfileFromParticipants(options: {
       parentParticipationRequired: true,
       childEvents: {
         where: {
-          participants: {
-            some: {
-              profileId,
+          OR: [
+            {
+              participants: {
+                some: {
+                  profileId,
+                },
+              },
             },
-          },
-          waitingList: {
-            some: {
-              profileId,
+            {
+              waitingList: {
+                some: {
+                  profileId,
+                },
+              },
             },
-          },
+          ],
         },
         select: {
           id: true,
