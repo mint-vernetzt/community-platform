@@ -17,3 +17,6 @@ export function hasDescription(event: {
     event.description.trim() !== "<p></p>"
   );
 }
+
+export const PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM =
+  "participate-on-event-intent";

@@ -70,6 +70,20 @@ export const locale = {
       close: "Schließen",
     },
     contactPerson: "Ansprechpartner:in",
+    participateOnEventIntentModal: {
+      title: "Möchtest Du an dieser Veranstaltung teilnehmen?",
+      description: {
+        participate:
+          "Du kannst Dich hier direkt für die Veranstaltung anmelden.",
+        joinWaitingList:
+          "Du kannst Dich hier direkt auf die Warteliste für die Veranstaltung setzen.",
+      },
+      submit: {
+        participate: "Teilnehmen",
+        joinWaitingList: "Auf Warteliste setzen",
+      },
+      cancel: "Abbrechen",
+    },
   },
   errors: {
     invalidProfileId: "Ungültige Profil-ID",

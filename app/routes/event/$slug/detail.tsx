@@ -63,6 +63,8 @@ import { hasContent } from "~/utils.shared";
 import { filterEventConferenceLink } from "./utils.server";
 import { Deep } from "~/lib/utils/searchParams";
 import { utcToZonedTime } from "date-fns-tz";
+import { Modal } from "~/components-next/Modal";
+import { PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM } from "~/events.utils.shared";
 
 export function links() {
   return [
@@ -640,346 +642,394 @@ function Detail() {
   );
 
   return (
-    <BasicStructure>
-      {hasContent(loaderData.event.parentEvent) ? (
-        <BreadCrump>
-          <BreadCrump.Link
-            to={`/event/${loaderData.event.parentEvent.slug}/detail/about`}
-            prefetch="intent"
-          >
-            {loaderData.event.parentEvent.name}
-          </BreadCrump.Link>
-          <BreadCrump.Current>{loaderData.event.name}</BreadCrump.Current>
-        </BreadCrump>
-      ) : (
-        <BackButton
-          to={
-            previousLocation !== null &&
-            previousLocation.pathname === "/explore/events"
-              ? `${previousLocation.pathname}${previousLocation.search}`
-              : "/explore/events"
-          }
-          onClick={(event) => {
-            if (
+    <>
+      <BasicStructure>
+        {hasContent(loaderData.event.parentEvent) ? (
+          <BreadCrump>
+            <BreadCrump.Link
+              to={`/event/${loaderData.event.parentEvent.slug}/detail/about`}
+              prefetch="intent"
+            >
+              {loaderData.event.parentEvent.name}
+            </BreadCrump.Link>
+            <BreadCrump.Current>{loaderData.event.name}</BreadCrump.Current>
+          </BreadCrump>
+        ) : (
+          <BackButton
+            to={
               previousLocation !== null &&
               previousLocation.pathname === "/explore/events"
-            ) {
-              event.preventDefault();
-              void navigate(-1);
+                ? `${previousLocation.pathname}${previousLocation.search}`
+                : "/explore/events"
             }
-          }}
-          prefetch="intent"
-        >
-          {loaderData.locales.route.content.back}
-        </BackButton>
-      )}
-      <EventsOverview>
-        <EventsOverview.Image
-          credits={
-            loaderData.event.backgroundImageMetaData !== null
-              ? loaderData.event.backgroundImageMetaData.credits
-              : null
-          }
-          alt={
-            loaderData.event.backgroundImageMetaData !== null &&
-            loaderData.event.backgroundImageMetaData.description !== null
-              ? loaderData.event.backgroundImageMetaData.description
-              : loaderData.event.name
-          }
-          src={loaderData.event.background}
-          blurredSrc={loaderData.event.blurredBackground}
-        />
-        {loaderData.mode === "admin" &&
-          loaderData.abilities["events"].hasAccess && (
-            <EventsOverview.EditBackground
-              locales={loaderData.locales.route.content}
-              to={`/event/${loaderData.event.slug}/settings/details/background?${Deep}=true`}
-            />
-          )}
-        {loaderData.event.published === false && (
-          <EventsOverview.StateFlag>
-            {loaderData.locales.route.content.draft}
-          </EventsOverview.StateFlag>
+            onClick={(event) => {
+              if (
+                previousLocation !== null &&
+                previousLocation.pathname === "/explore/events"
+              ) {
+                event.preventDefault();
+                void navigate(-1);
+              }
+            }}
+            prefetch="intent"
+          >
+            {loaderData.locales.route.content.back}
+          </BackButton>
         )}
-        {loaderData.event.canceled && loaderData.event.published && (
-          <EventsOverview.StateFlag tint="negative">
-            {loaderData.locales.route.content.canceled}
-          </EventsOverview.StateFlag>
-        )}
-        {loaderData.beforeParticipationPeriod &&
-          loaderData.event.external === false &&
-          loaderData.event.openForRegistration &&
-          (loaderData.event._count.childEvents === 0 ||
-            loaderData.event.parentParticipationRequired) &&
-          (loaderData.event.parentEvent === null ||
-            loaderData.event.parentParticipationRequired === false ||
-            loaderData.event.parentEvent.parentParticipationRequired ===
-              false ||
-            loaderData.event.parentEvent.participants.some(
-              (relation) => relation.profileId === loaderData.profileId
-            )) && (
-            <EventsOverview.State>
-              {formatDateTime(
-                zonedParticipationFrom,
-                loaderData.language,
-                loaderData.locales.route.content.beforeParticipationPeriod
-              )}
-            </EventsOverview.State>
-          )}
-        {loaderData.afterParticipationPeriod &&
-          loaderData.inPast === false &&
-          loaderData.event.external === false &&
-          loaderData.event.openForRegistration &&
-          (loaderData.event._count.childEvents === 0 ||
-            loaderData.event.parentParticipationRequired) &&
-          (loaderData.event.parentEvent === null ||
-            loaderData.event.parentParticipationRequired === false ||
-            loaderData.event.parentEvent.parentParticipationRequired ===
-              false ||
-            loaderData.event.parentEvent.participants.some(
-              (relation) => relation.profileId === loaderData.profileId
-            )) && (
-            <EventsOverview.State>
-              {loaderData.locales.route.content.afterParticipationPeriod}
-            </EventsOverview.State>
-          )}
-        {loaderData.inPast && (
-          <EventsOverview.State tint="neutral">
-            {loaderData.locales.route.content.inPast}
-          </EventsOverview.State>
-        )}
-        <EventsOverview.Container>
-          <EventsOverview.EventName>
-            {loaderData.event.name}
-          </EventsOverview.EventName>
-
-          <EventsOverview.InfoContainer>
-            <EventsOverview.ResponsibleOrganizations
-              organizations={loaderData.event.responsibleOrganizations}
-              locales={loaderData.locales}
-            />
-            <EventsOverview.PeriodOfTime
-              slug={loaderData.event.slug}
-              startTime={loaderData.event.startTime}
-              endTime={loaderData.event.endTime}
-              openForRegistration={loaderData.event.openForRegistration}
-              published={loaderData.event.published}
-              language={loaderData.language}
-              isMember={loaderData.event.isMember}
-            />
-            {hasContent(loaderData.event.stage) && (
-              <EventsOverview.Stage
-                slug={loaderData.event.slug}
-                venueName={loaderData.event.venueName}
-                venueStreet={loaderData.event.venueStreet}
-                venueZipCode={loaderData.event.venueZipCode}
-                venueCity={loaderData.event.venueCity}
-                stage={
-                  loaderData.event.stage
-                    .slug as keyof typeof loaderData.locales.stages
-                }
-                conferenceLink={loaderData.event.conferenceLink}
-                locales={loaderData.locales}
+        <EventsOverview>
+          <EventsOverview.Image
+            credits={
+              loaderData.event.backgroundImageMetaData !== null
+                ? loaderData.event.backgroundImageMetaData.credits
+                : null
+            }
+            alt={
+              loaderData.event.backgroundImageMetaData !== null &&
+              loaderData.event.backgroundImageMetaData.description !== null
+                ? loaderData.event.backgroundImageMetaData.description
+                : loaderData.event.name
+            }
+            src={loaderData.event.background}
+            blurredSrc={loaderData.event.blurredBackground}
+          />
+          {loaderData.mode === "admin" &&
+            loaderData.abilities["events"].hasAccess && (
+              <EventsOverview.EditBackground
+                locales={loaderData.locales.route.content}
+                to={`/event/${loaderData.event.slug}/settings/details/background?${Deep}=true`}
               />
             )}
-            {loaderData.event.external ? (
-              <EventsOverview.External
-                locales={loaderData.locales.route.content}
-              />
-            ) : loaderData.event.openForRegistration === false ? (
-              <EventsOverview.RegistrationClosed
-                locales={loaderData.locales.route.content}
-              />
-            ) : loaderData.event._count.childEvents > 0 &&
-              loaderData.event.parentParticipationRequired === false ? (
-              <EventsOverview.RegistrationOnChildEvents
-                locales={loaderData.locales.route.content}
-              />
-            ) : loaderData.event.parentEvent !== null &&
-              loaderData.event.parentParticipationRequired !== false &&
-              loaderData.event.parentEvent.parentParticipationRequired &&
+          {loaderData.event.published === false && (
+            <EventsOverview.StateFlag>
+              {loaderData.locales.route.content.draft}
+            </EventsOverview.StateFlag>
+          )}
+          {loaderData.event.canceled && loaderData.event.published && (
+            <EventsOverview.StateFlag tint="negative">
+              {loaderData.locales.route.content.canceled}
+            </EventsOverview.StateFlag>
+          )}
+          {loaderData.beforeParticipationPeriod &&
+            loaderData.event.external === false &&
+            loaderData.event.openForRegistration &&
+            (loaderData.event._count.childEvents === 0 ||
+              loaderData.event.parentParticipationRequired) &&
+            (loaderData.event.parentEvent === null ||
+              loaderData.event.parentParticipationRequired === false ||
+              loaderData.event.parentEvent.parentParticipationRequired ===
+                false ||
               loaderData.event.parentEvent.participants.some(
                 (relation) => relation.profileId === loaderData.profileId
-              ) === false ? (
-              <EventsOverview.ParentParticipationRequired
-                parentEvent={loaderData.event.parentEvent}
-                locales={loaderData.locales.route.content}
-              />
-            ) : (
-              <EventsOverview.FreeSeats
-                participantLimit={loaderData.event.participantLimit}
-                participantsCount={loaderData.event._count.participants}
+              )) && (
+              <EventsOverview.State>
+                {formatDateTime(
+                  zonedParticipationFrom,
+                  loaderData.language,
+                  loaderData.locales.route.content.beforeParticipationPeriod
+                )}
+              </EventsOverview.State>
+            )}
+          {loaderData.afterParticipationPeriod &&
+            loaderData.inPast === false &&
+            loaderData.event.external === false &&
+            loaderData.event.openForRegistration &&
+            (loaderData.event._count.childEvents === 0 ||
+              loaderData.event.parentParticipationRequired) &&
+            (loaderData.event.parentEvent === null ||
+              loaderData.event.parentParticipationRequired === false ||
+              loaderData.event.parentEvent.parentParticipationRequired ===
+                false ||
+              loaderData.event.parentEvent.participants.some(
+                (relation) => relation.profileId === loaderData.profileId
+              )) && (
+              <EventsOverview.State>
+                {loaderData.locales.route.content.afterParticipationPeriod}
+              </EventsOverview.State>
+            )}
+          {loaderData.inPast && (
+            <EventsOverview.State tint="neutral">
+              {loaderData.locales.route.content.inPast}
+            </EventsOverview.State>
+          )}
+          <EventsOverview.Container>
+            <EventsOverview.EventName>
+              {loaderData.event.name}
+            </EventsOverview.EventName>
+
+            <EventsOverview.InfoContainer>
+              <EventsOverview.ResponsibleOrganizations
+                organizations={loaderData.event.responsibleOrganizations}
                 locales={loaderData.locales}
               />
-            )}
-          </EventsOverview.InfoContainer>
-          <EventsOverview.ButtonStates>
-            <EventsOverview.OverlayMenu
-              baseUrl={loaderData.meta.baseUrl}
-              overlayMenuId="event-overview-more"
-              locales={loaderData.locales.route.content}
-            >
-              <EventsOverview.OverlayMenu.CopyURLToClipboard // naming?
-                locales={loaderData.locales.route.content}
-              />
-              <EventsOverview.OverlayMenu.ReportEvent
-                modalName="modal-report-event"
-                alreadyReported={loaderData.hasUserReportedEvent}
-                locales={loaderData.locales.route.content}
-              />
-            </EventsOverview.OverlayMenu>
-            <EventsOverview.AbuseReportModal
-              modalName="modal-report-event"
-              locales={{
-                ...loaderData.locales.route.abuseReport,
-                eventAbuseReportReasonSuggestions:
-                  loaderData.locales.eventAbuseReportReasonSuggestions,
-              }}
-              reasons={loaderData.abuseReportReasons}
-            />
-            {loaderData.mode === "admin" && (
-              <EventsOverview.Edit
+              <EventsOverview.PeriodOfTime
                 slug={loaderData.event.slug}
+                startTime={loaderData.event.startTime}
+                endTime={loaderData.event.endTime}
+                openForRegistration={loaderData.event.openForRegistration}
                 published={loaderData.event.published}
-                external={loaderData.event.external}
-              >
-                {loaderData.locales.route.content.edit}
-              </EventsOverview.Edit>
-            )}
-            {loaderData.mode === "anon" &&
-              loaderData.event.external === false &&
-              loaderData.event.openForRegistration &&
-              (loaderData.event._count.childEvents === 0 ||
-                loaderData.event.parentParticipationRequired) &&
-              (loaderData.event.parentEvent === null ||
-                loaderData.event.parentParticipationRequired === false ||
-                loaderData.event.parentEvent.parentParticipationRequired ===
-                  false) &&
-              loaderData.beforeParticipationPeriod === false &&
-              loaderData.afterParticipationPeriod === false && (
-                <EventsOverview.Login pathname={pathname}>
-                  {loaderData.locales.route.content.login}
-                </EventsOverview.Login>
+                language={loaderData.language}
+                isMember={loaderData.event.isMember}
+              />
+              {hasContent(loaderData.event.stage) && (
+                <EventsOverview.Stage
+                  slug={loaderData.event.slug}
+                  venueName={loaderData.event.venueName}
+                  venueStreet={loaderData.event.venueStreet}
+                  venueZipCode={loaderData.event.venueZipCode}
+                  venueCity={loaderData.event.venueCity}
+                  stage={
+                    loaderData.event.stage
+                      .slug as keyof typeof loaderData.locales.stages
+                  }
+                  conferenceLink={loaderData.event.conferenceLink}
+                  locales={loaderData.locales}
+                />
               )}
-            {loaderData.event.external && (
-              <EventsOverview.ExternalParticipate
-                externalRegistrationUrl={
-                  loaderData.event.externalRegistrationUrl
-                }
-                isAdmin={loaderData.mode === "admin"}
+              {loaderData.event.external ? (
+                <EventsOverview.External
+                  locales={loaderData.locales.route.content}
+                />
+              ) : loaderData.event.openForRegistration === false ? (
+                <EventsOverview.RegistrationClosed
+                  locales={loaderData.locales.route.content}
+                />
+              ) : loaderData.event._count.childEvents > 0 &&
+                loaderData.event.parentParticipationRequired === false ? (
+                <EventsOverview.RegistrationOnChildEvents
+                  locales={loaderData.locales.route.content}
+                />
+              ) : loaderData.event.parentEvent !== null &&
+                loaderData.event.parentParticipationRequired !== false &&
+                loaderData.event.parentEvent.parentParticipationRequired &&
+                loaderData.event.parentEvent.participants.some(
+                  (relation) => relation.profileId === loaderData.profileId
+                ) === false ? (
+                <EventsOverview.ParentParticipationRequired
+                  parentEvent={loaderData.event.parentEvent}
+                  locales={loaderData.locales.route.content}
+                />
+              ) : (
+                <EventsOverview.FreeSeats
+                  participantLimit={loaderData.event.participantLimit}
+                  participantsCount={loaderData.event._count.participants}
+                  locales={loaderData.locales}
+                />
+              )}
+            </EventsOverview.InfoContainer>
+            <EventsOverview.ButtonStates>
+              <EventsOverview.OverlayMenu
+                baseUrl={loaderData.meta.baseUrl}
+                overlayMenuId="event-overview-more"
+                locales={loaderData.locales.route.content}
               >
-                {loaderData.locales.route.content.externalParticipate}
-              </EventsOverview.ExternalParticipate>
-            )}
-            {loaderData.mode === "canParticipate" && (
-              <EventsOverview.Participate profileId={loaderData.profileId}>
-                {loaderData.locales.route.content.participate}
-              </EventsOverview.Participate>
-            )}
-            {loaderData.mode === "participating" &&
-              loaderData.inPast === false && (
-                <EventsOverview.WithdrawParticipation
+                <EventsOverview.OverlayMenu.CopyURLToClipboard // naming?
+                  locales={loaderData.locales.route.content}
+                />
+                <EventsOverview.OverlayMenu.ReportEvent
+                  modalName="modal-report-event"
+                  alreadyReported={loaderData.hasUserReportedEvent}
+                  locales={loaderData.locales.route.content}
+                />
+              </EventsOverview.OverlayMenu>
+              <EventsOverview.AbuseReportModal
+                modalName="modal-report-event"
+                locales={{
+                  ...loaderData.locales.route.abuseReport,
+                  eventAbuseReportReasonSuggestions:
+                    loaderData.locales.eventAbuseReportReasonSuggestions,
+                }}
+                reasons={loaderData.abuseReportReasons}
+              />
+              {loaderData.mode === "admin" && (
+                <EventsOverview.Edit
+                  slug={loaderData.event.slug}
+                  published={loaderData.event.published}
+                  external={loaderData.event.external}
+                >
+                  {loaderData.locales.route.content.edit}
+                </EventsOverview.Edit>
+              )}
+              {loaderData.mode === "anon" &&
+                loaderData.event.external === false &&
+                loaderData.event.openForRegistration &&
+                (loaderData.event._count.childEvents === 0 ||
+                  loaderData.event.parentParticipationRequired) &&
+                (loaderData.event.parentEvent === null ||
+                  loaderData.event.parentParticipationRequired === false ||
+                  loaderData.event.parentEvent.parentParticipationRequired ===
+                    false) &&
+                loaderData.beforeParticipationPeriod === false &&
+                loaderData.afterParticipationPeriod === false && (
+                  <EventsOverview.Login pathname={pathname}>
+                    {loaderData.locales.route.content.login}
+                  </EventsOverview.Login>
+                )}
+              {loaderData.event.external && (
+                <EventsOverview.ExternalParticipate
+                  externalRegistrationUrl={
+                    loaderData.event.externalRegistrationUrl
+                  }
+                  isAdmin={loaderData.mode === "admin"}
+                >
+                  {loaderData.locales.route.content.externalParticipate}
+                </EventsOverview.ExternalParticipate>
+              )}
+              {loaderData.mode === "canParticipate" && (
+                <EventsOverview.Participate profileId={loaderData.profileId}>
+                  {loaderData.locales.route.content.participate}
+                </EventsOverview.Participate>
+              )}
+              {loaderData.mode === "participating" &&
+                loaderData.inPast === false && (
+                  <EventsOverview.WithdrawParticipation
+                    profileId={loaderData.profileId}
+                    event={{
+                      ...loaderData.event,
+                      afterParticipationPeriod:
+                        loaderData.afterParticipationPeriod,
+                    }}
+                    locales={
+                      loaderData.locales.route.content.withdrawParticipation
+                    }
+                  >
+                    {loaderData.locales.route.content.withdrawParticipation.cta}
+                  </EventsOverview.WithdrawParticipation>
+                )}
+              {loaderData.mode === "canWait" && (
+                <EventsOverview.JoinWaitingList
+                  profileId={loaderData.profileId}
+                >
+                  {loaderData.locales.route.content.joinWaitingList}
+                </EventsOverview.JoinWaitingList>
+              )}
+              {loaderData.mode === "waiting" && loaderData.inPast === false && (
+                <EventsOverview.LeaveWaitingList
                   profileId={loaderData.profileId}
                   event={{
-                    ...loaderData.event,
                     afterParticipationPeriod:
                       loaderData.afterParticipationPeriod,
                   }}
-                  locales={
-                    loaderData.locales.route.content.withdrawParticipation
-                  }
+                  locales={loaderData.locales.route.content.leaveWaitingList}
                 >
-                  {loaderData.locales.route.content.withdrawParticipation.cta}
-                </EventsOverview.WithdrawParticipation>
+                  {loaderData.locales.route.content.leaveWaitingList.cta}
+                </EventsOverview.LeaveWaitingList>
               )}
-            {loaderData.mode === "canWait" && (
-              <EventsOverview.JoinWaitingList profileId={loaderData.profileId}>
-                {loaderData.locales.route.content.joinWaitingList}
-              </EventsOverview.JoinWaitingList>
-            )}
-            {loaderData.mode === "waiting" && loaderData.inPast === false && (
-              <EventsOverview.LeaveWaitingList
-                profileId={loaderData.profileId}
-                event={{
-                  afterParticipationPeriod: loaderData.afterParticipationPeriod,
-                }}
-                locales={loaderData.locales.route.content.leaveWaitingList}
+            </EventsOverview.ButtonStates>
+          </EventsOverview.Container>
+        </EventsOverview>
+        <BasicStructure.Container>
+          <TabBar>
+            <TabBar.Item active={pathname.endsWith("/about")}>
+              <Link
+                to="./about"
+                preventScrollReset
+                {...TabBar.getItemElementClasses(pathname.endsWith("/about"))}
               >
-                {loaderData.locales.route.content.leaveWaitingList.cta}
-              </EventsOverview.LeaveWaitingList>
-            )}
-          </EventsOverview.ButtonStates>
-        </EventsOverview.Container>
-      </EventsOverview>
-      <BasicStructure.Container>
-        <TabBar>
-          <TabBar.Item active={pathname.endsWith("/about")}>
-            <Link
-              to="./about"
-              preventScrollReset
-              {...TabBar.getItemElementClasses(pathname.endsWith("/about"))}
-            >
-              <TabBar.Item.Title>
-                {loaderData.locales.route.content.details}
-              </TabBar.Item.Title>
-            </Link>
-          </TabBar.Item>
-          {loaderData.event._count.participants > 0 &&
-            loaderData.mode !== "anon" && (
-              <TabBar.Item active={pathname.endsWith("/participants")}>
+                <TabBar.Item.Title>
+                  {loaderData.locales.route.content.details}
+                </TabBar.Item.Title>
+              </Link>
+            </TabBar.Item>
+            {loaderData.event._count.participants > 0 &&
+              loaderData.mode !== "anon" && (
+                <TabBar.Item active={pathname.endsWith("/participants")}>
+                  <Link
+                    to="./participants"
+                    preventScrollReset
+                    {...TabBar.getItemElementClasses(
+                      pathname.endsWith("/participants")
+                    )}
+                  >
+                    <TabBar.Item.Title>
+                      {loaderData.locales.route.content.participants}
+                    </TabBar.Item.Title>
+                    <TabBar.Item.Counter>
+                      {loaderData.event._count.participants}
+                    </TabBar.Item.Counter>
+                  </Link>
+                </TabBar.Item>
+              )}
+            {loaderData.event._count.childEvents > 0 && (
+              <TabBar.Item active={pathname.endsWith("/child-events")}>
                 <Link
-                  to="./participants"
+                  to="./child-events"
                   preventScrollReset
                   {...TabBar.getItemElementClasses(
-                    pathname.endsWith("/participants")
+                    pathname.endsWith("/child-events")
                   )}
                 >
                   <TabBar.Item.Title>
-                    {loaderData.locales.route.content.participants}
+                    {loaderData.locales.route.content.childEvents}
                   </TabBar.Item.Title>
                   <TabBar.Item.Counter>
-                    {loaderData.event._count.participants}
+                    {loaderData.event._count.childEvents}
                   </TabBar.Item.Counter>
                 </Link>
               </TabBar.Item>
             )}
-          {loaderData.event._count.childEvents > 0 && (
-            <TabBar.Item active={pathname.endsWith("/child-events")}>
-              <Link
-                to="./child-events"
-                preventScrollReset
-                {...TabBar.getItemElementClasses(
-                  pathname.endsWith("/child-events")
-                )}
-              >
-                <TabBar.Item.Title>
-                  {loaderData.locales.route.content.childEvents}
-                </TabBar.Item.Title>
-                <TabBar.Item.Counter>
-                  {loaderData.event._count.childEvents}
-                </TabBar.Item.Counter>
-              </Link>
-            </TabBar.Item>
-          )}
-        </TabBar>
-        <Outlet />
-      </BasicStructure.Container>
-      {loaderData.event.contactPersons.length > 0 && (
-        <BasicStructure.Container>
-          <ContactPerson.Container>
-            {loaderData.event.contactPersons.map((contactPerson) => {
-              return (
-                <ContactPerson
-                  key={contactPerson.id}
-                  {...contactPerson}
-                  locales={loaderData.locales.route.content}
-                />
-              );
-            })}
-          </ContactPerson.Container>
+          </TabBar>
+          <Outlet />
         </BasicStructure.Container>
+        {loaderData.event.contactPersons.length > 0 && (
+          <BasicStructure.Container>
+            <ContactPerson.Container>
+              {loaderData.event.contactPersons.map((contactPerson) => {
+                return (
+                  <ContactPerson
+                    key={contactPerson.id}
+                    {...contactPerson}
+                    locales={loaderData.locales.route.content}
+                  />
+                );
+              })}
+            </ContactPerson.Container>
+          </BasicStructure.Container>
+        )}
+      </BasicStructure>
+      {(loaderData.mode === "canParticipate" ||
+        loaderData.mode === "canWait") && (
+        <Modal searchParam={PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM}>
+          <Modal.Title>
+            {
+              loaderData.locales.route.content.participateOnEventIntentModal
+                .title
+            }
+          </Modal.Title>
+          <Modal.Section>
+            {loaderData.mode === "canParticipate"
+              ? loaderData.locales.route.content.participateOnEventIntentModal
+                  .description.participate
+              : loaderData.locales.route.content.participateOnEventIntentModal
+                  .description.joinWaitingList}
+          </Modal.Section>
+          <Modal.SubmitButton
+            form={
+              loaderData.mode === "canParticipate"
+                ? EventsOverview.Participate.FormId
+                : EventsOverview.JoinWaitingList.FormId
+            }
+            name={INTENT_FIELD_NAME}
+            value={
+              loaderData.mode === "canParticipate"
+                ? EventsOverview.Participate.Intent
+                : EventsOverview.JoinWaitingList.Intent
+            }
+          >
+            {loaderData.mode === "canParticipate"
+              ? loaderData.locales.route.content.participateOnEventIntentModal
+                  .submit.participate
+              : loaderData.locales.route.content.participateOnEventIntentModal
+                  .submit.joinWaitingList}
+          </Modal.SubmitButton>
+          <Modal.CloseButton>
+            {
+              loaderData.locales.route.content.participateOnEventIntentModal
+                .cancel
+            }
+          </Modal.CloseButton>
+        </Modal>
       )}
-    </BasicStructure>
+    </>
   );
 }
 
