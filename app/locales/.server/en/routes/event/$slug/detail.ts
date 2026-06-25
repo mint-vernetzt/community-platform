@@ -74,7 +74,7 @@ export const locale = {
       description: {
         participate: "You can register for the event directly here.",
         joinWaitingList:
-          "You can join the waiting list for the event directly here.",
+          "Unfortunately, all seats are taken. However, you can join the waiting list for the event directly here.",
       },
       submit: {
         participate: "Participate",

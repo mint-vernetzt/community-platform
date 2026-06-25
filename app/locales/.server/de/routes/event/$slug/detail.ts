@@ -76,7 +76,7 @@ export const locale = {
         participate:
           "Du kannst Dich hier direkt für die Veranstaltung anmelden.",
         joinWaitingList:
-          "Du kannst Dich hier direkt auf die Warteliste für die Veranstaltung setzen.",
+          "Leider sind alle Plätze belegt. Du kannst Dich aber hier direkt auf die Warteliste für die Veranstaltung setzen.",
       },
       submit: {
         participate: "Teilnehmen",
