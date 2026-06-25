@@ -762,7 +762,6 @@ function Detail() {
 
             <EventsOverview.InfoContainer>
               <EventsOverview.ResponsibleOrganizations
-                slug={loaderData.event.slug}
                 organizations={loaderData.event.responsibleOrganizations}
                 locales={loaderData.locales}
               />
