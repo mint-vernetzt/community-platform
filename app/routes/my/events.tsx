@@ -37,10 +37,7 @@ import {
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { redirectWithToast } from "~/toast.server";
-import {
-  checkFeatureAbilitiesOrThrow,
-  getFeatureAbilities,
-} from "../feature-access.server";
+import { getFeatureAbilities } from "../feature-access.server";
 import {
   acceptInviteAsAdmin,
   acceptInviteAsParticipant,
@@ -137,7 +134,7 @@ export async function loader(args: LoaderFunctionArgs) {
 export async function action(args: ActionFunctionArgs) {
   const { request } = args;
   const { authClient } = createAuthClient(request);
-  await checkFeatureAbilitiesOrThrow(authClient, ["events"]);
+
   const sessionUser = await getSessionUserOrThrow(authClient);
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["my/events"];
