@@ -45,6 +45,7 @@ import { useState } from "react";
 import List from "~/components/next/List";
 import ListItemMaterial from "~/components/next/ListItemMaterial";
 import { parseMultipartFormData } from "~/storage.server";
+import { Deep } from "~/lib/utils/searchParams";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -148,14 +149,17 @@ export async function action(args: ActionFunctionArgs) {
     });
   }
 
-  return redirectWithToast(request.url, {
-    id: "upload-document-success",
-    key: `upload-document-success-${Date.now()}`,
-    message: insertParametersIntoLocale(locales.route.success.documentAdded, {
-      name: submission.value.title ?? submission.value.file.name,
-    }),
-    level: "positive",
-  });
+  return redirectWithToast(
+    `/event/${params.slug}/settings/documents/list?${Deep}=true`,
+    {
+      id: "upload-document-success",
+      key: `upload-document-success-${Date.now()}`,
+      message: insertParametersIntoLocale(locales.route.success.documentAdded, {
+        name: submission.value.title ?? submission.value.file.name,
+      }),
+      level: "positive",
+    }
+  );
 }
 
 function DocumentsList() {
