@@ -240,7 +240,9 @@ function PeriodOfTime(props: {
       <div className="flex flex-col self-center text-neutral-700 grow">
         <div className="font-semibold line-clamp-1">{dateDuration}</div>
         {isSameDay ? (
-          <div className="font-normal line-clamp-1">{timeDuration}</div>
+          <div className="font-normal line-clamp-1">
+            {timeDuration.replaceAll("-", " – ")}
+          </div>
         ) : null}
       </div>
       {published || isMember ? (
