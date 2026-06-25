@@ -606,23 +606,25 @@ export function splitEventsIntoFutureAndPast<
     participatedEvents: [],
   };
   const now = new Date();
+  const morning = new Date(now.getTime());
+  morning.setHours(0, 0, 0, 0);
 
   for (const relation of events.contributedEvents) {
-    if (relation.event.endTime >= now) {
+    if (relation.event.startTime >= morning) {
       futureEvents.contributedEvents.push(relation);
     } else {
       pastEvents.contributedEvents.push(relation);
     }
   }
   for (const relation of events.participatedEvents) {
-    if (relation.event.endTime >= now) {
+    if (relation.event.startTime >= morning) {
       futureEvents.participatedEvents.push(relation);
     } else {
       pastEvents.participatedEvents.push(relation);
     }
   }
   for (const relation of events.teamMemberOfEvents) {
-    if (relation.event.endTime >= now) {
+    if (relation.event.startTime >= morning) {
       futureEvents.teamMemberOfEvents.push(relation);
     } else {
       pastEvents.teamMemberOfEvents.push(relation);

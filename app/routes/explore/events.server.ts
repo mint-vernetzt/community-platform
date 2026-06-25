@@ -34,14 +34,17 @@ function getWhereStatementFromPeriodOfTime(
   sqlType: "prisma" | "raw" = "prisma"
 ) {
   const now = new Date();
+  const morning = new Date(now.getTime());
+  morning.setHours(0, 0, 0, 0);
+
   if (periodOfTime === "past") {
     return sqlType === "prisma"
       ? {
-          endTime: {
-            lte: now,
+          startTime: {
+            lte: morning,
           },
         }
-      : `end_time <= ${dateToPostgresTimestamp(now)}`;
+      : `start_time <= ${dateToPostgresTimestamp(morning)}`;
   }
   if (periodOfTime === "thisWeek" || periodOfTime === "nextWeek") {
     const currentDay = now.getDay();
@@ -126,11 +129,11 @@ function getWhereStatementFromPeriodOfTime(
   }
   return sqlType === "prisma"
     ? {
-        endTime: {
-          gte: now,
+        startTime: {
+          gte: morning,
         },
       }
-    : `end_time >= ${dateToPostgresTimestamp(now)}`;
+    : `start_time >= ${dateToPostgresTimestamp(morning)}`;
 }
 
 type EventVisibility = { eventVisibility: { [x: string]: boolean } };
