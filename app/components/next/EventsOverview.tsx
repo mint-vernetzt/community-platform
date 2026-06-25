@@ -21,6 +21,8 @@ import type { languageModuleMap } from "~/locales/.server";
 import {
   ABUSE_REPORT_INTENT,
   createAbuseReportSchema,
+  JOIN_WAITING_LIST_INTENT,
+  PARTICIPATE_INTENT,
   REPORT_REASON_MAX_LENGTH,
 } from "~/routes/event/$slug/details.shared";
 import { hasContent } from "~/utils.shared";
@@ -1105,11 +1107,22 @@ function Edit(props: {
   );
 }
 
-function Login(props: { children: React.ReactNode; pathname: string }) {
+function Login(props: {
+  children: React.ReactNode;
+  pathname: string;
+  searchParam: string;
+}) {
+  const [searchParams] = useSearchParams();
+  const enhancedSearchParams = extendSearchParams(searchParams, {
+    addOrReplace: {
+      [props.searchParam]: "true",
+    },
+  });
+
   return (
     <Button
       as="link"
-      to={`/login?login_redirect=${encodeURIComponent(props.pathname)}`}
+      to={`/login?login_redirect=${encodeURIComponent(`${props.pathname}?${enhancedSearchParams.toString()}`)}`}
       fullSize
       prefetch="intent"
     >
@@ -1118,6 +1131,8 @@ function Login(props: { children: React.ReactNode; pathname: string }) {
   );
 }
 
+const PARTICIPATE_FORM_ID = "participate-form";
+
 function Participate(props: { children: React.ReactNode; profileId?: string }) {
   const location = useLocation();
   if (typeof props.profileId === "undefined") {
@@ -1125,13 +1140,13 @@ function Participate(props: { children: React.ReactNode; profileId?: string }) {
   }
 
   return (
-    <Form method="post" preventScrollReset>
+    <Form id={PARTICIPATE_FORM_ID} method="post" preventScrollReset>
       <input type="hidden" name="profileId" defaultValue={props.profileId} />
       <input type="hidden" name="redirectTo" value={location.pathname} />
       <Button
         type="submit"
         name={INTENT_FIELD_NAME}
-        value="participate"
+        value={PARTICIPATE_INTENT}
         fullSize
       >
         {props.children}
@@ -1139,6 +1154,8 @@ function Participate(props: { children: React.ReactNode; profileId?: string }) {
     </Form>
   );
 }
+
+Participate.FormId = PARTICIPATE_FORM_ID;
 
 function ExternalParticipate(props: {
   children: React.ReactNode;
@@ -1321,6 +1338,8 @@ function WithdrawParticipation(props: {
   );
 }
 
+const JOIN_WAITING_LIST_FORM_ID = "join-waiting-list-form";
+
 function JoinWaitingList(props: {
   children: React.ReactNode;
   profileId?: string;
@@ -1331,13 +1350,13 @@ function JoinWaitingList(props: {
   }
 
   return (
-    <Form method="post" preventScrollReset>
+    <Form id={JOIN_WAITING_LIST_FORM_ID} method="post" preventScrollReset>
       <input type="hidden" name="profileId" defaultValue={props.profileId} />
       <input type="hidden" name="redirectTo" value={location.pathname} />
       <Button
         type="submit"
         name={INTENT_FIELD_NAME}
-        value="joinWaitingList"
+        value={JOIN_WAITING_LIST_INTENT}
         fullSize
       >
         {props.children}
@@ -1345,6 +1364,8 @@ function JoinWaitingList(props: {
     </Form>
   );
 }
+
+JoinWaitingList.FormId = JOIN_WAITING_LIST_FORM_ID;
 
 function LeaveWaitingList(props: {
   children: React.ReactNode;

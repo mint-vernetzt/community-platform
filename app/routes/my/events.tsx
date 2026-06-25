@@ -27,7 +27,6 @@ import { TabBarTitle } from "~/components-next/TabBarTitle";
 import { RichText } from "~/components/legacy/Richtext/RichText";
 import List from "~/components/next/List";
 import ListItemEvent from "~/components/next/ListItemEvent";
-import { hasDescription, hasSubline } from "~/events.utils.shared";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import {
@@ -44,15 +43,15 @@ import {
   acceptInviteAsResponsibleOrganization,
   acceptInviteAsSpeaker,
   acceptInviteAsTeamMember,
+  acceptRequestAsParentEvent,
   getEventInvites,
-  getEventsWithPendingRequests,
   getEvents,
+  getEventsWithPendingRequests,
   rejectInviteAsAdmin,
   rejectInviteAsParticipant,
   rejectInviteAsResponsibleOrganization,
   rejectInviteAsSpeaker,
   rejectInviteAsTeamMember,
-  acceptRequestAsParentEvent,
   rejectRequestAsParentEvent,
 } from "./events.server";
 import {
@@ -65,6 +64,8 @@ import {
   CHILD_EVENT_ID,
   createAcceptOrRejectInviteOrRequestSchema,
   EVENT_ID,
+  hasDescription,
+  hasSubline,
   ORGANIZATION_ID,
   REJECT_ADMIN_INVITE_INTENT,
   REJECT_PARENT_EVENT_JOIN_REQUEST_INTENT,

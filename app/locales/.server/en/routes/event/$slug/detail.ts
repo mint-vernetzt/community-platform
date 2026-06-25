@@ -69,6 +69,19 @@ export const locale = {
       close: "Close",
     },
     contactPerson: "Contact person",
+    participateOnEventIntentModal: {
+      title: "Do you want to participate in this event?",
+      description: {
+        participate: "You can register for the event directly here.",
+        joinWaitingList:
+          "Unfortunately, all seats are taken. However, you can join the waiting list for the event directly here.",
+      },
+      submit: {
+        participate: "Participate",
+        joinWaitingList: "Join waiting list",
+      },
+      cancel: "Cancel",
+    },
   },
   errors: {
     invalidProfileId: "Invalid profile ID",

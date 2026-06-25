@@ -4,6 +4,13 @@ import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 export const ABUSE_REPORT_INTENT = "submit-abuse-report";
 export const REPORT_REASON_MAX_LENGTH = 80;
+export const PARTICIPATE_INTENT = "participate";
+export const WITHDRAW_PARTICIPATION_INTENT = "withdrawParticipation";
+export const JOIN_WAITING_LIST_INTENT = "joinWaitingList";
+export const LEAVE_WAITING_LIST_INTENT = "leaveWaitingList";
+
+export const PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM =
+  "participate-on-event-intent";
 
 export function createAbuseReportSchema(locales: { maxLength: string }) {
   return z.object({
