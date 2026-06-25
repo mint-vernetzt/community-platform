@@ -142,7 +142,7 @@ function About() {
       {hasGeneralInfo(event) ? (
         <div
           id="address-and-conference-link"
-          className="w-full flex flex-col gap-6"
+          className="w-full flex flex-col gap-6 scroll-mt-19 xl:scroll-mt-20"
         >
           {hasAddress(event) ? (
             <HeadlineAndTagsContainer>
