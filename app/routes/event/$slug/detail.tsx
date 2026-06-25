@@ -51,6 +51,7 @@ import {
   LEAVE_WAITING_LIST_INTENT,
   PARTICIPATE_INTENT,
   WITHDRAW_PARTICIPATION_INTENT,
+  PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM,
 } from "./details.shared";
 import { formatDateTime } from "./index.shared";
 import { captureException } from "@sentry/node";
@@ -68,7 +69,6 @@ import { filterEventConferenceLink } from "./utils.server";
 import { Deep } from "~/lib/utils/searchParams";
 import { utcToZonedTime } from "date-fns-tz";
 import { Modal } from "~/components-next/Modal";
-import { PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM } from "~/events.utils.shared";
 
 export function links() {
   return [
@@ -864,7 +864,10 @@ function Detail() {
                     false) &&
                 loaderData.beforeParticipationPeriod === false &&
                 loaderData.afterParticipationPeriod === false && (
-                  <EventsOverview.Login pathname={pathname}>
+                  <EventsOverview.Login
+                    pathname={pathname}
+                    searchParam={PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM}
+                  >
                     {loaderData.locales.route.content.login}
                   </EventsOverview.Login>
                 )}

@@ -32,7 +32,6 @@ import ImageCropper, {
 } from "../legacy/ImageCropper/ImageCropper";
 import { RichText } from "../legacy/Richtext/RichText"; // refactor?
 import { OverlayMenu as OverlayMenuComponent } from "./OverlayMenu"; // refactor?
-import { PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM } from "~/events.utils.shared";
 
 // Design:
 // Name: Events_Overview
@@ -1106,11 +1105,15 @@ function Edit(props: {
   );
 }
 
-function Login(props: { children: React.ReactNode; pathname: string }) {
+function Login(props: {
+  children: React.ReactNode;
+  pathname: string;
+  searchParam: string;
+}) {
   const [searchParams] = useSearchParams();
   const enhancedSearchParams = extendSearchParams(searchParams, {
     addOrReplace: {
-      [PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM]: "true",
+      [props.searchParam]: "true",
     },
   });
 

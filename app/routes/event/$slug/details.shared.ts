@@ -9,6 +9,9 @@ export const WITHDRAW_PARTICIPATION_INTENT = "withdrawParticipation";
 export const JOIN_WAITING_LIST_INTENT = "joinWaitingList";
 export const LEAVE_WAITING_LIST_INTENT = "leaveWaitingList";
 
+export const PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM =
+  "participate-on-event-intent";
+
 export function createAbuseReportSchema(locales: { maxLength: string }) {
   return z.object({
     [INTENT_FIELD_NAME]: z.enum([ABUSE_REPORT_INTENT]),
