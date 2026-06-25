@@ -343,32 +343,34 @@ export default function TimePeriod() {
                 {locales.route.timePeriod.headline}
               </TitleSection.Headline>
             </TitleSection>
-            <div className="w-full flex flex-col md:flex-row gap-4">
-              <RadioButtonSettings
-                to={`?${extendSearchParams(searchParams, {
-                  addOrReplace: { timePeriod: TIME_PERIOD_SINGLE },
-                }).toString()}`}
-                active={timePeriod === TIME_PERIOD_SINGLE}
-                onClick={(event) => {
-                  event.preventDefault();
-                  setTimePeriod(TIME_PERIOD_SINGLE);
-                }}
-              >
-                {locales.route.timePeriod[TIME_PERIOD_SINGLE].label}
-              </RadioButtonSettings>
-              <RadioButtonSettings
-                to={`?${extendSearchParams(searchParams, {
-                  addOrReplace: { timePeriod: TIME_PERIOD_MULTI },
-                }).toString()}`}
-                active={timePeriod === TIME_PERIOD_MULTI}
-                onClick={(event) => {
-                  event.preventDefault();
-                  setTimePeriod(TIME_PERIOD_MULTI);
-                }}
-              >
-                {locales.route.timePeriod[TIME_PERIOD_MULTI].label}
-              </RadioButtonSettings>
-              <input type="hidden" name="timePeriod" value={timePeriod} />
+            <div className="@container">
+              <div className="w-full flex flex-col @min-[555px]:flex-row gap-4">
+                <RadioButtonSettings
+                  to={`?${extendSearchParams(searchParams, {
+                    addOrReplace: { timePeriod: TIME_PERIOD_SINGLE },
+                  }).toString()}`}
+                  active={timePeriod === TIME_PERIOD_SINGLE}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    setTimePeriod(TIME_PERIOD_SINGLE);
+                  }}
+                >
+                  {locales.route.timePeriod[TIME_PERIOD_SINGLE].label}
+                </RadioButtonSettings>
+                <RadioButtonSettings
+                  to={`?${extendSearchParams(searchParams, {
+                    addOrReplace: { timePeriod: TIME_PERIOD_MULTI },
+                  }).toString()}`}
+                  active={timePeriod === TIME_PERIOD_MULTI}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    setTimePeriod(TIME_PERIOD_MULTI);
+                  }}
+                >
+                  {locales.route.timePeriod[TIME_PERIOD_MULTI].label}
+                </RadioButtonSettings>
+                <input type="hidden" name="timePeriod" value={timePeriod} />
+              </div>
             </div>
           </BasicStructure.Container>
           <BasicStructure.Container
