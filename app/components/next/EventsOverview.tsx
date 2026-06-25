@@ -21,6 +21,8 @@ import type { languageModuleMap } from "~/locales/.server";
 import {
   ABUSE_REPORT_INTENT,
   createAbuseReportSchema,
+  JOIN_WAITING_LIST_INTENT,
+  PARTICIPATE_INTENT,
   REPORT_REASON_MAX_LENGTH,
 } from "~/routes/event/$slug/details.shared";
 import { hasContent } from "~/utils.shared";
@@ -1125,7 +1127,6 @@ function Login(props: { children: React.ReactNode; pathname: string }) {
 }
 
 const PARTICIPATE_FORM_ID = "participate-form";
-const PARTICIPATE_INTENT = "participate";
 
 function Participate(props: { children: React.ReactNode; profileId?: string }) {
   const location = useLocation();
@@ -1149,7 +1150,6 @@ function Participate(props: { children: React.ReactNode; profileId?: string }) {
   );
 }
 
-Participate.Intent = PARTICIPATE_INTENT;
 Participate.FormId = PARTICIPATE_FORM_ID;
 
 function ExternalParticipate(props: {
@@ -1333,7 +1333,6 @@ function WithdrawParticipation(props: {
   );
 }
 
-const JOIN_WAITING_LIST_INTENT = "joinWaitingList";
 const JOIN_WAITING_LIST_FORM_ID = "join-waiting-list-form";
 
 function JoinWaitingList(props: {
@@ -1361,7 +1360,6 @@ function JoinWaitingList(props: {
   );
 }
 
-JoinWaitingList.Intent = JOIN_WAITING_LIST_INTENT;
 JoinWaitingList.FormId = JOIN_WAITING_LIST_FORM_ID;
 
 function LeaveWaitingList(props: {

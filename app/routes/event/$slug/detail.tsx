@@ -47,6 +47,10 @@ import {
   ABUSE_REPORT_INTENT,
   createAbuseReportSchema,
   createParticipationSchema,
+  JOIN_WAITING_LIST_INTENT,
+  LEAVE_WAITING_LIST_INTENT,
+  PARTICIPATE_INTENT,
+  WITHDRAW_PARTICIPATION_INTENT,
 } from "./details.shared";
 import { formatDateTime } from "./index.shared";
 import { captureException } from "@sentry/node";
@@ -413,10 +417,10 @@ export async function action(args: ActionFunctionArgs) {
   const intent = formData.get(INTENT_FIELD_NAME);
 
   invariantResponse(
-    intent === "participate" ||
-      intent === "withdrawParticipation" ||
-      intent === "joinWaitingList" ||
-      intent === "leaveWaitingList" ||
+    intent === PARTICIPATE_INTENT ||
+      intent === WITHDRAW_PARTICIPATION_INTENT ||
+      intent === JOIN_WAITING_LIST_INTENT ||
+      intent === LEAVE_WAITING_LIST_INTENT ||
       intent === ABUSE_REPORT_INTENT ||
       intent === UPLOAD_DOCUMENT_INTENT_VALUE ||
       intent === IMAGE_CROPPER_DISCONNECT_INTENT_VALUE,
@@ -574,7 +578,7 @@ export async function action(args: ActionFunctionArgs) {
         if (intent === "participate" && mode === "canParticipate") {
           result = await addProfileToParticipants(sessionUser.id, eventId);
         } else if (
-          intent === "withdrawParticipation" &&
+          intent === WITHDRAW_PARTICIPATION_INTENT &&
           mode === "participating"
         ) {
           result = await removeProfileFromParticipants({
@@ -587,9 +591,9 @@ export async function action(args: ActionFunctionArgs) {
               },
             },
           });
-        } else if (intent === "joinWaitingList" && mode === "canWait") {
+        } else if (intent === JOIN_WAITING_LIST_INTENT && mode === "canWait") {
           result = await addProfileToWaitingList(sessionUser.id, eventId);
-        } else if (intent === "leaveWaitingList" && mode === "waiting") {
+        } else if (intent === LEAVE_WAITING_LIST_INTENT && mode === "waiting") {
           result = await removeProfileFromWaitingList(sessionUser.id, eventId);
         }
         if (typeof result.error !== "undefined") {
@@ -608,11 +612,11 @@ export async function action(args: ActionFunctionArgs) {
   if (submission.status !== "success") {
     return redirectWithToast(`/event/${event.slug}/detail/about`, {
       id:
-        intent === "participate"
+        intent === PARTICIPATE_INTENT
           ? "participate-failed"
-          : intent === "withdrawParticipation"
+          : intent === WITHDRAW_PARTICIPATION_INTENT
             ? "withdraw-participation-failed"
-            : intent === "joinWaitingList"
+            : intent === JOIN_WAITING_LIST_INTENT
               ? "join-waiting-list-failed"
               : "leave-waiting-list-failed",
       key: `${new Date().getTime()}`,
@@ -1011,8 +1015,8 @@ function Detail() {
             name={INTENT_FIELD_NAME}
             value={
               loaderData.mode === "canParticipate"
-                ? EventsOverview.Participate.Intent
-                : EventsOverview.JoinWaitingList.Intent
+                ? PARTICIPATE_INTENT
+                : JOIN_WAITING_LIST_INTENT
             }
           >
             {loaderData.mode === "canParticipate"
