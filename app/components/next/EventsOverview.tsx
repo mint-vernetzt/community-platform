@@ -87,6 +87,7 @@ function EventName(props: { children: React.ReactNode }) {
 }
 
 function ResponsibleOrganizations(props: {
+  slug: string;
   organizations: Array<{
     name: string;
     slug: string;
@@ -97,14 +98,18 @@ function ResponsibleOrganizations(props: {
     typeof SUPPORTED_COOKIE_LANGUAGES
   >]["event/$slug/detail"];
 }) {
-  const { organizations, locales } = props;
+  const { slug, organizations, locales } = props;
 
   if (hasContent(organizations) === false) {
     return null;
   }
 
   return (
-    <div className="flex gap-4 align-center py-4 md:px-4 border-0 md:border border-neutral-200 rounded-lg">
+    <Link
+      className="flex gap-4 align-center py-4 md:px-4 border-0 md:border border-neutral-200 rounded-lg"
+      to={`/event/${slug}/detail/about#responsible-organizations`}
+      prefetch="intent"
+    >
       <div className="flex gap-1">
         <div className="flex -space-x-2">
           {organizations.slice(0, 2).map((organization, index) => {
@@ -135,7 +140,7 @@ function ResponsibleOrganizations(props: {
           ? locales.route.content.jointEvent
           : organizations[0].name}
       </div>
-    </div>
+    </Link>
   );
 }
 
