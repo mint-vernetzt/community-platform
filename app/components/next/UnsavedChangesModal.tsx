@@ -8,7 +8,7 @@ import {
   useSubmit,
 } from "react-router";
 import { Modal } from "~/components-next/Modal";
-import { extendSearchParams } from "~/lib/utils/searchParams";
+import { Deep, extendSearchParams } from "~/lib/utils/searchParams";
 
 export function UnsavedChangesModal(props: {
   searchParam: string;
@@ -29,6 +29,7 @@ export function UnsavedChangesModal(props: {
   const [searchParams] = useSearchParams();
   const searchParamsWithoutModal = extendSearchParams(searchParams, {
     remove: [searchParam],
+    addOrReplace: { [Deep]: "true" },
   });
   const submit = useSubmit();
   const [nextLocationPathname, setNextLocationPathname] = useState<
