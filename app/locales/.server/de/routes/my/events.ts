@@ -12,7 +12,7 @@ export const locale = {
       "Wenn Du Einladungen annimmst, wirst Du Admin, Teammitglied oder Speaker:in des Events.",
   },
   requests: {
-    title: "Beitrittsanfragen für Events",
+    title: "Verknüpfungsanfragen für Deine Events",
     description:
       "Wenn Du Beitrittsanfragen von untergeordneten Events annimmst, wird Dein Event zur Rahmenveranstaltung und die untergeordneten Events werden verknüpft. Du und andere Admins Deiner Rahmenveranstaltung werden dadurch automatisch zu Admins der untergeordneten Events.",
   },
