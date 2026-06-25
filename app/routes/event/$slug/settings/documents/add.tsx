@@ -211,8 +211,7 @@ function DocumentsList() {
           {insertComponentsIntoLocale(locales.route.help, [
             <Link
               key="help-link"
-              // TODO: Correct # parameter when FAQ is ready
-              to="/help"
+              to="/help#uploadOnEvent-a11yOfEventMaterial"
               target="_blank"
               className="text-primary font-semibold underline"
               prefetch="intent"
