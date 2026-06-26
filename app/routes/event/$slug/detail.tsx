@@ -236,7 +236,13 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const beforeParticipationPeriod = now < event.participationFrom;
   const afterParticipationPeriod = now > event.participationUntil;
-  const inPast = now > event.endTime;
+
+  const tomorrowOfStartTime = new Date(
+    event.startTime.getTime() + 24 * 60 * 60 * 1000
+  );
+  tomorrowOfStartTime.setHours(0, 0, 0, 0);
+
+  const inPast = now > tomorrowOfStartTime;
 
   const mode = await deriveModeForEvent(sessionUser, {
     ...event,
