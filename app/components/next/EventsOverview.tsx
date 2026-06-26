@@ -106,7 +106,7 @@ function ResponsibleOrganizations(props: {
 
   return (
     <Link
-      className="flex gap-4 align-center py-4 md:px-4 border-0 md:border border-neutral-200 rounded-lg"
+      className="flex gap-4 align-center py-4 md:px-4 border-0 md:border border-neutral-200 rounded-lg hover:bg-neutral-100"
       to={`/event/${slug}/detail/about#responsible-organizations`}
       prefetch="intent"
     >
