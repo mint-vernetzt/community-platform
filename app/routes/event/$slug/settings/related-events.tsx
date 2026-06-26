@@ -74,9 +74,6 @@ export default function RelatedEvents() {
               <TabBar.Item.Title>
                 {locales.route.tabbar.parentEvent}
               </TabBar.Item.Title>
-              <TabBar.Item.Counter>
-                {event.parentEventId !== null ? 1 : 0}
-              </TabBar.Item.Counter>
             </Link>
           </TabBar.Item>
           <TabBar.Item active={pathname.endsWith("/child-events")}>
