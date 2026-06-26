@@ -24,7 +24,7 @@ export const locale = {
       "There are currently no child events that you can add. First, create an event within the appropriate timeframe and add it as a child event.",
     add: {
       label: "Add your own events as child events",
-      cta: "Add as Child Event",
+      cta: "Add new Child Event",
     },
     create: {
       label: "Create a Child Event",
