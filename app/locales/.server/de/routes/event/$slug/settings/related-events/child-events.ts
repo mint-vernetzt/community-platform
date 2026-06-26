@@ -24,7 +24,7 @@ export const locale = {
       "Es gibt aktuell keine Unterveranstaltungen, die Du hinzufügen kannst. Erstelle zunächst ein Event im entsprechenden Zeitraum und füge dieses als untergeordnetes Event hinzu.",
     add: {
       label: "Eigene Events als untergeordnete Veranstaltungen hinzufügen",
-      cta: "Als Unterevent hinzufügen",
+      cta: "Neues Unterevent erstellen",
     },
     create: {
       label: "Erstelle eine Unterveranstaltung",
