@@ -326,12 +326,6 @@ function RegistrationAccess() {
             <Hint.InfoIcon />
             {locales.route.type.hint}
           </Hint>
-          <Hint>
-            <Hint.InfoIcon />
-            {insertComponentsIntoLocale(locales.route.type.external.hint, [
-              <span key="strong" className="font-semibold" />,
-            ])}
-          </Hint>
           <Form
             id="registration-type-form"
             method="post"
@@ -411,6 +405,13 @@ function RegistrationAccess() {
                       ))
                     : null}
                 </Input>
+                <Hint>
+                  <Hint.InfoIcon />
+                  {insertComponentsIntoLocale(
+                    locales.route.type.external.hint,
+                    [<span key="strong" className="font-semibold" />]
+                  )}
+                </Hint>
               </Form>
               <div className="w-full flex flex-col md:flex-row-reverse gap-4 md:justify-start">
                 <div className="w-full md:w-fit">
