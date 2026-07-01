@@ -12,7 +12,7 @@ export const locale = {
       "By accepting invitations, you become an admin, team member, or speaker of the event.",
   },
   requests: {
-    title: "Join Requests for Events",
+    title: "Linking requests for your events",
     description:
       "By accepting join requests from subordinate events, your event becomes the parent event and the subordinate events are linked. You and other admins of your parent event automatically become admins of the subordinate events.",
   },
