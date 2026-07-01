@@ -1,5 +1,5 @@
 import z from "zod";
-import { transformEmptyToNull } from "~/lib/utils/schemas";
+import { addProtocolToUrl, transformEmptyToNull } from "~/lib/utils/schemas";
 
 export const SET_REGISTRATION_TYPE_TO_INTERNAL_INTENT =
   "set-registration-type-to-internal";
@@ -23,8 +23,13 @@ export function createExternalRegistrationUrlSchema(options: {
   const schema = z.object({
     externalRegistrationUrl: z
       .string()
-      .url(locales.invalidUrl)
-      .optional()
+      .transform((value) => {
+        if (value !== "") {
+          return addProtocolToUrl(value);
+        }
+        return value;
+      })
+      .pipe(z.string().url(locales.invalidUrl).optional())
       .transform(transformEmptyToNull),
   });
   return schema;

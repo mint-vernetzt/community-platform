@@ -47,7 +47,7 @@ export const createPhoneSchema = (
       locales.schemas.validation.phone.regex
     );
 
-function addProtocolToUrl(url: string) {
+export function addProtocolToUrl(url: string) {
   if (url.search(/^https?:\/\//) === -1) {
     url = `https://${url}`;
   }
