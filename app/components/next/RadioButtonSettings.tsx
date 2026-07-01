@@ -51,7 +51,7 @@ function RadioSubmitButtonSettings(props: {
   } = props;
 
   const buttonClasses = classNames(
-    "w-full p-4 rounded-lg ring",
+    "w-full p-4 rounded-lg ring text-left",
     disabled
       ? "ring-neutral-200 text-neutral-300"
       : "cursor-pointer hover:bg-neutral-100 ring focus:outline-none focus:ring-2 focus:ring-primary-200 text-neutral-700"
