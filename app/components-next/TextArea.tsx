@@ -168,7 +168,7 @@ const TextArea = (
                       ? handleTextAreaChange
                       : undefined
                   }
-                  className={`relative w-full ${height} p-2 border border-gray-200 rounded-lg focus-within:ring-2 focus-within:ring-blue-400 focus-within:border-blue-400 active-within:ring-2 active-within:ring-blue-400 active-within:border-blue-400 placeholder:text-neutral-700 text-neutral-800 text-base font-semibold placeholder:font-normal leading-5`}
+                  className={`relative w-full ${height} p-2 border border-gray-200 rounded-lg focus-within:ring-2 focus-within:ring-blue-400 focus-within:border-blue-400 active-within:ring-2 active-within:ring-blue-400 active-within:border-blue-400 placeholder:text-neutral-700 text-neutral-800 text-base font-normal placeholder:font-normal leading-5`}
                 />
               ) : null}
             </div>
