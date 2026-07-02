@@ -440,7 +440,7 @@ export default function Settings() {
                     <div className="flex flex-col gap-2">
                       <span>{link.label}</span>
                       {link.hint && (
-                        <span className="font-normal text-base">
+                        <span className="font-normal text-base text-neutral-600">
                           {link.hint}
                         </span>
                       )}
@@ -478,7 +478,7 @@ export default function Settings() {
                         ) : null}
                       </span>
                       {link.hint && (
-                        <span className="font-normal text-base flex items-center gap-2">
+                        <span className="font-normal text-base flex items-center gap-2 text-neutral-600">
                           {link.hint}
                           {Array.isArray(link.issues) &&
                             link.issues.length > 0 && (
@@ -516,7 +516,7 @@ export default function Settings() {
                 return (
                   <div
                     key={`${issue.section}-${issue.fields.join("-")}-${index}`}
-                    className="flex flex-col gap-2 border-neutral-200 border rounded-lg p-4 text-neutral-700"
+                    className="flex flex-col gap-2 border-neutral-200 border rounded-lg p-4"
                   >
                     <p className="font-semibold text-lg">
                       {
