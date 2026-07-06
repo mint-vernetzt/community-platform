@@ -516,7 +516,7 @@ export default function Settings() {
                 return (
                   <div
                     key={`${issue.section}-${issue.fields.join("-")}-${index}`}
-                    className="flex flex-col gap-2 border-neutral-200 border rounded-lg p-4"
+                    className="flex flex-col gap-2 border-neutral-200 border rounded-lg p-4 text-neutral-700"
                   >
                     <p className="font-semibold text-lg">
                       {
