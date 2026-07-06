@@ -127,7 +127,7 @@ function ImageCredits(props: { credits: string }) {
   const { credits } = props;
   return (
     <div className="px-1.5 py-1 bg-neutral-50/80 flex items-center text-neutral-700 text-xxs font-semibold leading-4">
-      {credits.includes("©") ? credits : `© ${credits}`}
+      {credits}
     </div>
   );
 }

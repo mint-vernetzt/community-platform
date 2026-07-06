@@ -113,7 +113,7 @@ export const SEARCH_DOCUMENTS_SEARCH_PARAM = "search_documents";
 export const IMAGE_DESCRIPTION_FIELD_NAME = "description";
 export const IMAGE_DESCRIPTION_MAX_LENGTH = 125;
 export const IMAGE_CREDITS_FIELD_NAME = "credits";
-export const IMAGE_CREDITS_MAX_LENGTH = 100;
+export const IMAGE_CREDITS_MAX_LENGTH = 50;
 // Field value for determining the intent of the submitted form when using multiple forms on one route -> Please use this value as defaultValue attribute on file form submit button
 export const UPLOAD_DOCUMENT_INTENT_VALUE = "upload-document";
 export const UPLOAD_IMAGE_INTENT_VALUE = "upload-image";
