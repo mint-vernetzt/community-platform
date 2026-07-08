@@ -149,6 +149,9 @@ function EventCard(
     );
   };
 
+  const morning = new Date(now.getTime());
+  morning.setHours(0, 0, 0, 0);
+
   return (
     <Card to={`/event/${event.slug}/detail/about`} prefetch={prefetch}>
       <CardHeader cardType="event">
@@ -169,7 +172,7 @@ function EventCard(
             {locales.eventCard.cancelled}
           </CardStatus>
         )}
-        {event.endTime.getTime() < now.getTime() && (
+        {event.startTime.getTime() < morning.getTime() && (
           <CardStatus variant="neutral">{locales.eventCard.passed}</CardStatus>
         )}
         {event.published === false && event.isTeamMember && (

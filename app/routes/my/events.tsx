@@ -90,14 +90,19 @@ export async function loader(args: LoaderFunctionArgs) {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["my/events"];
 
+  const now = new Date();
+  const morning = new Date(now.getTime());
+  morning.setHours(0, 0, 0, 0);
+
   const upcomingEvents = await getEvents({
     profileId: sessionUser.id,
     authClient,
+    where: { startTime: { gte: morning } },
   });
   const pastEvents = await getEvents({
     profileId: sessionUser.id,
     authClient,
-    where: { endTime: { lt: new Date() } },
+    where: { startTime: { lt: morning } },
     orderBy: { endTime: "desc" },
   });
   const canceledEvents = upcomingEvents.participantEvents.filter((event) => {
