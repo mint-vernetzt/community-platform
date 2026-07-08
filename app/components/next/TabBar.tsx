@@ -223,7 +223,7 @@ function TabBar(props: TabBarProps) {
           onClick={handleRightClick}
           disabled={isHydrated ? !showScrollRight : false}
         >
-          <span className="h-full w-5 bg-linear-to-r from-white" />
+          <span className="h-full w-5 bg-linear-to-l from-white" />
           <span className="bg-white h-full flex items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
