@@ -69,4 +69,28 @@ export const locale = assertFocusLocales({
     title: "Schulisch-außerschulische Kooperation",
     description: null,
   },
+  extracurricular_stem_education: {
+    title: "Außerschulische MINT-Bildung",
+    description: null,
+  },
+  student_mentoring_programs: {
+    title: "Schülermentor*innen-Programme",
+    description: null,
+  },
+  peer_to_peer_learning: {
+    title: "Peer-to-Peer Learning",
+    description: null,
+  },
+  mobile_stem_offers: {
+    title: "Mobile MINT-Angebote",
+    description: null,
+  },
+  extracurricular_child_and_youth_work: {
+    title: "Außerschulische Kinder- und Jugendarbeit",
+    description: null,
+  },
+  open_all_day_school: {
+    title: "Offener Ganztag",
+    description: null,
+  },
 } as const);
