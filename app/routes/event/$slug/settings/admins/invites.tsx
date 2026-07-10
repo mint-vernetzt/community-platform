@@ -34,6 +34,7 @@ import {
   INVITED_PROFILES_SEARCH_PARAM,
   PROFILE_ID_FIELD,
 } from "./invites.shared";
+import TitleSection from "~/components/next/TitleSection";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -150,9 +151,10 @@ function AdminInvites() {
 
   return (
     <>
-      <h3 className="text-primary text-2xl font-bold leading-6.5 mt-2 mb-1">
-        {locales.route.title}
-      </h3>
+      <TitleSection>
+        <TitleSection.Headline>{locales.route.title}</TitleSection.Headline>
+      </TitleSection>
+
       <List id="participants-list" locales={locales.route.list}>
         <List.Search
           defaultItems={loaderData.profiles}

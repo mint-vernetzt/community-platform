@@ -43,6 +43,7 @@ import {
   PROFILE_ID_FIELD,
   SEARCH_SPEAKERS_SEARCH_PARAM,
 } from "./add.shared";
+import TitleSection from "~/components/next/TitleSection";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -196,12 +197,14 @@ function AddSpeaker() {
 
   return (
     <>
-      <div>
-        <h3 className="text-primary text-2xl font-bold leading-6.5 mt-2 mb-1">
+      <TitleSection>
+        <TitleSection.Headline>
           {locales.route.search.title}
-        </h3>
-        <p>{locales.route.search.explanation}</p>
-      </div>
+        </TitleSection.Headline>
+        <TitleSection.Subline>
+          {locales.route.search.explanation}
+        </TitleSection.Subline>
+      </TitleSection>
       <searchFetcher.Form
         {...getFormProps(searchForm)}
         method="get"

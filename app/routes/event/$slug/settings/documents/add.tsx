@@ -46,6 +46,7 @@ import List from "~/components/next/List";
 import ListItemMaterial from "~/components/next/ListItemMaterial";
 import { parseMultipartFormData } from "~/storage.server";
 import { Deep } from "~/lib/utils/searchParams";
+import TitleSection from "~/components/next/TitleSection";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -202,6 +203,15 @@ function DocumentsList() {
 
   return (
     <>
+      //TODO: HIER NACHFRAGEN WEGEN 3. p
+      <TitleSection>
+        <TitleSection.Headline>{locales.route.title}</TitleSection.Headline>
+        <TitleSection.Subline>
+          {insertParametersIntoLocale(locales.route.explanation, {
+            size: MAX_UPLOAD_FILE_SIZE / 1000 / 1000,
+          })}
+        </TitleSection.Subline>
+      </TitleSection>
       <div>
         <h3 className="text-primary text-2xl font-bold leading-6.5 mt-2 mb-1">
           {locales.route.title}

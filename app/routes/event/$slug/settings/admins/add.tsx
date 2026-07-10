@@ -50,6 +50,7 @@ import {
   SEARCH_ADMINS_SEARCH_PARAM,
   SEARCH_TEAM_MEMBERS_SEARCH_PARAM,
 } from "./add.shared";
+import TitleSection from "~/components/next/TitleSection";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -251,12 +252,14 @@ function AddAdmin() {
 
   return (
     <>
-      <div>
-        <h3 className="text-primary text-2xl font-bold leading-6.5 mt-2 mb-1">
+      <TitleSection>
+        <TitleSection.Headline>
           {locales.route.team.title}
-        </h3>
-        <p>{locales.route.team.instruction}</p>
-      </div>
+        </TitleSection.Headline>
+        <TitleSection.Subline>
+          {locales.route.team.instruction}
+        </TitleSection.Subline>
+      </TitleSection>
       <List locales={locales.route.search} id="team-member-list" hideAfter={1}>
         <List.Search
           defaultItems={loaderData.teamMembers}
@@ -317,12 +320,14 @@ function AddAdmin() {
           );
         })}
       </List>
-      <div>
-        <h3 className="text-primary text-2xl font-bold leading-6.5 mt-2 mb-1">
+      <TitleSection>
+        <TitleSection.Headline>
           {locales.route.search.title}
-        </h3>
-        <p>{locales.route.search.explanation}</p>
-      </div>
+        </TitleSection.Headline>
+        <TitleSection.Subline>
+          {locales.route.search.explanation}
+        </TitleSection.Subline>
+      </TitleSection>
       <searchFetcher.Form
         {...getFormProps(searchForm)}
         method="get"

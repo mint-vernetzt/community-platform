@@ -42,6 +42,7 @@ import {
   SEARCH_ADMINS_SEARCH_PARAM,
 } from "./list.shared";
 import { extendSearchParams } from "~/lib/utils/searchParams";
+import TitleSection from "~/components/next/TitleSection";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -173,9 +174,10 @@ function AdminsList() {
 
   return (
     <>
-      <h3 className="text-primary text-2xl font-bold leading-6.5 mt-2 mb-1">
-        {locales.route.title}
-      </h3>
+      <TitleSection>
+        <TitleSection.Headline>{locales.route.title}</TitleSection.Headline>
+      </TitleSection>
+
       {loaderData.admins.length <= 1 && (
         <Hint>
           {insertComponentsIntoLocale(locales.route.explanation, [
