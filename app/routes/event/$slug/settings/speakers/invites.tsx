@@ -153,7 +153,9 @@ function SpeakerInvites() {
   return (
     <>
       <TitleSection>
-        <TitleSection.Headline>{locales.route.title}</TitleSection.Headline>
+        <TitleSection.Headline as="h3">
+          {locales.route.title}
+        </TitleSection.Headline>
       </TitleSection>
       <List id="invites-list" locales={locales.route.list}>
         <List.Search

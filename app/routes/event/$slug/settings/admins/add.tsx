@@ -253,7 +253,7 @@ function AddAdmin() {
   return (
     <>
       <TitleSection>
-        <TitleSection.Headline>
+        <TitleSection.Headline as="h3">
           {locales.route.team.title}
         </TitleSection.Headline>
         <TitleSection.Subline>
@@ -321,7 +321,7 @@ function AddAdmin() {
         })}
       </List>
       <TitleSection>
-        <TitleSection.Headline>
+        <TitleSection.Headline as="h3">
           {locales.route.search.title}
         </TitleSection.Headline>
         <TitleSection.Subline>

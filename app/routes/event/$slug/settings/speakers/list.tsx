@@ -145,7 +145,9 @@ function SpeakerList() {
   return (
     <>
       <TitleSection>
-        <TitleSection.Headline>{locales.route.title}</TitleSection.Headline>
+        <TitleSection.Headline as="h3">
+          {locales.route.title}
+        </TitleSection.Headline>
       </TitleSection>
       <List id="speakers-list" hideAfter={4} locales={locales.route.list}>
         <List.Search

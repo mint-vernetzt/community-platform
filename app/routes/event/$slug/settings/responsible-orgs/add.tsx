@@ -264,7 +264,7 @@ function AddResponsibleOrg() {
   return (
     <>
       <TitleSection>
-        <TitleSection.Headline>
+        <TitleSection.Headline as="h3">
           {locales.route.ownOrganizations.title}
         </TitleSection.Headline>
         <TitleSection.Subline>
@@ -335,7 +335,7 @@ function AddResponsibleOrg() {
         })}
       </List>
       <TitleSection>
-        <TitleSection.Headline>
+        <TitleSection.Headline as="h3">
           {locales.route.search.title}
         </TitleSection.Headline>
         <TitleSection.Subline>

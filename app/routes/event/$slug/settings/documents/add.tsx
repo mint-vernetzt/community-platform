@@ -204,7 +204,9 @@ function DocumentsList() {
   return (
     <>
       <TitleSection>
-        <TitleSection.Headline>{locales.route.title}</TitleSection.Headline>
+        <TitleSection.Headline as="h3">
+          {locales.route.title}
+        </TitleSection.Headline>
         <TitleSection.Subline>
           {insertParametersIntoLocale(locales.route.explanation, {
             size: MAX_UPLOAD_FILE_SIZE / 1000 / 1000,

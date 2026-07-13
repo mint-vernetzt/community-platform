@@ -175,7 +175,9 @@ function AdminsList() {
   return (
     <>
       <TitleSection>
-        <TitleSection.Headline>{locales.route.title}</TitleSection.Headline>
+        <TitleSection.Headline as="h3">
+          {locales.route.title}
+        </TitleSection.Headline>
       </TitleSection>
 
       {loaderData.admins.length <= 1 && (

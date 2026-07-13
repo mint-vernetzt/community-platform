@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import { Children, isValidElement } from "react";
 import { Link, type LinkProps } from "react-router";
 
@@ -26,8 +27,8 @@ function TitleSection(props: { children: React.ReactNode }) {
   );
 }
 
-function Headline(props: { children: React.ReactNode }) {
-  const { children } = props;
+function Headline(props: { children: React.ReactNode; as?: "h2" | "h3" }) {
+  const { children, as = "h2" } = props;
 
   const helpIcon = Children.toArray(children).find((child) => {
     return isValidElement(child) && child.type === HeadlineHelpIcon;
@@ -37,11 +38,20 @@ function Headline(props: { children: React.ReactNode }) {
     return isValidElement(child) ? child.type !== HeadlineHelpIcon : true;
   });
 
-  return (
-    <h2 className="flex gap-4 justify-between mb-0 text-primary text-2xl font-bold leading-6.5">
+  const classes = classNames(
+    "flex gap-4 justify-between mb-0 text-primary text-2xl font-bold leading-6.5"
+  );
+
+  return as === "h2" ? (
+    <h2 className={classes}>
       <span>{otherChildren}</span>
       {typeof helpIcon !== "undefined" ? helpIcon : null}
     </h2>
+  ) : (
+    <h3 className={classes}>
+      <span>{otherChildren}</span>
+      {typeof helpIcon !== "undefined" ? helpIcon : null}
+    </h3>
   );
 }
 
