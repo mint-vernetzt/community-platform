@@ -69,4 +69,28 @@ export const locale = assertFocusLocales({
     title: "School-based and extracurricular cooperation",
     description: null,
   },
+  extracurricular_stem_education: {
+    title: "Extracurricular STEM education",
+    description: null,
+  },
+  student_mentoring_programs: {
+    title: "Student mentoring programs",
+    description: null,
+  },
+  peer_to_peer_learning: {
+    title: "Peer-to-peer learning",
+    description: null,
+  },
+  mobile_stem_offers: {
+    title: "Mobile STEM offerings",
+    description: null,
+  },
+  extracurricular_child_and_youth_work: {
+    title: "Extracurricular child and youth work",
+    description: null,
+  },
+  open_all_day_school: {
+    title: "Open all-day school",
+    description: null,
+  },
 } as const);

@@ -101,4 +101,40 @@ export const focuses = [
     slug: "school_based_and_extracurricular_cooperation",
     description: null,
   },
+  {
+    id: "7228b02a-fb86-4813-9ddd-d90c7272ff40",
+    title: "Außerschulische MINT-Bildung",
+    slug: "extracurricular_stem_education",
+    description: null,
+  },
+  {
+    id: "b09f2320-bf24-4ab0-947c-02b5de5b4d1e",
+    title: "Schülermentor*innen-Programme",
+    slug: "student_mentoring_programs",
+    description: null,
+  },
+  {
+    id: "d7150683-5448-43ab-b961-c049246f380b",
+    title: "Peer-to-Peer Learning",
+    slug: "peer_to_peer_learning",
+    description: null,
+  },
+  {
+    id: "09fd58c1-a5cc-4200-a8f9-af4f9ec7046d",
+    title: "Mobile MINT-Angebote",
+    slug: "mobile_stem_offers",
+    description: null,
+  },
+  {
+    id: "a7d86b5a-a733-4156-ae7b-5982dab931c4",
+    title: "Außerschulische Kinder- und Jugendarbeit",
+    slug: "extracurricular_child_and_youth_work",
+    description: null,
+  },
+  {
+    id: "e584990d-98a6-43bf-a48a-13fd43bbb0cc",
+    title: "Offener Ganztag",
+    slug: "open_all_day_school",
+    description: null,
+  },
 ] as const;
