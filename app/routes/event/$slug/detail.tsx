@@ -1,4 +1,4 @@
-import { parseWithZod } from "@conform-to/zod";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import {
   type ActionFunctionArgs,
   Link,
@@ -6,9 +6,12 @@ import {
   type MetaArgs,
   Outlet,
   redirect,
+  useActionData,
   useLoaderData,
   useLocation,
   useNavigate,
+  useNavigation,
+  useSearchParams,
 } from "react-router";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -52,6 +55,9 @@ import {
   PARTICIPATE_INTENT,
   WITHDRAW_PARTICIPATION_INTENT,
   PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM,
+  PARTICIPATE_ON_EVENT_ANON_MODAL_SEARCH_PARAM,
+  createRegisterSchema,
+  PARTICIPATE_AS_GUEST_INTENT,
 } from "./details.shared";
 import { formatDateTime } from "./index.shared";
 import { captureException } from "@sentry/node";
@@ -66,9 +72,12 @@ import { getFeatureAbilities } from "~/routes/feature-access.server";
 import { UPLOAD_DOCUMENT_INTENT_VALUE } from "~/storage.shared";
 import { hasContent } from "~/utils.shared";
 import { filterEventConferenceLink } from "./utils.server";
-import { Deep } from "~/lib/utils/searchParams";
+import { Deep, extendSearchParams } from "~/lib/utils/searchParams";
 import { utcToZonedTime } from "date-fns-tz";
 import { Modal } from "~/components-next/Modal";
+import { useForm } from "@conform-to/react";
+import { isBotRequest } from "~/utils.server";
+import { checkHoneypot } from "~/honeypot.server";
 
 export function links() {
   return [
@@ -386,12 +395,6 @@ export async function loader(args: LoaderFunctionArgs) {
 export async function action(args: ActionFunctionArgs) {
   const { request, params } = args;
   const { authClient } = createAuthClient(request);
-  const sessionUser = await getSessionUser(authClient);
-  if (sessionUser === null) {
-    const url = new URL(request.url);
-    const pathname = url.pathname;
-    return redirect(`/login?login_redirect=${encodeURIComponent(pathname)}`);
-  }
 
   invariantResponse(typeof params.slug !== "undefined", "slug not found", {
     status: 400,
@@ -414,6 +417,16 @@ export async function action(args: ActionFunctionArgs) {
     });
   }
 
+  if (process.env.NODE_ENV !== "test") {
+    await checkHoneypot(formData);
+    const isBot = isBotRequest(request.headers.get("user-agent"));
+    invariantResponse(
+      isBot === false,
+      "Bots are not allowed to access this resource",
+      { status: 403 }
+    );
+  }
+
   const intent = formData.get(INTENT_FIELD_NAME);
 
   invariantResponse(
@@ -423,7 +436,8 @@ export async function action(args: ActionFunctionArgs) {
       intent === LEAVE_WAITING_LIST_INTENT ||
       intent === ABUSE_REPORT_INTENT ||
       intent === UPLOAD_DOCUMENT_INTENT_VALUE ||
-      intent === IMAGE_CROPPER_DISCONNECT_INTENT_VALUE,
+      intent === IMAGE_CROPPER_DISCONNECT_INTENT_VALUE ||
+      intent === PARTICIPATE_AS_GUEST_INTENT,
     "Invalid intent",
     {
       status: 400,
@@ -434,6 +448,43 @@ export async function action(args: ActionFunctionArgs) {
     id: eventId,
     slug: params.slug,
   };
+
+  console.log("intent", intent);
+
+  if (intent === PARTICIPATE_AS_GUEST_INTENT) {
+    const submission = await parseWithZod(formData, {
+      schema: createRegisterSchema(
+        locales.route.content.anonModal.guestAccess.form
+      ),
+    });
+
+    if (submission.status !== "success") {
+      return { submission: submission.reply() };
+    }
+
+    // logic
+
+    const url = new URL(request.url);
+    const searchParams = extendSearchParams(url.searchParams, {
+      remove: [PARTICIPATE_ON_EVENT_ANON_MODAL_SEARCH_PARAM],
+    });
+
+    const redirectUrl = `${url.pathname}?${searchParams.toString()}`;
+
+    return redirectWithToast(redirectUrl, {
+      id: "participate-as-guest-success",
+      key: `${new Date().getTime()}`,
+      message: locales.route.success.participateAsGuest,
+      level: "positive",
+    });
+  }
+
+  const sessionUser = await getSessionUser(authClient);
+  if (sessionUser === null) {
+    const url = new URL(request.url);
+    const pathname = url.pathname;
+    return redirect(`/login?login_redirect=${encodeURIComponent(pathname)}`);
+  }
 
   if (
     intent === UPLOAD_DOCUMENT_INTENT_VALUE ||
@@ -634,6 +685,7 @@ export async function action(args: ActionFunctionArgs) {
 
 function Detail() {
   const loaderData = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
   const location = useLocation();
   const { pathname } = location;
 
@@ -644,6 +696,33 @@ function Detail() {
     loaderData.event.participationFrom,
     "Europe/Berlin"
   );
+
+  const navigation = useNavigation();
+  const [urlSearchParams] = useSearchParams();
+  const loginRedirect = urlSearchParams.get("login_redirect");
+
+  const [guestAccessForm, guestAccessFields] = useForm({
+    id: "register-form",
+    constraint: getZodConstraint(
+      createRegisterSchema(
+        loaderData.locales.route.content.anonModal.guestAccess.form
+      )
+    ),
+    defaultValue: {
+      loginRedirect: loginRedirect,
+    },
+    shouldValidate: "onBlur",
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    onValidate({ formData }) {
+      const submission = parseWithZod(formData, {
+        schema: createRegisterSchema(
+          loaderData.locales.route.content.anonModal.guestAccess.form
+        ),
+      });
+      return submission;
+    },
+  });
 
   return (
     <>
@@ -868,6 +947,12 @@ function Detail() {
                   <EventsOverview.Login
                     pathname={pathname}
                     searchParam={PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM}
+                    modal={{
+                      searchParam: PARTICIPATE_ON_EVENT_ANON_MODAL_SEARCH_PARAM,
+                      locales: loaderData.locales.route.content.anonModal,
+                      form: guestAccessForm,
+                      fields: guestAccessFields,
+                    }}
                   >
                     {loaderData.locales.route.content.login}
                   </EventsOverview.Login>

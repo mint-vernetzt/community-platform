@@ -1,4 +1,10 @@
-import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import {
+  type FieldMetadata,
+  type FormMetadata,
+  getFormProps,
+  getInputProps,
+  useForm,
+} from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar"; // refactor?
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
@@ -9,10 +15,15 @@ import classNames from "classnames";
 import { utcToZonedTime } from "date-fns-tz";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Form, Link, useLocation, useSearchParams } from "react-router";
+import { HoneypotInputs } from "remix-utils/honeypot/react";
 import { useHydrated } from "remix-utils/use-hydrated";
+import { Dropdown } from "~/components-next/Dropdown";
+import { FormControl } from "~/components-next/FormControl";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
+import { HONEYPOT_CLASSNAME } from "~/honeypot.shared";
 import type { SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { copyToClipboard } from "~/lib/utils/clipboard";
 import { Deep, extendSearchParams } from "~/lib/utils/searchParams";
 import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
@@ -22,6 +33,7 @@ import {
   ABUSE_REPORT_INTENT,
   createAbuseReportSchema,
   JOIN_WAITING_LIST_INTENT,
+  PARTICIPATE_AS_GUEST_INTENT,
   PARTICIPATE_INTENT,
   REPORT_REASON_MAX_LENGTH,
 } from "~/routes/event/$slug/details.shared";
@@ -1129,13 +1141,137 @@ function Login(props: {
         useKeycloak: string;
       };
       guestAccess: {
+        new: string;
         title: string;
+        description: string;
+        form: {
+          title: {
+            label: string;
+            options: {
+              [key: string]: string;
+            };
+          };
+          firstName: string;
+          lastName: string;
+          email: string;
+          submit: string;
+          cancel: string;
+          validation: {
+            firstName: string;
+            lastName: string;
+            email: string;
+          };
+        };
       };
     };
+    form: FormMetadata<
+      {
+        email: string;
+        firstName: string;
+        lastName: string;
+        academicTitle?:
+          | "Dr."
+          | "Prof."
+          | "Prof. Dr."
+          | "Kein Titel"
+          | "No title"
+          | undefined;
+        loginRedirect?: string | undefined;
+      },
+      string[]
+    >;
+    fields: Required<{
+      email: FieldMetadata<
+        string,
+        {
+          email: string;
+          firstName: string;
+          lastName: string;
+          academicTitle?:
+            | "Dr."
+            | "Prof."
+            | "Prof. Dr."
+            | "Kein Titel"
+            | "No title"
+            | undefined;
+          loginRedirect?: string | undefined;
+        },
+        string[]
+      >;
+      firstName: FieldMetadata<
+        string,
+        {
+          email: string;
+          firstName: string;
+          lastName: string;
+          academicTitle?:
+            | "Dr."
+            | "Prof."
+            | "Prof. Dr."
+            | "Kein Titel"
+            | "No title"
+            | undefined;
+          loginRedirect?: string | undefined;
+        },
+        string[]
+      >;
+      lastName: FieldMetadata<
+        string,
+        {
+          email: string;
+          firstName: string;
+          lastName: string;
+          academicTitle?:
+            | "Dr."
+            | "Prof."
+            | "Prof. Dr."
+            | "Kein Titel"
+            | "No title"
+            | undefined;
+          loginRedirect?: string | undefined;
+        },
+        string[]
+      >;
+      academicTitle: FieldMetadata<
+        "Dr." | "Prof." | "Prof. Dr." | "Kein Titel" | "No title" | undefined,
+        {
+          email: string;
+          firstName: string;
+          lastName: string;
+          academicTitle?:
+            | "Dr."
+            | "Prof."
+            | "Prof. Dr."
+            | "Kein Titel"
+            | "No title"
+            | undefined;
+          loginRedirect?: string | undefined;
+        },
+        string[]
+      >;
+      loginRedirect: FieldMetadata<
+        string | undefined,
+        {
+          email: string;
+          firstName: string;
+          lastName: string;
+          academicTitle?:
+            | "Dr."
+            | "Prof."
+            | "Prof. Dr."
+            | "Kein Titel"
+            | "No title"
+            | undefined;
+          loginRedirect?: string | undefined;
+        },
+        string[]
+      >;
+    }>;
   };
 }) {
   const [searchParams] = useSearchParams();
   const isHydrated = useHydrated();
+  const isSubmitting = useIsSubmitting();
   const enhancedSearchParamsToOpenModal = extendSearchParams(searchParams, {
     addOrReplace: {
       [props.modal.searchParam]: "true",
@@ -1143,7 +1279,7 @@ function Login(props: {
   });
   const [expandedSection, setExpandedSection] = useState<
     "loginOrRegister" | "guestAccess"
-  >("loginOrRegister");
+  >("guestAccess");
   const enhancedSearchParamsForRedirect = extendSearchParams(searchParams, {
     addOrReplace: {
       [props.searchParam]: "true",
@@ -1271,7 +1407,7 @@ function Login(props: {
               >
                 <span className="flex justify-center items-center w-fit bg-positive-200 rounded-full py-0.5 px-1.5">
                   <div className="text-positive-900 text-xs leading-none font-semibold">
-                    Neu
+                    {props.modal.locales.guestAccess.new}
                   </div>
                 </span>
                 <div className="flex items-center justify-between gap-4">
@@ -1326,6 +1462,148 @@ function Login(props: {
                   }}
                 />
               </label>
+              <div className="flex-col gap-4 group-has-checked:flex hidden mt-4">
+                <RichText html={props.modal.locales.guestAccess.description} />
+                <Form
+                  {...getFormProps(props.modal.form)}
+                  method="post"
+                  preventScrollReset
+                  autoComplete="off"
+                >
+                  <HoneypotInputs className={HONEYPOT_CLASSNAME} />
+                  <input
+                    {...getInputProps(props.modal.fields.loginRedirect, {
+                      type: "hidden",
+                    })}
+                    key="loginRedirect"
+                  />
+                  <div className="flex flex-col gap-4">
+                    <Dropdown responsive={false}>
+                      <Dropdown.Label>
+                        {isHydrated &&
+                        typeof props.modal.fields.academicTitle.value !==
+                          "undefined"
+                          ? props.modal.fields.academicTitle.value
+                          : props.modal.locales.guestAccess.form.title.label}
+                      </Dropdown.Label>
+                      <Dropdown.List>
+                        {Object.entries(
+                          props.modal.locales.guestAccess.form.title.options
+                        ).map(([_key, title]) => {
+                          return (
+                            <FormControl
+                              {...getInputProps(
+                                props.modal.fields.academicTitle,
+                                {
+                                  type: "radio",
+                                  value: title,
+                                }
+                              )}
+                              key={title}
+                              labelPosition="left"
+                            >
+                              <FormControl.Label>{title}</FormControl.Label>
+                            </FormControl>
+                          );
+                        })}
+                      </Dropdown.List>
+                    </Dropdown>
+                    <Input
+                      {...getInputProps(props.modal.fields.firstName, {
+                        type: "text",
+                      })}
+                      key="firstName"
+                    >
+                      <Input.Label htmlFor={props.modal.fields.firstName.id}>
+                        {props.modal.locales.guestAccess.form.firstName}
+                      </Input.Label>
+                      {typeof props.modal.fields.firstName.errors !==
+                        "undefined" &&
+                      props.modal.fields.firstName.errors.length > 0
+                        ? props.modal.fields.firstName.errors.map((error) => (
+                            <Input.Error
+                              id={props.modal.fields.firstName.errorId}
+                              key={error}
+                            >
+                              {error}
+                            </Input.Error>
+                          ))
+                        : null}
+                    </Input>
+                    <Input
+                      {...getInputProps(props.modal.fields.lastName, {
+                        type: "text",
+                      })}
+                      key="lastName"
+                    >
+                      <Input.Label htmlFor={props.modal.fields.lastName.id}>
+                        {props.modal.locales.guestAccess.form.lastName}
+                      </Input.Label>
+                      {typeof props.modal.fields.lastName.errors !==
+                        "undefined" &&
+                      props.modal.fields.lastName.errors.length > 0
+                        ? props.modal.fields.lastName.errors.map((error) => (
+                            <Input.Error
+                              id={props.modal.fields.lastName.errorId}
+                              key={error}
+                            >
+                              {error}
+                            </Input.Error>
+                          ))
+                        : null}
+                    </Input>
+                    <div className="mb-4">
+                      <Input
+                        {...getInputProps(props.modal.fields.email, {
+                          type: "text",
+                        })}
+                        key="email"
+                      >
+                        <Input.Label htmlFor={props.modal.fields.email.id}>
+                          {props.modal.locales.guestAccess.form.email}
+                        </Input.Label>
+                        {typeof props.modal.fields.email.errors !==
+                          "undefined" &&
+                        props.modal.fields.email.errors.length > 0
+                          ? props.modal.fields.email.errors.map((error) => (
+                              <Input.Error
+                                id={props.modal.fields.email.errorId}
+                                key={error}
+                              >
+                                {error}
+                              </Input.Error>
+                            ))
+                          : null}
+                      </Input>
+                    </div>
+                    <Button
+                      type="submit"
+                      fullSize
+                      name={INTENT_FIELD_NAME}
+                      value={PARTICIPATE_AS_GUEST_INTENT}
+                      // Don't disable button when js is disabled
+                      disabled={
+                        isHydrated
+                          ? props.modal.form.dirty === false ||
+                            props.modal.form.valid === false ||
+                            isSubmitting
+                          : false
+                      }
+                    >
+                      {props.modal.locales.guestAccess.form.submit}
+                    </Button>
+                    <Button
+                      as="link"
+                      to={props.pathname}
+                      fullSize
+                      variant="outline"
+                      preventScrollReset
+                    >
+                      {props.modal.locales.guestAccess.form.cancel}
+                    </Button>
+                  </div>
+                </Form>
+              </div>
             </li>
           </ul>
         </Modal.Section>

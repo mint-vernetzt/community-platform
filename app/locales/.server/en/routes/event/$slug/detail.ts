@@ -28,8 +28,46 @@ export const locale = {
     canceled: "Event canceled",
     edit: "Edit event",
     externalParticipate: "External registration link",
-    login: "Log in to participate",
+    login: "Participate",
     participate: "Participate",
+    anonModal: {
+      or: "or",
+      loginOrRegister: {
+        title: "Please log in to the platform first.",
+        login: "Log in with credentials",
+        keycloak: "Log in with MINT-ID",
+        noMember: "Not a member yet?",
+        registerByEmail: "Register with email",
+        useKeycloak: "Create MINT-ID",
+      },
+      guestAccess: {
+        new: "New",
+        title: "Participate in the event without creating a profile",
+        description:
+          'Sign up with your email address. You will receive all important information about the event via email. Without a profile, you cannot be found by the community. More information can be found in our <a href="/help#registration" target="_blank" class="font-bold hover:underline">help section</a>.',
+        form: {
+          title: {
+            label: "Title",
+            options: {
+              none: "No title",
+              dr: "Dr.",
+              prof: "Prof.",
+              profdr: "Prof. Dr.",
+            },
+          },
+          firstName: "First name *",
+          lastName: "Last name *",
+          email: "Email *",
+          submit: "Register for event",
+          cancel: "Cancel",
+          validation: {
+            firstName: "Please enter your first name.",
+            lastName: "Please enter your last name.",
+            email: "Please enter a valid email address.",
+          },
+        },
+      },
+    },
     withdrawParticipation: {
       cta: "Withdraw participation",
       confirmationModal: {
@@ -89,6 +127,7 @@ export const locale = {
     withdrawParticipation: "Error removing from participants",
     joinWaitingList: "Error adding to waiting list",
     leaveWaitingList: "Error removing from waiting list",
+    participateAsGuest: "Error signing up without creating a profile",
     abuseReport: {
       reasons: {
         required: "Please give a reason.",
@@ -108,6 +147,8 @@ export const locale = {
     joinWaitingList: "Successfully joined waiting list",
     leaveWaitingList: "Successfully left waiting list",
     abuseReport: "The abuse report was successfully submitted.",
+    participateAsGuest:
+      "You have successfully signed up for the event without creating a profile. Check your email to complete the registration.",
   },
   abuseReport: {
     title: "Why do you want to report this event?",
