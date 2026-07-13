@@ -151,6 +151,51 @@ model BannedProfile {
   @@map("banned_profiles")
 }
 
+model Guest {
+  id                 String                @id @default(uuid())
+  email              String                @unique
+  academicTitle      String?               @map("academic_title")
+  firstName          String                @map("first_name")
+  lastName           String                @map("last_name")
+  organizationName   String?               @map("organization_name")
+  termsAccepted      Boolean               @default(false) @map("terms_accepted")
+  termsAcceptedAt    DateTime?             @map("terms_accepted_at")
+  confirmationSentAt DateTime              @default(now()) @map("confirmation_sent_at")
+  confirmed          Boolean               @default(false)
+  confirmedAt        DateTime?             @map("confirmed_at")
+  confirmationToken  String                @map("confirmation_token")
+  participatedEvents GuestOfEvent[]
+  waitingForEvents   WaitingGuestOfEvent[]
+  createdAt          DateTime              @default(now()) @map("created_at")
+  updatedAt          DateTime              @default(now()) @updatedAt @map("updated_at")
+
+  @@map("guests")
+}
+
+model GuestOfEvent {
+  guestId         String   @map("guest_id")
+  eventId         String   @map("event_id")
+  guest           Guest    @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  event           Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  revocationToken String   @map("revocation_token")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@id([guestId, eventId])
+  @@map("guests_of_events")
+}
+
+model WaitingGuestOfEvent {
+  guestId         String   @map("guest_id")
+  eventId         String   @map("event_id")
+  guest           Guest    @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  event           Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  revocationToken String   @map("revocation_token")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@id([guestId, eventId])
+  @@map("waiting_guests_of_events")
+}
+
 model NotificationSettings {
   id        String  @id @default(uuid())
   updates   Boolean @default(true)
@@ -557,6 +602,7 @@ model Event {
   stage                            Stage?                                         @relation("stage_of_event", fields: [stageId], references: [id])
   focuses                          FocusOfEvent[]
   participants                     ParticipantOfEvent[]
+  participatingGuests              GuestOfEvent[]
   participantInvites               InviteForProfileToParticipateOnEvent[]
   responsibleOrganizations         ResponsibleOrganizationOfEvent[]
   responsibleOrganizationInvites   InviteForOrganizationToBeResponsibleForEvent[]
@@ -567,6 +613,7 @@ model Event {
   teamMembers                      TeamMemberOfEvent[]
   contactPersons                   ContactPersonOfEvent[]
   waitingList                      WaitingParticipantOfEvent[]
+  guestWaitingList                 WaitingGuestOfEvent[]
   eventVisibility                  EventVisibility?
   admins                           AdminOfEvent[]
   profileJoinInvites               InviteForProfileToJoinEvent[]
