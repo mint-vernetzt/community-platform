@@ -214,10 +214,16 @@ function Modal(props: ModalProps) {
         tabIndex={-1}
         className="relative max-w-124 rounded-lg bg-white p-6 flex flex-col gap-6"
       >
-        <div className="flex justify-between items-baseline gap-4">
-          {title}
-          <ModalClose route={redirect ?? "."} />
-        </div>
+        {typeof title !== "undefined" ? (
+          <div className="flex justify-between items-baseline gap-4">
+            {title}
+            <ModalClose route={redirect ?? "."} />
+          </div>
+        ) : (
+          <div className="flex justify-end items-baseline gap-4">
+            <ModalClose route={redirect ?? "."} />
+          </div>
+        )}
         {sections}
         {modalControls !== null && modalControls}
         {(submitButton !== null || closeButtonClone !== null) && (
