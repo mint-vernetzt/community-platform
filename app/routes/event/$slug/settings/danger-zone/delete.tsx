@@ -32,6 +32,7 @@ import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
 import { deleteEventBySlug, getEventBySlug } from "./delete.server";
 import { createDeleteSchema } from "./delete.shared";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import TitleSection from "~/components/next/TitleSection";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -159,14 +160,16 @@ function Delete() {
 
   return (
     <>
-      <p>
-        {insertComponentsIntoLocale(
-          insertParametersIntoLocale(locales.route.explanation, {
-            eventName: event.name,
-          }),
-          [<span key="strong" className="font-semibold" />]
-        )}
-      </p>
+      <TitleSection>
+        <TitleSection.Subline>
+          {insertComponentsIntoLocale(
+            insertParametersIntoLocale(locales.route.explanation, {
+              eventName: event.name,
+            }),
+            [<span key="strong" className="font-semibold" />]
+          )}
+        </TitleSection.Subline>
+      </TitleSection>
       <Hint>
         {insertComponentsIntoLocale(locales.route.hint, [
           <span key="strong" className="font-semibold" />,

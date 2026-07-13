@@ -203,7 +203,6 @@ function DocumentsList() {
 
   return (
     <>
-      //TODO: HIER NACHFRAGEN WEGEN 3. p
       <TitleSection>
         <TitleSection.Headline>{locales.route.title}</TitleSection.Headline>
         <TitleSection.Subline>
@@ -211,17 +210,7 @@ function DocumentsList() {
             size: MAX_UPLOAD_FILE_SIZE / 1000 / 1000,
           })}
         </TitleSection.Subline>
-      </TitleSection>
-      <div>
-        <h3 className="text-primary text-2xl font-bold leading-6.5 mt-2 mb-1">
-          {locales.route.title}
-        </h3>
-        <p>
-          {insertParametersIntoLocale(locales.route.explanation, {
-            size: MAX_UPLOAD_FILE_SIZE / 1000 / 1000,
-          })}
-        </p>
-        <p>
+        <TitleSection.Subline>
           {insertComponentsIntoLocale(locales.route.help, [
             <Link
               key="help-link"
@@ -231,8 +220,8 @@ function DocumentsList() {
               prefetch="intent"
             />,
           ])}
-        </p>
-      </div>
+        </TitleSection.Subline>
+      </TitleSection>
       <Form
         {...getFormProps(uploadForm)}
         method="POST"
