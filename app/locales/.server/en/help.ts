@@ -321,13 +321,8 @@ export const locale = {
         whoCanCreateEvents: {
           question: "Who can create events?",
           answer:
-            '<p>Some BETA users of the platform can create their own free and non-commercial events. If you would like to test event creation as well, please contact us at <a href="mailto:community@mint-vernetzt.de">community@mint-vernetzt.de</a>.</br></br><b>Important:</b> Our platform is NOT aimed at children and young people, but exclusively at MINT actors, educational providers, network coordinators, etc., therefore events such as MINT holiday courses or weekly offerings in a student laboratory do not belong here.</p>',
+            '<p>Any registered user can create their own events.<br /><br /><b>Please note</b>: Our platform is NOT aimed at children and young people, but exclusively at MINT actors, educational providers, network coordinators, etc., therefore events such as MINT holiday courses or weekly offerings in a student laboratory for students do not belong here. This target group is not reached with the platform.<br /><br />We reserve the right to delete events that violate our <a href="/terms-of-use" rel="noreferrer noopener" target="_blank">terms of use</a>. Please refer to our information under the question <b>“What do I need to consider when creating an event?”</b></p>',
         },
-        // whoCanCreateEvents: {
-        //   question: "Who can create events?",
-        //   answer:
-        //     '<p>Any registered user can create their own events.<br /><br /><b>Please note</b>: Our platform is NOT aimed at children and young people, but exclusively at MINT actors, educational providers, network coordinators, etc., therefore events such as MINT holiday courses or weekly offerings in a student laboratory for students do not belong here. This target group is not reached with the platform.<br /><br />We reserve the right to delete events that violate our <a href="/terms-of-use" rel="noreferrer noopener" target="_blank">terms of use</a>. Please refer to our information under the question <b>“What do I need to consider when creating an event?”</b></p>',
-        // },
         eventCreation: {
           question: "How can I create an event?",
           answer:

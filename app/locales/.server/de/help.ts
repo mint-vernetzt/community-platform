@@ -333,13 +333,8 @@ export const locale = {
         whoCanCreateEvents: {
           question: "Wer darf Events erstellen?",
           answer:
-            '<p>Einige BETA-Nutzer:innen der Plattform können eigene kostenlose und nicht kommerzielle Events erstellen. Möchtest Du auch die Eventerstellung testen, kontaktiere uns unter <a href="mailto:community@mint-vernetzt.de">community@mint-vernetzt.de</a>.</br></br><b>Wichtig:</b> Unsere Plattform richtet sich NICHT an Kinder und Jugendliche, sondern ausschließlich an MINT-Akteur:innen, Bildungsanbieter:innen, Netzwerkkoordinator:innen, etc., daher gehören Veranstaltungen wie MINT-Ferienkurse oder wöchentliche Angebote in einem Schüler:innenlabor hier nicht hin.</p>',
+            '<p>Jede:r angemeldete Nutzer:in kann eigene Events anlegen.<br /><br /><b>Bitte beachte</b>: Unsere Plattform richtet sich NICHT an Kinder und Jugendliche, sondern ausschließlich an MINT-Akteur:innen, Bildungsanbieter:innen, Netzwerkkoordinator:innen, etc., daher gehören Veranstaltungen wie MINT-Ferienkurse oder wöchentliche Angebote in einem Schüler:innenlabor für Schüler:innen hier nicht hin. Diese Zielgruppe wird mit der Plattform nicht erreicht.<br /><br />Wir behalten uns vor Events zu löschen, die gegen unsere <a href="/terms-of-use" rel="noreferrer noopener" target="_blank">Nutzungsbedingungen</a> verstoßen. Bitte beachte dafür unsere Information unter der Frage <b>“Was muss ich beim Erstellen eines Events beachten?”</b></p>',
         },
-        // whoCanCreateEvents: {
-        //   question: "Wer darf Events erstellen?",
-        //   answer:
-        //     '<p>Jede:r angemeldete Nutzer:in kann eigene Events anlegen.<br /><br /><b>Bitte beachte</b>: Unsere Plattform richtet sich NICHT an Kinder und Jugendliche, sondern ausschließlich an MINT-Akteur:innen, Bildungsanbieter:innen, Netzwerkkoordinator:innen, etc., daher gehören Veranstaltungen wie MINT-Ferienkurse oder wöchentliche Angebote in einem Schüler:innenlabor für Schüler:innen hier nicht hin. Diese Zielgruppe wird mit der Plattform nicht erreicht.<br /><br />Wir behalten uns vor Events zu löschen, die gegen unsere <a href="/terms-of-use" rel="noreferrer noopener" target="_blank">Nutzungsbedingungen</a> verstoßen. Bitte beachte dafür unsere Information unter der Frage <b>“Was muss ich beim Erstellen eines Events beachten?”</b></p>',
-        // },
         eventCreation: {
           question: "Wie kann ich ein Event erstellen?",
           answer:

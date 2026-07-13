@@ -34,6 +34,7 @@ import {
   createSearchInvitedOrganizationsSchema,
 } from "./invites.shared";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import TitleSection from "~/components/next/TitleSection";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -154,9 +155,11 @@ function OrganizationInvites() {
   }, [loaderData.organizations]);
   return (
     <>
-      <h3 className="text-primary text-2xl font-bold leading-6.5 mt-2 mb-1">
-        {locales.route.title}
-      </h3>
+      <TitleSection>
+        <TitleSection.Headline as="h3">
+          {locales.route.title}
+        </TitleSection.Headline>
+      </TitleSection>
       <List id="invites-list" locales={locales.route.list}>
         <List.Search
           defaultItems={loaderData.organizations}

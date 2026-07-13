@@ -38,6 +38,7 @@ import { redirectWithToast } from "~/toast.server";
 import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
 import { getEventBySlug, updateEventBySlug } from "./change-url.server";
 import { createChangeURLSchema } from "./change-url.shared";
+import TitleSection from "~/components/next/TitleSection";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -183,15 +184,17 @@ function ChangeURL() {
         formMetadataToCheck={form}
         locales={locales.components.UnsavedChangesModal}
       />
-      <p>
-        {insertComponentsIntoLocale(
-          insertParametersIntoLocale(locales.route.explanation, {
-            baseURL: baseURL,
-            slug: params.slug,
-          }),
-          [<span key="strong" className="font-semibold" />]
-        )}
-      </p>
+      <TitleSection>
+        <TitleSection.Subline>
+          {insertComponentsIntoLocale(
+            insertParametersIntoLocale(locales.route.explanation, {
+              baseURL: baseURL,
+              slug: params.slug,
+            }),
+            [<span key="strong" className="font-semibold" />]
+          )}
+        </TitleSection.Subline>
+      </TitleSection>
       <Hint>
         {insertComponentsIntoLocale(locales.route.hint, [
           <span key="strong" className="font-semibold" />,

@@ -32,6 +32,7 @@ import {
   getSearchResponsibleOrgsSchema,
   SEARCH_RESPONSIBLE_ORGS_SEARCH_PARAM,
 } from "./list.shared";
+import TitleSection from "~/components/next/TitleSection";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -146,9 +147,11 @@ function ResponsibleOrgsList() {
 
   return (
     <>
-      <h3 className="text-primary text-2xl font-bold leading-6.5 mt-2 mb-1">
-        {locales.route.title}
-      </h3>
+      <TitleSection>
+        <TitleSection.Headline as="h3">
+          {locales.route.title}
+        </TitleSection.Headline>
+      </TitleSection>
       <List
         id="responsible-orgs-list"
         hideAfter={4}

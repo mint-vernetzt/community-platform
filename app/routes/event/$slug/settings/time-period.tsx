@@ -55,6 +55,7 @@ import {
   createTimePeriodSchema,
   getTimePeriodDefaultValue,
 } from "./time-period.shared";
+import Hint from "~/components/next/Hint";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -256,80 +257,77 @@ export default function TimePeriod() {
         autoComplete="off"
       >
         {event.parentEvent !== null ? (
-          <div className="w-full lg:p-6">
-            <div className="w-full flex flex-col gap-4 p-4 lg:p-6 bg-primary-50 lg:rounded-lg">
-              {event.parentEvent !== null ? (
-                <>
-                  <p className="text-primary-700 text-base font-normal leading-5">
-                    {locales.route.eventLists.parentEvent.hint}
-                  </p>
-                  <List
-                    id="parent-event-list"
-                    locales={locales.route.eventLists}
+          <div className="w-full flex flex-col gap-4 p-4 lg:p-6">
+            {event.parentEvent !== null ? (
+              <>
+                <Hint>
+                  <Hint.InfoIcon />
+                  {locales.route.eventLists.parentEvent.hint}
+                </Hint>
+                <List id="parent-event-list" locales={locales.route.eventLists}>
+                  <ListItemEvent
+                    key={event.id}
+                    index={0}
+                    to={`/event/${event.parentEvent.slug}/detail/about`}
                   >
-                    <ListItemEvent
-                      key={event.id}
-                      index={0}
-                      to={`/event/${event.parentEvent.slug}/detail/about`}
-                    >
-                      <ListItemEvent.Info
-                        {...event.parentEvent}
-                        stage={event.parentEvent.stage}
-                        participantCount={event.parentEvent._count.participants}
-                        locales={{
-                          stages: locales.stages,
-                          ...locales.route.eventLists,
-                        }}
-                        language={language}
-                      ></ListItemEvent.Info>
-                      <ListItemEvent.Headline>
-                        {event.parentEvent.name}
-                      </ListItemEvent.Headline>
-                    </ListItemEvent>
-                  </List>
-                </>
-              ) : null}
-              {event.childEvents.data.length > 0 ? (
-                <>
-                  <p className="text-primary-700 text-base font-normal leading-5">
-                    {decideBetweenSingularOrPlural(
-                      locales.route.eventLists.childEvents.hint_singular,
-                      locales.route.eventLists.childEvents.hint_plural,
-                      event.childEvents.data.length
-                    )}
-                  </p>
-                  <List
-                    id="child-events-list"
-                    hideAfter={1}
-                    locales={locales.route.eventLists}
-                  >
-                    {event.childEvents.data.map((childEvent, index) => {
-                      return (
-                        <ListItemEvent
-                          key={childEvent.id}
-                          index={index}
-                          to={`/event/${childEvent.slug}/detail/about`}
-                        >
-                          <ListItemEvent.Info
-                            {...childEvent}
-                            stage={childEvent.stage}
-                            participantCount={childEvent._count.participants}
-                            locales={{
-                              stages: locales.stages,
-                              ...locales.route.eventLists,
-                            }}
-                            language={language}
-                          ></ListItemEvent.Info>
-                          <ListItemEvent.Headline>
-                            {childEvent.name}
-                          </ListItemEvent.Headline>
-                        </ListItemEvent>
-                      );
-                    })}
-                  </List>
-                </>
-              ) : null}
-            </div>
+                    <ListItemEvent.Info
+                      {...event.parentEvent}
+                      stage={event.parentEvent.stage}
+                      participantCount={event.parentEvent._count.participants}
+                      locales={{
+                        stages: locales.stages,
+                        ...locales.route.eventLists,
+                      }}
+                      language={language}
+                    ></ListItemEvent.Info>
+                    <ListItemEvent.Headline>
+                      {event.parentEvent.name}
+                    </ListItemEvent.Headline>
+                  </ListItemEvent>
+                </List>
+              </>
+            ) : null}
+            {event.childEvents.data.length > 0 ? (
+              <>
+                <Hint>
+                  <Hint.InfoIcon />
+                  {decideBetweenSingularOrPlural(
+                    locales.route.eventLists.childEvents.hint_singular,
+                    locales.route.eventLists.childEvents.hint_plural,
+                    event.childEvents.data.length
+                  )}
+                </Hint>
+                <List
+                  id="child-events-list"
+                  hideAfter={1}
+                  locales={locales.route.eventLists}
+                >
+                  {event.childEvents.data.map((childEvent, index) => {
+                    return (
+                      <ListItemEvent
+                        key={childEvent.id}
+                        index={index}
+                        to={`/event/${childEvent.slug}/detail/about`}
+                      >
+                        <ListItemEvent.Info
+                          {...childEvent}
+                          stage={childEvent.stage}
+                          participantCount={childEvent._count.participants}
+                          locales={{
+                            stages: locales.stages,
+                            ...locales.route.eventLists,
+                          }}
+                          language={language}
+                        ></ListItemEvent.Info>
+                        <ListItemEvent.Headline>
+                          {childEvent.name}
+                        </ListItemEvent.Headline>
+                      </ListItemEvent>
+                    );
+                  })}
+                </List>
+              </>
+            ) : null}
           </div>
         ) : null}
         <div className="w-full flex flex-col p-4 gap-8 lg:p-6 lg:gap-6">

@@ -46,6 +46,7 @@ import List from "~/components/next/List";
 import ListItemMaterial from "~/components/next/ListItemMaterial";
 import { parseMultipartFormData } from "~/storage.server";
 import { Deep } from "~/lib/utils/searchParams";
+import TitleSection from "~/components/next/TitleSection";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -202,16 +203,16 @@ function DocumentsList() {
 
   return (
     <>
-      <div>
-        <h3 className="text-primary text-2xl font-bold leading-6.5 mt-2 mb-1">
+      <TitleSection>
+        <TitleSection.Headline as="h3">
           {locales.route.title}
-        </h3>
-        <p>
+        </TitleSection.Headline>
+        <TitleSection.Subline>
           {insertParametersIntoLocale(locales.route.explanation, {
             size: MAX_UPLOAD_FILE_SIZE / 1000 / 1000,
           })}
-        </p>
-        <p>
+        </TitleSection.Subline>
+        <TitleSection.Subline>
           {insertComponentsIntoLocale(locales.route.help, [
             <Link
               key="help-link"
@@ -221,8 +222,8 @@ function DocumentsList() {
               prefetch="intent"
             />,
           ])}
-        </p>
-      </div>
+        </TitleSection.Subline>
+      </TitleSection>
       <Form
         {...getFormProps(uploadForm)}
         method="POST"

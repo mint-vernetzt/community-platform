@@ -32,6 +32,7 @@ import {
   getSearchSpeakersSchema,
   SEARCH_SPEAKERS_SEARCH_PARAM,
 } from "./list.shared";
+import TitleSection from "~/components/next/TitleSection";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -143,9 +144,11 @@ function SpeakerList() {
 
   return (
     <>
-      <h3 className="text-primary text-2xl font-bold leading-6.5 mt-2 mb-1">
-        {locales.route.title}
-      </h3>
+      <TitleSection>
+        <TitleSection.Headline as="h3">
+          {locales.route.title}
+        </TitleSection.Headline>
+      </TitleSection>
       <List id="speakers-list" hideAfter={4} locales={locales.route.list}>
         <List.Search
           defaultItems={loaderData.speakers}
