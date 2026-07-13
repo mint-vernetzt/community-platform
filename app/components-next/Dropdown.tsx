@@ -15,11 +15,17 @@ type DropdownLabelType = React.DetailedReactHTMLElement<
 >;
 type DropdownLabelProps = React.PropsWithChildren & {
   listRef?: React.RefObject<HTMLDivElement | null>;
+  responsive?: boolean;
 };
 
 function DropdownLabel(
-  props: React.PropsWithChildren & { listRef?: React.RefObject<HTMLDivElement> }
+  props: React.PropsWithChildren & {
+    listRef?: React.RefObject<HTMLDivElement>;
+    responsive?: boolean;
+  }
 ) {
+  const { responsive = true } = props;
+
   const [checked, setChecked] = useState(false);
   const ref = useRef<HTMLLabelElement>(null);
 
@@ -47,11 +53,15 @@ function DropdownLabel(
     };
   }, [props.listRef]);
 
+  const classes = classNames(
+    "peer group justify-between items-center gap-1 cursor-pointer font-semibold text-gray-700 hover:bg-gray-100 group-has-focus-within/dropdown:ring-2 group-has-focus-within/dropdown:ring-primary-200 transition bg-white",
+    responsive
+      ? "w-full @lg:w-fit @lg:min-w-content inline-flex @lg:flex p-6 @lg:px-4 @lg:py-2.5 @lg:rounded-lg @lg:border @lg:border-gray-300"
+      : "w-fit min-w-content flex px-4 py-2.5 rounded-lg border border-gray-300"
+  );
+
   return (
-    <label
-      ref={ref}
-      className="peer group w-full @lg:w-fit @lg:min-w-content inline-flex @lg:flex justify-between items-center gap-1 cursor-pointer p-6 @lg:px-4 @lg:py-2.5 @lg:rounded-lg @lg:border @lg:border-gray-100 font-semibold text-gray-700 hover:bg-gray-100 group-has-[:focus-within]/dropdown:ring-2 group-has-[:focus-within]/dropdown:ring-primary-200 transition bg-white"
-    >
+    <label ref={ref} className={classes}>
       <span>{props.children}</span>
       <input
         form="none"
@@ -65,7 +75,7 @@ function DropdownLabel(
         width="20"
         height="20"
         viewBox="0 0 20 20"
-        className="rotate-90 group-has-[:checked]:-rotate-90 shrink-0"
+        className="rotate-90 group-checked:-rotate-90 shrink-0"
       >
         <path
           fill="currentColor"
@@ -100,16 +110,25 @@ type DropdownListType = React.DetailedReactHTMLElement<
   HTMLElement
 >;
 type DropdownListProps = React.HTMLProps<HTMLDivElement> &
-  React.PropsWithChildren & { orientation?: "left" | "right" };
+  React.PropsWithChildren & {
+    orientation?: "left" | "right";
+    responsive?: boolean;
+  };
 
 const DropdownList = forwardRef<
   HTMLDivElement,
-  React.PropsWithChildren & { orientation?: "left" | "right" }
+  React.PropsWithChildren & {
+    orientation?: "left" | "right";
+    responsive?: boolean;
+  }
 >((props, ref) => {
-  const orientation = props.orientation || "left";
+  const { orientation = "left", responsive = true } = props;
 
   const classes = classNames(
-    "@lg:w-72 @lg:h-fit @lg:max-h-72 overflow-auto @lg:absolute @lg:top-[calc(100%+0.5rem)] py-2 @lg:rounded-lg @lg:shadow-xl hidden peer-has-[:checked]:block peer-has-[:checked]:z-10 bg-white",
+    "overflow-auto hidden peer-has-checked:block peer-has-checked:z-10 bg-white py-2",
+    responsive
+      ? "@lg:w-72 @lg:h-fit @lg:max-h-72 lg:absolute @lg:top-[calc(100%+0.5rem)] @lg:rounded-lg @lg:shadow-xl"
+      : "w-72 h-fit max-h-72 absolute top-[calc(100%+0.5rem)] rounded-lg shadow-xl",
     orientation === "left" && "left-0",
     orientation === "right" && "right-0"
   );
@@ -145,8 +164,8 @@ const DropdownList = forwardRef<
               <div
                 className={
                   isValidElement(child) && child.type !== "div"
-                    ? "focus-within:ring-2 focus-within:ring-primary-200 m-[2px]"
-                    : "m-[2px]"
+                    ? "focus-within:ring-2 focus-within:ring-primary-200 m-0.5"
+                    : "m-0.5"
                 }
               >
                 {child}
@@ -163,9 +182,11 @@ export function Dropdown(
   props: React.PropsWithChildren & {
     orientation?: "left" | "right";
     className?: string;
+    responsive?: boolean;
   }
 ) {
-  const orientation = props.orientation || "left";
+  const { orientation = "left", responsive = true } = props;
+
   const children = Children.toArray(props.children);
 
   const list = children.find((child) => {
@@ -177,6 +198,7 @@ export function Dropdown(
       ? cloneElement<DropdownListProps>(list as DropdownListType, {
           ref: listRef,
           orientation,
+          responsive,
         })
       : null;
 
@@ -187,19 +209,23 @@ export function Dropdown(
     typeof label !== "undefined"
       ? cloneElement<DropdownLabelProps>(label as DropdownLabelType, {
           listRef,
+          responsive,
         })
       : null;
 
   const classes = classNames(
     props.className,
-    "relative group/dropdown w-full @lg:w-fit @lg:whitespace-nowrap"
+    "relative group/dropdown",
+    responsive
+      ? "w-full @lg:w-fit @lg:whitespace-nowrap"
+      : "w-fit whitespace-nowrap"
   );
 
   return (
     <div className={classes}>
       {labelClone}
       {listClone}
-      <hr className="@lg:hidden border-b border-gray-200" />
+      {responsive && <hr className="@lg:hidden border-b border-gray-200" />}
     </div>
   );
 }
