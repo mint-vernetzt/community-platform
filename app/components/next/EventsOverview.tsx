@@ -1119,8 +1119,14 @@ function Login(props: {
   modal: {
     searchParam: string;
     locales: {
+      or: string;
       loginOrRegister: {
         title: string;
+        login: string;
+        keycloak: string;
+        noMember: string;
+        registerByEmail: string;
+        useKeycloak: string;
       };
       guestAccess: {
         title: string;
@@ -1129,7 +1135,8 @@ function Login(props: {
   };
 }) {
   const [searchParams] = useSearchParams();
-  const enhancedSearchParams = extendSearchParams(searchParams, {
+  const isHydrated = useHydrated();
+  const enhancedSearchParamsToOpenModal = extendSearchParams(searchParams, {
     addOrReplace: {
       [props.modal.searchParam]: "true",
     },
@@ -1137,17 +1144,18 @@ function Login(props: {
   const [expandedSection, setExpandedSection] = useState<
     "loginOrRegister" | "guestAccess"
   >("loginOrRegister");
-  // const enhancedSearchParams = extendSearchParams(searchParams, {
-  //   addOrReplace: {
-  //     [props.searchParam]: "true",
-  //   },
-  // });
+  const enhancedSearchParamsForRedirect = extendSearchParams(searchParams, {
+    addOrReplace: {
+      [props.searchParam]: "true",
+    },
+    remove: [props.modal.searchParam],
+  });
 
   return (
     <>
       <Button
         as="link"
-        to={`${props.pathname}?${enhancedSearchParams.toString()}#login-or-register-links`}
+        to={`${props.pathname}?${enhancedSearchParamsToOpenModal.toString()}`}
         fullSize
         preventScrollReset
         prefetch="intent"
@@ -1204,13 +1212,58 @@ function Login(props: {
                   id="login-or-register-links"
                   type="checkbox"
                   className="absolute opacity-0 w-0 h-0 overflow-hidden"
-                  checked={expandedSection === "loginOrRegister"}
+                  checked={
+                    isHydrated ? expandedSection === "loginOrRegister" : true
+                  }
                   onChange={() => {
                     setExpandedSection("loginOrRegister");
                   }}
                 />
               </label>
+              <div className="flex-col gap-4 group-has-checked:flex hidden mt-4">
+                <Button
+                  as="link"
+                  to={`/login?login_redirect=${encodeURIComponent(`${props.pathname}?${enhancedSearchParamsForRedirect.toString()}`)}`}
+                  fullSize
+                >
+                  {props.modal.locales.loginOrRegister.login}
+                </Button>
+                <Button
+                  as="link"
+                  variant="outline"
+                  to={`/auth/keycloak?login_redirect=${encodeURIComponent(`${props.pathname}?${enhancedSearchParamsForRedirect.toString()}`)}`}
+                  fullSize
+                >
+                  {props.modal.locales.loginOrRegister.keycloak}
+                </Button>
+                <div className="flex flex-col">
+                  <div className="text-center">
+                    {props.modal.locales.loginOrRegister.noMember}
+                  </div>
+                  <div className="flex justify-center gap-3">
+                    <Link
+                      to={`/register?login_redirect=${encodeURIComponent(`${props.pathname}?${enhancedSearchParamsForRedirect.toString()}`)}`}
+                      className="text-primary font-semibold underline"
+                      prefetch="intent"
+                    >
+                      {props.modal.locales.loginOrRegister.registerByEmail}
+                    </Link>
+                    <Link
+                      to={`/auth/keycloak?login_redirect=${encodeURIComponent(`${props.pathname}?${enhancedSearchParamsForRedirect.toString()}`)}`}
+                      className="text-primary font-semibold underline"
+                    >
+                      {props.modal.locales.loginOrRegister.useKeycloak}
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </li>
+            <div className="mt-8 mb-8">
+              <hr className="border-neutral-300" />
+              <span className="block -my-3 mx-auto w-fit px-4 text-primary bg-white @sm:bg-neutral-50 font-bold">
+                {props.modal.locales.or}
+              </span>
+            </div>
             <li className="group">
               <label
                 htmlFor="guest-access"
@@ -1265,7 +1318,9 @@ function Login(props: {
                   id="guest-access"
                   type="checkbox"
                   className="absolute opacity-0 w-0 h-0 overflow-hidden"
-                  checked={expandedSection === "guestAccess"}
+                  checked={
+                    isHydrated ? expandedSection === "guestAccess" : true
+                  }
                   onChange={() => {
                     setExpandedSection("guestAccess");
                   }}
