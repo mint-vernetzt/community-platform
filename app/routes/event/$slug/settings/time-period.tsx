@@ -38,6 +38,7 @@ import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
 import { invariant, invariantResponse } from "~/lib/utils/response";
 import {
+  Deep,
   extendSearchParams,
   UnsavedChangesModalParam,
 } from "~/lib/utils/searchParams";
@@ -84,6 +85,19 @@ export async function loader(args: LoaderFunctionArgs) {
   const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
+  const hasStarted = new Date() > event.startTime;
+  if (hasStarted) {
+    if (event.published) {
+      return redirect(
+        `/event/${params.slug}/settings/participants/list?${Deep}=true`
+      );
+    } else {
+      return redirect(
+        `/event/${params.slug}/settings/registration/access?${Deep}=true`
+      );
+    }
+  }
+
   return { locales, language, event };
 }
 
@@ -120,6 +134,9 @@ export async function action(args: ActionFunctionArgs) {
 
   const event = await getEventBySlugForValidation(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
+  invariantResponse(event.startTime > new Date(), "Event has already started", {
+    status: 400,
+  });
 
   const schema = createTimePeriodSchema({
     locales: locales.route.form.validation,
