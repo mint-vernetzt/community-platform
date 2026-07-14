@@ -151,6 +151,28 @@ model BannedProfile {
   @@map("banned_profiles")
 }
 
+model Guest {
+  id                 String    @id @default(uuid())
+  email              String
+  eventId            String    @map("event_id")
+  event              Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  academicTitle      String?   @map("academic_title")
+  firstName          String    @map("first_name")
+  lastName           String    @map("last_name")
+  organizationName   String?   @map("organization_name")
+  termsAccepted      Boolean   @default(false) @map("terms_accepted")
+  termsAcceptedAt    DateTime? @map("terms_accepted_at")
+  confirmationSentAt DateTime  @default(now()) @map("confirmation_sent_at")
+  confirmed          Boolean   @default(false)
+  confirmedAt        DateTime? @map("confirmed_at")
+  transactionToken   String    @map("transaction_token")
+  onWaitingList      Boolean   @default(false) @map("on_waiting_list")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  @@map("guests")
+}
+
 model NotificationSettings {
   id        String  @id @default(uuid())
   updates   Boolean @default(true)
@@ -557,6 +579,7 @@ model Event {
   stage                            Stage?                                         @relation("stage_of_event", fields: [stageId], references: [id])
   focuses                          FocusOfEvent[]
   participants                     ParticipantOfEvent[]
+  guests                           Guest[]
   participantInvites               InviteForProfileToParticipateOnEvent[]
   responsibleOrganizations         ResponsibleOrganizationOfEvent[]
   responsibleOrganizationInvites   InviteForOrganizationToBeResponsibleForEvent[]
