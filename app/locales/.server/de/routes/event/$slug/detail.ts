@@ -206,5 +206,9 @@ export const locale = {
       subject:
         "Du wurdest von der Warteliste zu den Teilnehmenden eines Events hinzugefügt",
     },
+    profileAlreadyExists: {
+      subject:
+        "Deine E-Mail-Adresse wurde benutzt, um sich als Gast an einem Event anzumelden.",
+    },
   },
 } as const;

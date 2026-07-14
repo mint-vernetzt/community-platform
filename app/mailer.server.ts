@@ -239,6 +239,12 @@ type ChildAndParentEventConnection = {
   };
 };
 
+type GuestsProfileAlreadyExistsContent = {
+  firstName: string;
+  eventName: string;
+  buttonUrl: string;
+};
+
 type TemplatePath =
   | "mail-templates/standard-message/html.hbs"
   | "mail-templates/standard-message/text.hbs"
@@ -359,7 +365,9 @@ type TemplatePath =
   | "mail-templates/general-notification/disconnect-from-parent-event-html.hbs"
   | "mail-templates/general-notification/disconnect-from-parent-event-text.hbs"
   | "mail-templates/general-notification/event-canceled-html.hbs"
-  | "mail-templates/general-notification/event-canceled-text.hbs";
+  | "mail-templates/general-notification/event-canceled-text.hbs"
+  | "mail-templates/guests/profile-already-exists-html.hbs"
+  | "mail-templates/guests/profile-already-exists-text.hbs";
 
 type TemplateContent<TemplatePath> = TemplatePath extends
   | "mail-templates/standard-message/html.hbs"
@@ -527,7 +535,11 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                                   | "mail-templates/requests/parent-event-to-add-child-event/rejected-html.hbs"
                                                   | "mail-templates/requests/parent-event-to-add-child-event/rejected-text.hbs"
                                               ? ChildAndParentEventConnection
-                                              : never;
+                                              : TemplatePath extends
+                                                    | "mail-templates/guests/profile-already-exists-html.hbs"
+                                                    | "mail-templates/guests/profile-already-exists-text.hbs"
+                                                ? GuestsProfileAlreadyExistsContent
+                                                : never;
 
 export function getCompiledMailTemplate<T extends TemplatePath>(
   templatePath: TemplatePath,

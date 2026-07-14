@@ -1,4 +1,8 @@
-import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
+import { captureException } from "@sentry/node";
+import { utcToZonedTime } from "date-fns-tz";
+import rcSliderStyles from "rc-slider/assets/index.css?url";
+import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import {
   type ActionFunctionArgs,
   Link,
@@ -10,25 +14,36 @@ import {
   useLoaderData,
   useLocation,
   useNavigate,
-  useNavigation,
-  useSearchParams,
 } from "react-router";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { Modal } from "~/components-next/Modal";
+import { IMAGE_CROPPER_DISCONNECT_INTENT_VALUE } from "~/components/legacy/ImageCropper/ImageCropper";
 import BackButton from "~/components/next/BackButton";
 import BasicStructure from "~/components/next/BasicStructure";
 import BreadCrump from "~/components/next/BreadCrump";
+import ContactPerson from "~/components/next/ContactPerson";
 import EventsOverview from "~/components/next/EventsOverview";
+import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import TabBar from "~/components/next/TabBar";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
+import { checkHoneypot } from "~/honeypot.server";
 import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
 import { invariantResponse } from "~/lib/utils/response";
+import { Deep, extendSearchParams } from "~/lib/utils/searchParams";
+import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { languageModuleMap } from "~/locales/.server";
+import { type loader as rootLoader } from "~/root";
+import { getFeatureAbilities } from "~/routes/feature-access.server";
 import { getPublicURL, parseMultipartFormData } from "~/storage.server";
+import { UPLOAD_DOCUMENT_INTENT_VALUE } from "~/storage.shared";
 import { redirectWithToast } from "~/toast.server";
+import { isBotRequest } from "~/utils.server";
+import { hasContent } from "~/utils.shared";
 import {
+  addGuestToEvent,
   addProfileToParticipants,
   addProfileToWaitingList,
   deriveModeForEvent,
@@ -50,34 +65,17 @@ import {
   ABUSE_REPORT_INTENT,
   createAbuseReportSchema,
   createParticipationSchema,
+  createRegisterSchema,
   JOIN_WAITING_LIST_INTENT,
   LEAVE_WAITING_LIST_INTENT,
-  PARTICIPATE_INTENT,
-  WITHDRAW_PARTICIPATION_INTENT,
-  PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM,
-  PARTICIPATE_ON_EVENT_ANON_MODAL_SEARCH_PARAM,
-  createRegisterSchema,
   PARTICIPATE_AS_GUEST_INTENT,
+  PARTICIPATE_INTENT,
+  PARTICIPATE_ON_EVENT_ANON_MODAL_SEARCH_PARAM,
+  PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM,
+  WITHDRAW_PARTICIPATION_INTENT,
 } from "./details.shared";
 import { formatDateTime } from "./index.shared";
-import { captureException } from "@sentry/node";
-import rcSliderStyles from "rc-slider/assets/index.css?url";
-import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
-import { IMAGE_CROPPER_DISCONNECT_INTENT_VALUE } from "~/components/legacy/ImageCropper/ImageCropper";
-import ContactPerson from "~/components/next/ContactPerson";
-import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
-import { removeHtmlTags } from "~/lib/utils/transformHtml";
-import { type loader as rootLoader } from "~/root";
-import { getFeatureAbilities } from "~/routes/feature-access.server";
-import { UPLOAD_DOCUMENT_INTENT_VALUE } from "~/storage.shared";
-import { hasContent } from "~/utils.shared";
 import { filterEventConferenceLink } from "./utils.server";
-import { Deep, extendSearchParams } from "~/lib/utils/searchParams";
-import { utcToZonedTime } from "date-fns-tz";
-import { Modal } from "~/components-next/Modal";
-import { useForm } from "@conform-to/react";
-import { isBotRequest } from "~/utils.server";
-import { checkHoneypot } from "~/honeypot.server";
 
 export function links() {
   return [
@@ -451,8 +449,6 @@ export async function action(args: ActionFunctionArgs) {
     slug: params.slug,
   };
 
-  console.log("intent", intent);
-
   if (intent === PARTICIPATE_AS_GUEST_INTENT) {
     const submission = await parseWithZod(formData, {
       schema: createRegisterSchema(
@@ -464,7 +460,33 @@ export async function action(args: ActionFunctionArgs) {
       return { submission: submission.reply() };
     }
 
-    // logic
+    try {
+      await addGuestToEvent({
+        eventId: event.id,
+        guest: {
+          email: submission.value.email,
+          academicTitle: submission.value.academicTitle as string | undefined,
+          firstName: submission.value.firstName,
+          lastName: submission.value.lastName,
+        },
+        locales: {
+          mail: {
+            guestAlreadyExistsOnEvent: {
+              subject: locales.route.mail.profileAlreadyExists.subject,
+            },
+          },
+        },
+        directUrl: `${process.env.COMMUNITY_BASE_URL}/login?login_redirect=${encodeURIComponent(submission.value.loginRedirect)}`,
+      });
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "participate-as-guest-error",
+        key: `participate-as-guest-error-${Date.now()}`,
+        message: locales.route.errors.participateAsGuest,
+        level: "negative",
+      });
+    }
 
     const url = new URL(request.url);
     const searchParams = extendSearchParams(url.searchParams, {
@@ -475,7 +497,7 @@ export async function action(args: ActionFunctionArgs) {
 
     return redirectWithToast(redirectUrl, {
       id: "participate-as-guest-success",
-      key: `${new Date().getTime()}`,
+      key: `participate-as-guest-success-${Date.now()}`,
       message: locales.route.success.participateAsGuest,
       level: "positive",
     });

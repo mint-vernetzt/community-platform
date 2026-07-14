@@ -1410,6 +1410,7 @@ function Login(props: {
                     {...getInputProps(fields.loginRedirect, {
                       type: "hidden",
                     })}
+                    defaultValue={`${props.pathname}?${enhancedSearchParamsForRedirect.toString()}`}
                     key="loginRedirect"
                   />
                   <div className="flex flex-col gap-4">
@@ -1431,7 +1432,7 @@ function Login(props: {
                                 value: title,
                               })}
                               key={title}
-                              labelPosition="left"
+                              hidden={true}
                             >
                               <FormControl.Label>{title}</FormControl.Label>
                             </FormControl>

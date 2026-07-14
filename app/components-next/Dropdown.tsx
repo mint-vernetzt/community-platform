@@ -75,7 +75,7 @@ function DropdownLabel(
         width="20"
         height="20"
         viewBox="0 0 20 20"
-        className="rotate-90 group-checked:-rotate-90 shrink-0"
+        className="rotate-90 group-has-checked:-rotate-90 shrink-0"
       >
         <path
           fill="currentColor"

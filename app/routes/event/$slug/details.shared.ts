@@ -107,6 +107,6 @@ export const createRegisterSchema = (locales: {
       })
       .trim()
       .email(locales.validation.email),
-    loginRedirect: z.string().optional(),
+    loginRedirect: z.string(),
   });
 };
