@@ -29,8 +29,46 @@ export const locale = {
     canceled: "Event abgesagt",
     edit: "Event bearbeiten",
     externalParticipate: "Link zur Anmeldung",
-    login: "Anmelden um teilzunehmen",
+    login: "Teilnehmen",
     participate: "Teilnehmen",
+    anonModal: {
+      or: "oder",
+      loginOrRegister: {
+        title: "Melde Dich zunächst auf der Plattform an.",
+        login: "Anmelden mit Zugangsdaten",
+        keycloak: "Anmelden mit MINT-ID",
+        noMember: "Noch kein Mitglied?",
+        registerByEmail: "Registrieren mit E-Mail",
+        useKeycloak: "MINT-ID erstellen",
+      },
+      guestAccess: {
+        new: "Neu",
+        title: "Ohne Profilerstellung am Event teilnehmen",
+        description:
+          'Melde Dich mit Deiner E-Mail-Adresse an. Du erhältst alle wichtigen Informationen zum Event per E-Mail. Ohne Profil kannst Du nicht von der Community gefunden werden. Mehr Infos findest Du in unserem <a href="/help#events-reportEvent" target="_blank" class="font-bold hover:underline">Hilfebereich</a>.',
+        form: {
+          title: {
+            label: "Titel",
+            options: {
+              none: "Kein Titel",
+              dr: "Dr.",
+              prof: "Prof.",
+              profdr: "Prof. Dr.",
+            },
+          },
+          firstName: "Vorname *",
+          lastName: "Nachname *",
+          email: "E-Mail *",
+          submit: "Zum Event anmelden",
+          cancel: "Abbrechen",
+          validation: {
+            firstName: "Bitte gib Deinen Vornamen ein.",
+            lastName: "Bitte gib Deinen Nachnamen ein.",
+            email: "Bitte gib eine gültige E-Mail-Adresse ein.",
+          },
+        },
+      },
+    },
     withdrawParticipation: {
       cta: "Nicht mehr teilnehmen",
       confirmationModal: {
@@ -91,6 +129,7 @@ export const locale = {
     withdrawParticipation: "Fehler beim Entfernen von Teilnehmer:innen",
     joinWaitingList: "Fehler beim Hinzufügen zur Warteliste",
     leaveWaitingList: "Fehler beim Entfernen von der Warteliste",
+    participateAsGuest: "Fehler beim Anmelden ohne Profilerstellung",
     abuseReport: {
       reasons: {
         required: "Bitte gib einen Grund an.",
@@ -110,12 +149,14 @@ export const locale = {
     joinWaitingList: "Erfolgreich zur Warteliste hinzugefügt",
     leaveWaitingList: "Erfolgreich von der Warteliste entfernt",
     abuseReport: "Die Meldung des Events wurde verschickt.",
+    participateAsGuest:
+      "Anmeldung ohne Profilerstellung erfolgreich. Überprüfe Deine E-Mails, um die Registrierung abzuschließen.",
   },
   abuseReport: {
     title: "Warum möchstest Du dieses Event melden?",
     description:
       "Um Deiner Meldung nachgehen zu  können, benötigen wir den Grund, warum Du dieses Event melden möchtest.",
-    faq: `Weitere Infos zum Meldenprozess findest Du in unserem <a href="/help#events-reportEvent" target="_blank" class="text-primary underline hover:no-underline">Hilfebereich</a>.`,
+    faq: `Weitere Infos zum Meldenprozess findest Du in unserem <a href="/help#registration" target="_blank" class="font-bold hover:underline">Hilfebereich</a>.`,
     otherReason: "Anderer Grund",
     maxLength: "Maximal {{max}} Zeichen",
     noReasons: "Bitte gib mindestens einen Grund an.",

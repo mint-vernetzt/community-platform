@@ -1,4 +1,9 @@
-import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import {
+  getFormProps,
+  getInputProps,
+  type SubmissionResult,
+  useForm,
+} from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar"; // refactor?
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
@@ -8,11 +13,22 @@ import { Input } from "@mint-vernetzt/components/src/molecules/Input"; // refact
 import classNames from "classnames";
 import { utcToZonedTime } from "date-fns-tz";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { Form, Link, useLocation, useSearchParams } from "react-router";
+import {
+  Form,
+  Link,
+  useLocation,
+  useNavigation,
+  useSearchParams,
+} from "react-router";
+import { HoneypotInputs } from "remix-utils/honeypot/react";
 import { useHydrated } from "remix-utils/use-hydrated";
+import { Dropdown } from "~/components-next/Dropdown";
+import { FormControl } from "~/components-next/FormControl";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
+import { HONEYPOT_CLASSNAME } from "~/honeypot.shared";
 import type { SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { copyToClipboard } from "~/lib/utils/clipboard";
 import { Deep, extendSearchParams } from "~/lib/utils/searchParams";
 import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
@@ -21,7 +37,9 @@ import type { languageModuleMap } from "~/locales/.server";
 import {
   ABUSE_REPORT_INTENT,
   createAbuseReportSchema,
+  createRegisterSchema,
   JOIN_WAITING_LIST_INTENT,
+  PARTICIPATE_AS_GUEST_INTENT,
   PARTICIPATE_INTENT,
   REPORT_REASON_MAX_LENGTH,
 } from "~/routes/event/$slug/details.shared";
@@ -1116,23 +1134,406 @@ function Login(props: {
   children: React.ReactNode;
   pathname: string;
   searchParam: string;
+  modal: {
+    searchParam: string;
+    locales: {
+      or: string;
+      loginOrRegister: {
+        title: string;
+        login: string;
+        keycloak: string;
+        noMember: string;
+        registerByEmail: string;
+        useKeycloak: string;
+      };
+      guestAccess: {
+        new: string;
+        title: string;
+        description: string;
+        form: {
+          title: {
+            label: string;
+            options: {
+              none: "Kein Titel" | "No title";
+              dr: "Dr.";
+              prof: "Prof.";
+              profdr: "Prof. Dr.";
+            };
+          };
+          firstName: string;
+          lastName: string;
+          email: string;
+          submit: string;
+          cancel: string;
+          validation: {
+            firstName: string;
+            lastName: string;
+            email: string;
+          };
+        };
+      };
+    };
+  };
+  actionData?: {
+    submission: SubmissionResult<string[]>;
+  };
 }) {
   const [searchParams] = useSearchParams();
-  const enhancedSearchParams = extendSearchParams(searchParams, {
+  const isHydrated = useHydrated();
+  const isSubmitting = useIsSubmitting();
+  const enhancedSearchParamsToOpenModal = extendSearchParams(searchParams, {
+    addOrReplace: {
+      [props.modal.searchParam]: "true",
+    },
+  });
+  const [expandedSection, setExpandedSection] = useState<
+    "loginOrRegister" | "guestAccess"
+  >("loginOrRegister");
+  const enhancedSearchParamsForRedirect = extendSearchParams(searchParams, {
     addOrReplace: {
       [props.searchParam]: "true",
+    },
+    remove: [props.modal.searchParam],
+  });
+
+  const navigation = useNavigation();
+  const loginRedirect = searchParams.get("login_redirect");
+
+  const [form, fields] = useForm({
+    id: "register-form",
+    constraint: getZodConstraint(
+      createRegisterSchema(props.modal.locales.guestAccess.form)
+    ),
+    defaultValue: {
+      loginRedirect: loginRedirect,
+    },
+    shouldValidate: "onBlur",
+    shouldRevalidate: "onInput",
+    lastResult:
+      navigation.state === "idle" ? props.actionData?.submission : null,
+    onValidate({ formData }) {
+      const submission = parseWithZod(formData, {
+        schema: createRegisterSchema(props.modal.locales.guestAccess.form),
+      });
+      return submission;
     },
   });
 
   return (
-    <Button
-      as="link"
-      to={`/login?login_redirect=${encodeURIComponent(`${props.pathname}?${enhancedSearchParams.toString()}`)}`}
-      fullSize
-      prefetch="intent"
-    >
-      {props.children}
-    </Button>
+    <>
+      <Button
+        as="link"
+        to={`${props.pathname}?${enhancedSearchParamsToOpenModal.toString()}`}
+        fullSize
+        preventScrollReset
+        prefetch="intent"
+      >
+        {props.children}
+      </Button>
+      <Modal searchParam={props.modal.searchParam}>
+        <Modal.Section>
+          <ul>
+            <li className="group">
+              <label
+                htmlFor="login-or-register-links"
+                className="flex items-start justify-between gap-4 text-primary-500 font-bold text-2xl leading-6.5 cursor-pointer"
+              >
+                {props.modal.locales.loginOrRegister.title}
+                <span className="flex items-center justify-center w-8 h-8">
+                  {expandedSection === "loginOrRegister" ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="17"
+                      height="11"
+                      viewBox="0 0 17 11"
+                      fill="none"
+                    >
+                      <path
+                        d="M0.649414 10.125C0.564257 10.1249 0.48005 10.1056 0.401367 10.0693C0.322533 10.033 0.250767 9.97934 0.19043 9.91211C0.130207 9.84496 0.0824258 9.76543 0.0498046 9.67774C0.0171508 9.5899 -5.50361e-08 9.49546 -6.33474e-08 9.40039C3.37533e-05 9.3055 0.0172393 9.2117 0.0498046 9.12402C0.0824603 9.03619 0.130091 8.9559 0.19043 8.88867L7.97754 0.212891C8.03775 0.145637 8.10974 0.0921113 8.18848 0.0556648C8.26732 0.0192144 8.35214 7.45092e-07 8.4375 7.3763e-07C8.5228 2.55885e-05 8.60773 0.0192386 8.68652 0.0556648C8.76515 0.0921081 8.83634 0.145717 8.89648 0.212891L16.6846 8.88867C16.745 8.95582 16.7925 9.03621 16.8252 9.12402C16.8578 9.21168 16.875 9.3055 16.875 9.40039C16.875 9.49549 16.8579 9.58989 16.8252 9.67773C16.7925 9.7654 16.7448 9.84503 16.6846 9.91211C16.6243 9.97939 16.5524 10.0329 16.4736 10.0693C16.3948 10.1058 16.31 10.125 16.2246 10.125C16.1394 10.125 16.0553 10.1057 15.9766 10.0693C15.8977 10.0329 15.8259 9.97944 15.7656 9.91211L8.4375 1.74707L1.10937 9.91211C1.04905 9.97932 0.977248 10.033 0.898437 10.0693C0.819603 10.1057 0.734745 10.125 0.649414 10.125Z"
+                        fill="currentColor"
+                      />
+                      <path
+                        d="M0.649414 10.125C0.564257 10.1249 0.48005 10.1056 0.401367 10.0693C0.322533 10.033 0.250767 9.97934 0.19043 9.91211C0.130207 9.84496 0.0824258 9.76543 0.0498046 9.67774C0.0171508 9.5899 -5.50361e-08 9.49546 -6.33474e-08 9.40039C3.37533e-05 9.3055 0.0172393 9.2117 0.0498046 9.12402C0.0824603 9.03619 0.130091 8.9559 0.19043 8.88867L7.97754 0.212891C8.03775 0.145637 8.10974 0.0921113 8.18848 0.0556648C8.26732 0.0192144 8.35214 7.45092e-07 8.4375 7.3763e-07C8.5228 2.55885e-05 8.60773 0.0192386 8.68652 0.0556648C8.76515 0.0921081 8.83634 0.145717 8.89648 0.212891L16.6846 8.88867C16.745 8.95582 16.7925 9.03621 16.8252 9.12402C16.8578 9.21168 16.875 9.3055 16.875 9.40039C16.875 9.49549 16.8579 9.58989 16.8252 9.67773C16.7925 9.7654 16.7448 9.84503 16.6846 9.91211C16.6243 9.97939 16.5524 10.0329 16.4736 10.0693C16.3948 10.1058 16.31 10.125 16.2246 10.125C16.1394 10.125 16.0553 10.1057 15.9766 10.0693C15.8977 10.0329 15.8259 9.97944 15.7656 9.91211L8.4375 1.74707L1.10937 9.91211C1.04905 9.97932 0.977248 10.033 0.898437 10.0693C0.819603 10.1057 0.734745 10.125 0.649414 10.125Z"
+                        stroke="currentColor"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="17"
+                      height="11"
+                      viewBox="0 0 17 11"
+                      fill="none"
+                    >
+                      <path
+                        d="M16.2256 0C16.3107 5.37099e-05 16.395 0.0193757 16.4736 0.0556641C16.5525 0.0920456 16.6242 0.145666 16.6846 0.212891C16.7448 0.28004 16.7926 0.359572 16.8252 0.447266C16.8578 0.535098 16.875 0.62954 16.875 0.724609C16.875 0.819499 16.8578 0.913297 16.8252 1.00098C16.7925 1.08881 16.7449 1.1691 16.6846 1.23633L8.89746 9.91211C8.83725 9.97936 8.76526 10.0329 8.68652 10.0693C8.60768 10.1058 8.52286 10.125 8.4375 10.125C8.3522 10.125 8.26727 10.1058 8.18848 10.0693C8.10985 10.0329 8.03866 9.97928 7.97852 9.91211L0.19043 1.23633C0.130018 1.16918 0.0825115 1.08879 0.0498047 1.00098C0.0172003 0.913316 3.38668e-05 0.819499 0 0.724609C0 0.629506 0.0170886 0.535107 0.0498047 0.447266C0.0824596 0.3596 0.13016 0.279968 0.19043 0.212891C0.250663 0.145613 0.322602 0.092112 0.401367 0.0556641C0.48021 0.019214 0.56503 0 0.650391 0C0.7356 3.92237e-05 0.819725 0.0193027 0.898438 0.0556641C0.97728 0.0921141 1.04909 0.145557 1.10938 0.212891L8.4375 8.37793L15.7656 0.212891C15.8259 0.145684 15.8978 0.0920449 15.9766 0.0556641C16.0554 0.0192825 16.1403 0 16.2256 0Z"
+                        fill="currentColor"
+                      />
+                      <path
+                        d="M16.2256 0C16.3107 5.37099e-05 16.395 0.0193757 16.4736 0.0556641C16.5525 0.0920456 16.6242 0.145666 16.6846 0.212891C16.7448 0.28004 16.7926 0.359572 16.8252 0.447266C16.8578 0.535098 16.875 0.62954 16.875 0.724609C16.875 0.819499 16.8578 0.913297 16.8252 1.00098C16.7925 1.08881 16.7449 1.1691 16.6846 1.23633L8.89746 9.91211C8.83725 9.97936 8.76526 10.0329 8.68652 10.0693C8.60768 10.1058 8.52286 10.125 8.4375 10.125C8.3522 10.125 8.26727 10.1058 8.18848 10.0693C8.10985 10.0329 8.03866 9.97928 7.97852 9.91211L0.19043 1.23633C0.130018 1.16918 0.0825115 1.08879 0.0498047 1.00098C0.0172003 0.913316 3.38668e-05 0.819499 0 0.724609C0 0.629506 0.0170886 0.535107 0.0498047 0.447266C0.0824596 0.3596 0.13016 0.279968 0.19043 0.212891C0.250663 0.145613 0.322602 0.092112 0.401367 0.0556641C0.48021 0.019214 0.56503 0 0.650391 0C0.7356 3.92237e-05 0.819725 0.0193027 0.898438 0.0556641C0.97728 0.0921141 1.04909 0.145557 1.10938 0.212891L8.4375 8.37793L15.7656 0.212891C15.8259 0.145684 15.8978 0.0920449 15.9766 0.0556641C16.0554 0.0192825 16.1403 0 16.2256 0Z"
+                        stroke="currentColor"
+                      />
+                    </svg>
+                  )}
+                </span>
+                <input
+                  id="login-or-register-links"
+                  type="checkbox"
+                  className="absolute opacity-0 w-0 h-0 overflow-hidden"
+                  checked={
+                    isHydrated ? expandedSection === "loginOrRegister" : true
+                  }
+                  onChange={() => {
+                    setExpandedSection("loginOrRegister");
+                  }}
+                />
+              </label>
+              <div className="flex-col gap-4 group-has-checked:flex hidden mt-4">
+                <Button
+                  as="link"
+                  to={`/login?login_redirect=${encodeURIComponent(`${props.pathname}?${enhancedSearchParamsForRedirect.toString()}`)}`}
+                  fullSize
+                >
+                  {props.modal.locales.loginOrRegister.login}
+                </Button>
+                <Button
+                  as="link"
+                  variant="outline"
+                  to={`/auth/keycloak?login_redirect=${encodeURIComponent(`${props.pathname}?${enhancedSearchParamsForRedirect.toString()}`)}`}
+                  fullSize
+                >
+                  {props.modal.locales.loginOrRegister.keycloak}
+                </Button>
+                <div className="flex flex-col">
+                  <div className="text-center">
+                    {props.modal.locales.loginOrRegister.noMember}
+                  </div>
+                  <div className="flex justify-center gap-3">
+                    <Link
+                      to={`/register?login_redirect=${encodeURIComponent(`${props.pathname}?${enhancedSearchParamsForRedirect.toString()}`)}`}
+                      className="text-primary font-semibold underline"
+                      prefetch="intent"
+                    >
+                      {props.modal.locales.loginOrRegister.registerByEmail}
+                    </Link>
+                    <Link
+                      to={`/auth/keycloak?login_redirect=${encodeURIComponent(`${props.pathname}?${enhancedSearchParamsForRedirect.toString()}`)}`}
+                      className="text-primary font-semibold underline"
+                    >
+                      {props.modal.locales.loginOrRegister.useKeycloak}
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <div className="mt-8 mb-8">
+              <hr className="border-neutral-300" />
+              <span className="block -my-3 mx-auto w-fit px-4 text-primary bg-white @sm:bg-neutral-50 font-bold">
+                {props.modal.locales.or}
+              </span>
+            </div>
+            <li className="group">
+              <label
+                htmlFor="guest-access"
+                className="flex flex-col gap-1 text-primary-500 font-bold text-2xl leading-6.5 cursor-pointer"
+              >
+                <span className="flex justify-center items-center w-fit bg-positive-200 rounded-full py-0.5 px-1.5">
+                  <div className="text-positive-900 text-xs leading-none font-semibold">
+                    {props.modal.locales.guestAccess.new}
+                  </div>
+                </span>
+                <div className="flex items-center justify-between gap-4">
+                  {props.modal.locales.guestAccess.title}
+                  <span className="flex items-start justify-center w-8 h-8">
+                    {expandedSection === "guestAccess" ? (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="17"
+                        height="11"
+                        viewBox="0 0 17 11"
+                        fill="none"
+                      >
+                        <path
+                          d="M0.649414 10.125C0.564257 10.1249 0.48005 10.1056 0.401367 10.0693C0.322533 10.033 0.250767 9.97934 0.19043 9.91211C0.130207 9.84496 0.0824258 9.76543 0.0498046 9.67774C0.0171508 9.5899 -5.50361e-08 9.49546 -6.33474e-08 9.40039C3.37533e-05 9.3055 0.0172393 9.2117 0.0498046 9.12402C0.0824603 9.03619 0.130091 8.9559 0.19043 8.88867L7.97754 0.212891C8.03775 0.145637 8.10974 0.0921113 8.18848 0.0556648C8.26732 0.0192144 8.35214 7.45092e-07 8.4375 7.3763e-07C8.5228 2.55885e-05 8.60773 0.0192386 8.68652 0.0556648C8.76515 0.0921081 8.83634 0.145717 8.89648 0.212891L16.6846 8.88867C16.745 8.95582 16.7925 9.03621 16.8252 9.12402C16.8578 9.21168 16.875 9.3055 16.875 9.40039C16.875 9.49549 16.8579 9.58989 16.8252 9.67773C16.7925 9.7654 16.7448 9.84503 16.6846 9.91211C16.6243 9.97939 16.5524 10.0329 16.4736 10.0693C16.3948 10.1058 16.31 10.125 16.2246 10.125C16.1394 10.125 16.0553 10.1057 15.9766 10.0693C15.8977 10.0329 15.8259 9.97944 15.7656 9.91211L8.4375 1.74707L1.10937 9.91211C1.04905 9.97932 0.977248 10.033 0.898437 10.0693C0.819603 10.1057 0.734745 10.125 0.649414 10.125Z"
+                          fill="currentColor"
+                        />
+                        <path
+                          d="M0.649414 10.125C0.564257 10.1249 0.48005 10.1056 0.401367 10.0693C0.322533 10.033 0.250767 9.97934 0.19043 9.91211C0.130207 9.84496 0.0824258 9.76543 0.0498046 9.67774C0.0171508 9.5899 -5.50361e-08 9.49546 -6.33474e-08 9.40039C3.37533e-05 9.3055 0.0172393 9.2117 0.0498046 9.12402C0.0824603 9.03619 0.130091 8.9559 0.19043 8.88867L7.97754 0.212891C8.03775 0.145637 8.10974 0.0921113 8.18848 0.0556648C8.26732 0.0192144 8.35214 7.45092e-07 8.4375 7.3763e-07C8.5228 2.55885e-05 8.60773 0.0192386 8.68652 0.0556648C8.76515 0.0921081 8.83634 0.145717 8.89648 0.212891L16.6846 8.88867C16.745 8.95582 16.7925 9.03621 16.8252 9.12402C16.8578 9.21168 16.875 9.3055 16.875 9.40039C16.875 9.49549 16.8579 9.58989 16.8252 9.67773C16.7925 9.7654 16.7448 9.84503 16.6846 9.91211C16.6243 9.97939 16.5524 10.0329 16.4736 10.0693C16.3948 10.1058 16.31 10.125 16.2246 10.125C16.1394 10.125 16.0553 10.1057 15.9766 10.0693C15.8977 10.0329 15.8259 9.97944 15.7656 9.91211L8.4375 1.74707L1.10937 9.91211C1.04905 9.97932 0.977248 10.033 0.898437 10.0693C0.819603 10.1057 0.734745 10.125 0.649414 10.125Z"
+                          stroke="currentColor"
+                        />
+                      </svg>
+                    ) : (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="17"
+                        height="11"
+                        viewBox="0 0 17 11"
+                        fill="none"
+                      >
+                        <path
+                          d="M16.2256 0C16.3107 5.37099e-05 16.395 0.0193757 16.4736 0.0556641C16.5525 0.0920456 16.6242 0.145666 16.6846 0.212891C16.7448 0.28004 16.7926 0.359572 16.8252 0.447266C16.8578 0.535098 16.875 0.62954 16.875 0.724609C16.875 0.819499 16.8578 0.913297 16.8252 1.00098C16.7925 1.08881 16.7449 1.1691 16.6846 1.23633L8.89746 9.91211C8.83725 9.97936 8.76526 10.0329 8.68652 10.0693C8.60768 10.1058 8.52286 10.125 8.4375 10.125C8.3522 10.125 8.26727 10.1058 8.18848 10.0693C8.10985 10.0329 8.03866 9.97928 7.97852 9.91211L0.19043 1.23633C0.130018 1.16918 0.0825115 1.08879 0.0498047 1.00098C0.0172003 0.913316 3.38668e-05 0.819499 0 0.724609C0 0.629506 0.0170886 0.535107 0.0498047 0.447266C0.0824596 0.3596 0.13016 0.279968 0.19043 0.212891C0.250663 0.145613 0.322602 0.092112 0.401367 0.0556641C0.48021 0.019214 0.56503 0 0.650391 0C0.7356 3.92237e-05 0.819725 0.0193027 0.898438 0.0556641C0.97728 0.0921141 1.04909 0.145557 1.10938 0.212891L8.4375 8.37793L15.7656 0.212891C15.8259 0.145684 15.8978 0.0920449 15.9766 0.0556641C16.0554 0.0192825 16.1403 0 16.2256 0Z"
+                          fill="currentColor"
+                        />
+                        <path
+                          d="M16.2256 0C16.3107 5.37099e-05 16.395 0.0193757 16.4736 0.0556641C16.5525 0.0920456 16.6242 0.145666 16.6846 0.212891C16.7448 0.28004 16.7926 0.359572 16.8252 0.447266C16.8578 0.535098 16.875 0.62954 16.875 0.724609C16.875 0.819499 16.8578 0.913297 16.8252 1.00098C16.7925 1.08881 16.7449 1.1691 16.6846 1.23633L8.89746 9.91211C8.83725 9.97936 8.76526 10.0329 8.68652 10.0693C8.60768 10.1058 8.52286 10.125 8.4375 10.125C8.3522 10.125 8.26727 10.1058 8.18848 10.0693C8.10985 10.0329 8.03866 9.97928 7.97852 9.91211L0.19043 1.23633C0.130018 1.16918 0.0825115 1.08879 0.0498047 1.00098C0.0172003 0.913316 3.38668e-05 0.819499 0 0.724609C0 0.629506 0.0170886 0.535107 0.0498047 0.447266C0.0824596 0.3596 0.13016 0.279968 0.19043 0.212891C0.250663 0.145613 0.322602 0.092112 0.401367 0.0556641C0.48021 0.019214 0.56503 0 0.650391 0C0.7356 3.92237e-05 0.819725 0.0193027 0.898438 0.0556641C0.97728 0.0921141 1.04909 0.145557 1.10938 0.212891L8.4375 8.37793L15.7656 0.212891C15.8259 0.145684 15.8978 0.0920449 15.9766 0.0556641C16.0554 0.0192825 16.1403 0 16.2256 0Z"
+                          stroke="currentColor"
+                        />
+                      </svg>
+                    )}
+                  </span>
+                </div>
+                <input
+                  id="guest-access"
+                  type="checkbox"
+                  className="absolute opacity-0 w-0 h-0 overflow-hidden"
+                  checked={
+                    isHydrated ? expandedSection === "guestAccess" : true
+                  }
+                  onChange={() => {
+                    setExpandedSection("guestAccess");
+                  }}
+                />
+              </label>
+              <div className="flex-col gap-4 group-has-checked:flex hidden mt-4">
+                <RichText html={props.modal.locales.guestAccess.description} />
+                <Form
+                  {...getFormProps(form)}
+                  method="post"
+                  preventScrollReset
+                  autoComplete="off"
+                >
+                  <HoneypotInputs className={HONEYPOT_CLASSNAME} />
+                  <input
+                    {...getInputProps(fields.loginRedirect, {
+                      type: "hidden",
+                    })}
+                    key="loginRedirect"
+                  />
+                  <div className="flex flex-col gap-4">
+                    <Dropdown responsive={false}>
+                      <Dropdown.Label>
+                        {isHydrated &&
+                        typeof fields.academicTitle.value !== "undefined"
+                          ? fields.academicTitle.value
+                          : props.modal.locales.guestAccess.form.title.label}
+                      </Dropdown.Label>
+                      <Dropdown.List>
+                        {Object.entries(
+                          props.modal.locales.guestAccess.form.title.options
+                        ).map(([_key, title]) => {
+                          return (
+                            <FormControl
+                              {...getInputProps(fields.academicTitle, {
+                                type: "radio",
+                                value: title,
+                              })}
+                              key={title}
+                              labelPosition="left"
+                            >
+                              <FormControl.Label>{title}</FormControl.Label>
+                            </FormControl>
+                          );
+                        })}
+                      </Dropdown.List>
+                    </Dropdown>
+                    <Input
+                      {...getInputProps(fields.firstName, {
+                        type: "text",
+                      })}
+                      key="firstName"
+                    >
+                      <Input.Label htmlFor={fields.firstName.id}>
+                        {props.modal.locales.guestAccess.form.firstName}
+                      </Input.Label>
+                      {typeof fields.firstName.errors !== "undefined" &&
+                      fields.firstName.errors.length > 0
+                        ? fields.firstName.errors.map((error) => (
+                            <Input.Error
+                              id={fields.firstName.errorId}
+                              key={error}
+                            >
+                              {error}
+                            </Input.Error>
+                          ))
+                        : null}
+                    </Input>
+                    <Input
+                      {...getInputProps(fields.lastName, {
+                        type: "text",
+                      })}
+                      key="lastName"
+                    >
+                      <Input.Label htmlFor={fields.lastName.id}>
+                        {props.modal.locales.guestAccess.form.lastName}
+                      </Input.Label>
+                      {typeof fields.lastName.errors !== "undefined" &&
+                      fields.lastName.errors.length > 0
+                        ? fields.lastName.errors.map((error) => (
+                            <Input.Error
+                              id={fields.lastName.errorId}
+                              key={error}
+                            >
+                              {error}
+                            </Input.Error>
+                          ))
+                        : null}
+                    </Input>
+                    <div className="mb-4">
+                      <Input
+                        {...getInputProps(fields.email, {
+                          type: "text",
+                        })}
+                        key="email"
+                      >
+                        <Input.Label htmlFor={fields.email.id}>
+                          {props.modal.locales.guestAccess.form.email}
+                        </Input.Label>
+                        {typeof fields.email.errors !== "undefined" &&
+                        fields.email.errors.length > 0
+                          ? fields.email.errors.map((error) => (
+                              <Input.Error
+                                id={fields.email.errorId}
+                                key={error}
+                              >
+                                {error}
+                              </Input.Error>
+                            ))
+                          : null}
+                      </Input>
+                    </div>
+                    <Button
+                      type="submit"
+                      fullSize
+                      name={INTENT_FIELD_NAME}
+                      value={PARTICIPATE_AS_GUEST_INTENT}
+                      // Don't disable button when js is disabled
+                      disabled={
+                        isHydrated
+                          ? form.dirty === false ||
+                            form.valid === false ||
+                            isSubmitting
+                          : false
+                      }
+                    >
+                      {props.modal.locales.guestAccess.form.submit}
+                    </Button>
+                    <Button
+                      as="link"
+                      to={props.pathname}
+                      fullSize
+                      variant="outline"
+                      preventScrollReset
+                    >
+                      {props.modal.locales.guestAccess.form.cancel}
+                    </Button>
+                  </div>
+                </Form>
+              </div>
+            </li>
+          </ul>
+        </Modal.Section>
+      </Modal>
+    </>
   );
 }
 
