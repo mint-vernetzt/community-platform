@@ -1,4 +1,8 @@
-import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
+import { captureException } from "@sentry/node";
+import { utcToZonedTime } from "date-fns-tz";
+import rcSliderStyles from "rc-slider/assets/index.css?url";
+import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import {
   type ActionFunctionArgs,
   Link,
@@ -10,24 +14,34 @@ import {
   useLoaderData,
   useLocation,
   useNavigate,
-  useNavigation,
-  useSearchParams,
 } from "react-router";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { Modal } from "~/components-next/Modal";
+import { IMAGE_CROPPER_DISCONNECT_INTENT_VALUE } from "~/components/legacy/ImageCropper/ImageCropper";
 import BackButton from "~/components/next/BackButton";
 import BasicStructure from "~/components/next/BasicStructure";
 import BreadCrump from "~/components/next/BreadCrump";
+import ContactPerson from "~/components/next/ContactPerson";
 import EventsOverview from "~/components/next/EventsOverview";
+import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import TabBar from "~/components/next/TabBar";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
+import { checkHoneypot } from "~/honeypot.server";
 import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
 import { invariantResponse } from "~/lib/utils/response";
+import { Deep, extendSearchParams } from "~/lib/utils/searchParams";
+import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { languageModuleMap } from "~/locales/.server";
+import { type loader as rootLoader } from "~/root";
+import { getFeatureAbilities } from "~/routes/feature-access.server";
 import { getPublicURL, parseMultipartFormData } from "~/storage.server";
+import { UPLOAD_DOCUMENT_INTENT_VALUE } from "~/storage.shared";
 import { redirectWithToast } from "~/toast.server";
+import { isBotRequest } from "~/utils.server";
+import { hasContent } from "~/utils.shared";
 import {
   addProfileToParticipants,
   addProfileToWaitingList,
@@ -50,34 +64,17 @@ import {
   ABUSE_REPORT_INTENT,
   createAbuseReportSchema,
   createParticipationSchema,
+  createRegisterSchema,
   JOIN_WAITING_LIST_INTENT,
   LEAVE_WAITING_LIST_INTENT,
-  PARTICIPATE_INTENT,
-  WITHDRAW_PARTICIPATION_INTENT,
-  PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM,
-  PARTICIPATE_ON_EVENT_ANON_MODAL_SEARCH_PARAM,
-  createRegisterSchema,
   PARTICIPATE_AS_GUEST_INTENT,
+  PARTICIPATE_INTENT,
+  PARTICIPATE_ON_EVENT_ANON_MODAL_SEARCH_PARAM,
+  PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM,
+  WITHDRAW_PARTICIPATION_INTENT,
 } from "./details.shared";
 import { formatDateTime } from "./index.shared";
-import { captureException } from "@sentry/node";
-import rcSliderStyles from "rc-slider/assets/index.css?url";
-import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
-import { IMAGE_CROPPER_DISCONNECT_INTENT_VALUE } from "~/components/legacy/ImageCropper/ImageCropper";
-import ContactPerson from "~/components/next/ContactPerson";
-import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
-import { removeHtmlTags } from "~/lib/utils/transformHtml";
-import { type loader as rootLoader } from "~/root";
-import { getFeatureAbilities } from "~/routes/feature-access.server";
-import { UPLOAD_DOCUMENT_INTENT_VALUE } from "~/storage.shared";
-import { hasContent } from "~/utils.shared";
 import { filterEventConferenceLink } from "./utils.server";
-import { Deep, extendSearchParams } from "~/lib/utils/searchParams";
-import { utcToZonedTime } from "date-fns-tz";
-import { Modal } from "~/components-next/Modal";
-import { useForm } from "@conform-to/react";
-import { isBotRequest } from "~/utils.server";
-import { checkHoneypot } from "~/honeypot.server";
 
 export function links() {
   return [
