@@ -28,6 +28,8 @@ export const locale = {
     waitingListHasMembers: "People on the waiting list",
     externalEvent: "This event is managed externally",
     multiple: "Add information",
+    eventHasStarted:
+      "This event has already started. You can no longer change the settings.",
   },
   errors: {
     invalidIntent: "This action is not allowed",

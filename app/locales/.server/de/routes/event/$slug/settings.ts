@@ -28,6 +28,8 @@ export const locale = {
     waitingListHasMembers: "Personen auf der Warteliste",
     externalEvent: "Dieses Event wird extern verwaltet",
     multiple: "Ergänze Informationen",
+    eventHasStarted:
+      "Dieses Event hat bereits begonnen. Du kannst die Einstellungen nicht mehr ändern.",
   },
   errors: {
     invalidIntent: "Diese Aktion ist nicht zulässig",

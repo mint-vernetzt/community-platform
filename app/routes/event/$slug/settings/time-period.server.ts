@@ -7,6 +7,7 @@ export async function getEventBySlug(slug: string) {
       id: true,
       startTime: true,
       endTime: true,
+      published: true,
       parentEvent: {
         select: {
           startTime: true,
@@ -82,6 +83,7 @@ export async function getEventBySlugForValidation(slug: string) {
     where: { slug },
     select: {
       id: true,
+      startTime: true,
       parentEvent: {
         select: {
           startTime: true,

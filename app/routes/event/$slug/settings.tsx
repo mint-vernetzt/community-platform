@@ -71,6 +71,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const event = await getEventBySlug(slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
+  const enhancedEvent = { ...event, hasStarted: event.startTime < new Date() };
 
   let issues: ReturnType<typeof getIssues> = [];
   if (event.publishIntended) {
@@ -81,7 +82,7 @@ export async function loader(args: LoaderFunctionArgs) {
     });
   }
 
-  return { locales, event, issues };
+  return { locales, event: enhancedEvent, issues };
 }
 
 export async function action(args: ActionFunctionArgs) {
@@ -196,7 +197,14 @@ export default function Settings() {
                 ? locales.route.menuHints.waitingListHasMembers
                 : undefined,
     },
-    { to: `time-period?${Deep}=true`, label: locales.route.menu.timePeriod },
+    {
+      to: `time-period?${Deep}=true`,
+      label: locales.route.menu.timePeriod,
+      disabled: event.hasStarted,
+      hint: event.hasStarted
+        ? locales.route.menuHints.eventHasStarted
+        : undefined,
+    },
     {
       to: `registration/access?${Deep}=true`,
       label: locales.route.menu.registration,

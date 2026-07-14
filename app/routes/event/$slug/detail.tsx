@@ -237,6 +237,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const beforeParticipationPeriod = now < event.participationFrom;
   const afterParticipationPeriod = now > event.participationUntil;
   const inPast = now > event.endTime;
+  const hasStarted = now > event.startTime;
 
   const mode = await deriveModeForEvent(sessionUser, {
     ...event,
@@ -375,6 +376,7 @@ export async function loader(args: LoaderFunctionArgs) {
     beforeParticipationPeriod,
     afterParticipationPeriod,
     inPast,
+    hasStarted,
     mode,
     profileId: sessionUser !== null ? sessionUser.id : undefined,
     hasUserReportedEvent,
@@ -850,6 +852,7 @@ function Detail() {
                   slug={loaderData.event.slug}
                   published={loaderData.event.published}
                   external={loaderData.event.external}
+                  hasStarted={loaderData.hasStarted}
                 >
                   {loaderData.locales.route.content.edit}
                 </EventsOverview.Edit>

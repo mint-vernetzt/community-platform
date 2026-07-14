@@ -14,7 +14,7 @@ export async function getEventBySlug(slug: string) {
       parentEventId: true,
       openForRegistration: true,
       externalRegistrationUrl: true,
-
+      startTime: true,
       external: true,
       parentEvent: {
         select: {

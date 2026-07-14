@@ -1081,16 +1081,19 @@ function Edit(props: {
   slug: string;
   published: boolean;
   external: boolean;
+  hasStarted: boolean;
 }) {
-  const { slug, published, external } = props;
+  const { slug, published, external, hasStarted } = props;
 
   return (
     <Button
       as="link"
       to={
         published && external === false
-          ? `/event/${slug}/settings/participants?${Deep}=false`
-          : `/event/${slug}/settings/time-period?${Deep}=false`
+          ? `/event/${slug}/settings/participants/list?${Deep}=false`
+          : hasStarted
+            ? `/event/${slug}/settings/registration/access?${Deep}=true`
+            : `/event/${slug}/settings/time-period?${Deep}=false`
       }
       prefetch="intent"
       fullSize
