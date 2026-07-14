@@ -13,7 +13,7 @@ export const PARTICIPATE_AS_GUEST_INTENT = "participateAsGuest";
 export const PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM =
   "participate-on-event-intent";
 export const PARTICIPATE_ON_EVENT_ANON_MODAL_SEARCH_PARAM =
-  "participate-on-event-anon-modal";
+  "modal-participate-on-event-anon";
 
 export function createAbuseReportSchema(locales: { maxLength: string }) {
   return z.object({
