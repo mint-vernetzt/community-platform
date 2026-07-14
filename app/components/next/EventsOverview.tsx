@@ -1,8 +1,7 @@
 import {
-  type FieldMetadata,
-  type FormMetadata,
   getFormProps,
   getInputProps,
+  type SubmissionResult,
   useForm,
 } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
@@ -14,7 +13,13 @@ import { Input } from "@mint-vernetzt/components/src/molecules/Input"; // refact
 import classNames from "classnames";
 import { utcToZonedTime } from "date-fns-tz";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { Form, Link, useLocation, useSearchParams } from "react-router";
+import {
+  Form,
+  Link,
+  useLocation,
+  useNavigation,
+  useSearchParams,
+} from "react-router";
 import { HoneypotInputs } from "remix-utils/honeypot/react";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { Dropdown } from "~/components-next/Dropdown";
@@ -32,6 +37,7 @@ import type { languageModuleMap } from "~/locales/.server";
 import {
   ABUSE_REPORT_INTENT,
   createAbuseReportSchema,
+  createRegisterSchema,
   JOIN_WAITING_LIST_INTENT,
   PARTICIPATE_AS_GUEST_INTENT,
   PARTICIPATE_INTENT,
@@ -1148,7 +1154,10 @@ function Login(props: {
           title: {
             label: string;
             options: {
-              [key: string]: string;
+              none: "Kein Titel" | "No title";
+              dr: "Dr.";
+              prof: "Prof.";
+              profdr: "Prof. Dr.";
             };
           };
           firstName: string;
@@ -1164,109 +1173,9 @@ function Login(props: {
         };
       };
     };
-    form: FormMetadata<
-      {
-        email: string;
-        firstName: string;
-        lastName: string;
-        academicTitle?:
-          | "Dr."
-          | "Prof."
-          | "Prof. Dr."
-          | "Kein Titel"
-          | "No title"
-          | undefined;
-        loginRedirect?: string | undefined;
-      },
-      string[]
-    >;
-    fields: Required<{
-      email: FieldMetadata<
-        string,
-        {
-          email: string;
-          firstName: string;
-          lastName: string;
-          academicTitle?:
-            | "Dr."
-            | "Prof."
-            | "Prof. Dr."
-            | "Kein Titel"
-            | "No title"
-            | undefined;
-          loginRedirect?: string | undefined;
-        },
-        string[]
-      >;
-      firstName: FieldMetadata<
-        string,
-        {
-          email: string;
-          firstName: string;
-          lastName: string;
-          academicTitle?:
-            | "Dr."
-            | "Prof."
-            | "Prof. Dr."
-            | "Kein Titel"
-            | "No title"
-            | undefined;
-          loginRedirect?: string | undefined;
-        },
-        string[]
-      >;
-      lastName: FieldMetadata<
-        string,
-        {
-          email: string;
-          firstName: string;
-          lastName: string;
-          academicTitle?:
-            | "Dr."
-            | "Prof."
-            | "Prof. Dr."
-            | "Kein Titel"
-            | "No title"
-            | undefined;
-          loginRedirect?: string | undefined;
-        },
-        string[]
-      >;
-      academicTitle: FieldMetadata<
-        "Dr." | "Prof." | "Prof. Dr." | "Kein Titel" | "No title" | undefined,
-        {
-          email: string;
-          firstName: string;
-          lastName: string;
-          academicTitle?:
-            | "Dr."
-            | "Prof."
-            | "Prof. Dr."
-            | "Kein Titel"
-            | "No title"
-            | undefined;
-          loginRedirect?: string | undefined;
-        },
-        string[]
-      >;
-      loginRedirect: FieldMetadata<
-        string | undefined,
-        {
-          email: string;
-          firstName: string;
-          lastName: string;
-          academicTitle?:
-            | "Dr."
-            | "Prof."
-            | "Prof. Dr."
-            | "Kein Titel"
-            | "No title"
-            | undefined;
-          loginRedirect?: string | undefined;
-        },
-        string[]
-      >;
-    }>;
+  };
+  actionData?: {
+    submission: SubmissionResult<string[]>;
   };
 }) {
   const [searchParams] = useSearchParams();
@@ -1279,12 +1188,35 @@ function Login(props: {
   });
   const [expandedSection, setExpandedSection] = useState<
     "loginOrRegister" | "guestAccess"
-  >("guestAccess");
+  >("loginOrRegister");
   const enhancedSearchParamsForRedirect = extendSearchParams(searchParams, {
     addOrReplace: {
       [props.searchParam]: "true",
     },
     remove: [props.modal.searchParam],
+  });
+
+  const navigation = useNavigation();
+  const loginRedirect = searchParams.get("login_redirect");
+
+  const [form, fields] = useForm({
+    id: "register-form",
+    constraint: getZodConstraint(
+      createRegisterSchema(props.modal.locales.guestAccess.form)
+    ),
+    defaultValue: {
+      loginRedirect: loginRedirect,
+    },
+    shouldValidate: "onBlur",
+    shouldRevalidate: "onInput",
+    lastResult:
+      navigation.state === "idle" ? props.actionData?.submission : null,
+    onValidate({ formData }) {
+      const submission = parseWithZod(formData, {
+        schema: createRegisterSchema(props.modal.locales.guestAccess.form),
+      });
+      return submission;
+    },
   });
 
   return (
@@ -1465,14 +1397,14 @@ function Login(props: {
               <div className="flex-col gap-4 group-has-checked:flex hidden mt-4">
                 <RichText html={props.modal.locales.guestAccess.description} />
                 <Form
-                  {...getFormProps(props.modal.form)}
+                  {...getFormProps(form)}
                   method="post"
                   preventScrollReset
                   autoComplete="off"
                 >
                   <HoneypotInputs className={HONEYPOT_CLASSNAME} />
                   <input
-                    {...getInputProps(props.modal.fields.loginRedirect, {
+                    {...getInputProps(fields.loginRedirect, {
                       type: "hidden",
                     })}
                     key="loginRedirect"
@@ -1481,9 +1413,8 @@ function Login(props: {
                     <Dropdown responsive={false}>
                       <Dropdown.Label>
                         {isHydrated &&
-                        typeof props.modal.fields.academicTitle.value !==
-                          "undefined"
-                          ? props.modal.fields.academicTitle.value
+                        typeof fields.academicTitle.value !== "undefined"
+                          ? fields.academicTitle.value
                           : props.modal.locales.guestAccess.form.title.label}
                       </Dropdown.Label>
                       <Dropdown.List>
@@ -1492,13 +1423,10 @@ function Login(props: {
                         ).map(([_key, title]) => {
                           return (
                             <FormControl
-                              {...getInputProps(
-                                props.modal.fields.academicTitle,
-                                {
-                                  type: "radio",
-                                  value: title,
-                                }
-                              )}
+                              {...getInputProps(fields.academicTitle, {
+                                type: "radio",
+                                value: title,
+                              })}
                               key={title}
                               labelPosition="left"
                             >
@@ -1509,20 +1437,19 @@ function Login(props: {
                       </Dropdown.List>
                     </Dropdown>
                     <Input
-                      {...getInputProps(props.modal.fields.firstName, {
+                      {...getInputProps(fields.firstName, {
                         type: "text",
                       })}
                       key="firstName"
                     >
-                      <Input.Label htmlFor={props.modal.fields.firstName.id}>
+                      <Input.Label htmlFor={fields.firstName.id}>
                         {props.modal.locales.guestAccess.form.firstName}
                       </Input.Label>
-                      {typeof props.modal.fields.firstName.errors !==
-                        "undefined" &&
-                      props.modal.fields.firstName.errors.length > 0
-                        ? props.modal.fields.firstName.errors.map((error) => (
+                      {typeof fields.firstName.errors !== "undefined" &&
+                      fields.firstName.errors.length > 0
+                        ? fields.firstName.errors.map((error) => (
                             <Input.Error
-                              id={props.modal.fields.firstName.errorId}
+                              id={fields.firstName.errorId}
                               key={error}
                             >
                               {error}
@@ -1531,20 +1458,19 @@ function Login(props: {
                         : null}
                     </Input>
                     <Input
-                      {...getInputProps(props.modal.fields.lastName, {
+                      {...getInputProps(fields.lastName, {
                         type: "text",
                       })}
                       key="lastName"
                     >
-                      <Input.Label htmlFor={props.modal.fields.lastName.id}>
+                      <Input.Label htmlFor={fields.lastName.id}>
                         {props.modal.locales.guestAccess.form.lastName}
                       </Input.Label>
-                      {typeof props.modal.fields.lastName.errors !==
-                        "undefined" &&
-                      props.modal.fields.lastName.errors.length > 0
-                        ? props.modal.fields.lastName.errors.map((error) => (
+                      {typeof fields.lastName.errors !== "undefined" &&
+                      fields.lastName.errors.length > 0
+                        ? fields.lastName.errors.map((error) => (
                             <Input.Error
-                              id={props.modal.fields.lastName.errorId}
+                              id={fields.lastName.errorId}
                               key={error}
                             >
                               {error}
@@ -1554,20 +1480,19 @@ function Login(props: {
                     </Input>
                     <div className="mb-4">
                       <Input
-                        {...getInputProps(props.modal.fields.email, {
+                        {...getInputProps(fields.email, {
                           type: "text",
                         })}
                         key="email"
                       >
-                        <Input.Label htmlFor={props.modal.fields.email.id}>
+                        <Input.Label htmlFor={fields.email.id}>
                           {props.modal.locales.guestAccess.form.email}
                         </Input.Label>
-                        {typeof props.modal.fields.email.errors !==
-                          "undefined" &&
-                        props.modal.fields.email.errors.length > 0
-                          ? props.modal.fields.email.errors.map((error) => (
+                        {typeof fields.email.errors !== "undefined" &&
+                        fields.email.errors.length > 0
+                          ? fields.email.errors.map((error) => (
                               <Input.Error
-                                id={props.modal.fields.email.errorId}
+                                id={fields.email.errorId}
                                 key={error}
                               >
                                 {error}
@@ -1584,8 +1509,8 @@ function Login(props: {
                       // Don't disable button when js is disabled
                       disabled={
                         isHydrated
-                          ? props.modal.form.dirty === false ||
-                            props.modal.form.valid === false ||
+                          ? form.dirty === false ||
+                            form.valid === false ||
                             isSubmitting
                           : false
                       }

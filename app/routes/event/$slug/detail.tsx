@@ -697,33 +697,6 @@ function Detail() {
     "Europe/Berlin"
   );
 
-  const navigation = useNavigation();
-  const [urlSearchParams] = useSearchParams();
-  const loginRedirect = urlSearchParams.get("login_redirect");
-
-  const [guestAccessForm, guestAccessFields] = useForm({
-    id: "register-form",
-    constraint: getZodConstraint(
-      createRegisterSchema(
-        loaderData.locales.route.content.anonModal.guestAccess.form
-      )
-    ),
-    defaultValue: {
-      loginRedirect: loginRedirect,
-    },
-    shouldValidate: "onBlur",
-    shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
-    onValidate({ formData }) {
-      const submission = parseWithZod(formData, {
-        schema: createRegisterSchema(
-          loaderData.locales.route.content.anonModal.guestAccess.form
-        ),
-      });
-      return submission;
-    },
-  });
-
   return (
     <>
       <BasicStructure>
@@ -950,9 +923,8 @@ function Detail() {
                     modal={{
                       searchParam: PARTICIPATE_ON_EVENT_ANON_MODAL_SEARCH_PARAM,
                       locales: loaderData.locales.route.content.anonModal,
-                      form: guestAccessForm,
-                      fields: guestAccessFields,
                     }}
+                    actionData={actionData}
                   >
                     {loaderData.locales.route.content.login}
                   </EventsOverview.Login>
