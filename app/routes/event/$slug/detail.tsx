@@ -43,6 +43,7 @@ import { redirectWithToast } from "~/toast.server";
 import { isBotRequest } from "~/utils.server";
 import { hasContent } from "~/utils.shared";
 import {
+  addGuestToEvent,
   addProfileToParticipants,
   addProfileToWaitingList,
   deriveModeForEvent,
@@ -446,8 +447,6 @@ export async function action(args: ActionFunctionArgs) {
     slug: params.slug,
   };
 
-  console.log("intent", intent);
-
   if (intent === PARTICIPATE_AS_GUEST_INTENT) {
     const submission = await parseWithZod(formData, {
       schema: createRegisterSchema(
@@ -459,7 +458,33 @@ export async function action(args: ActionFunctionArgs) {
       return { submission: submission.reply() };
     }
 
-    // logic
+    try {
+      await addGuestToEvent({
+        eventId: event.id,
+        guest: {
+          email: submission.value.email,
+          academicTitle: submission.value.academicTitle as string | undefined,
+          firstName: submission.value.firstName,
+          lastName: submission.value.lastName,
+        },
+        locales: {
+          mail: {
+            guestAlreadyExistsOnEvent: {
+              subject: locales.route.mail.profileAlreadyExists.subject,
+            },
+          },
+        },
+        directUrl: `${process.env.COMMUNITY_BASE_URL}/login?login_redirect=${encodeURIComponent(submission.value.loginRedirect)}`,
+      });
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "participate-as-guest-error",
+        key: `participate-as-guest-error-${Date.now()}`,
+        message: locales.route.errors.participateAsGuest,
+        level: "negative",
+      });
+    }
 
     const url = new URL(request.url);
     const searchParams = extendSearchParams(url.searchParams, {
@@ -470,7 +495,7 @@ export async function action(args: ActionFunctionArgs) {
 
     return redirectWithToast(redirectUrl, {
       id: "participate-as-guest-success",
-      key: `${new Date().getTime()}`,
+      key: `participate-as-guest-success-${Date.now()}`,
       message: locales.route.success.participateAsGuest,
       level: "positive",
     });

@@ -1321,3 +1321,80 @@ export async function getParticipantsCount(
 
   return participants.length;
 }
+
+export async function addGuestToEvent(options: {
+  eventId: string;
+  guest: {
+    email: string;
+    academicTitle?: string;
+    firstName: string;
+    lastName: string;
+  };
+  locales: {
+    mail: {
+      guestAlreadyExistsOnEvent: {
+        subject: string;
+      };
+    };
+  };
+  directUrl: string;
+}) {
+  const { eventId, guest } = options;
+
+  const event = await prismaClient.event.findUnique({
+    where: {
+      id: eventId,
+    },
+    select: {
+      name: true,
+    },
+  });
+
+  if (event === null) {
+    throw new Error("Event not found");
+  }
+
+  const existingProfile = await prismaClient.profile.findFirst({
+    where: {
+      email: guest.email,
+    },
+    select: {
+      firstName: true,
+    },
+  });
+
+  if (existingProfile !== null) {
+    try {
+      const sender = process.env.SYSTEM_MAIL_SENDER;
+      const recipient = guest.email;
+      const subject = options.locales.mail.guestAlreadyExistsOnEvent.subject;
+      const textTemplatePath =
+        "mail-templates/guests/profile-already-exists-text.hbs";
+      const htmlTemplatePath =
+        "mail-templates/guests/profile-already-exists-html.hbs";
+
+      const data = {
+        firstName: existingProfile.firstName,
+        eventName: event.name,
+        buttonUrl: options.directUrl,
+      };
+
+      const text = getCompiledMailTemplate<typeof textTemplatePath>(
+        textTemplatePath,
+        data,
+        "text"
+      );
+      const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+        htmlTemplatePath,
+        data,
+        "html"
+      );
+
+      await mailer(mailerOptions, sender, recipient, subject, text, html);
+    } catch (error) {
+      captureException(error);
+    }
+  }
+
+  return null;
+}
