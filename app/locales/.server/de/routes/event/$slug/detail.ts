@@ -210,5 +210,8 @@ export const locale = {
       subject:
         "Deine E-Mail-Adresse wurde benutzt, um sich als Gast an einem Event anzumelden.",
     },
+    confirmRegistration: {
+      subject: "Bitte bestätige Deine Anmeldung für das Event",
+    },
   },
 } as const;

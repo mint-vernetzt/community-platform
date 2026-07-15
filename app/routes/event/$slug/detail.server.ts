@@ -1,6 +1,7 @@
 import { parseWithZod } from "@conform-to/zod";
 import { captureException } from "@sentry/node";
 import { type SupabaseClient, type User } from "@supabase/supabase-js";
+import crypto from "node:crypto";
 import { z } from "zod";
 import {
   getReporter,
@@ -1332,12 +1333,15 @@ export async function addGuestToEvent(options: {
   };
   locales: {
     mail: {
-      guestAlreadyExistsOnEvent: {
+      profileAlreadyExists: {
+        subject: string;
+      };
+      confirmRegistration: {
         subject: string;
       };
     };
   };
-  directUrl: string;
+  redirectUrl: string;
 }) {
   const { eventId, guest } = options;
 
@@ -1367,7 +1371,7 @@ export async function addGuestToEvent(options: {
     try {
       const sender = process.env.SYSTEM_MAIL_SENDER;
       const recipient = guest.email;
-      const subject = options.locales.mail.guestAlreadyExistsOnEvent.subject;
+      const subject = options.locales.mail.profileAlreadyExists.subject;
       const textTemplatePath =
         "mail-templates/guests/profile-already-exists-text.hbs";
       const htmlTemplatePath =
@@ -1376,7 +1380,7 @@ export async function addGuestToEvent(options: {
       const data = {
         firstName: existingProfile.firstName,
         eventName: event.name,
-        buttonUrl: options.directUrl,
+        buttonUrl: `${process.env.COMMUNITY_BASE_URL}/login?login_redirect=${encodeURIComponent(options.redirectUrl)}`,
       };
 
       const text = getCompiledMailTemplate<typeof textTemplatePath>(
@@ -1391,9 +1395,59 @@ export async function addGuestToEvent(options: {
       );
 
       await mailer(mailerOptions, sender, recipient, subject, text, html);
+      return null;
     } catch (error) {
       captureException(error);
     }
+  }
+
+  const data = JSON.stringify({
+    eventId,
+    email: guest.email,
+  });
+
+  const token = crypto
+    .createHmac("sha256", process.env.SESSION_SECRET)
+    .update(data)
+    .digest("hex");
+
+  const result = await prismaClient.guest.create({
+    data: {
+      eventId,
+      ...guest,
+      confirmationToken: token,
+    },
+  });
+
+  try {
+    const sender = process.env.SYSTEM_MAIL_SENDER;
+    const recipient = guest.email;
+    const subject = options.locales.mail.confirmRegistration.subject;
+    const textTemplatePath =
+      "mail-templates/guests/confirm-registration-text.hbs";
+    const htmlTemplatePath =
+      "mail-templates/guests/confirm-registration-html.hbs";
+
+    const data = {
+      firstName: result.firstName,
+      eventName: event.name,
+      buttonUrl: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?token_hash=${token}&confirmation_redirect=${options.redirectUrl}`)}`,
+    };
+
+    const text = getCompiledMailTemplate<typeof textTemplatePath>(
+      textTemplatePath,
+      data,
+      "text"
+    );
+    const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+      htmlTemplatePath,
+      data,
+      "html"
+    );
+
+    await mailer(mailerOptions, sender, recipient, subject, text, html);
+  } catch (error) {
+    captureException(error);
   }
 
   return null;

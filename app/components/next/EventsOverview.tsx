@@ -1200,16 +1200,12 @@ function Login(props: {
   });
 
   const navigation = useNavigation();
-  const loginRedirect = searchParams.get("login_redirect");
 
   const [form, fields] = useForm({
     id: "register-form",
     constraint: getZodConstraint(
       createRegisterSchema(props.modal.locales.guestAccess.form)
     ),
-    defaultValue: {
-      loginRedirect: loginRedirect,
-    },
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
     lastResult:
@@ -1407,11 +1403,10 @@ function Login(props: {
                 >
                   <HoneypotInputs className={HONEYPOT_CLASSNAME} />
                   <input
-                    {...getInputProps(fields.loginRedirect, {
+                    {...getInputProps(fields.redirectTo, {
                       type: "hidden",
                     })}
                     defaultValue={`${props.pathname}?${enhancedSearchParamsForRedirect.toString()}`}
-                    key="loginRedirect"
                   />
                   <div className="flex flex-col gap-4">
                     <Dropdown responsive={false}>

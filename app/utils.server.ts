@@ -1,10 +1,17 @@
 import { type User } from "@supabase/supabase-js";
-import { createHash, createHmac, type BinaryToTextEncoding } from "crypto";
+import * as isbotModule from "isbot";
+import {
+  createCipheriv,
+  createDecipheriv,
+  randomBytes,
+  createHash,
+  createHmac,
+  type BinaryToTextEncoding,
+} from "crypto";
 import sanitizeHtml from "sanitize-html";
+import { z } from "zod";
 import { getScoreOfEntity } from "../prisma/scripts/update-score/utils";
 import { prismaClient } from "./prisma.server";
-import { z } from "zod";
-import * as isbotModule from "isbot";
 
 export type Mode = "anon" | "authenticated";
 
