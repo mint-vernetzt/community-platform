@@ -48,7 +48,7 @@ export const createAuthClient = (request: Request) => {
   };
   const authClient = createServerClient(
     process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
+    process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY,
     {
       cookies,
       cookieOptions: {
@@ -78,7 +78,7 @@ export const createAuthClient = (request: Request) => {
 export const createAdminAuthClient = () => {
   const adminAuthClient = createClient(
     process.env.SUPABASE_URL,
-    process.env.SERVICE_ROLE_KEY,
+    process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SERVICE_ROLE_KEY,
     {
       auth: {
         autoRefreshToken: false,
