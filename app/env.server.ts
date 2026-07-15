@@ -2,7 +2,6 @@ import { z } from "zod";
 
 const schema = z.object({
   NODE_ENV: z.enum(["production", "development", "test"] as const),
-  SUPABASE_ANON_KEY: z.string(),
   SESSION_SECRET: z.string(),
   SUPABASE_URL: z.string(),
   SUPABASE_IMAGE_URL: z.string().optional(),
@@ -13,7 +12,11 @@ const schema = z.object({
   KEYCLOAK_URL: z.string(),
   COMMUNITY_BASE_URL: z.string(),
   DATABASE_URL: z.string(),
+  // Legacy keys
   SERVICE_ROLE_KEY: z.string(),
+  SUPABASE_ANON_KEY: z.string(),
+  // New asymmetric key
+  SUPABASE_PUBLISHABLE_KEY: z.string().optional(),
   ALLOW_INDEXING: z
     .enum(["true", "false"] as const)
     .optional()
