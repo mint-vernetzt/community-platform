@@ -468,15 +468,12 @@ export async function action(args: ActionFunctionArgs) {
           academicTitle: submission.value.academicTitle as string | undefined,
           firstName: submission.value.firstName,
           lastName: submission.value.lastName,
+          organizationName: submission.value.organizationName,
         },
         locales: {
-          mail: {
-            guestAlreadyExistsOnEvent: {
-              subject: locales.route.mail.profileAlreadyExists.subject,
-            },
-          },
+          mail: locales.route.mail,
         },
-        directUrl: `${process.env.COMMUNITY_BASE_URL}/login?login_redirect=${encodeURIComponent(submission.value.loginRedirect)}`,
+        redirectUrl: submission.value.redirectTo,
       });
     } catch (error) {
       captureException(error);
@@ -940,6 +937,7 @@ function Detail() {
                   loaderData.event.parentParticipationRequired === false ||
                   loaderData.event.parentEvent.parentParticipationRequired ===
                     false) &&
+                loaderData.event.canceled === false &&
                 loaderData.beforeParticipationPeriod === false &&
                 loaderData.afterParticipationPeriod === false && (
                   <EventsOverview.Login

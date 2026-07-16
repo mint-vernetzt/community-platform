@@ -58,6 +58,7 @@ export const locale = {
           },
           firstName: "Vorname *",
           lastName: "Nachname *",
+          organizationName: "Organisation",
           email: "E-Mail *",
           submit: "Zum Event anmelden",
           cancel: "Abbrechen",
@@ -209,6 +210,9 @@ export const locale = {
     profileAlreadyExists: {
       subject:
         "Deine E-Mail-Adresse wurde benutzt, um sich als Gast an einem Event anzumelden.",
+    },
+    confirmRegistration: {
+      subject: "Bitte bestätige Deine Anmeldung für das Event",
     },
   },
 } as const;

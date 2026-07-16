@@ -32,6 +32,8 @@ import { locale as deConfirmAuthAction } from "./de/routes/auth/confirm";
 import { locale as deRequestConfirmation } from "./de/routes/auth/request-confirmation";
 import { locale as deVerify } from "./de/routes/auth/verify";
 import { locale as deKeycloakCallback } from "./de/routes/auth/keycloak.callback";
+import { locale as deGuestConfirm } from "./de/routes/auth/guest/confirm";
+import { locale as deGuestVerify } from "./de/routes/auth/guest/verify";
 // event routes
 import { locale as deEventDetail } from "./de/routes/event/$slug/detail";
 import { locale as deAboutEvent } from "./de/routes/event/$slug/detail/about";
@@ -215,6 +217,8 @@ import { locale as enConfirmAuthAction } from "./en/routes/auth/confirm";
 import { locale as enRequestConfirmation } from "./en/routes/auth/request-confirmation";
 import { locale as enVerify } from "./en/routes/auth/verify";
 import { locale as enKeycloakCallback } from "./en/routes/auth/keycloak.callback";
+import { locale as enGuestConfirm } from "./en/routes/auth/guest/confirm";
+import { locale as enGuestVerify } from "./en/routes/auth/guest/verify";
 // event routes
 import { locale as enEventDetail } from "./en/routes/event/$slug/detail";
 import { locale as enAboutEvent } from "./en/routes/event/$slug/detail/about";
@@ -390,6 +394,8 @@ const de = {
   "auth/request-confirmation": deRequestConfirmation,
   "auth/verify": deVerify,
   "auth/keycloak.callback": deKeycloakCallback,
+  "auth/guest/confirm": deGuestConfirm,
+  "auth/guest/verify": deGuestVerify,
   // event routes
   "event/$slug/documents-download": deDownloadEventDocuments,
   "event/$slug/detail": {
@@ -875,6 +881,8 @@ const en = {
   "auth/request-confirmation": enRequestConfirmation,
   "auth/verify": enVerify,
   "auth/keycloak.callback": enKeycloakCallback,
+  "auth/guest/confirm": enGuestConfirm,
+  "auth/guest/verify": enGuestVerify,
   // event routes
   "event/$slug/documents-download": enDownloadEventDocuments,
   "event/$slug/detail": {

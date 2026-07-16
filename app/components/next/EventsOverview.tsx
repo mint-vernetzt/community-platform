@@ -1165,6 +1165,7 @@ function Login(props: {
           };
           firstName: string;
           lastName: string;
+          organizationName: string;
           email: string;
           submit: string;
           cancel: string;
@@ -1200,16 +1201,12 @@ function Login(props: {
   });
 
   const navigation = useNavigation();
-  const loginRedirect = searchParams.get("login_redirect");
 
   const [form, fields] = useForm({
     id: "register-form",
     constraint: getZodConstraint(
       createRegisterSchema(props.modal.locales.guestAccess.form)
     ),
-    defaultValue: {
-      loginRedirect: loginRedirect,
-    },
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
     lastResult:
@@ -1407,11 +1404,10 @@ function Login(props: {
                 >
                   <HoneypotInputs className={HONEYPOT_CLASSNAME} />
                   <input
-                    {...getInputProps(fields.loginRedirect, {
+                    {...getInputProps(fields.redirectTo, {
                       type: "hidden",
                     })}
                     defaultValue={`${props.pathname}?${enhancedSearchParamsForRedirect.toString()}`}
-                    key="loginRedirect"
                   />
                   <div className="flex flex-col gap-4">
                     <Dropdown responsive={false}>
@@ -1432,7 +1428,6 @@ function Login(props: {
                                 value: title,
                               })}
                               key={title}
-                              hidden={true}
                             >
                               <FormControl.Label>{title}</FormControl.Label>
                             </FormControl>
@@ -1475,6 +1470,27 @@ function Login(props: {
                         ? fields.lastName.errors.map((error) => (
                             <Input.Error
                               id={fields.lastName.errorId}
+                              key={error}
+                            >
+                              {error}
+                            </Input.Error>
+                          ))
+                        : null}
+                    </Input>
+                    <Input
+                      {...getInputProps(fields.organizationName, {
+                        type: "text",
+                      })}
+                      key="organizationName"
+                    >
+                      <Input.Label htmlFor={fields.organizationName.id}>
+                        {props.modal.locales.guestAccess.form.organizationName}
+                      </Input.Label>
+                      {typeof fields.organizationName.errors !== "undefined" &&
+                      fields.organizationName.errors.length > 0
+                        ? fields.organizationName.errors.map((error) => (
+                            <Input.Error
+                              id={fields.organizationName.errorId}
                               key={error}
                             >
                               {error}

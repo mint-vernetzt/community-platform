@@ -101,12 +101,13 @@ export const createRegisterSchema = (locales: {
         message: locales.validation.lastName,
       })
       .trim(),
+    organizationName: z.string().trim().optional(),
     email: z
       .string({
         message: locales.validation.email,
       })
       .trim()
       .email(locales.validation.email),
-    loginRedirect: z.string(),
+    redirectTo: z.string(),
   });
 };

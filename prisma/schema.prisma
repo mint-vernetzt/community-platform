@@ -165,7 +165,7 @@ model Guest {
   confirmationSentAt DateTime  @default(now()) @map("confirmation_sent_at")
   confirmed          Boolean   @default(false)
   confirmedAt        DateTime? @map("confirmed_at")
-  transactionToken   String    @map("transaction_token")
+  confirmationToken  String?   @map("confirmation_token")
   onWaitingList      Boolean   @default(false) @map("on_waiting_list")
   createdAt          DateTime  @default(now()) @map("created_at")
   updatedAt          DateTime  @default(now()) @updatedAt @map("updated_at")
