@@ -21,8 +21,8 @@ export async function loader(args: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const tokenHash = url.searchParams.get("token_hash");
   invariantResponse(tokenHash !== null, "Bad request", { status: 400 });
-  // Check if token is a valid base64url string
-  const isValidToken = /^[A-Za-z0-9_-]+$/g.test(tokenHash);
+  // Check if token is a valid hex string
+  const isValidToken = /^[0-9A-Fa-f]+$/g.test(tokenHash);
   invariantResponse(isValidToken, "Invalid token", { status: 400 });
 
   const confirmationRedirect = url.searchParams.get("confirmation_redirect");

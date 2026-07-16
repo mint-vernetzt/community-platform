@@ -1408,8 +1408,9 @@ export async function addGuestToEvent(options: {
   });
 
   const token = crypto
-    .createHmac("sha256", process.env.SESSION_SECRET)
+    .createHmac("sha256", process.env.GUEST_SECRET)
     .update(data)
+    .update(process.env.GUEST_SALT, "hex")
     .digest("hex");
 
   const result = await prismaClient.guest.create({

@@ -37,6 +37,8 @@ const schema = z.object({
   SENTRY_AUTH_TOKEN: z.string().optional(),
   TRIGGER_SENTRY_RELEASE: z.enum(["true"] as const).optional(),
   SUPPORT_MAIL: z.string(),
+  GUEST_SECRET: z.string(),
+  GUEST_SALT: z.string(),
 });
 
 declare global {

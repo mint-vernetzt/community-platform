@@ -38,7 +38,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const tokenHash = confirmationLink.searchParams.get("token_hash");
   invariantResponse(tokenHash !== null, "Bad Request", { status: 400 });
   // Check if token is a valid hex string
-  const isValidToken = /^(pkce_)?[0-9A-Fa-f]+$/g.test(tokenHash);
+  const isValidToken = /^[0-9A-Fa-f]+$/g.test(tokenHash);
   invariantResponse(isValidToken, "Bad Request", { status: 400 });
 
   const confirmationRedirect = confirmationLink.searchParams.get(
