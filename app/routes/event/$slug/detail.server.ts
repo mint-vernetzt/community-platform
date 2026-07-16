@@ -1,7 +1,7 @@
 import { parseWithZod } from "@conform-to/zod";
 import { captureException } from "@sentry/node";
 import { type SupabaseClient, type User } from "@supabase/supabase-js";
-import crypto from "node:crypto";
+import { createHmac } from "node:crypto";
 import { z } from "zod";
 import {
   getReporter,
@@ -1407,8 +1407,7 @@ export async function addGuestToEvent(options: {
     email: guest.email,
   });
 
-  const token = crypto
-    .createHmac("sha256", process.env.GUEST_SECRET)
+  const token = createHmac("sha256", process.env.GUEST_SECRET)
     .update(data)
     .update(process.env.GUEST_SALT, "hex")
     .digest("hex");
