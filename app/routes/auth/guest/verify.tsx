@@ -40,7 +40,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   if (error !== null && error.code === "expired") {
     return redirect(
-      `/auth/guest/request-confirmation?confirmation_redirect=${confirmationRedirect}`
+      `/auth/guest/request-confirmation?token_hash=${tokenHash}&confirmation_redirect=${confirmationRedirect}`
     );
   }
 
