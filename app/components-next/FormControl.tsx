@@ -23,7 +23,7 @@ function FromControlInfo(props: { id: string } & React.PropsWithChildren) {
           event.stopPropagation();
         }}
       />
-      <span className="px-4 pb-2.5 hidden peer-[:checked]:block text-sm whitespace-normal">
+      <span className="px-4 pb-2.5 hidden peer-checked:block text-sm whitespace-normal">
         {children}
       </span>
     </>
@@ -45,7 +45,7 @@ function Checkbox(props: React.InputHTMLAttributes<HTMLInputElement>) {
           height="20"
           fill="none"
           viewBox="0 0 20 20"
-          className="block group-has-[:checked]:hidden"
+          className="block group-has-checked/form-control:hidden"
         >
           <path
             fill="currentColor"
@@ -58,7 +58,7 @@ function Checkbox(props: React.InputHTMLAttributes<HTMLInputElement>) {
           height="20"
           fill="none"
           viewBox="0 0 20 20"
-          className="hidden group-has-[:checked]:block"
+          className="hidden group-has-checked/form-control:block"
         >
           <path
             fill="currentColor"
@@ -85,7 +85,7 @@ function Radio(props: React.InputHTMLAttributes<HTMLInputElement>) {
           viewBox="0 0 20 20"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="block group-has-[:checked]:hidden"
+          className="block group-has-checked/form-control:hidden"
         >
           <rect
             x="0.6"
@@ -111,7 +111,7 @@ function Radio(props: React.InputHTMLAttributes<HTMLInputElement>) {
           viewBox="0 0 20 20"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="hidden group-has-[:checked]:block"
+          className="hidden group-has-checked/form-control:block"
         >
           <rect
             x="0.6"
@@ -175,7 +175,7 @@ export function FormControl(
   });
 
   const classes = classNames(
-    "group px-4 py-2.5 flex justify-between items-center gap-1 transition",
+    "group/form-control px-4 py-2.5 flex justify-between items-center gap-1 transition",
     props.disabled ? "text-gray-400 cursor-auto" : "cursor-pointer",
     props.hidden ? "hidden" : ""
   );
@@ -202,7 +202,7 @@ export function FormControl(
                 ? info.props.id
                 : String(label)
             }
-            className="h-[20px] hover:text-primary focus:text-primary"
+            className="h-5 hover:text-primary focus:text-primary"
             aria-label={String(label)}
           >
             <svg

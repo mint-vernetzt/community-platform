@@ -1428,7 +1428,6 @@ function Login(props: {
                                 value: title,
                               })}
                               key={title}
-                              hidden={true}
                             >
                               <FormControl.Label>{title}</FormControl.Label>
                             </FormControl>
