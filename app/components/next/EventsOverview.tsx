@@ -1165,6 +1165,7 @@ function Login(props: {
           };
           firstName: string;
           lastName: string;
+          organizationName: string;
           email: string;
           submit: string;
           cancel: string;
@@ -1470,6 +1471,27 @@ function Login(props: {
                         ? fields.lastName.errors.map((error) => (
                             <Input.Error
                               id={fields.lastName.errorId}
+                              key={error}
+                            >
+                              {error}
+                            </Input.Error>
+                          ))
+                        : null}
+                    </Input>
+                    <Input
+                      {...getInputProps(fields.organizationName, {
+                        type: "text",
+                      })}
+                      key="organizationName"
+                    >
+                      <Input.Label htmlFor={fields.organizationName.id}>
+                        {props.modal.locales.guestAccess.form.organizationName}
+                      </Input.Label>
+                      {typeof fields.organizationName.errors !== "undefined" &&
+                      fields.organizationName.errors.length > 0
+                        ? fields.organizationName.errors.map((error) => (
+                            <Input.Error
+                              id={fields.organizationName.errorId}
                               key={error}
                             >
                               {error}

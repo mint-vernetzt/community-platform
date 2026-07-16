@@ -57,6 +57,7 @@ export const locale = {
           },
           firstName: "First name *",
           lastName: "Last name *",
+          organizationName: "Organization",
           email: "Email *",
           submit: "Register for event",
           cancel: "Cancel",

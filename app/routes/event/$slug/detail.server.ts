@@ -1330,6 +1330,7 @@ export async function addGuestToEvent(options: {
     academicTitle?: string;
     firstName: string;
     lastName: string;
+    organizationName?: string;
   };
   locales: {
     mail: {

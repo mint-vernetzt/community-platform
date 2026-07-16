@@ -101,6 +101,7 @@ export const createRegisterSchema = (locales: {
         message: locales.validation.lastName,
       })
       .trim(),
+    organizationName: z.string().trim().optional(),
     email: z
       .string({
         message: locales.validation.email,

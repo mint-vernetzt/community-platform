@@ -468,6 +468,7 @@ export async function action(args: ActionFunctionArgs) {
           academicTitle: submission.value.academicTitle as string | undefined,
           firstName: submission.value.firstName,
           lastName: submission.value.lastName,
+          organizationName: submission.value.organizationName,
         },
         locales: {
           mail: locales.route.mail,
