@@ -32,32 +32,8 @@
                       ">
                       Hallo {{firstName}},<br /><br />
                       
-                      Du hast Dich mit Deiner E-Mail-Adresse für die Veranstaltung {{event.name}} angemeldet.<br /><br />
-                      Bitte bestätige Deine Anmeldung, um die Anmeldung abzuschließen.<br /><br />
+                      Du hast Dich erfolgreich für das Event <b>{{eventName}}</b> angemeldet.<br /><br />
                     </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td valign="middle" style="border: none;
-                      border-radius: 8px;
-                      cursor: auto;
-                      mso-padding-alt: 10px 25px;
-                      background: #154194;" role="presentation" bgcolor="#154194" align="center">
-                    <a style="display: inline-block;
-                        background: #154194;
-                        color: white;
-                        font-family: Source Sans Pro, Arial;
-                        font-size: 18px;
-                        font-weight: normal;
-                        line-height: 1.6;
-                        margin: 0;
-                        text-decoration: none;
-                        text-transform: none;
-                        padding: 10px 25px;
-                        mso-padding-alt: 0px;
-                        border-radius: 8px;" href="{{buttonUrl}}">
-                      Anmeldung abschließen
-                    </a>
                   </td>
                 </tr>
                 <tr>
@@ -74,6 +50,23 @@
                         color: #333333;
                       ">
                       Viele Grüße,<br /><br />Dein MINTvernetzt-Team
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="
+                      font-size: 0px;
+                      padding: 10px 25px;
+                      word-break: break-word;
+                    " align="left">
+                    <div style="
+                        font-family: Source Sans Pro, Arial;
+                        font-size: 18px;
+                        line-height: 1.6;
+                        text-align: left;
+                        color: #333333;
+                      ">
+                      P.S.: Du kannst die Anmeldung jederzeit über den folgenden Link widerrufen: <a href="{{buttonUrl}}">{{buttonUrl}}</a>.
                     </div>
                   </td>
                 </tr>

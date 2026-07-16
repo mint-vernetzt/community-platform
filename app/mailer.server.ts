@@ -369,7 +369,9 @@ type TemplatePath =
   | "mail-templates/guests/profile-already-exists-html.hbs"
   | "mail-templates/guests/profile-already-exists-text.hbs"
   | "mail-templates/guests/confirm-registration-html.hbs"
-  | "mail-templates/guests/confirm-registration-text.hbs";
+  | "mail-templates/guests/confirm-registration-text.hbs"
+  | "mail-templates/guests/registration-success-html.hbs"
+  | "mail-templates/guests/registration-success-text.hbs";
 
 type TemplateContent<TemplatePath> = TemplatePath extends
   | "mail-templates/standard-message/html.hbs"
@@ -542,6 +544,8 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                                     | "mail-templates/guests/profile-already-exists-text.hbs"
                                                     | "mail-templates/guests/confirm-registration-html.hbs"
                                                     | "mail-templates/guests/confirm-registration-text.hbs"
+                                                    | "mail-templates/guests/registration-success-html.hbs"
+                                                    | "mail-templates/guests/registration-success-text.hbs"
                                                 ? GuestsContent
                                                 : never;
 

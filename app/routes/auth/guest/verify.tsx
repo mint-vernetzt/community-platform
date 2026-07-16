@@ -1,4 +1,4 @@
-import { type LoaderFunctionArgs } from "react-router";
+import { redirect, type LoaderFunctionArgs } from "react-router";
 import { invariantResponse } from "~/lib/utils/response";
 import { isBotRequest } from "~/utils.server";
 import { confirmGuest, verifyConfirmationToken } from "./verify.server";
@@ -32,18 +32,35 @@ export async function loader(args: LoaderFunctionArgs) {
     "Bad request",
     { status: 400 }
   );
+
+  const acceptTerms = url.searchParams.get("accept_terms");
+  invariantResponse(acceptTerms === "true", "Bad Request", { status: 400 });
+
   const { error, data } = await verifyConfirmationToken(tokenHash);
 
-  if (error !== null || data === null) {
-    throw new Response(error?.message ?? "Bad request", {
+  if (error !== null && error.code === "expired") {
+    return redirect(
+      `/auth/guest/request-confirmation?confirmation_redirect=${confirmationRedirect}`
+    );
+  }
+
+  if (data === null) {
+    throw new Response("No guest found", {
       status: 400,
     });
   }
 
-  await confirmGuest(data.id);
-
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["auth/guest/verify"];
+
+  await confirmGuest({
+    guestId: data.id,
+    locales: {
+      mail: {
+        subject: locales.subject,
+      },
+    },
+  });
 
   return redirectWithToast(confirmationRedirect, {
     id: "guest-confirmed",

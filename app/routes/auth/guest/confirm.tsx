@@ -1,4 +1,6 @@
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import { Link, useLoaderData, type LoaderFunctionArgs } from "react-router";
+import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
@@ -50,11 +52,13 @@ export async function loader(args: LoaderFunctionArgs) {
     { status: 400 }
   );
 
+  confirmationLink.searchParams.set("accept_terms", "true");
+
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["auth/guest/confirm"];
 
   return {
-    confirmationLink: confirmationLinkValue,
+    confirmationLink: confirmationLink.toString(),
     locales,
   };
 }
@@ -69,7 +73,26 @@ function GuestConfirm() {
           <div className="mb-6 mt-12"> </div>
           <h1 className="mb-4">{locales.title}</h1>
 
-          <p className="mb-6">{locales.description}</p>
+          <p className="mb-6">
+            {insertComponentsIntoLocale(locales.description, [
+              <TextButton
+                key="terms-of-use-confirmation"
+                as="link"
+                to="/terms-of-use"
+                target="_blank"
+                rel="noreferrer noopener"
+                className="inline-flex"
+              />,
+              <TextButton
+                key="privacy-policy-confirmation"
+                as="link"
+                to="/privacy-policy"
+                target="_blank"
+                rel="noreferrer noopener"
+                className="inline-flex"
+              />,
+            ])}
+          </p>
           <Link
             to={confirmationLink}
             className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
