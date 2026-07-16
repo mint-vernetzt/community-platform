@@ -1421,7 +1421,7 @@ export async function addGuestToEvent(options: {
 
   try {
     const sender = process.env.SYSTEM_MAIL_SENDER;
-    const recipient = guest.email;
+    const recipient = result.email;
     const subject = options.locales.mail.confirmRegistration.subject;
     const textTemplatePath =
       "mail-templates/guests/confirm-registration-text.hbs";
@@ -1431,7 +1431,7 @@ export async function addGuestToEvent(options: {
     const data = {
       firstName: result.firstName,
       eventName: event.name,
-      buttonUrl: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?token_hash=${token}&confirmation_redirect=${options.redirectUrl}`)}`,
+      buttonUrl: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?token_hash=${token}&confirmation_redirect=${process.env.COMMUNITY_BASE_URL}${options.redirectUrl}`)}`,
     };
 
     const text = getCompiledMailTemplate<typeof textTemplatePath>(
