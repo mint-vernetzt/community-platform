@@ -308,7 +308,18 @@ export default function Location() {
       createEventLocationSchema(locales.route.validation)
     ),
     defaultValue: {
-      ...loaderData.event,
+      venueName: loaderData.event.venueName,
+      venueStreet: loaderData.event.venueStreet,
+      venueZipCode: loaderData.event.venueZipCode,
+      venueCity: loaderData.event.venueCity,
+      conferenceLink: loaderData.event.conferenceLink,
+      conferenceCode: loaderData.event.conferenceCode,
+      accessibilityInformation: loaderData.event.accessibilityInformation,
+      accessibilityInformationRTEState:
+        loaderData.event.accessibilityInformationRTEState,
+      privacyInformationRTEState: loaderData.event.privacyInformationRTEState,
+      privacyInformation: loaderData.event.privacyInformation,
+      stage: loaderData.event.stage,
     },
     shouldValidate: "onBlur",
     onValidate: (values) => {
