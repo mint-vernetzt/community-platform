@@ -11,6 +11,11 @@ export async function verifyConfirmationToken(token: string) {
     where: {
       confirmationToken: token,
     },
+    select: {
+      id: true,
+      eventId: true,
+      confirmationSentAt: true,
+    },
   });
 
   if (guest === null) {
@@ -38,12 +43,35 @@ export async function verifyConfirmationToken(token: string) {
 
 export async function confirmGuest(options: {
   guestId: string;
+  eventId: string;
   locales: { mail: { subject: string } };
 }) {
+  const { guestId, eventId, locales } = options;
+
+  const event = await prismaClient.event.findFirst({
+    where: {
+      id: eventId,
+    },
+    select: {
+      id: true,
+      participantLimit: true,
+      _count: {
+        select: {
+          participants: true,
+        },
+      },
+    },
+  });
+
+  if (event === null) {
+    throw new Error("Event not found");
+  }
+
   const now = new Date();
+
   const result = await prismaClient.guest.update({
     where: {
-      id: options.guestId,
+      id: guestId,
     },
     data: {
       confirmed: true,
@@ -51,12 +79,16 @@ export async function confirmGuest(options: {
       confirmationToken: null,
       termsAccepted: true,
       termsAcceptedAt: now,
+      onWaitingList:
+        event.participantLimit !== null &&
+        event._count.participants >= event.participantLimit,
     },
     select: {
       firstName: true,
       email: true,
       event: {
         select: {
+          id: true,
           name: true,
         },
       },
@@ -66,7 +98,7 @@ export async function confirmGuest(options: {
   try {
     const sender = process.env.SYSTEM_MAIL_SENDER;
     const recipient = result.email;
-    const subject = options.locales.mail.subject;
+    const subject = locales.mail.subject;
     const textTemplatePath =
       "mail-templates/guests/registration-success-text.hbs";
     const htmlTemplatePath =

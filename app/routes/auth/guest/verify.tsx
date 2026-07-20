@@ -45,17 +45,16 @@ export async function loader(args: LoaderFunctionArgs) {
     );
   }
 
-  if (data === null) {
-    const language = await detectLanguage(request);
-    const locales = languageModuleMap[language]["auth/guest/verify"];
-    return { locales, supportMail: process.env.SUPPORT_MAIL };
-  }
-
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["auth/guest/verify"];
 
+  if (data === null) {
+    return { locales, supportMail: process.env.SUPPORT_MAIL };
+  }
+
   await confirmGuest({
     guestId: data.id,
+    eventId: data.eventId,
     locales: {
       mail: {
         subject: locales.subject,

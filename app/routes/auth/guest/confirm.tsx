@@ -5,6 +5,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
 import { isBotRequest } from "~/utils.server";
+import { getEventByToken } from "./confirm.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -52,6 +53,9 @@ export async function loader(args: LoaderFunctionArgs) {
     { status: 400 }
   );
 
+  const event = await getEventByToken(tokenHash);
+  invariantResponse(event !== null, "Event not found", { status: 404 });
+
   confirmationLink.searchParams.set("accept_terms", "true");
 
   const language = await detectLanguage(request);
@@ -60,11 +64,15 @@ export async function loader(args: LoaderFunctionArgs) {
   return {
     confirmationLink: confirmationLink.toString(),
     locales,
+    fullyBooked:
+      event.participantLimit !== null &&
+      event._count.participants >= event.participantLimit,
   };
 }
 
 function GuestConfirm() {
-  const { confirmationLink, locales } = useLoaderData<typeof loader>();
+  const { confirmationLink, locales, fullyBooked } =
+    useLoaderData<typeof loader>();
 
   return (
     <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
@@ -92,6 +100,9 @@ function GuestConfirm() {
                 className="inline-flex"
               />,
             ])}
+            {fullyBooked && (
+              <span className="block mt-2">{locales.fullyBooked}</span>
+            )}
           </p>
           <Link
             to={confirmationLink}
