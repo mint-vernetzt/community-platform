@@ -1,6 +1,11 @@
 export const locale = {
   subject: "Du hast Dich erfolgreich für eine Veranstaltung angemeldet",
-  message: "Du hast Dich erfolgreich für eine Veranstaltung angemeldet.",
+  success: {
+    participant:
+      "Du bist nun als Teilnehmer:in für die Veranstaltung angemeldet.",
+    waitingList:
+      "Du bist nun auf der Warteliste für die Veranstaltung angemeldet.",
+  },
   notFound: {
     title: "Kein Gast gefunden",
     description:
