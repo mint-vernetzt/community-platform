@@ -117,10 +117,17 @@ export async function action(args: ActionFunctionArgs) {
   }
 
   try {
+    const url = new URL(request.url);
+    const searchParams = new URLSearchParams(url.search);
+
+    const oldToken = searchParams.get("token_hash");
+    invariantResponse(oldToken !== null, "Bad request", { status: 400 });
+
     await requestConfirmation({
       email: submission.value.email,
       eventId: submission.value.eventId,
       confirmationRedirect: submission.value.confirmationRedirect,
+      oldToken,
       locales: {
         mail: {
           confirmRegistration: {
@@ -130,8 +137,6 @@ export async function action(args: ActionFunctionArgs) {
       },
     });
 
-    const url = new URL(request.url);
-    const searchParams = new URLSearchParams(url.search);
     searchParams.set("confirmation_sent", "true");
     searchParams.set("email", submission.value.email);
 

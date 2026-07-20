@@ -28,10 +28,11 @@ export async function getGuestByConfirmationToken(token: string) {
 export async function requestConfirmation(options: {
   email: string;
   eventId: string;
+  oldToken: string;
   confirmationRedirect: string;
   locales: { mail: { confirmRegistration: { subject: string } } };
 }) {
-  const { email, confirmationRedirect, eventId } = options;
+  const { email, confirmationRedirect, eventId, oldToken } = options;
 
   const data = JSON.stringify({
     eventId,
@@ -51,6 +52,7 @@ export async function requestConfirmation(options: {
         email,
         eventId,
       },
+      confirmationToken: oldToken,
     },
     data: {
       confirmationToken: token,
