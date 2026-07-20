@@ -387,3 +387,17 @@ export function isBotRequest(userAgent: string | null) {
   }
   return false;
 }
+
+export function generateValidationToken(options: {
+  data: string;
+  secret: string;
+  salt: string;
+}) {
+  const { data, secret, salt } = options;
+
+  const token = createHmac("sha256", secret)
+    .update(data)
+    .update(salt, "hex")
+    .digest("hex");
+  return token;
+}

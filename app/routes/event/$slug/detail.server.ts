@@ -1,7 +1,6 @@
 import { parseWithZod } from "@conform-to/zod";
 import { captureException } from "@sentry/node";
 import { type SupabaseClient, type User } from "@supabase/supabase-js";
-import { createHmac } from "node:crypto";
 import { z } from "zod";
 import {
   getReporter,
@@ -22,6 +21,7 @@ import { prismaClient } from "~/prisma.server";
 import { filterProfileByVisibility } from "~/public-fields-filtering.server";
 import { getPublicURL, uploadFileToStorage } from "~/storage.server";
 import { FILE_FIELD_NAME } from "~/storage.shared";
+import { generateValidationToken } from "~/utils.server";
 
 export async function getEventBySlug(
   sessionUser: { id: string } | null,
@@ -1405,12 +1405,14 @@ export async function addGuestToEvent(options: {
   const data = JSON.stringify({
     eventId,
     email: guest.email,
+    now: Date.now(),
   });
 
-  const token = createHmac("sha256", process.env.GUEST_SECRET)
-    .update(data)
-    .update(process.env.GUEST_SALT, "hex")
-    .digest("hex");
+  const token = generateValidationToken({
+    data,
+    secret: process.env.GUEST_SECRET,
+    salt: process.env.GUEST_SALT,
+  });
 
   const result = await prismaClient.guest.create({
     data: {

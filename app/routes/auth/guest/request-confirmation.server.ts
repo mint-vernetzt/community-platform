@@ -1,11 +1,11 @@
 import { captureException } from "@sentry/node";
-import { createHmac } from "crypto";
 import {
   getCompiledMailTemplate,
   mailer,
   mailerOptions,
 } from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
+import { generateValidationToken } from "~/utils.server";
 
 export async function getGuestByConfirmationToken(token: string) {
   const guest = await prismaClient.guest.findFirst({
@@ -36,12 +36,14 @@ export async function requestConfirmation(options: {
   const data = JSON.stringify({
     eventId,
     email,
+    now: Date.now(),
   });
 
-  const token = createHmac("sha256", process.env.GUEST_SECRET)
-    .update(data)
-    .update(process.env.GUEST_SALT, "hex")
-    .digest("hex");
+  const token = generateValidationToken({
+    data,
+    secret: process.env.GUEST_SECRET,
+    salt: process.env.GUEST_SALT,
+  });
 
   const result = await prismaClient.guest.update({
     where: {
@@ -77,7 +79,7 @@ export async function requestConfirmation(options: {
     const data = {
       firstName: result.firstName,
       eventName: result.event.name,
-      buttonUrl: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?token_hash=${token}&confirmation_redirect=${options.confirmationRedirect}`)}`,
+      buttonUrl: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?token_hash=${token}&confirmation_redirect=${confirmationRedirect}`)}`,
     };
 
     const text = getCompiledMailTemplate<typeof textTemplatePath>(

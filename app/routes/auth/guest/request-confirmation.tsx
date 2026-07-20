@@ -59,6 +59,19 @@ export async function loader(args: LoaderFunctionArgs) {
     languageModuleMap[language]["auth/guest/request-confirmation"];
 
   const url = new URL(request.url);
+
+  const confirmationSent = url.searchParams.get("confirmation_sent");
+  const email = url.searchParams.get("email");
+  if (confirmationSent === "true" && email !== null) {
+    return {
+      locales,
+      email,
+      supportMail: process.env.SUPPORT_MAIL,
+      baseUrl: process.env.COMMUNITY_BASE_URL,
+      systemMail: process.env.SYSTEM_MAIL_SENDER,
+    };
+  }
+
   const tokenHash = url.searchParams.get("token_hash");
   invariantResponse(tokenHash !== null, "Bad request", { status: 400 });
 
@@ -104,7 +117,7 @@ export async function action(args: ActionFunctionArgs) {
   }
 
   try {
-    const result = await requestConfirmation({
+    await requestConfirmation({
       email: submission.value.email,
       eventId: submission.value.eventId,
       confirmationRedirect: submission.value.confirmationRedirect,
@@ -116,13 +129,13 @@ export async function action(args: ActionFunctionArgs) {
         },
       },
     });
-    return {
-      submission: submission.reply(),
-      email: result.email,
-      eventName: result.event.name,
-      systemMail: process.env.SYSTEM_MAIL_SENDER,
-      supportMail: process.env.SUPPORT_MAIL,
-    };
+
+    const url = new URL(request.url);
+    const searchParams = new URLSearchParams(url.search);
+    searchParams.set("confirmation_sent", "true");
+    searchParams.set("email", submission.value.email);
+
+    return redirect(`${url.pathname}?${searchParams.toString()}`);
   } catch (error) {
     captureException(error);
     return redirectWithToast(request.url, {
@@ -143,6 +156,7 @@ function GuestRequestConfirmation() {
   const isSubmitting = useIsSubmitting();
   const [urlSearchParams] = useSearchParams();
   const confirmationRedirect = urlSearchParams.get("confirmation_redirect");
+  const confirmationSent = urlSearchParams.get("confirmation_sent");
 
   const [form, fields] = useForm({
     id: "request-confirmation-form",
@@ -170,21 +184,19 @@ function GuestRequestConfirmation() {
       <div className="flex flex-col w-full items-center">
         <div className="w-full @sm:w-2/3 @md:w-1/2 @2xl:w-1/3">
           <h1 className="mb-8">{locales.content.headline}</h1>
-          {typeof actionData !== "undefined" &&
-          typeof actionData.submission.status !== "undefined" &&
-          actionData.submission.status === "success" ? (
+          {confirmationSent === "true" ? (
             <p>
               {insertComponentsIntoLocale(
                 insertParametersIntoLocale(locales.content.success, {
-                  email: actionData.email,
-                  systemMail: actionData.systemMail,
-                  supportMail: actionData.supportMail,
+                  email: loaderData.email,
+                  systemMail: loaderData.systemMail,
+                  supportMail: loaderData.supportMail,
                 }),
                 [
                   <span key="email-highlight" className="font-semibold" />,
                   <Link
                     key="support-mail-link"
-                    to={`mailto:${actionData.supportMail}`}
+                    to={`mailto:${loaderData.supportMail}`}
                     className="text-primary font-semibold hover:underline"
                   >
                     {" "}
