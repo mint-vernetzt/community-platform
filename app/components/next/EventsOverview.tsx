@@ -321,7 +321,7 @@ function Stage(props: {
   }
 
   const containerClasses = classNames(
-    "group flex gap-4 align-center py-4 md:px-4",
+    "group flex gap-4 align-center py-4 px-2 md:px-4 -mx-2 md:mx-0",
     "border-0 md:border border-neutral-200 rounded-lg",
     "order-3 md:order-last",
     (stage === "online" || stage === "hybrid") && hasContent(conferenceLink)
