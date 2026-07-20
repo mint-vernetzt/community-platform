@@ -1,4 +1,9 @@
 export const locale = {
   subject: "You have successfully registered for an event",
   message: "You have successfully registered for an event.",
+  notFound: {
+    title: "No guest found",
+    description:
+      "No guest could be found with the provided token. It is possible that you have already confirmed your registration. Please check your email inbox and, if necessary, also the spam folder. If you did not receive an email, please contact our <0>support</0>.",
+  },
 } as const;

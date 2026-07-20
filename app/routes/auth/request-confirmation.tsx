@@ -76,8 +76,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     locales,
   });
 
-  console.log(submission.status);
-
   return {
     submission: submission.reply(),
     email: submission.status === "success" ? submission.value.email : null,

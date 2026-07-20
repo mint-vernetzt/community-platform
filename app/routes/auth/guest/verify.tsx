@@ -1,10 +1,11 @@
-import { redirect, type LoaderFunctionArgs } from "react-router";
+import { redirect, useLoaderData, type LoaderFunctionArgs } from "react-router";
 import { invariantResponse } from "~/lib/utils/response";
 import { isBotRequest } from "~/utils.server";
 import { confirmGuest, verifyConfirmationToken } from "./verify.server";
 import { redirectWithToast } from "~/toast.server";
 import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
+import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -40,14 +41,14 @@ export async function loader(args: LoaderFunctionArgs) {
 
   if (error !== null && error.code === "expired") {
     return redirect(
-      `/auth/guest/request-confirmation?confirmation_redirect=${confirmationRedirect}`
+      `/auth/guest/request-confirmation?token_hash=${tokenHash}&confirmation_redirect=${confirmationRedirect}`
     );
   }
 
   if (data === null) {
-    throw new Response("No guest found", {
-      status: 400,
-    });
+    const language = await detectLanguage(request);
+    const locales = languageModuleMap[language]["auth/guest/verify"];
+    return { locales, supportMail: process.env.SUPPORT_MAIL };
   }
 
   const language = await detectLanguage(request);
@@ -68,3 +69,29 @@ export async function loader(args: LoaderFunctionArgs) {
     message: locales.message,
   });
 }
+
+function GuestVerify() {
+  const { locales, supportMail } = useLoaderData<typeof loader>();
+  return (
+    <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
+      <div className="flex flex-col w-full items-center">
+        <div className="w-full @sm:w-2/3 @md:w-1/2 @2xl:w-1/3">
+          <div className="mb-6 mt-12"> </div>
+          <h1 className="mb-4">{locales.notFound.title}</h1>
+
+          <p className="mb-6">
+            {insertComponentsIntoLocale(locales.notFound.description, [
+              <a
+                href={`mailto:${supportMail}`}
+                key="support-mail"
+                className="underline hover:no-underline font-semibold"
+              />,
+            ])}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default GuestVerify;
