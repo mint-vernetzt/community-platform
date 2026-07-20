@@ -22,7 +22,7 @@ export const locale = {
     leaveWaitingList: "Fehler beim Entfernen von der Warteliste",
   },
   success: {
-    participate: "Erfolgreich zu Teilnehmer:innen hinzugefügt",
+    participate: "Erfolgreich als Teilnehmer:in angemeldet",
     withdrawParticipation: "Erfolgreich von Teilnehmer:innen entfernt",
     joinWaitingList: "Erfolgreich zur Warteliste hinzugefügt",
     leaveWaitingList: "Erfolgreich von der Warteliste entfernt",
