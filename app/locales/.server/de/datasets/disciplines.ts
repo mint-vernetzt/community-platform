@@ -37,4 +37,8 @@ export const locale = assertDisciplineLocales({
     title: "Naturwissenschaften",
     description: null,
   },
+  stem_ai: {
+    title: "MINT+KI",
+    description: null,
+  },
 } as const);
