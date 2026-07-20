@@ -63,4 +63,11 @@ export const disciplines = [
     id: "c2c1cd55-3a45-4b2f-89d2-ef4acfb98818",
     description: null,
   },
+  {
+    referenceId: 729,
+    title: "MINT+KI",
+    slug: "stem_ai",
+    id: "55329df7-a8a9-4be2-ba4f-1e00fd3bdf02",
+    description: null,
+  },
 ] as const;
