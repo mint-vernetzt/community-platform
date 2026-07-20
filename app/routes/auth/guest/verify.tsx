@@ -52,7 +52,7 @@ export async function loader(args: LoaderFunctionArgs) {
     return { locales, supportMail: process.env.SUPPORT_MAIL };
   }
 
-  await confirmGuest({
+  const guest = await confirmGuest({
     guestId: data.id,
     eventId: data.eventId,
     locales: {
@@ -65,7 +65,9 @@ export async function loader(args: LoaderFunctionArgs) {
   return redirectWithToast(confirmationRedirect, {
     id: "guest-confirmed",
     key: `guest-confirmed-${Date.now()}`,
-    message: locales.message,
+    message: guest.onWaitingList
+      ? locales.success.waitingList
+      : locales.success.participant,
   });
 }
 

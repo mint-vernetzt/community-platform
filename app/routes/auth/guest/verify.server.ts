@@ -68,6 +68,9 @@ export async function confirmGuest(options: {
   }
 
   const now = new Date();
+  const isOnWaitingList =
+    event.participantLimit !== null &&
+    event._count.participants >= event.participantLimit;
 
   const result = await prismaClient.guest.update({
     where: {
@@ -79,13 +82,12 @@ export async function confirmGuest(options: {
       confirmationToken: null,
       termsAccepted: true,
       termsAcceptedAt: now,
-      onWaitingList:
-        event.participantLimit !== null &&
-        event._count.participants >= event.participantLimit,
+      onWaitingList: isOnWaitingList,
     },
     select: {
       firstName: true,
       email: true,
+      onWaitingList: true,
       event: {
         select: {
           id: true,
@@ -99,10 +101,12 @@ export async function confirmGuest(options: {
     const sender = process.env.SYSTEM_MAIL_SENDER;
     const recipient = result.email;
     const subject = locales.mail.subject;
-    const textTemplatePath =
-      "mail-templates/guests/registration-success-text.hbs";
-    const htmlTemplatePath =
-      "mail-templates/guests/registration-success-html.hbs";
+    const textTemplatePath = isOnWaitingList
+      ? "mail-templates/guests/registration-waiting-list-success-text.hbs"
+      : "mail-templates/guests/registration-success-text.hbs";
+    const htmlTemplatePath = isOnWaitingList
+      ? "mail-templates/guests/registration-waiting-list-success-html.hbs"
+      : "mail-templates/guests/registration-success-html.hbs";
 
     const data = {
       firstName: result.firstName,
