@@ -124,7 +124,7 @@ function ResponsibleOrganizations(props: {
 
   return (
     <Link
-      className="flex gap-4 align-center py-4 md:px-4 border-0 md:border border-neutral-200 rounded-lg hover:bg-neutral-100"
+      className="flex gap-4 align-center py-4 px-2 md:px-4 -mx-2 md:mx-0 border-0 md:border border-neutral-200 rounded-lg hover:bg-neutral-100"
       to={`/event/${slug}/detail/about#responsible-organizations`}
       prefetch="intent"
     >
@@ -321,7 +321,7 @@ function Stage(props: {
   }
 
   const containerClasses = classNames(
-    "group flex gap-4 align-center py-4 md:px-4",
+    "group flex gap-4 align-center py-4 px-2 md:px-4 -mx-2 md:mx-0",
     "border-0 md:border border-neutral-200 rounded-lg",
     "order-3 md:order-last",
     (stage === "online" || stage === "hybrid") && hasContent(conferenceLink)
@@ -658,7 +658,7 @@ function RegistrationOnChildEvents(props: {
   return (
     <Link
       to="./child-events"
-      className="flex gap-4 align-center py-4 md:px-4 border-0 md:border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-200 hover:bg-neutral-100 active:bg-primary-50 focus:outline-none"
+      className="flex gap-4 align-center py-4 px-2 md:px-4 -mx-2 md:mx-0 border-0 md:border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-200 hover:bg-neutral-100 active:bg-primary-50 focus:outline-none"
       prefetch="intent"
       preventScrollReset
     >
@@ -685,7 +685,7 @@ function ParentParticipationRequired(props: {
   return (
     <Link
       to={`/event/${parentEvent.slug}/detail/about`}
-      className="flex gap-4 align-center py-4 md:px-4 border-0 md:border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-200 hover:bg-neutral-100 active:bg-primary-50 focus:outline-none"
+      className="flex gap-4 align-center py-4 px-2 md:px-4 -mx-2 md:mx-0 border-0 md:border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-200 hover:bg-neutral-100 active:bg-primary-50 focus:outline-none"
       prefetch="intent"
     >
       <RegistrationStateIcon />
