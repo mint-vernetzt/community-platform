@@ -60,8 +60,7 @@ async function main() {
         });
 
       if (uploadFileError) {
-        console.log("error uploading ", name);
-        console.log(uploadFileError);
+        throw uploadFileError;
       }
     } catch (err) {
       console.log("error uploading ", name);
