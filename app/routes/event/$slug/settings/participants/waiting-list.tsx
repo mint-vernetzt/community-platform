@@ -31,6 +31,7 @@ import List from "~/components/next/List";
 import {
   createMoveToParticipantsSchema,
   createSearchWaitingListSchema,
+  PARTICIPATION_TYPE,
   PROFILE_ID,
   SEARCH_WAITING_LIST_SEARCH_PARAM,
 } from "./waiting-list.shared";
@@ -147,6 +148,7 @@ export async function action(args: ActionFunctionArgs) {
   try {
     await moveToParticipants({
       profileId: submission.value[PROFILE_ID],
+      type: submission.value[PARTICIPATION_TYPE],
       eventId: event.id,
       locales: {
         mail: {
@@ -260,6 +262,10 @@ function ParticipantsWaitingList() {
                   hidden
                 >
                   <input name={PROFILE_ID} defaultValue={profile.id} />
+                  <input
+                    name={PARTICIPATION_TYPE}
+                    defaultValue={profile.type}
+                  />
                 </Form>
               </ListItemPersonOrg.Controls>
             </ListItemPersonOrg>

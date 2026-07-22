@@ -38,6 +38,34 @@ export async function getWaitingListOfEvent(options: {
   });
 
   let waitingList = [];
+  let guestWaitingList = [];
+
+  const waitingListSelect = {
+    createdAt: true,
+    profile: {
+      select: {
+        id: true,
+        email: true,
+        academicTitle: true,
+        firstName: true,
+        lastName: true,
+        avatarImageMetaData: {
+          select: {
+            path: true,
+          },
+        },
+      },
+    },
+  };
+
+  const guestWaitingListSelect = {
+    id: true,
+    email: true,
+    academicTitle: true,
+    firstName: true,
+    lastName: true,
+    createdAt: true,
+  };
 
   if (
     submission.status !== "success" ||
@@ -47,34 +75,18 @@ export async function getWaitingListOfEvent(options: {
       where: {
         eventId,
       },
-      select: {
-        createdAt: true,
-        profile: {
-          select: {
-            id: true,
-            username: true,
-            academicTitle: true,
-            firstName: true,
-            lastName: true,
-            avatarImageMetaData: {
-              select: {
-                path: true,
-              },
-            },
-            createdAt: true,
-          },
-        },
+      select: waitingListSelect,
+    });
+    guestWaitingList = await prismaClient.guest.findMany({
+      where: {
+        eventId,
+        onWaitingList: true,
       },
-      orderBy: {
-        profile: {
-          createdAt: "asc",
-        },
-      },
+      select: guestWaitingListSelect,
     });
   } else {
     const query =
       submission.value[SEARCH_WAITING_LIST_SEARCH_PARAM].trim().split(" ");
-
     waitingList = await prismaClient.waitingParticipantOfEvent.findMany({
       where: {
         eventId,
@@ -90,36 +102,49 @@ export async function getWaitingListOfEvent(options: {
           }),
         },
       },
-      select: {
-        createdAt: true,
-        profile: {
-          select: {
-            id: true,
-            username: true,
-            academicTitle: true,
-            firstName: true,
-            lastName: true,
-            avatarImageMetaData: {
-              select: {
-                path: true,
-              },
-            },
-            createdAt: true,
-          },
-        },
+      select: waitingListSelect,
+    });
+    guestWaitingList = await prismaClient.guest.findMany({
+      where: {
+        eventId,
+        onWaitingList: true,
+        OR: query.map((term) => {
+          return {
+            OR: [
+              { firstName: { contains: term, mode: "insensitive" } },
+              { lastName: { contains: term, mode: "insensitive" } },
+              { email: { contains: term, mode: "insensitive" } },
+            ],
+          };
+        }),
       },
-      orderBy: {
-        profile: {
-          createdAt: "asc",
-        },
-      },
+      select: guestWaitingListSelect,
     });
   }
 
-  const enhancedWaitingList = waitingList.map((participantOnWaitingList) => {
+  const allWaitingList = [
+    ...waitingList.map((participant) => {
+      return {
+        ...participant.profile,
+        createdAt: participant.createdAt,
+        type: "participant" as const,
+      };
+    }),
+    ...guestWaitingList.map((guest) => {
+      return {
+        ...guest,
+        avatarImageMetaData: null,
+        type: "guest" as const,
+      };
+    }),
+  ].sort((a, b) => {
+    return a.createdAt.getTime() - b.createdAt.getTime();
+  });
+
+  const enhancedWaitingList = allWaitingList.map((participantOnWaitingList) => {
     let avatar =
-      participantOnWaitingList.profile.avatarImageMetaData !== null
-        ? participantOnWaitingList.profile.avatarImageMetaData.path
+      participantOnWaitingList.avatarImageMetaData !== null
+        ? participantOnWaitingList.avatarImageMetaData.path
         : null;
     let blurredAvatar;
     if (avatar !== null) {
@@ -141,7 +166,7 @@ export async function getWaitingListOfEvent(options: {
       }
     }
 
-    return { ...participantOnWaitingList.profile, avatar, blurredAvatar };
+    return { ...participantOnWaitingList, avatar, blurredAvatar };
   });
 
   return { submission: submission.reply(), waitingList: enhancedWaitingList };
@@ -150,46 +175,72 @@ export async function getWaitingListOfEvent(options: {
 export async function moveToParticipants(options: {
   profileId: string;
   eventId: string;
+  type: "participant" | "guest";
   locales: {
     mail: {
       subject: string;
     };
   };
 }) {
-  const { profileId, eventId } = options;
+  const { profileId, eventId, type } = options;
 
-  const result = await prismaClient.$transaction([
-    prismaClient.participantOfEvent.create({
+  let result;
+  if (type === "guest") {
+    result = await prismaClient.guest.update({
+      where: {
+        id: profileId,
+      },
       data: {
-        eventId,
-        profileId,
+        onWaitingList: false,
       },
       select: {
-        profile: {
-          select: {
-            email: true,
-            firstName: true,
-          },
-        },
+        email: true,
+        firstName: true,
         event: {
           select: {
             name: true,
           },
         },
       },
-    }),
-    prismaClient.waitingParticipantOfEvent.delete({
-      where: {
-        profileId_eventId: {
+    });
+  } else {
+    const transactionResults = await prismaClient.$transaction([
+      prismaClient.participantOfEvent.create({
+        data: {
           eventId,
           profileId,
         },
-      },
-    }),
-  ]);
+        select: {
+          profile: {
+            select: {
+              email: true,
+              firstName: true,
+            },
+          },
+          event: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      }),
+      prismaClient.waitingParticipantOfEvent.delete({
+        where: {
+          profileId_eventId: {
+            eventId,
+            profileId,
+          },
+        },
+      }),
+    ]);
+    result = {
+      ...transactionResults[0].profile,
+      event: transactionResults[0].event,
+    };
+  }
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const recipient = result[0].profile.email;
+  const recipient = result.email;
   const subject = options.locales.mail.subject;
   const textTemplatePath =
     "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-text.hbs";
@@ -199,16 +250,16 @@ export async function moveToParticipants(options: {
   const text = getCompiledMailTemplate<typeof textTemplatePath>(
     textTemplatePath,
     {
-      firstName: result[0].profile.firstName,
-      event: { name: result[0].event.name },
+      firstName: result.firstName,
+      event: { name: result.event.name },
     },
     "text"
   );
   const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
     htmlTemplatePath,
     {
-      firstName: result[0].profile.firstName,
-      event: { name: result[0].event.name },
+      firstName: result.firstName,
+      event: { name: result.event.name },
     },
     "html"
   );

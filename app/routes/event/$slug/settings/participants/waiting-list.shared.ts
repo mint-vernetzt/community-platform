@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const SEARCH_WAITING_LIST_SEARCH_PARAM = "search_waiting_list";
 export const PROFILE_ID = "profileId";
+export const PARTICIPATION_TYPE = "participationType";
 
 export function createSearchWaitingListSchema() {
   return z.object({
@@ -12,5 +13,6 @@ export function createSearchWaitingListSchema() {
 export function createMoveToParticipantsSchema() {
   return z.object({
     [PROFILE_ID]: z.string().uuid(),
+    [PARTICIPATION_TYPE]: z.enum(["participant", "guest"]),
   });
 }
