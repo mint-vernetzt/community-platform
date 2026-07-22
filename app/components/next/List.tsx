@@ -26,9 +26,9 @@ export function useListContext() {
 function Search<
   T extends
     | {
-        username: string;
         firstName: string;
         lastName: string;
+        email: string;
       }
     | { slug: string; name: string }
     | {
@@ -99,9 +99,9 @@ function Search<
               .normalize()
               .toLowerCase()
               .includes(term.normalize().toLowerCase())) ||
-          ("username" in item &&
-            typeof item.username === "string" &&
-            item.username
+          ("email" in item &&
+            typeof item.email === "string" &&
+            item.email
               .normalize()
               .toLowerCase()
               .includes(term.normalize().toLowerCase())) ||
