@@ -26,13 +26,14 @@ export async function getParticipantsOfEvent(options: {
   });
 
   let participants = [];
+  let guests = [];
 
-  const select = {
+  const participantsSelect = {
     createdAt: true,
     profile: {
       select: {
         id: true,
-        username: true,
+        email: true,
         academicTitle: true,
         firstName: true,
         lastName: true,
@@ -46,6 +47,15 @@ export async function getParticipantsOfEvent(options: {
     },
   };
 
+  const guestsSelect = {
+    id: true,
+    email: true,
+    academicTitle: true,
+    firstName: true,
+    lastName: true,
+    createdAt: true,
+  };
+
   if (
     submission.status !== "success" ||
     typeof submission.value[SEARCH_PARTICIPANTS_SEARCH_PARAM] === "undefined"
@@ -54,7 +64,15 @@ export async function getParticipantsOfEvent(options: {
       where: {
         eventId,
       },
-      select,
+      select: participantsSelect,
+    });
+
+    guests = await prismaClient.guest.findMany({
+      where: {
+        eventId,
+        onWaitingList: false,
+      },
+      select: guestsSelect,
     });
   } else {
     const query =
@@ -75,14 +93,49 @@ export async function getParticipantsOfEvent(options: {
           }),
         },
       },
-      select,
+      select: participantsSelect,
+    });
+
+    guests = await prismaClient.guest.findMany({
+      where: {
+        eventId,
+        OR: query.map((term) => {
+          return {
+            OR: [
+              { firstName: { contains: term, mode: "insensitive" } },
+              { lastName: { contains: term, mode: "insensitive" } },
+              { email: { contains: term, mode: "insensitive" } },
+            ],
+          };
+        }),
+      },
+      select: guestsSelect,
     });
   }
 
-  const enhancedParticipants = participants.map((participant) => {
+  const allParticipants = [
+    ...participants.map((participant) => {
+      return {
+        ...participant.profile,
+        createdAt: participant.createdAt,
+        type: "participant" as const,
+      };
+    }),
+    ...guests.map((guest) => {
+      return {
+        ...guest,
+        avatarImageMetaData: null,
+        type: "guest" as const,
+      };
+    }),
+  ].sort((a, b) => {
+    return b.createdAt.getTime() - a.createdAt.getTime(); // Sort by createdAt descending
+  });
+
+  const enhancedParticipants = allParticipants.map((participant) => {
     let avatar =
-      participant.profile.avatarImageMetaData !== null
-        ? participant.profile.avatarImageMetaData.path
+      participant.avatarImageMetaData !== null
+        ? participant.avatarImageMetaData.path
         : null;
     let blurredAvatar;
     if (avatar !== null) {
@@ -104,7 +157,7 @@ export async function getParticipantsOfEvent(options: {
       }
     }
 
-    return { ...participant.profile, avatar, blurredAvatar };
+    return { ...participant, avatar, blurredAvatar };
   });
 
   return {
@@ -139,6 +192,7 @@ export async function getEventBySlug(slug: string) {
 export async function removeParticipantFromEvent(options: {
   participantId: string;
   eventId: string;
+  type: "participant" | "guest";
   locales: {
     mail: {
       removeFromParticipants: {
@@ -152,31 +206,50 @@ export async function removeParticipantFromEvent(options: {
 }) {
   const { participantId, eventId } = options;
 
-  const result = await prismaClient.participantOfEvent.delete({
-    where: {
-      profileId_eventId: {
-        profileId: participantId,
+  let result;
+  if (options.type === "guest") {
+    result = await prismaClient.guest.delete({
+      where: {
+        id: participantId,
         eventId,
       },
-    },
-    select: {
-      profile: {
-        select: {
-          username: true,
-          email: true,
-          firstName: true,
+      select: {
+        email: true,
+        firstName: true,
+        event: {
+          select: {
+            name: true,
+          },
         },
       },
-      event: {
-        select: {
-          name: true,
+    });
+  } else {
+    const relation = await prismaClient.participantOfEvent.delete({
+      where: {
+        profileId_eventId: {
+          profileId: participantId,
+          eventId,
         },
       },
-    },
-  });
+      select: {
+        profile: {
+          select: {
+            email: true,
+            firstName: true,
+          },
+        },
+        event: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+    result = { ...relation.profile, event: relation.event };
+  }
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const recipient = result.profile.email;
+  const recipient = result.email;
   const subject = options.locales.mail.removeFromParticipants.subject;
   const textTemplatePath =
     "mail-templates/general-notification/remove-participant-from-event-text.hbs";
@@ -186,7 +259,7 @@ export async function removeParticipantFromEvent(options: {
   const text = getCompiledMailTemplate<typeof textTemplatePath>(
     textTemplatePath,
     {
-      firstName: result.profile.firstName,
+      firstName: result.firstName,
       event: { name: result.event.name },
     },
     "text"
@@ -194,7 +267,7 @@ export async function removeParticipantFromEvent(options: {
   const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
     htmlTemplatePath,
     {
-      firstName: result.profile.firstName,
+      firstName: result.firstName,
       event: { name: result.event.name },
     },
     "html"
