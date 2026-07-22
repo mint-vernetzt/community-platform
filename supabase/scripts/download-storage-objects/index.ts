@@ -50,7 +50,7 @@ async function main() {
       const buffer = Buffer.from(arrayBuffer);
 
       await fs.outputFile(
-        `./supabase/storage/${timestamp}/${object.bucket_id}/${object.name}`,
+        `./supabase/storage/${timestamp}/${object.bucket_id}/${object.metadata.mimetype}/${object.name}`,
         buffer
       );
     } catch (err) {
