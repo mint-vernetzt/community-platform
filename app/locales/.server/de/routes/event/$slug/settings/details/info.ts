@@ -66,5 +66,5 @@ export const locale = {
     saveFailed:
       "Beim Speichern Deiner Änderungen ist ein Fehler aufgetreten. Bitte versuche es später erneut oder kontaktiere den Support.",
   },
-  success: "Daten gespeichert!",
+  success: "Angaben erfolgreich gespeichert.",
 } as const;
