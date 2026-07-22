@@ -41,7 +41,6 @@ export async function getParticipantsOfEvent(options: {
             path: true,
           },
         },
-        createdAt: true,
       },
     },
   };
@@ -104,7 +103,12 @@ export async function getParticipantsOfEvent(options: {
       }
     }
 
-    return { ...participant.profile, avatar, blurredAvatar };
+    return {
+      ...participant.profile,
+      createdAt: participant.createdAt,
+      avatar,
+      blurredAvatar,
+    };
   });
 
   return {
