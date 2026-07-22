@@ -7,6 +7,7 @@ import { createProfile, sendWelcomeMail } from "../register/utils.server";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
 import { isBotRequest } from "~/utils.server";
+import { getNumberOfGuestsByEmail } from "./verify.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   if (process.env.NODE_ENV !== "test") {
@@ -71,9 +72,25 @@ export async function loader({ request }: LoaderFunctionArgs) {
     sendWelcomeMail({ profile, locales }).catch((error) => {
       captureException(error);
     });
-    return redirect(loginRedirect || `/profile/${profile.username}`, {
-      headers,
-    });
+
+    let loginRedirectUrl;
+    if (loginRedirect !== null) {
+      loginRedirectUrl = new URL(loginRedirect, request.url);
+    } else {
+      loginRedirectUrl = new URL(`/profile/${profile.username}`, request.url);
+    }
+
+    const numberOfGuests = await getNumberOfGuestsByEmail(profile.email);
+    if (numberOfGuests > 0) {
+      loginRedirectUrl.searchParams.set("modal-guests-exist", "true");
+    }
+
+    return redirect(
+      `${loginRedirectUrl.pathname}?${loginRedirectUrl.searchParams.toString()}`,
+      {
+        headers,
+      }
+    );
   }
   if (type === "recovery") {
     return redirect(
