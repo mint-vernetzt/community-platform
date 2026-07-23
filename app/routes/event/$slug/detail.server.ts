@@ -507,6 +507,12 @@ export async function removeProfileFromParticipants(options: {
                   profileId: true,
                 },
               },
+              guests: {
+                select: {
+                  profileId: true,
+                  onWaitingList: true,
+                },
+              },
             },
           },
         },
@@ -603,6 +609,26 @@ export async function removeProfileFromParticipants(options: {
         waitingList: {
           select: {
             profileId: true,
+            createdAt: true,
+          },
+          orderBy: {
+            createdAt: "asc",
+          },
+          take: 1,
+        },
+        guests: {
+          where: {
+            eventId,
+            onWaitingList: true,
+          },
+          select: {
+            id: true,
+            createdAt: true,
+            event: {
+              select: {
+                name: true,
+              },
+            },
           },
           orderBy: {
             createdAt: "asc",
@@ -621,41 +647,87 @@ export async function removeProfileFromParticipants(options: {
       eventToMoveUpToParticipants.participantLimit !== null &&
       eventToMoveUpToParticipants._count.participants <
         eventToMoveUpToParticipants.participantLimit &&
-      eventToMoveUpToParticipants.waitingList.length > 0
+      (eventToMoveUpToParticipants.waitingList.length > 0 ||
+        eventToMoveUpToParticipants.guests.length > 0)
     ) {
-      const firstInWaitingList = eventToMoveUpToParticipants.waitingList[0];
-      const result = await prismaClient.$transaction([
-        prismaClient.participantOfEvent.create({
+      const allWaitingProfiles = [
+        ...eventToMoveUpToParticipants.waitingList.map((profile) => {
+          return {
+            id: profile.profileId,
+            createdAt: profile.createdAt,
+            type: "participant" as const,
+          };
+        }),
+        ...eventToMoveUpToParticipants.guests.map((guest) => {
+          return {
+            id: guest.id,
+            createdAt: guest.createdAt,
+            type: "guest" as const,
+          };
+        }),
+      ].sort((a, b) => {
+        return a.createdAt.getTime() - b.createdAt.getTime();
+      });
+
+      const firstInWaitingList = allWaitingProfiles[0];
+
+      let result;
+      if (firstInWaitingList.type === "guest") {
+        result = await prismaClient.guest.update({
+          where: {
+            id: firstInWaitingList.id,
+          },
           data: {
-            eventId,
-            profileId: firstInWaitingList.profileId,
+            onWaitingList: false,
           },
           select: {
-            profile: {
-              select: {
-                email: true,
-                firstName: true,
-              },
-            },
+            firstName: true,
+            email: true,
             event: {
               select: {
                 name: true,
               },
             },
           },
-        }),
-        prismaClient.waitingParticipantOfEvent.delete({
-          where: {
-            profileId_eventId: {
+        });
+      } else {
+        const transactionResults = await prismaClient.$transaction([
+          prismaClient.participantOfEvent.create({
+            data: {
               eventId,
-              profileId: firstInWaitingList.profileId,
+              profileId: firstInWaitingList.id,
             },
-          },
-        }),
-      ]);
+            select: {
+              profile: {
+                select: {
+                  email: true,
+                  firstName: true,
+                },
+              },
+              event: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          }),
+          prismaClient.waitingParticipantOfEvent.delete({
+            where: {
+              profileId_eventId: {
+                eventId,
+                profileId: firstInWaitingList.id,
+              },
+            },
+          }),
+        ]);
+        result = {
+          ...transactionResults[0].profile,
+          event: transactionResults[0].event,
+        };
+      }
 
       const sender = process.env.SYSTEM_MAIL_SENDER;
-      const recipient = result[0].profile.email;
+      const recipient = result.email;
       const subject =
         options.locales.mail.moveFromWaitingListToParticipants.subject;
       const textTemplatePath =
@@ -666,16 +738,16 @@ export async function removeProfileFromParticipants(options: {
       const text = getCompiledMailTemplate<typeof textTemplatePath>(
         textTemplatePath,
         {
-          firstName: result[0].profile.firstName,
-          event: { name: result[0].event.name },
+          firstName: result.firstName,
+          event: { name: result.event.name },
         },
         "text"
       );
       const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
         htmlTemplatePath,
         {
-          firstName: result[0].profile.firstName,
-          event: { name: result[0].event.name },
+          firstName: result.firstName,
+          event: { name: result.event.name },
         },
         "html"
       );
@@ -684,76 +756,129 @@ export async function removeProfileFromParticipants(options: {
     }
 
     if (childEvents.length > 0) {
-      const childEventsToMoveUpToParticipants =
-        await prismaClient.event.findMany({
-          where: {
-            id: {
-              in: childEvents.map((childEvent) => childEvent.id),
+      const allChildEvents = await prismaClient.event.findMany({
+        where: {
+          id: {
+            in: childEvents.map((childEvent) => childEvent.id),
+          },
+        },
+        select: {
+          id: true,
+          moveUpToParticipants: true,
+          participantLimit: true,
+          _count: {
+            select: {
+              participants: true,
             },
           },
-          select: {
-            id: true,
-            moveUpToParticipants: true,
-            participantLimit: true,
-            _count: {
-              select: {
-                participants: true,
-              },
+          waitingList: {
+            select: {
+              profileId: true,
+              createdAt: true,
             },
-            waitingList: {
-              select: {
-                profileId: true,
-              },
-              orderBy: {
-                createdAt: "asc",
-              },
-              take: 1,
+            orderBy: {
+              createdAt: "asc",
             },
+            take: 1,
           },
-        });
-
-      const childEventMoveUpTransactions = [
-        ...childEventsToMoveUpToParticipants
-          .filter((childEvent) => {
-            return (
-              childEvent.participantLimit !== null &&
-              childEvent._count.participants < childEvent.participantLimit &&
-              childEvent.waitingList.length > 0
-            );
-          })
-          .map((childEvent) => {
-            const transaction = [
-              prismaClient.participantOfEvent.create({
-                data: {
+          guests: {
+            where: {
+              onWaitingList: true,
+            },
+            select: {
+              id: true,
+              createdAt: true,
+            },
+            orderBy: {
+              createdAt: "asc",
+            },
+            take: 1,
+          },
+        },
+      });
+      const childEventsToMoveUpToParticipants = allChildEvents.filter(
+        (childEvent) => {
+          return (
+            childEvent.moveUpToParticipants &&
+            childEvent.participantLimit !== null &&
+            childEvent._count.participants < childEvent.participantLimit &&
+            (childEvent.waitingList.length > 0 || childEvent.guests.length > 0)
+          );
+        }
+      );
+      const childEventMoveUpTransactions = childEventsToMoveUpToParticipants
+        .map((childEvent) => {
+          const allWaitingProfiles = [
+            ...childEvent.waitingList.map((profile) => {
+              return {
+                id: profile.profileId,
+                createdAt: profile.createdAt,
+                type: "participant" as const,
+              };
+            }),
+            ...eventToMoveUpToParticipants.guests.map((guest) => {
+              return {
+                id: guest.id,
+                createdAt: guest.createdAt,
+                type: "guest" as const,
+              };
+            }),
+          ].sort((a, b) => {
+            return a.createdAt.getTime() - b.createdAt.getTime();
+          });
+          const firstInWaitingList = allWaitingProfiles[0];
+          if (firstInWaitingList.type === "guest") {
+            const transaction = prismaClient.guest.update({
+              where: {
+                id: firstInWaitingList.id,
+              },
+              data: {
+                onWaitingList: false,
+              },
+              select: {
+                firstName: true,
+                email: true,
+                event: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            });
+            return [transaction];
+          }
+          const transactions = [
+            prismaClient.participantOfEvent.create({
+              data: {
+                eventId: childEvent.id,
+                profileId: firstInWaitingList.id,
+              },
+              select: {
+                profile: {
+                  select: {
+                    email: true,
+                    firstName: true,
+                  },
+                },
+                event: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            }),
+            prismaClient.waitingParticipantOfEvent.delete({
+              where: {
+                profileId_eventId: {
+                  profileId: firstInWaitingList.id,
                   eventId: childEvent.id,
-                  profileId: childEvent.waitingList[0].profileId,
                 },
-                select: {
-                  profile: {
-                    select: {
-                      email: true,
-                      firstName: true,
-                    },
-                  },
-                  event: {
-                    select: {
-                      name: true,
-                    },
-                  },
-                },
-              }),
-              prismaClient.waitingParticipantOfEvent.delete({
-                where: {
-                  profileId_eventId: {
-                    profileId: childEvent.waitingList[0].profileId,
-                    eventId: childEvent.id,
-                  },
-                },
-              }),
-            ];
-            return transaction;
-          }),
-      ].flat();
+              },
+            }),
+          ];
+          return transactions;
+        })
+        .flat();
 
       const results = await prismaClient.$transaction(
         childEventMoveUpTransactions
