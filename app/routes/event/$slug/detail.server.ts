@@ -1337,6 +1337,9 @@ export async function addGuestToEvent(options: {
       profileAlreadyExists: {
         subject: string;
       };
+      guestAlreadyExists: {
+        subject: string;
+      };
       confirmRegistration: {
         subject: string;
       };
@@ -1396,10 +1399,63 @@ export async function addGuestToEvent(options: {
       );
 
       await mailer(mailerOptions, sender, recipient, subject, text, html);
-      return null;
     } catch (error) {
       captureException(error);
     }
+    return null;
+  }
+
+  const existingGuest = await prismaClient.guest.findFirst({
+    where: {
+      eventId,
+      email: guest.email,
+    },
+    select: {
+      firstName: true,
+      confirmed: true,
+      revocationToken: true,
+    },
+  });
+
+  if (existingGuest !== null && existingGuest.confirmed) {
+    try {
+      const sender = process.env.SYSTEM_MAIL_SENDER;
+      const recipient = guest.email;
+      const subject = options.locales.mail.guestAlreadyExists.subject;
+      const textTemplatePath =
+        "mail-templates/guests/guest-already-exists-text.hbs";
+      const htmlTemplatePath =
+        "mail-templates/guests/guest-already-exists-html.hbs";
+
+      // Use plain URL without parameters
+      const confirmationRedirectUrl = new URL(
+        `${process.env.COMMUNITY_BASE_URL}${options.redirectUrl}`
+      );
+      const confirmationRedirectWithoutParams = `${confirmationRedirectUrl.origin}${confirmationRedirectUrl.pathname}`;
+
+      const data = {
+        firstName: existingGuest.firstName,
+        eventName: event.name,
+        buttonUrl: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?type=revoke&confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?type=revoke&token_hash=${existingGuest.revocationToken}&confirmation_redirect=${encodeURIComponent(confirmationRedirectWithoutParams)}`)}`,
+      };
+
+      const text = getCompiledMailTemplate<typeof textTemplatePath>(
+        textTemplatePath,
+        data,
+        "text"
+      );
+      const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+        htmlTemplatePath,
+        data,
+        "html"
+      );
+
+      await mailer(mailerOptions, sender, recipient, subject, text, html);
+    } catch (error) {
+      console.log(error);
+      captureException(error);
+    }
+    return null;
   }
 
   const data = JSON.stringify({
@@ -1414,13 +1470,37 @@ export async function addGuestToEvent(options: {
     salt: process.env.GUEST_SALT,
   });
 
-  const result = await prismaClient.guest.create({
-    data: {
-      eventId,
-      ...guest,
-      confirmationToken: token,
-    },
-  });
+  let result;
+  if (existingGuest !== null && existingGuest.confirmed === false) {
+    result = await prismaClient.guest.update({
+      where: {
+        email_eventId: {
+          eventId,
+          email: guest.email,
+        },
+      },
+      data: {
+        ...guest,
+        confirmationToken: token,
+      },
+      select: {
+        firstName: true,
+        email: true,
+      },
+    });
+  } else {
+    result = await prismaClient.guest.create({
+      data: {
+        eventId,
+        ...guest,
+        confirmationToken: token,
+      },
+      select: {
+        firstName: true,
+        email: true,
+      },
+    });
+  }
 
   try {
     const sender = process.env.SYSTEM_MAIL_SENDER;

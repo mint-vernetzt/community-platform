@@ -91,4 +91,22 @@ export const locale = {
     },
     scrollToTop: "Scroll to top",
   },
+  guestsExistModal: {
+    title: "Link guest registration data?",
+    description:
+      "Guest registrations have already been made with your email address. Would you like to link this data to your profile?",
+    confirm: "Yes, link data",
+    cancel: "No, discard data",
+    toast: {
+      success: {
+        confirmed:
+          "Your profile has been successfully linked with the guest data.",
+        cancelled: "The guest data has been successfully discarded.",
+      },
+      error: {
+        confirmed: "An error occurred while linking guest data.",
+        cancelled: "An error occurred while discarding guest data.",
+      },
+    },
+  },
 } as const;

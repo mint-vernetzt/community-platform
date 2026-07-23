@@ -91,4 +91,22 @@ export const locale = {
     },
     scrollToTop: "Nach oben scrollen",
   },
+  guestsExistModal: {
+    title: "Daten von Gastanmeldungen verknüpfen?",
+    description:
+      "Es wurden bereits Gastanmeldungen mit Deiner E-Mail-Adresse durchgeführt. Möchtest Du diese Daten mit Deinem Profil verknüpfen?",
+    confirm: "Ja, Daten verknüpfen",
+    cancel: "Nein, Daten verwerfen",
+    toast: {
+      success: {
+        confirmed: "Dein Profil wurde erfolgreich mit den Gastdaten verknüpft.",
+        cancelled: "Die Gastdaten wurden erfolgreich verworfen.",
+      },
+      error: {
+        confirmed:
+          "Bei der Verknüpfung der Gastdaten ist ein Fehler aufgetreten.",
+        cancelled: "Beim Verwerfen der Gastdaten ist ein Fehler aufgetreten.",
+      },
+    },
+  },
 } as const;
