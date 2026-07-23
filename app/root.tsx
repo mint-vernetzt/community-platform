@@ -321,7 +321,7 @@ export async function action(args: ActionFunctionArgs) {
   const currentLocation = formData.get(CURRENT_LOCATION);
   let redirectUrl;
   if (currentLocation !== null) {
-    redirectUrl = currentLocation.toString();
+    redirectUrl = `${process.env.COMMUNITY_BASE_URL}${currentLocation.toString()}`;
   } else {
     redirectUrl = request.url;
   }
