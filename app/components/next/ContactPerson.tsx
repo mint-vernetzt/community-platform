@@ -68,7 +68,7 @@ function ContactPerson(props: {
           </span>
         </div>
       </div>
-      {hasContent(email) && hasContent(phone) && (
+      {(hasContent(email) || hasContent(phone)) && (
         <div className="flex flex-col gap-2">
           {hasContent(email) && (
             <div className="flex items-center justify-between py-3 px-4 bg-neutral-100 rounded-lg">
