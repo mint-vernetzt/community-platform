@@ -64,6 +64,7 @@ export async function getInvitedProfilesToParticipateOnEvent(options: {
             academicTitle: true,
             firstName: true,
             lastName: true,
+            email: true,
             avatarImageMetaData: {
               select: {
                 path: true,
@@ -104,6 +105,7 @@ export async function getInvitedProfilesToParticipateOnEvent(options: {
             academicTitle: true,
             firstName: true,
             lastName: true,
+            email: true,
             avatarImageMetaData: {
               select: {
                 path: true,

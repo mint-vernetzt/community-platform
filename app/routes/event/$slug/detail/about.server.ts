@@ -199,6 +199,7 @@ export async function getEventBySlug(options: {
               academicTitle: true,
               firstName: true,
               lastName: true,
+              email: true,
               avatarImageMetaData: {
                 select: {
                   path: true,
@@ -212,6 +213,7 @@ export async function getEventBySlug(options: {
                   academicTitle: true,
                   firstName: true,
                   lastName: true,
+                  email: true,
                   avatarImageMetaData: true,
                   position: true,
                 },
@@ -265,6 +267,7 @@ export async function getEventBySlug(options: {
               academicTitle: true,
               firstName: true,
               lastName: true,
+              email: true,
               avatarImageMetaData: {
                 select: {
                   path: true,
@@ -278,6 +281,7 @@ export async function getEventBySlug(options: {
                   academicTitle: true,
                   firstName: true,
                   lastName: true,
+                  email: true,
                   avatarImageMetaData: true,
                   position: true,
                 },
@@ -316,6 +320,7 @@ export async function getEventBySlug(options: {
                   academicTitle: true,
                   firstName: true,
                   lastName: true,
+                  email: true,
                   avatarImageMetaData: {
                     select: {
                       path: true,
@@ -329,6 +334,7 @@ export async function getEventBySlug(options: {
                       academicTitle: true,
                       firstName: true,
                       lastName: true,
+                      email: true,
                       avatarImageMetaData: true,
                       position: true,
                     },

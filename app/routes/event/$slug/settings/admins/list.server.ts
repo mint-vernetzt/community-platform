@@ -40,6 +40,7 @@ export async function getAdminsOfEvent(options: {
         academicTitle: true,
         firstName: true,
         lastName: true,
+        email: true,
         avatarImageMetaData: {
           select: {
             path: true,
@@ -71,6 +72,7 @@ export async function getAdminsOfEvent(options: {
         academicTitle: true,
         firstName: true,
         lastName: true,
+        email: true,
         avatarImageMetaData: {
           select: {
             path: true,

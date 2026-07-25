@@ -41,6 +41,7 @@ export async function getSpeakersOfEvent(options: {
         academicTitle: true,
         firstName: true,
         lastName: true,
+        email: true,
         avatarImageMetaData: {
           select: {
             path: true,
@@ -72,6 +73,7 @@ export async function getSpeakersOfEvent(options: {
         academicTitle: true,
         firstName: true,
         lastName: true,
+        email: true,
         avatarImageMetaData: {
           select: {
             path: true,
