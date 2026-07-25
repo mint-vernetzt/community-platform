@@ -543,7 +543,11 @@ export async function removeParticipantFromEvent(options: {
             select: {
               moveUpToParticipants: true,
               participantLimit: true,
-              participantCount: true,
+              _count: {
+                select: {
+                  participants: true,
+                },
+              },
               waitingList: {
                 select: {
                   profileId: true,
@@ -552,7 +556,7 @@ export async function removeParticipantFromEvent(options: {
                 orderBy: {
                   createdAt: "asc",
                 },
-                limit: 1,
+                take: 1,
               },
               guests: {
                 where: {
@@ -566,7 +570,7 @@ export async function removeParticipantFromEvent(options: {
                 orderBy: {
                   confirmedAt: "asc",
                 },
-                limit: 1,
+                take: 1,
               },
             },
           });
@@ -584,7 +588,7 @@ export async function removeParticipantFromEvent(options: {
             shouldMoveUpToParticipants({
               moveUpToParticipants: eventData.moveUpToParticipants,
               participantLimit: eventData.participantLimit,
-              participantCount: eventData.participantCount,
+              participantCount: eventData._count.participants,
               participatingGuestCount,
               usersOnWaitingListCount: eventData.waitingList.length,
               guestsOnWaitingListCount,
