@@ -160,30 +160,32 @@ function isOnWaitingListOnEvent(options: {
   });
 }
 
-export async function removeParticipantFromEvent(
-  options: { id: string; eventId: string; recursively?: boolean } & (
-    | {
-        type: "user";
-        locales: {
-          moveFromWaitingListToParticipants: {
-            subject: string;
-          };
-        };
-      }
-    | {
-        type: "guest";
-        locales: {
-          guestRemoved: {
-            subject: string;
-          };
-          moveFromWaitingListToParticipants: {
-            subject: string;
-          };
-        };
-      }
-  )
-) {
-  const { id, eventId, type, locales } = options;
+export async function removeParticipantFromEvent(options: {
+  id: string;
+  eventId: string;
+  type: "user" | "guest";
+  recursively?: boolean;
+  notifyUsers?: boolean;
+  locales: {
+    moveFromWaitingListToParticipants: {
+      subject: string;
+    };
+    removeFromParticipants: {
+      subject: string;
+    };
+    guestRemoved: {
+      subject: string;
+    };
+  };
+}) {
+  const {
+    id,
+    eventId,
+    type,
+    locales,
+    recursively = true,
+    notifyUsers,
+  } = options;
 
   const event = await prismaClient.event.findFirst({
     where: {
@@ -346,16 +348,33 @@ export async function removeParticipantFromEvent(
     getRemoveFromParticipantsTransaction({ id, eventId, type }),
   ];
 
-  // For legacy reasons we need to check child events of child events
-  const childEvents = event.childEvents.map((childEvent) => {
-    const { childEvents: _childEvents, ...rest } = childEvent;
-    return {
-      ...rest,
-    };
-  });
-  for (const childEvent of event.childEvents) {
-    if (childEvent.childEvents.length > 0) {
-      childEvents.push(...childEvent.childEvents);
+  let childEvents: {
+    id: string;
+    name: string;
+    participants: {
+      profileId: string;
+    }[];
+    guests: {
+      id: string;
+      onWaitingList: boolean;
+    }[];
+    waitingList: {
+      profileId: string;
+    }[];
+  }[] = [];
+
+  if (recursively) {
+    childEvents = event.childEvents.map((childEvent) => {
+      const { childEvents: _childEvents, ...rest } = childEvent;
+      return {
+        ...rest,
+      };
+    });
+    // For legacy reasons we need to check child events of child events
+    for (const childEvent of event.childEvents) {
+      if (childEvent.childEvents.length > 0) {
+        childEvents.push(...childEvent.childEvents);
+      }
     }
   }
 
@@ -407,9 +426,8 @@ export async function removeParticipantFromEvent(
   }
 
   // Send emails to guest if they have been removed from any event;
-  let guest: { firstName: string; email: string } | null = null;
-  if (type === "guest" && eventsParticipantHasBeenRemovedFrom.length > 0) {
-    guest = await prismaClient.guest.findFirst({
+  if (type === "guest") {
+    const guest = await prismaClient.guest.findFirst({
       where: {
         id,
       },
@@ -441,6 +459,56 @@ export async function removeParticipantFromEvent(
 
           const data = {
             firstName: guest.firstName,
+            event: { name: event.name },
+          };
+
+          const text = getCompiledMailTemplate<typeof textTemplatePath>(
+            textTemplatePath,
+            data,
+            "text"
+          );
+          const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+            htmlTemplatePath,
+            data,
+            "html"
+          );
+
+          await mailer(mailerOptions, sender, recipient, subject, text, html);
+        } catch (error) {
+          captureException(error);
+        }
+      })
+    );
+    // Send emails to user if desired
+  } else if (type === "user" && notifyUsers) {
+    const user = await prismaClient.profile.findFirst({
+      where: {
+        id,
+      },
+      select: {
+        firstName: true,
+        email: true,
+      },
+    });
+
+    if (user === null) {
+      const error = new Error("User not found");
+      return { error };
+    }
+
+    void Promise.all(
+      eventsParticipantHasBeenRemovedFrom.map(async (event) => {
+        try {
+          const sender = process.env.SYSTEM_MAIL_SENDER;
+          const recipient = user.email as string;
+          const subject = locales.removeFromParticipants.subject;
+          const textTemplatePath =
+            "mail-templates/general-notification/remove-participant-from-event-text.hbs";
+          const htmlTemplatePath =
+            "mail-templates/general-notification/remove-participant-from-event-html.hbs";
+
+          const data = {
+            firstName: user.firstName,
             event: { name: event.name },
           };
 
@@ -609,4 +677,5 @@ export async function removeParticipantFromEvent(
       }
     })
   );
+  return {};
 }

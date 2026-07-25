@@ -409,7 +409,11 @@ export async function removeProfileFromParticipants(options: {
     id: profileId,
     eventId,
     type: "user",
-    locales: options.locales.mail,
+    locales: {
+      ...options.locales.mail,
+      removeFromParticipants: { subject: "" }, // TODO: improve TS
+      guestRemoved: { subject: "" }, // TODO: improve TS
+    },
   });
 
   return result;

@@ -1,18 +1,14 @@
+import { parseWithZod } from "@conform-to/zod";
 import { type SupabaseClient } from "@supabase/supabase-js";
+import { removeParticipantFromEvent } from "~/events.server";
+import { ParticipationType } from "~/events.shared";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
+import { getPublicURL } from "~/storage.server";
 import {
   createSearchParticipantsSchema,
   SEARCH_PARTICIPANTS_SEARCH_PARAM,
 } from "./list.shared";
-import { parseWithZod } from "@conform-to/zod";
-import { getPublicURL } from "~/storage.server";
-import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
-import {
-  getCompiledMailTemplate,
-  mailer,
-  mailerOptions,
-} from "~/mailer.server";
-import { captureException } from "@sentry/node";
 
 export async function getParticipantsOfEvent(options: {
   eventId: string;
@@ -118,14 +114,14 @@ export async function getParticipantsOfEvent(options: {
       return {
         ...participant.profile,
         createdAt: participant.createdAt,
-        type: "participant" as const,
+        type: ParticipationType.User,
       };
     }),
     ...guests.map((guest) => {
       return {
         ...guest,
         avatarImageMetaData: null,
-        type: "guest" as const,
+        type: ParticipationType.Guest,
       };
     }),
   ].sort((a, b) => {
@@ -189,10 +185,10 @@ export async function getEventBySlug(slug: string) {
   return event;
 }
 
-export async function removeParticipantFromEvent(options: {
+export async function removeFromEvent(options: {
   participantId: string;
   eventId: string;
-  type: "participant" | "guest";
+  type: (typeof ParticipationType)[keyof typeof ParticipationType];
   locales: {
     mail: {
       removeFromParticipants: {
@@ -206,173 +202,14 @@ export async function removeParticipantFromEvent(options: {
 }) {
   const { participantId, eventId } = options;
 
-  let result;
-  if (options.type === "guest") {
-    result = await prismaClient.guest.delete({
-      where: {
-        id: participantId,
-        eventId,
-      },
-      select: {
-        email: true,
-        firstName: true,
-        event: {
-          select: {
-            name: true,
-          },
-        },
-      },
-    });
-  } else {
-    const relation = await prismaClient.participantOfEvent.delete({
-      where: {
-        profileId_eventId: {
-          profileId: participantId,
-          eventId,
-        },
-      },
-      select: {
-        profile: {
-          select: {
-            email: true,
-            firstName: true,
-          },
-        },
-        event: {
-          select: {
-            name: true,
-          },
-        },
-      },
-    });
-    result = { ...relation.profile, event: relation.event };
-  }
-
-  const sender = process.env.SYSTEM_MAIL_SENDER;
-  const recipient = result.email;
-  const subject = options.locales.mail.removeFromParticipants.subject;
-  const textTemplatePath =
-    "mail-templates/general-notification/remove-participant-from-event-text.hbs";
-  const htmlTemplatePath =
-    "mail-templates/general-notification/remove-participant-from-event-html.hbs";
-
-  const text = getCompiledMailTemplate<typeof textTemplatePath>(
-    textTemplatePath,
-    {
-      firstName: result.firstName,
-      event: { name: result.event.name },
-    },
-    "text"
-  );
-  const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
-    htmlTemplatePath,
-    {
-      firstName: result.firstName,
-      event: { name: result.event.name },
-    },
-    "html"
-  );
-
-  await mailer(mailerOptions, sender, recipient, subject, text, html);
-
-  // Try to move first profile from waiting list to participants
-  try {
-    const event = await prismaClient.event.findUnique({
-      where: {
-        id: eventId,
-      },
-      select: {
-        moveUpToParticipants: true,
-        participantLimit: true,
-        _count: {
-          select: {
-            participants: true,
-          },
-        },
-        waitingList: {
-          select: {
-            profileId: true,
-          },
-          orderBy: {
-            createdAt: "asc",
-          },
-        },
-      },
-    });
-
-    if (event === null) {
-      throw new Error("Event not found");
-    }
-
-    if (
-      event.moveUpToParticipants &&
-      event.participantLimit !== null &&
-      event._count.participants < event.participantLimit &&
-      event.waitingList.length > 0
-    ) {
-      const firstInWaitingList = event.waitingList[0];
-      const result = await prismaClient.$transaction([
-        prismaClient.participantOfEvent.create({
-          data: {
-            eventId,
-            profileId: firstInWaitingList.profileId,
-          },
-          select: {
-            profile: {
-              select: {
-                email: true,
-                firstName: true,
-              },
-            },
-            event: {
-              select: {
-                name: true,
-              },
-            },
-          },
-        }),
-        prismaClient.waitingParticipantOfEvent.delete({
-          where: {
-            profileId_eventId: {
-              eventId,
-              profileId: firstInWaitingList.profileId,
-            },
-          },
-        }),
-      ]);
-
-      const sender = process.env.SYSTEM_MAIL_SENDER;
-      const recipient = result[0].profile.email;
-      const subject =
-        options.locales.mail.moveFromWaitingListToParticipants.subject;
-      const textTemplatePath =
-        "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-text.hbs";
-      const htmlTemplatePath =
-        "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-html.hbs";
-
-      const text = getCompiledMailTemplate<typeof textTemplatePath>(
-        textTemplatePath,
-        {
-          firstName: result[0].profile.firstName,
-          event: { name: result[0].event.name },
-        },
-        "text"
-      );
-      const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
-        htmlTemplatePath,
-        {
-          firstName: result[0].profile.firstName,
-          event: { name: result[0].event.name },
-        },
-        "html"
-      );
-
-      await mailer(mailerOptions, sender, recipient, subject, text, html);
-    }
-  } catch (error) {
-    console.error("Error sending mail after removing participant:", error);
-    captureException(error);
-  }
+  const result = await removeParticipantFromEvent({
+    id: participantId,
+    eventId,
+    type: options.type,
+    notifyUsers: true,
+    recursively: false,
+    locales: { ...options.locales.mail, guestRemoved: { subject: "" } }, // TODO: improve TS
+  });
 
   return result;
 }

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ParticipationType } from "~/events.shared";
 
 export const SEARCH_PARTICIPANTS_SEARCH_PARAM = "search_participants";
 export const CONFIRM_MODAL_SEARCH_PARAM = "confirm_remove_participant";
@@ -14,7 +15,10 @@ export function createSearchParticipantsSchema() {
 export function createRemoveParticipantSchema() {
   return z.object({
     [PARTICIPANT_ID]: z.string().uuid(),
-    [PARTICIPATION_TYPE]: z.enum(["participant", "guest"]),
+    [PARTICIPATION_TYPE]: z.enum([
+      ParticipationType.User,
+      ParticipationType.Guest,
+    ]),
   });
 }
 

@@ -36,7 +36,7 @@ import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
 import {
   getEventBySlug,
   getParticipantsOfEvent,
-  removeParticipantFromEvent,
+  removeFromEvent,
 } from "./list.server";
 import {
   createConfirmationModalSearchParam,
@@ -170,7 +170,7 @@ export async function action(args: ActionFunctionArgs) {
   );
 
   try {
-    await removeParticipantFromEvent({
+    await removeFromEvent({
       participantId: submission.value.participantId,
       eventId: event.id,
       type: submission.value.participationType,
