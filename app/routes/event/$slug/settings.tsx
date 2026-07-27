@@ -278,6 +278,10 @@ export default function Settings() {
             : 0,
     },
     {
+      to: `notifications/list?${Deep}=true`,
+      label: locales.route.menu.notifications,
+    },
+    {
       to: `danger-zone/change-url?${Deep}=true`,
       label: locales.route.menu.dangerZone,
       critical: true,

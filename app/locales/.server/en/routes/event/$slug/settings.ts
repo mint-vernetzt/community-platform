@@ -20,6 +20,7 @@ export const locale = {
     speakers: "Speakers",
     team: "Team",
     timePeriod: "Date and time",
+    notifications: "Email notifications",
   },
   menuHints: {
     participantsDisabledUntilPublished:
