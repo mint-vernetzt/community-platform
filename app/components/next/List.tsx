@@ -28,7 +28,7 @@ function Search<
     | {
         firstName: string;
         lastName: string;
-        email: string;
+        email?: string;
       }
     | { slug: string; name: string }
     | {
