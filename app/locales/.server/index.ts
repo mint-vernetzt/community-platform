@@ -84,6 +84,8 @@ import { locale as deEventSettingsTeamList } from "./de/routes/event/$slug/setti
 import { locale as deEventSettingsTeamAdd } from "./de/routes/event/$slug/settings/team/add";
 import { locale as deEventSettingsTeamInvites } from "./de/routes/event/$slug/settings/team/invites";
 import { locale as deEventSettingsTimePeriod } from "./de/routes/event/$slug/settings/time-period";
+import { locale as deEventSettingsNotifications } from "./de/routes/event/$slug/settings/notifications";
+import { locale as deEventSettingsNotificationsList } from "./de/routes/event/$slug/settings/notifications/list";
 // explore routes
 import { locale as deExplore } from "./de/routes/explore";
 import { locale as deExploreIndex } from "./de/routes/explore/index";
@@ -270,6 +272,8 @@ import { locale as enEventSettingsTeamList } from "./en/routes/event/$slug/setti
 import { locale as enEventSettingsTeamAdd } from "./en/routes/event/$slug/settings/team/add";
 import { locale as enEventSettingsTeamInvites } from "./en/routes/event/$slug/settings/team/invites";
 import { locale as enEventSettingsTimePeriod } from "./en/routes/event/$slug/settings/time-period";
+import { locale as enEventSettingsNotifications } from "./en/routes/event/$slug/settings/notifications";
+import { locale as enEventSettingsNotificationsList } from "./en/routes/event/$slug/settings/notifications/list";
 // explore routes
 import { locale as enExplore } from "./en/routes/explore";
 import { locale as enExploreIndex } from "./en/routes/explore/index";
@@ -570,6 +574,12 @@ const de = {
     route: deEventSettingsTimePeriod,
     stages: deStages,
     components: deComponents,
+  },
+  "event/$slug/settings/notifications": {
+    route: deEventSettingsNotifications,
+  },
+  "event/$slug/settings/notifications/list": {
+    route: deEventSettingsNotificationsList,
   },
   // explore routes
   explore: {
@@ -1058,6 +1068,12 @@ const en = {
     route: enEventSettingsTimePeriod,
     stages: enStages,
     components: enComponents,
+  },
+  "event/$slug/settings/notifications": {
+    route: enEventSettingsNotifications,
+  },
+  "event/$slug/settings/notifications/list": {
+    route: enEventSettingsNotificationsList,
   },
   // explore routes
   explore: {

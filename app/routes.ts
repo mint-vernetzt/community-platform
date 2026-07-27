@@ -416,6 +416,17 @@ export default [
       "/event/:slug/settings/time-period",
       "./routes/event/$slug/settings/time-period.tsx"
     ),
+    route(
+      "/event/:slug/settings/notifications",
+      "./routes/event/$slug/settings/notifications.tsx",
+      [
+        index("./routes/event/$slug/settings/notifications/index.tsx"),
+        route(
+          "/event/:slug/settings/notifications/list",
+          "./routes/event/$slug/settings/notifications/list.tsx"
+        ),
+      ]
+    ),
   ]),
   route(
     "/event/:slug/documents-download",
