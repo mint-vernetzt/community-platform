@@ -211,7 +211,12 @@ export async function removeFromEvent(options: {
     type: options.type,
     notifyUsers: true,
     recursively: false,
-    locales: { ...options.locales.mail, guestRemoved: { subject: "" } }, // TODO: improve TS
+    locales: {
+      ...options.locales.mail,
+      guestRemoved: {
+        subject: options.locales.mail.removeFromParticipants.subject,
+      },
+    }, // TODO: improve TS
   });
 
   return result;
