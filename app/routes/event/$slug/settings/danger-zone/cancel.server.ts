@@ -75,10 +75,16 @@ export async function cancelEventBySlug(options: {
       admins: {
         select: { profile: { select: { email: true, firstName: true } } },
       },
+      guests: {
+        select: { email: true, firstName: true },
+        where: {
+          confirmed: true,
+        },
+      },
     },
   });
 
-  const profilesToContact = [
+  const membersToContact = [
     ...canceledEvent.teamMembers.map((member) => {
       return { ...member.profile, eventName: canceledEvent.name };
     }),
@@ -93,6 +99,9 @@ export async function cancelEventBySlug(options: {
     }),
     ...canceledEvent.admins.map((member) => {
       return { ...member.profile, eventName: canceledEvent.name };
+    }),
+    ...canceledEvent.guests.map((member) => {
+      return { ...member, eventName: canceledEvent.name };
     }),
   ];
 
@@ -117,6 +126,12 @@ export async function cancelEventBySlug(options: {
         admins: {
           select: { profile: { select: { email: true, firstName: true } } },
         },
+        guests: {
+          select: { email: true, firstName: true },
+          where: {
+            confirmed: true,
+          },
+        },
       },
     });
     const childEventIds = childEvents.map((event) => {
@@ -130,19 +145,22 @@ export async function cancelEventBySlug(options: {
     });
     childEvents.forEach((event) => {
       event.teamMembers.forEach((member) => {
-        profilesToContact.push({ ...member.profile, eventName: event.name });
+        membersToContact.push({ ...member.profile, eventName: event.name });
       });
       event.waitingList.forEach((member) => {
-        profilesToContact.push({ ...member.profile, eventName: event.name });
+        membersToContact.push({ ...member.profile, eventName: event.name });
       });
       event.speakers.forEach((member) => {
-        profilesToContact.push({ ...member.profile, eventName: event.name });
+        membersToContact.push({ ...member.profile, eventName: event.name });
       });
       event.participants.forEach((member) => {
-        profilesToContact.push({ ...member.profile, eventName: event.name });
+        membersToContact.push({ ...member.profile, eventName: event.name });
       });
       event.admins.forEach((member) => {
-        profilesToContact.push({ ...member.profile, eventName: event.name });
+        membersToContact.push({ ...member.profile, eventName: event.name });
+      });
+      event.guests.forEach((member) => {
+        membersToContact.push({ ...member, eventName: event.name });
       });
     });
   } else {
@@ -152,7 +170,7 @@ export async function cancelEventBySlug(options: {
     });
   }
 
-  const uniqueProfilesToContact = profilesToContact.filter(
+  const uniqueProfilesToContact = membersToContact.filter(
     (profile, index, array) => {
       const profileIndex = array.findIndex((item) => {
         return (

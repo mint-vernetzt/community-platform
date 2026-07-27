@@ -24,12 +24,10 @@ function getRemoveFromParticipantsTransaction(options: {
     return transaction;
   }
 
-  const transaction = prismaClient.guest.update({
+  const transaction = prismaClient.guest.delete({
     where: {
       id,
-    },
-    data: {
-      onWaitingList: false,
+      eventId,
     },
   });
   return transaction;
@@ -419,116 +417,119 @@ export async function removeParticipantFromEvent(options: {
 
   // Execute all remove transactions
   try {
+    // Get guest because guest will be deleted after the transaction and we need the email to send the notification
+    let guest: { firstName: string; email: string } | undefined | null;
+    if (type === "guest") {
+      guest = await prismaClient.guest.findFirst({
+        where: {
+          id,
+        },
+        select: {
+          firstName: true,
+          email: true,
+        },
+      });
+    }
+
     await prismaClient.$transaction(transactions);
+    // Send emails to guest if they have been removed from any event;
+    if (type === "guest") {
+      if (guest === null) {
+        const error = new Error("Guest not found");
+        return { error };
+      }
+
+      void Promise.all(
+        eventsParticipantHasBeenRemovedFrom.map(async (event) => {
+          try {
+            if (guest === null || typeof guest === "undefined") {
+              // This should never happen, but makes TypeScript happy
+              return;
+            }
+            const sender = process.env.SYSTEM_MAIL_SENDER;
+            const recipient = guest.email as string;
+            const subject = locales.guestRemoved.subject;
+            const textTemplatePath =
+              "mail-templates/general-notification/remove-participant-from-event-text.hbs";
+            const htmlTemplatePath =
+              "mail-templates/general-notification/remove-participant-from-event-html.hbs";
+
+            const data = {
+              firstName: guest.firstName,
+              event: { name: event.name },
+            };
+
+            const text = getCompiledMailTemplate<typeof textTemplatePath>(
+              textTemplatePath,
+              data,
+              "text"
+            );
+            const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+              htmlTemplatePath,
+              data,
+              "html"
+            );
+
+            await mailer(mailerOptions, sender, recipient, subject, text, html);
+          } catch (error) {
+            captureException(error);
+          }
+        })
+      );
+      // Send emails to user if desired
+    } else if (type === "user" && notifyUsers) {
+      const user = await prismaClient.profile.findFirst({
+        where: {
+          id,
+        },
+        select: {
+          firstName: true,
+          email: true,
+        },
+      });
+
+      if (user === null) {
+        const error = new Error("User not found");
+        return { error };
+      }
+
+      void Promise.all(
+        eventsParticipantHasBeenRemovedFrom.map(async (event) => {
+          try {
+            const sender = process.env.SYSTEM_MAIL_SENDER;
+            const recipient = user.email as string;
+            const subject = locales.removeFromParticipants.subject;
+            const textTemplatePath =
+              "mail-templates/general-notification/remove-participant-from-event-text.hbs";
+            const htmlTemplatePath =
+              "mail-templates/general-notification/remove-participant-from-event-html.hbs";
+
+            const data = {
+              firstName: user.firstName,
+              event: { name: event.name },
+            };
+
+            const text = getCompiledMailTemplate<typeof textTemplatePath>(
+              textTemplatePath,
+              data,
+              "text"
+            );
+            const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+              htmlTemplatePath,
+              data,
+              "html"
+            );
+
+            await mailer(mailerOptions, sender, recipient, subject, text, html);
+          } catch (error) {
+            captureException(error);
+          }
+        })
+      );
+    }
   } catch (error) {
     captureException(error);
     return { error };
-  }
-
-  // Send emails to guest if they have been removed from any event;
-  if (type === "guest") {
-    const guest = await prismaClient.guest.findFirst({
-      where: {
-        id,
-      },
-      select: {
-        firstName: true,
-        email: true,
-      },
-    });
-
-    if (guest === null) {
-      const error = new Error("Guest not found");
-      return { error };
-    }
-
-    void Promise.all(
-      eventsParticipantHasBeenRemovedFrom.map(async (event) => {
-        try {
-          if (guest === null) {
-            // This should never happen, but makes TypeScript happy
-            return;
-          }
-          const sender = process.env.SYSTEM_MAIL_SENDER;
-          const recipient = guest.email as string;
-          const subject = locales.guestRemoved.subject;
-          const textTemplatePath =
-            "mail-templates/general-notification/remove-participant-from-event-text.hbs";
-          const htmlTemplatePath =
-            "mail-templates/general-notification/remove-participant-from-event-html.hbs";
-
-          const data = {
-            firstName: guest.firstName,
-            event: { name: event.name },
-          };
-
-          const text = getCompiledMailTemplate<typeof textTemplatePath>(
-            textTemplatePath,
-            data,
-            "text"
-          );
-          const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
-            htmlTemplatePath,
-            data,
-            "html"
-          );
-
-          await mailer(mailerOptions, sender, recipient, subject, text, html);
-        } catch (error) {
-          captureException(error);
-        }
-      })
-    );
-    // Send emails to user if desired
-  } else if (type === "user" && notifyUsers) {
-    const user = await prismaClient.profile.findFirst({
-      where: {
-        id,
-      },
-      select: {
-        firstName: true,
-        email: true,
-      },
-    });
-
-    if (user === null) {
-      const error = new Error("User not found");
-      return { error };
-    }
-
-    void Promise.all(
-      eventsParticipantHasBeenRemovedFrom.map(async (event) => {
-        try {
-          const sender = process.env.SYSTEM_MAIL_SENDER;
-          const recipient = user.email as string;
-          const subject = locales.removeFromParticipants.subject;
-          const textTemplatePath =
-            "mail-templates/general-notification/remove-participant-from-event-text.hbs";
-          const htmlTemplatePath =
-            "mail-templates/general-notification/remove-participant-from-event-html.hbs";
-
-          const data = {
-            firstName: user.firstName,
-            event: { name: event.name },
-          };
-
-          const text = getCompiledMailTemplate<typeof textTemplatePath>(
-            textTemplatePath,
-            data,
-            "text"
-          );
-          const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
-            htmlTemplatePath,
-            data,
-            "html"
-          );
-
-          await mailer(mailerOptions, sender, recipient, subject, text, html);
-        } catch (error) {
-          captureException(error);
-        }
-      })
-    );
   }
 
   // Move the next participant on the waiting list to participants if the event has moveUpToParticipants enabled and there is space available
