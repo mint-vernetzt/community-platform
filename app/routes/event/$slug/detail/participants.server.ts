@@ -21,9 +21,10 @@ export async function getParticipantsOfEvent(options: {
     schema: getSearchParticipantsSchema(),
   });
 
-  let participants = [];
+  let profiles = [];
+  let guests = [];
 
-  const where = {
+  const profileWhere = {
     participatedEvents: {
       some: {
         OR: [
@@ -64,13 +65,22 @@ export async function getParticipantsOfEvent(options: {
     },
   };
 
-  const select = {
+  const guestWhere = {
+    event: {
+      slug,
+      external: false,
+      openForRegistration: true,
+    },
+    confirmed: true,
+    onWaitingList: false,
+  };
+
+  const profileSelect = {
     id: true,
     username: true,
     academicTitle: true,
     firstName: true,
     lastName: true,
-    email: true,
     avatarImageMetaData: {
       select: {
         path: true,
@@ -90,39 +100,70 @@ export async function getParticipantsOfEvent(options: {
       },
     },
   };
+  const guestSelect = {
+    id: true,
+    academicTitle: true,
+    firstName: true,
+    lastName: true,
+  };
 
   if (
     submission.status !== "success" ||
     typeof submission.value[SEARCH_PARTICIPANTS_SEARCH_PARAM] === "undefined"
   ) {
-    participants = await prismaClient.profile.findMany({
-      where,
-      select,
-      distinct: ["username"],
-    });
+    const transactionResult = await prismaClient.$transaction([
+      prismaClient.profile.findMany({
+        where: profileWhere,
+        select: profileSelect,
+        distinct: ["username"],
+      }),
+      prismaClient.guest.findMany({
+        where: guestWhere,
+        select: guestSelect,
+      }),
+    ]);
+    profiles = transactionResult[0];
+    guests = transactionResult[1];
   } else {
     const query =
       submission.value[SEARCH_PARTICIPANTS_SEARCH_PARAM].trim().split(" ");
 
-    participants = await prismaClient.profile.findMany({
-      where: {
-        ...where,
-        OR: query.map((term) => {
-          return {
-            OR: [
-              { firstName: { contains: term, mode: "insensitive" } },
-              { lastName: { contains: term, mode: "insensitive" } },
-              { username: { contains: term, mode: "insensitive" } },
-            ],
-          };
-        }),
-      },
-      select,
-      distinct: ["username"],
-    });
+    const transactionResult = await prismaClient.$transaction([
+      prismaClient.profile.findMany({
+        where: {
+          ...profileWhere,
+          OR: query.map((term) => {
+            return {
+              OR: [
+                { firstName: { contains: term, mode: "insensitive" } },
+                { lastName: { contains: term, mode: "insensitive" } },
+              ],
+            };
+          }),
+        },
+        select: profileSelect,
+        distinct: ["username"],
+      }),
+      prismaClient.guest.findMany({
+        where: {
+          ...guestWhere,
+          OR: query.map((term) => {
+            return {
+              OR: [
+                { firstName: { contains: term, mode: "insensitive" } },
+                { lastName: { contains: term, mode: "insensitive" } },
+              ],
+            };
+          }),
+        },
+        select: guestSelect,
+      }),
+    ]);
+    profiles = transactionResult[0];
+    guests = transactionResult[1];
   }
 
-  const enhancedParticipants = participants.map((participant) => {
+  const enhancedParticipants = profiles.map((participant) => {
     let avatar =
       participant.avatarImageMetaData === null
         ? null
@@ -163,7 +204,25 @@ export async function getParticipantsOfEvent(options: {
     return filteredParticipant;
   });
 
-  return { submission: submission.reply(), participants: enhancedParticipants };
+  const allParticipants = [
+    ...enhancedParticipants.map((participant) => {
+      const { profileVisibility: _profileVisibility, ...rest } = participant;
+      return {
+        ...rest,
+      };
+    }),
+    ...guests.map((guest) => {
+      return {
+        ...guest,
+        position: null,
+        username: null,
+      };
+    }),
+  ].sort((a, b) => {
+    return a.lastName.localeCompare(b.lastName);
+  });
+
+  return { submission: submission.reply(), participants: allParticipants };
 }
 
 export async function getEventBySlug(slug: string) {

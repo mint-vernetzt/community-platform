@@ -145,6 +145,12 @@ export async function getEventBySlug(
         select: {
           participants: true,
           waitingList: true,
+          guests: {
+            where: {
+              confirmed: true,
+              onWaitingList: false,
+            },
+          },
           childEvents: {
             where: {
               OR: [

@@ -111,7 +111,11 @@ function Participants() {
             <ListItemPersonOrg
               key={participant.id}
               index={index}
-              to={`/profile/${participant.username}`}
+              to={
+                hasContent(participant.username)
+                  ? `/profile/${participant.username}`
+                  : undefined
+              }
             >
               <ListItemPersonOrg.Avatar size="full" {...participant} />
               <ListItemPersonOrg.Headline>

@@ -248,7 +248,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const mode = await deriveModeForEvent(sessionUser, {
     ...event,
-    participantCount: event._count.participants,
+    participantCount: event._count.participants + event._count.guests,
     beforeParticipationPeriod,
     afterParticipationPeriod,
     inPast,
@@ -889,7 +889,10 @@ function Detail() {
               ) : (
                 <EventsOverview.FreeSeats
                   participantLimit={loaderData.event.participantLimit}
-                  participantsCount={loaderData.event._count.participants}
+                  participantsCount={
+                    loaderData.event._count.participants +
+                    loaderData.event._count.guests
+                  }
                   locales={loaderData.locales}
                 />
               )}
@@ -1018,7 +1021,9 @@ function Detail() {
                 </TabBar.Item.Title>
               </Link>
             </TabBar.Item>
-            {loaderData.event._count.participants > 0 &&
+            {loaderData.event._count.participants +
+              loaderData.event._count.guests >
+              0 &&
               loaderData.mode !== "anon" && (
                 <TabBar.Item active={pathname.endsWith("/participants")}>
                   <Link
@@ -1032,7 +1037,8 @@ function Detail() {
                       {loaderData.locales.route.content.participants}
                     </TabBar.Item.Title>
                     <TabBar.Item.Counter>
-                      {loaderData.event._count.participants}
+                      {loaderData.event._count.participants +
+                        loaderData.event._count.guests}
                     </TabBar.Item.Counter>
                   </Link>
                 </TabBar.Item>
