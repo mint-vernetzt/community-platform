@@ -113,6 +113,7 @@ export async function getEventBySlug(
         select: {
           id: true,
           name: true,
+          parentParticipationRequired: true,
           participants: {
             select: {
               profileId: true,
