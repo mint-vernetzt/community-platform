@@ -70,6 +70,7 @@ export async function getParticipantsOfEvent(options: {
     academicTitle: true,
     firstName: true,
     lastName: true,
+    email: true,
     avatarImageMetaData: {
       select: {
         path: true,
@@ -84,6 +85,7 @@ export async function getParticipantsOfEvent(options: {
         firstName: true,
         lastName: true,
         avatarImageMetaData: true,
+        email: true,
         position: true,
       },
     },

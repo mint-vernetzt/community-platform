@@ -16,6 +16,7 @@ export const locale = {
     item: {
       subline: "Registered on {{date}}",
       remove: "Remove",
+      guest: "Guest",
     },
     more: "Show {{count}} more",
     less: "Show {{count}} less",

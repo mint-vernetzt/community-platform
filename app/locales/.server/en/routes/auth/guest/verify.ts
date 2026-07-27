@@ -1,6 +1,6 @@
 export const locale = {
   confirmation: {
-    subject: "You have successfully registered for an event",
+    subject: "Du hast Dich erfolgreich für eine Veranstaltung angemeldet",
     success: {
       participant: "You are now registered as a participant for the event.",
       waitingList: "You are now registered on the waiting list for the event.",
@@ -12,7 +12,7 @@ export const locale = {
     },
   },
   revocation: {
-    subject: "You have successfully revoked your registration for the event",
+    subject: "Du hast Dich erfolgreich von der Veranstaltung abgemeldet",
     success: {
       participant:
         "You have successfully revoked your registration for the event.",

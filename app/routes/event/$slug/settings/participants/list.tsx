@@ -36,12 +36,14 @@ import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
 import {
   getEventBySlug,
   getParticipantsOfEvent,
-  removeParticipantFromEvent,
+  removeFromEvent,
 } from "./list.server";
 import {
   createConfirmationModalSearchParam,
   createRemoveParticipantSchema,
   createSearchParticipantsSchema,
+  PARTICIPANT_ID,
+  PARTICIPATION_TYPE,
   SEARCH_PARTICIPANTS_SEARCH_PARAM,
 } from "./list.shared";
 
@@ -168,9 +170,10 @@ export async function action(args: ActionFunctionArgs) {
   );
 
   try {
-    await removeParticipantFromEvent({
+    await removeFromEvent({
       participantId: submission.value.participantId,
       eventId: event.id,
+      type: submission.value.participationType,
       locales: {
         mail: {
           removeFromParticipants: locales.route.mail.removeParticipant,
@@ -277,6 +280,9 @@ function ParticipantsList() {
                   ? `${participant.academicTitle} `
                   : ""}
                 {participant.firstName} {participant.lastName}
+                {participant.type === "guest"
+                  ? ` (${locales.route.list.item.guest})`
+                  : ""}
               </ListItemPersonOrg.Headline>
               <ListItemPersonOrg.Subline>
                 {insertParametersIntoLocale(locales.route.list.item.subline, {
@@ -305,7 +311,11 @@ function ParticipantsList() {
                   preventScrollReset
                   hidden
                 >
-                  <input name="participantId" defaultValue={participant.id} />
+                  <input name={PARTICIPANT_ID} defaultValue={participant.id} />
+                  <input
+                    name={PARTICIPATION_TYPE}
+                    defaultValue={participant.type}
+                  />
                 </Form>
                 <Modal searchParam={confirmModalSearchParam}>
                   <Modal.Title>

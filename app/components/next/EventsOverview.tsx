@@ -1647,6 +1647,7 @@ function WithdrawParticipation(props: {
     childEvents: {
       id: string;
       name: string;
+      parentParticipationRequired: boolean | null;
       participants: { profileId: string }[];
     }[];
   };
@@ -1681,11 +1682,12 @@ function WithdrawParticipation(props: {
 
   const childEventsToBeWithdrawnFrom = [];
   if (event.childEvents.length > 0) {
-    const participatedChildEvents = event.childEvents.filter((childEvent) =>
-      childEvent.participants.some(
-        (participant) => participant.profileId === props.profileId
-      )
-    );
+    const participatedChildEvents = event.childEvents.filter((childEvent) => {
+      const isParticipant = childEvent.participants.some((participant) => {
+        return participant.profileId === props.profileId;
+      });
+      return isParticipant && childEvent.parentParticipationRequired !== false;
+    });
     if (participatedChildEvents.length > 0) {
       childEventsToBeWithdrawnFrom.push(...participatedChildEvents);
     }
