@@ -604,18 +604,18 @@ export async function removeParticipantFromEvent(options: {
             if (nextOnWaitingList === null) {
               return null;
             }
-            if (event.participationType === "user") {
+            if (nextOnWaitingList.type === "user") {
               await prisma.waitingParticipantOfEvent.delete({
                 where: {
                   profileId_eventId: {
-                    profileId: id,
+                    profileId: nextOnWaitingList.id,
                     eventId,
                   },
                 },
               });
               const result = await prisma.participantOfEvent.create({
                 data: {
-                  profileId: id,
+                  profileId: nextOnWaitingList.id,
                   eventId,
                 },
                 select: {
@@ -631,7 +631,7 @@ export async function removeParticipantFromEvent(options: {
             }
             const result = await prisma.guest.update({
               where: {
-                id,
+                id: nextOnWaitingList.id,
               },
               data: {
                 onWaitingList: false,
