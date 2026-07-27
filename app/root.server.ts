@@ -1305,3 +1305,77 @@ export async function getTagsBySearchQuery(
 
   return tags;
 }
+
+export async function linkGuestDataToUser(options: {
+  profileId: string;
+  email: string;
+}) {
+  const { profileId, email } = options;
+  const guests = await prismaClient.guest.findMany({
+    where: {
+      email,
+      confirmed: true,
+    },
+    select: {
+      id: true,
+      eventId: true,
+      onWaitingList: true,
+    },
+  });
+
+  const eventIds = guests.map((guest) => {
+    return guest.eventId;
+  });
+
+  await prismaClient.$transaction([
+    ...guests.map((guest) => {
+      const { eventId, onWaitingList } = guest;
+      if (onWaitingList) {
+        return prismaClient.waitingParticipantOfEvent.upsert({
+          where: {
+            profileId_eventId: {
+              profileId,
+              eventId,
+            },
+          },
+          create: {
+            profileId,
+            eventId,
+          },
+          update: {},
+        });
+      }
+      return prismaClient.participantOfEvent.upsert({
+        where: {
+          profileId_eventId: {
+            profileId,
+            eventId,
+          },
+        },
+        create: {
+          profileId,
+          eventId,
+        },
+        update: {},
+      });
+    }),
+    ...eventIds.map((eventId) => {
+      return prismaClient.guest.delete({
+        where: {
+          email_eventId: {
+            email,
+            eventId,
+          },
+        },
+      });
+    }),
+  ]);
+}
+
+export async function removeGuestData(options: { email: string }) {
+  await prismaClient.guest.deleteMany({
+    where: {
+      email: options.email,
+    },
+  });
+}

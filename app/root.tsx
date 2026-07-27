@@ -9,7 +9,9 @@ import { captureException } from "@sentry/react";
 import classNames from "classnames";
 import { useEffect } from "react";
 import {
+  type ActionFunctionArgs,
   data,
+  Form,
   isRouteErrorResponse,
   Links,
   Meta,
@@ -31,7 +33,12 @@ import { Footer } from "~/components-next/Footer";
 import { NavBar } from "~/components-next/NavBar";
 import { getAlert } from "./alert.server";
 import "./app.css";
-import { createAuthClient, getSessionUser, signOut } from "./auth.server";
+import {
+  createAuthClient,
+  getSessionUser,
+  getSessionUserOrThrow,
+  signOut,
+} from "./auth.server";
 import { LoginOrRegisterCTA } from "./components-next/LoginOrRegisterCTA";
 import { MainMenu } from "./components-next/MainMenu";
 import { ModalRoot } from "./components-next/ModalRoot";
@@ -55,16 +62,26 @@ import {
   getEntitiesBySearchQuery,
   getProfileByUserId,
   getTagsBySearchQuery,
+  linkGuestDataToUser,
+  removeGuestData,
 } from "./root.server";
 import {
   viewCookie,
   viewCookieSchema,
 } from "./routes/explore/organizations.server";
 import { getPublicURL } from "./storage.server";
-import { getToast } from "./toast.server";
+import { getToast, redirectWithToast } from "./toast.server";
 import { combineHeaders, deriveMode } from "./utils.server";
 import { honeypot } from "./honeypot.server";
 import { HoneypotProvider } from "remix-utils/honeypot/react";
+import { Modal } from "./components-next/Modal";
+import { INTENT_FIELD_NAME } from "./form-helpers";
+import {
+  CURRENT_LOCATION,
+  LINK_GUEST_DATA_INTENT,
+  SKIP_LINK_GUEST_DATA_INTENT,
+} from "./root.shared";
+import { extendSearchParams } from "./lib/utils/searchParams";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { loaderData } = args;
@@ -288,6 +305,81 @@ export async function loader(args: LoaderFunctionArgs) {
       headers: combinedHeaders,
     }
   );
+}
+
+export async function action(args: ActionFunctionArgs) {
+  const { request } = args;
+  const { authClient } = createAuthClient(request);
+
+  const formData = await request.formData();
+  const intent = formData.get(INTENT_FIELD_NAME);
+  invariantResponse(
+    intent === LINK_GUEST_DATA_INTENT || intent === SKIP_LINK_GUEST_DATA_INTENT,
+    "Invalid intent"
+  );
+
+  const currentLocation = formData.get(CURRENT_LOCATION);
+  let redirectUrl;
+  if (currentLocation !== null) {
+    redirectUrl = `${process.env.COMMUNITY_BASE_URL}${currentLocation.toString()}`;
+  } else {
+    redirectUrl = request.url;
+  }
+
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  invariantResponse(
+    typeof sessionUser.email === "string" && sessionUser.email !== "",
+    "User does not have an email",
+    {
+      status: 400,
+    }
+  );
+
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language].root;
+
+  if (intent === LINK_GUEST_DATA_INTENT) {
+    try {
+      await linkGuestDataToUser({
+        profileId: sessionUser.id,
+        email: sessionUser.email,
+      });
+
+      return redirectWithToast(redirectUrl, {
+        id: "guest-data-linked",
+        key: `guest-data-linked-${Date.now()}`,
+        message: locales.route.guestsExistModal.toast.success.confirmed,
+      });
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(redirectUrl, {
+        id: "guest-data-linking-error",
+        key: `guest-data-linking-error-${Date.now()}`,
+        message: locales.route.guestsExistModal.toast.error.confirmed,
+        level: "negative",
+      });
+    }
+  }
+
+  if (intent === SKIP_LINK_GUEST_DATA_INTENT) {
+    try {
+      await removeGuestData({ email: sessionUser.email });
+
+      return redirectWithToast(redirectUrl, {
+        id: "guest-data-removed",
+        key: `guest-data-removed-${Date.now()}`,
+        message: locales.route.guestsExistModal.toast.success.confirmed,
+      });
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(redirectUrl, {
+        id: "guest-data-removal-error",
+        key: `guest-data-removal-error-${Date.now()}`,
+        message: locales.route.guestsExistModal.toast.error.confirmed,
+        level: "negative",
+      });
+    }
+  }
 }
 
 export const ErrorBoundary = () => {
@@ -773,11 +865,52 @@ export default function App() {
                   ) : null}
                   {toast !== null ? <ToastContainer toast={toast} /> : null}
                 </div>
-                <ModalRoot />
               </>
             ) : (
               <Outlet />
             )}
+            <ModalRoot />
+            <Modal searchParam={"modal-guests-exist"}>
+              <Modal.Title>
+                <span className="text-5xl leading-9">
+                  {locales.route.guestsExistModal.title}
+                </span>
+              </Modal.Title>
+              <Modal.Section>
+                {locales.route.guestsExistModal.description}
+              </Modal.Section>
+              <Modal.Controls>
+                <Form method="post" className="flex flex-col gap-2">
+                  <input
+                    type="hidden"
+                    name={CURRENT_LOCATION}
+                    value={`${location.pathname}?${extendSearchParams(
+                      searchParams,
+                      {
+                        remove: ["modal-guests-exist"],
+                      }
+                    ).toString()}`}
+                  />
+                  <Button
+                    type="submit"
+                    name={INTENT_FIELD_NAME}
+                    value={LINK_GUEST_DATA_INTENT}
+                    fullSize
+                  >
+                    {locales.route.guestsExistModal.confirm}
+                  </Button>
+                  <Button
+                    type="submit"
+                    name={INTENT_FIELD_NAME}
+                    value={SKIP_LINK_GUEST_DATA_INTENT}
+                    variant="outline"
+                    fullSize
+                  >
+                    {locales.route.guestsExistModal.cancel}
+                  </Button>
+                </Form>
+              </Modal.Controls>
+            </Modal>
           </PreviousLocationContext>
           <script
             nonce={nonce}

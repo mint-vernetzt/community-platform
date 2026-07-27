@@ -71,5 +71,5 @@ export const locale = {
     invalidTimePeriod:
       "Es ist nur eine ein- oder mehrtägige Veranstaltung zulässig.",
   },
-  success: "Daten gespeichert!",
+  success: "Angaben erfolgreich gespeichert.",
 } as const;

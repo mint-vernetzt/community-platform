@@ -15,8 +15,9 @@ const schema = z.object({
   // Legacy keys
   SERVICE_ROLE_KEY: z.string(),
   SUPABASE_ANON_KEY: z.string(),
-  // New asymmetric key
+  // New asymmetric keys
   SUPABASE_PUBLISHABLE_KEY: z.string().optional(),
+  SUPABASE_SECRET_KEY: z.string().optional(),
   ALLOW_INDEXING: z
     .enum(["true", "false"] as const)
     .optional()

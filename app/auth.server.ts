@@ -78,7 +78,7 @@ export const createAuthClient = (request: Request) => {
 export const createAdminAuthClient = () => {
   const adminAuthClient = createClient(
     process.env.SUPABASE_URL,
-    process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SERVICE_ROLE_KEY,
+    process.env.SUPABASE_SECRET_KEY || process.env.SERVICE_ROLE_KEY,
     {
       auth: {
         autoRefreshToken: false,
