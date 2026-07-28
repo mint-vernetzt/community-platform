@@ -42,6 +42,7 @@ export const locale = {
       headline: "Private Event",
       subline:
         "Accessible by invitation only. This option is not available for external registration.",
+      hint: "After publishing, you can also invite participants via an invitation link.",
     },
   },
   parentParticipation: {
