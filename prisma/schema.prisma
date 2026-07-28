@@ -572,6 +572,7 @@ model Event {
   externalRegistrationUrl          String?                                        @map("external_registration_url")
   moveUpToParticipants             Boolean                                        @default(true) @map("move_up_to_participants")
   parentParticipationRequired      Boolean?                                       @map("parent_participation_required")
+  participationToken               String?                                        @map("participation_token")
   areas                            AreaOfEvent[] // legacy
   documents                        DocumentOfEvent[]
   types                            TypeOfEvent[]

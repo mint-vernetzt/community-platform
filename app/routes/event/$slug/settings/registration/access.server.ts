@@ -3,6 +3,7 @@ import {
   SET_PARENT_PARTICIPATION_TO_NOT_REQUIRED_INTENT,
   SET_PARENT_PARTICIPATION_TO_REQUIRED_INTENT,
 } from "./access.shared";
+import { generateValidationToken } from "~/utils.server";
 
 export async function getEventBySlug(slug: string) {
   const event = await prismaClient.event.findUnique({
@@ -45,6 +46,7 @@ export async function updateEventRegistrationAccess(options: {
     openForRegistration?: boolean;
     parentParticipationRequired?: boolean;
     externalRegistrationUrl?: null;
+    participationToken?: string | null;
   } = {
     external,
     openForRegistration,
@@ -55,6 +57,7 @@ export async function updateEventRegistrationAccess(options: {
     data = {
       ...data,
       openForRegistration: true,
+      participationToken: null,
       parentParticipationRequired:
         event._count.childEvents > 0 ? external === false : undefined,
       externalRegistrationUrl: external === false ? null : undefined,
@@ -63,12 +66,23 @@ export async function updateEventRegistrationAccess(options: {
 
   // Ensure defaults if switching the open for registration setting
   if (typeof openForRegistration !== "undefined") {
+    let participationToken: string | null = null;
+    if (openForRegistration === false) {
+      const token = generateValidationToken({
+        data: JSON.stringify({ eventId: event.id, now: Date.now() }),
+        secret: process.env.PARTICIPATION_SECRET,
+        salt: process.env.PARTICIPATION_SALT,
+      });
+      participationToken = token;
+    }
+
     data = {
       ...data,
       external: false,
       externalRegistrationUrl: null,
       parentParticipationRequired:
         event._count.childEvents > 0 ? openForRegistration : undefined,
+      participationToken,
     };
   }
 
