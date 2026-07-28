@@ -6,6 +6,8 @@ export const locale = {
     "Deine Einstellung erlaubt aktuell nur die Teilnahme zu Deinem Unterevent, wenn auch am Rahmenevent teilgenommen wird. Da Du nicht Administrator:in der Rahmenveranstaltung bist, kannst du keine Teilnehmer:innen einladen.",
   participationOnChildEventsRequiredHint:
     "Deine Einstellung erlaubt nur die Teilnahme an Deinen Unterevents. Deshalb kannst Du nicht zur Rahmenveranstaltung einladen.",
+  participationLinkHint:
+    "Du kannst den Teilnahmelink auch direkt an Deine Teilnehmer:innen weiterleiten. Sie können sich dann selbstständig für die Veranstaltung anmelden.",
   search: {
     label: "Suche Personen",
     placeholder: "Name oder E-Mail-Adresse",
