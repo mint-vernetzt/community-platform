@@ -14,6 +14,7 @@ import {
   useLoaderData,
   useLocation,
   useNavigate,
+  useSearchParams,
 } from "react-router";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -246,13 +247,21 @@ export async function loader(args: LoaderFunctionArgs) {
   const inPast = now > event.endTime;
   const hasStarted = now > event.startTime;
 
-  const mode = await deriveModeForEvent(sessionUser, {
-    ...event,
-    participantCount: event._count.participants + event._count.guests,
-    beforeParticipationPeriod,
-    afterParticipationPeriod,
-    inPast,
-    hasChildEvents: event._count.childEvents > 0,
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
+  const tokenHash = searchParams.get("token_hash");
+
+  const mode = await deriveModeForEvent({
+    sessionUser,
+    tokenHash,
+    eventInfo: {
+      ...event,
+      participantCount: event._count.participants + event._count.guests,
+      beforeParticipationPeriod,
+      afterParticipationPeriod,
+      inPast,
+      hasChildEvents: event._count.childEvents > 0,
+    },
   });
 
   // No right to access unpublished events
@@ -507,6 +516,43 @@ export async function action(args: ActionFunctionArgs) {
     return redirect(`/login?login_redirect=${encodeURIComponent(pathname)}`);
   }
 
+  const eventInfo = await getEventBySlug(sessionUser, { slug: event.slug });
+  invariantResponse(eventInfo !== null, "event not found", { status: 404 });
+
+  const now = new Date();
+  const beforeParticipationPeriod = now < eventInfo.participationFrom;
+  const afterParticipationPeriod = now > eventInfo.participationUntil;
+  const inPast = now > eventInfo.endTime;
+
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
+  const tokenHash = searchParams.get("token_hash");
+
+  const mode = await deriveModeForEvent({
+    sessionUser,
+    tokenHash,
+    eventInfo: {
+      ...eventInfo,
+      participantCount: eventInfo._count.participants + eventInfo._count.guests,
+      beforeParticipationPeriod,
+      afterParticipationPeriod,
+      inPast,
+      hasChildEvents: eventInfo._count.childEvents > 0,
+    },
+  });
+
+  invariantResponse(
+    mode === "administrating" ||
+      mode === "canParticipate" ||
+      mode === "canWait" ||
+      mode === "participating" ||
+      mode === "waiting",
+    "Forbidden",
+    {
+      status: 403,
+    }
+  );
+
   if (
     intent === UPLOAD_DOCUMENT_INTENT_VALUE ||
     intent === IMAGE_CROPPER_DISCONNECT_INTENT_VALUE
@@ -514,9 +560,12 @@ export async function action(args: ActionFunctionArgs) {
     let submission;
     let toast;
     let redirectUrl: string | null = request.url;
+
+    invariantResponse(mode === "administrating", "Not authorized", {
+      status: 403,
+    });
+
     if (intent === UPLOAD_DOCUMENT_INTENT_VALUE) {
-      const isAdmin = await isAdminOfEvent(sessionUser, event);
-      invariantResponse(isAdmin, "Not authorized", { status: 403 });
       const result = await uploadBackgroundImage({
         request,
         formData,
@@ -615,34 +664,6 @@ export async function action(args: ActionFunctionArgs) {
     });
   }
 
-  const eventInfo = await getEventBySlug(sessionUser, { slug: event.slug });
-  invariantResponse(eventInfo !== null, "event not found", { status: 404 });
-
-  const now = new Date();
-  const beforeParticipationPeriod = now < eventInfo.participationFrom;
-  const afterParticipationPeriod = now > eventInfo.participationUntil;
-  const inPast = now > eventInfo.endTime;
-
-  const mode = await deriveModeForEvent(sessionUser, {
-    ...eventInfo,
-    participantCount: eventInfo._count.participants,
-    beforeParticipationPeriod,
-    afterParticipationPeriod,
-    inPast,
-    hasChildEvents: eventInfo._count.childEvents > 0,
-  });
-
-  invariantResponse(
-    mode === "canParticipate" ||
-      mode === "canWait" ||
-      mode === "participating" ||
-      mode === "waiting",
-    "Forbidden",
-    {
-      status: 403,
-    }
-  );
-
   const submission = await parseWithZod(formData, {
     schema: createParticipationSchema(locales.route.errors).transform(
       async (data, ctx) => {
@@ -713,6 +734,9 @@ function Detail() {
   const previousLocation = usePreviousLocation();
   const navigate = useNavigate();
 
+  const [searchParams] = useSearchParams();
+  const tokenHash = searchParams.get("token_hash");
+
   const zonedParticipationFrom = utcToZonedTime(
     loaderData.event.participationFrom,
     "Europe/Berlin"
@@ -769,7 +793,7 @@ function Detail() {
             src={loaderData.event.background}
             blurredSrc={loaderData.event.blurredBackground}
           />
-          {loaderData.mode === "admin" &&
+          {loaderData.mode === "administrating" &&
             loaderData.abilities["events"].hasAccess && (
               <EventsOverview.EditBackground
                 locales={loaderData.locales.route.content}
@@ -921,7 +945,7 @@ function Detail() {
                 }}
                 reasons={loaderData.abuseReportReasons}
               />
-              {loaderData.mode === "admin" && (
+              {loaderData.mode === "administrating" && (
                 <EventsOverview.Edit
                   slug={loaderData.event.slug}
                   published={loaderData.event.published}
@@ -931,36 +955,25 @@ function Detail() {
                   {loaderData.locales.route.content.edit}
                 </EventsOverview.Edit>
               )}
-              {loaderData.mode === "anon" &&
-                loaderData.event.external === false &&
-                loaderData.event.openForRegistration &&
-                (loaderData.event._count.childEvents === 0 ||
-                  loaderData.event.parentParticipationRequired) &&
-                (loaderData.event.parentEvent === null ||
-                  loaderData.event.parentParticipationRequired === false ||
-                  loaderData.event.parentEvent.parentParticipationRequired ===
-                    false) &&
-                loaderData.event.canceled === false &&
-                loaderData.beforeParticipationPeriod === false &&
-                loaderData.afterParticipationPeriod === false && (
-                  <EventsOverview.Login
-                    pathname={pathname}
-                    searchParam={PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM}
-                    modal={{
-                      searchParam: PARTICIPATE_ON_EVENT_ANON_MODAL_SEARCH_PARAM,
-                      locales: loaderData.locales.route.content.anonModal,
-                    }}
-                    actionData={actionData}
-                  >
-                    {loaderData.locales.route.content.login}
-                  </EventsOverview.Login>
-                )}
+              {loaderData.mode === "anon" && (
+                <EventsOverview.Login
+                  pathname={pathname}
+                  searchParam={PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM}
+                  modal={{
+                    searchParam: PARTICIPATE_ON_EVENT_ANON_MODAL_SEARCH_PARAM,
+                    locales: loaderData.locales.route.content.anonModal,
+                  }}
+                  actionData={actionData}
+                >
+                  {loaderData.locales.route.content.login}
+                </EventsOverview.Login>
+              )}
               {loaderData.event.external && (
                 <EventsOverview.ExternalParticipate
                   externalRegistrationUrl={
                     loaderData.event.externalRegistrationUrl
                   }
-                  isAdmin={loaderData.mode === "admin"}
+                  isAdmin={loaderData.mode === "administrating"}
                 >
                   {loaderData.locales.route.content.externalParticipate}
                 </EventsOverview.ExternalParticipate>
@@ -1012,7 +1025,7 @@ function Detail() {
           <TabBar>
             <TabBar.Item active={pathname.endsWith("/about")}>
               <Link
-                to="./about"
+                to={`./about${tokenHash ? `?token_hash=${tokenHash}` : ""}`}
                 preventScrollReset
                 {...TabBar.getItemElementClasses(pathname.endsWith("/about"))}
               >
@@ -1024,10 +1037,11 @@ function Detail() {
             {loaderData.event._count.participants +
               loaderData.event._count.guests >
               0 &&
+              loaderData.mode !== null &&
               loaderData.mode !== "anon" && (
                 <TabBar.Item active={pathname.endsWith("/participants")}>
                   <Link
-                    to="./participants"
+                    to={`./participants${tokenHash ? `?token_hash=${tokenHash}` : ""}`}
                     preventScrollReset
                     {...TabBar.getItemElementClasses(
                       pathname.endsWith("/participants")
@@ -1046,7 +1060,7 @@ function Detail() {
             {loaderData.event._count.childEvents > 0 && (
               <TabBar.Item active={pathname.endsWith("/child-events")}>
                 <Link
-                  to="./child-events"
+                  to={`./child-events${tokenHash ? `?token_hash=${tokenHash}` : ""}`}
                   preventScrollReset
                   {...TabBar.getItemElementClasses(
                     pathname.endsWith("/child-events")

@@ -15,6 +15,7 @@ export async function getChildEventsOfEvent(options: {
   authClient: SupabaseClient;
   sessionUser: User | null;
   searchParams: URLSearchParams;
+  tokenHash: string | null;
 }) {
   const { slug, authClient, sessionUser, searchParams } = options;
   const submission = parseWithZod(searchParams, {
@@ -44,9 +45,11 @@ export async function getChildEventsOfEvent(options: {
     external: true,
     openForRegistration: true,
     parentParticipationRequired: true,
+    participationToken: true,
     parentEvent: {
       select: {
         parentParticipationRequired: true,
+        participationToken: true,
         participants: {
           select: {
             profileId: true,
@@ -112,13 +115,17 @@ export async function getChildEventsOfEvent(options: {
 
       const participantCount = event._count.participants;
 
-      const mode = await deriveModeForEvent(sessionUser, {
-        ...event,
-        participantCount: event._count.participants,
-        beforeParticipationPeriod,
-        afterParticipationPeriod,
-        inPast,
-        hasChildEvents: event._count.childEvents > 0,
+      const mode = await deriveModeForEvent({
+        sessionUser,
+        tokenHash: options.tokenHash,
+        eventInfo: {
+          ...event,
+          participantCount: event._count.participants,
+          beforeParticipationPeriod,
+          afterParticipationPeriod,
+          inPast,
+          hasChildEvents: event._count.childEvents > 0,
+        },
       });
 
       const isMember = await getIsMember(sessionUser, event);
@@ -187,9 +194,11 @@ export async function getEventByIdForAction(id: string) {
       external: true,
       openForRegistration: true,
       parentParticipationRequired: true,
+      participationToken: true,
       parentEvent: {
         select: {
           parentParticipationRequired: true,
+          participationToken: true,
           participants: {
             select: {
               profileId: true,

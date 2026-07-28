@@ -66,6 +66,7 @@ export async function getEventBySlug(
       externalRegistrationUrl: true,
       openForRegistration: true,
       parentParticipationRequired: true,
+      participationToken: true,
       stage: {
         select: {
           slug: true,
@@ -76,6 +77,7 @@ export async function getEventBySlug(
           name: true,
           slug: true,
           parentParticipationRequired: true,
+          participationToken: true,
           participants: {
             select: {
               profileId: true,
@@ -226,8 +228,28 @@ export async function isAdminOfEvent(
   return result !== null;
 }
 
-export async function deriveModeForEvent(
-  sessionUser: { id: string } | null,
+function getIsAnyoneAbleToParticipateInEvent(event: {
+  inPast: boolean;
+  beforeParticipationPeriod: boolean;
+  afterParticipationPeriod: boolean;
+  canceled: boolean;
+  external: boolean;
+}) {
+  if (
+    event.inPast === false &&
+    event.beforeParticipationPeriod === false &&
+    event.afterParticipationPeriod === false &&
+    event.canceled === false &&
+    event.external === false
+  ) {
+    return true;
+  }
+  return false;
+}
+
+export async function deriveModeForEvent(options: {
+  sessionUser: { id: string } | null;
+  tokenHash: string | null;
   eventInfo: {
     id: string;
     beforeParticipationPeriod: boolean;
@@ -240,38 +262,82 @@ export async function deriveModeForEvent(
     openForRegistration: boolean;
     parentParticipationRequired: boolean | null;
     hasChildEvents: boolean;
+    participationToken?: string | null;
     parentEvent: {
       parentParticipationRequired: boolean | null;
+      participationToken?: string | null;
       participants: { profileId: string }[];
     } | null;
-  }
-) {
+  };
+}) {
+  const { sessionUser, eventInfo, tokenHash } = options;
+
+  const isAnyoneAbleToParticipate =
+    getIsAnyoneAbleToParticipateInEvent(eventInfo);
+
+  // "anon" means that user can participate anonymously (without logging in)
   if (sessionUser === null) {
+    // Check if user can in principle participate in the event
+    if (isAnyoneAbleToParticipate === false) {
+      return null;
+    }
+    // Check if user should participate on child event
+    if (
+      eventInfo.hasChildEvents &&
+      eventInfo.parentParticipationRequired === false
+    ) {
+      return null;
+    }
+    // Check if closed event
+    // Therefore, user can only participate via participation link
+    if (eventInfo.openForRegistration === false) {
+      if (tokenHash !== null && tokenHash === eventInfo.participationToken) {
+        return "anon" as const;
+      }
+      return null;
+    }
+
+    // Check if user should first participate on parent event
+    // Therefore, user can only participate via participation link from parent event
+    if (
+      eventInfo.parentEvent !== null &&
+      eventInfo.parentParticipationRequired !== false
+    ) {
+      if (
+        tokenHash !== null &&
+        tokenHash === eventInfo.parentEvent.participationToken
+      ) {
+        return "anon" as const;
+      }
+      return null;
+    }
+
     return "anon" as const;
   }
 
+  // Check if user can administrate the event
   const adminRelation = await prismaClient.adminOfEvent.findFirst({
     where: {
       profileId: sessionUser.id,
       eventId: eventInfo.id,
     },
   });
-
   if (adminRelation !== null) {
-    return "admin" as const;
+    return "administrating" as const;
   }
 
+  // Check if is user is participating
   const participantRelation = await prismaClient.participantOfEvent.findFirst({
     where: {
       profileId: sessionUser.id,
       eventId: eventInfo.id,
     },
   });
-
   if (participantRelation !== null) {
     return "participating" as const;
   }
 
+  // Check if user is on the waiting list
   const waitingParticipantRelation =
     await prismaClient.waitingParticipantOfEvent.findFirst({
       where: {
@@ -279,30 +345,44 @@ export async function deriveModeForEvent(
         eventId: eventInfo.id,
       },
     });
-
   if (waitingParticipantRelation !== null) {
     return "waiting" as const;
   }
 
+  // Check if user can in principle participate in the event
+  if (isAnyoneAbleToParticipate === false) {
+    return null;
+  }
+
+  // Check if closed event
+  // Therefore, user can only participate via participation link
   if (
-    eventInfo.inPast ||
-    eventInfo.afterParticipationPeriod ||
-    eventInfo.beforeParticipationPeriod ||
-    eventInfo.canceled ||
-    eventInfo.external ||
-    eventInfo.openForRegistration === false ||
-    (eventInfo.hasChildEvents &&
-      eventInfo.parentParticipationRequired === false) ||
-    (eventInfo.parentEvent !== null &&
-      eventInfo.parentParticipationRequired !== false &&
-      eventInfo.parentEvent.parentParticipationRequired &&
-      eventInfo.parentEvent.participants.some(
-        (relation) => relation.profileId === sessionUser.id
-      ) === false)
+    eventInfo.openForRegistration === false &&
+    (tokenHash === null || tokenHash !== eventInfo.participationToken)
   ) {
     return null;
   }
 
+  // Check if user should participate on child event
+  if (
+    eventInfo.hasChildEvents &&
+    eventInfo.parentParticipationRequired === false
+  ) {
+    return null;
+  }
+
+  // Check if user should first participate on parent event and isn't already participating on parent event
+  if (
+    eventInfo.parentEvent !== null &&
+    eventInfo.parentParticipationRequired !== false &&
+    eventInfo.parentEvent.participants.some(
+      (relation) => relation.profileId === sessionUser.id
+    ) === false
+  ) {
+    return null;
+  }
+
+  // Check if user can be added to the waiting list
   if (
     eventInfo.participantLimit !== null &&
     eventInfo.participantCount >= eventInfo.participantLimit

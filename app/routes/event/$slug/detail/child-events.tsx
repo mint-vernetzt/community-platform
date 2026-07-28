@@ -2,6 +2,7 @@ import { parseWithZod } from "@conform-to/zod";
 import {
   redirect,
   useLoaderData,
+  useSearchParams,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
@@ -48,12 +49,14 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const url = new URL(request.url);
   const searchParams = url.searchParams;
+  const tokenHash = searchParams.get("token_hash");
 
   const { submission, childEvents } = await getChildEventsOfEvent({
     slug,
     authClient,
     sessionUser,
     searchParams,
+    tokenHash,
   });
 
   return { submission, childEvents, locales, language };
@@ -99,13 +102,21 @@ export async function action(args: ActionFunctionArgs) {
   const afterParticipationPeriod = now > event.participationUntil;
   const inPast = now > event.endTime;
 
-  const mode = await deriveModeForEvent(sessionUser, {
-    ...event,
-    participantCount: event._count.participants,
-    beforeParticipationPeriod,
-    afterParticipationPeriod,
-    inPast,
-    hasChildEvents: event._count.childEvents > 0,
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
+  const tokenHash = searchParams.get("token_hash");
+
+  const mode = await deriveModeForEvent({
+    sessionUser,
+    tokenHash,
+    eventInfo: {
+      ...event,
+      participantCount: event._count.participants,
+      beforeParticipationPeriod,
+      afterParticipationPeriod,
+      inPast,
+      hasChildEvents: event._count.childEvents > 0,
+    },
   });
 
   invariantResponse(
@@ -180,6 +191,9 @@ export async function action(args: ActionFunctionArgs) {
 function ChildEvents() {
   const loaderData = useLoaderData<typeof loader>();
 
+  const [searchParams] = useSearchParams();
+  const tokenHash = searchParams.get("token_hash");
+
   return (
     <div className="flex flex-col gap-4">
       <h3 className="text-neutral-700 text-xl font-bold leading-6">
@@ -195,7 +209,7 @@ function ChildEvents() {
             <ListItemEvent
               key={event.id}
               index={index}
-              to={`/event/${event.slug}/detail/about`}
+              to={`/event/${event.slug}/detail/about${tokenHash ? `?token_hash=${tokenHash}` : ""}`}
             >
               <ListItemEvent.Image
                 alt={event.name}

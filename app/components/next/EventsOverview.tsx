@@ -1194,9 +1194,13 @@ function Login(props: {
   const [expandedSection, setExpandedSection] = useState<
     "loginOrRegister" | "guestAccess"
   >("loginOrRegister");
+
+  const tokenHash = searchParams.get("token_hash");
+
   const enhancedSearchParamsForRedirect = extendSearchParams(searchParams, {
     addOrReplace: {
       [props.searchParam]: "true",
+      token_hash: tokenHash !== null ? tokenHash : undefined,
     },
     remove: [props.modal.searchParam],
   });
