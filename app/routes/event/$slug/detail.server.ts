@@ -373,6 +373,20 @@ export async function getIsMember(
             },
           },
         },
+        // is admin of a responsible organization
+        {
+          administeredOrganizations: {
+            some: {
+              organization: {
+                admins: {
+                  some: {
+                    profileId: sessionUser.id,
+                  },
+                },
+              },
+            },
+          },
+        },
       ],
     },
     select: {
