@@ -123,12 +123,13 @@ function ResponsibleOrganizations(props: {
   }
 
   return (
-    <Link
-      className="flex gap-4 align-center py-4 px-2 md:px-4 -mx-2 md:mx-0 border-0 md:border border-neutral-200 rounded-lg hover:bg-neutral-100"
-      to={`/event/${slug}/detail/about#responsible-organizations`}
-      prefetch="intent"
-    >
-      <div className="flex gap-1">
+    <div className="relative flex gap-4 align-center py-4 px-2 md:px-4 -mx-2 md:mx-0 border-0 md:border border-neutral-200 rounded-lg hover:bg-neutral-100">
+      <Link
+        className="absolute inset-0 rounded-lg"
+        to={`/event/${slug}/detail/about#responsible-organizations`}
+        prefetch="intent"
+      />
+      <div className="relative z-10 flex gap-1">
         <div className="flex -space-x-2">
           {organizations.slice(0, 2).map((organization, index) => {
             return (
@@ -158,7 +159,7 @@ function ResponsibleOrganizations(props: {
           ? locales.route.content.jointEvent
           : organizations[0].name}
       </div>
-    </Link>
+    </div>
   );
 }
 
