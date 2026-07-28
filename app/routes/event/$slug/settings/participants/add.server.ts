@@ -1,11 +1,5 @@
-import { type SupabaseClient } from "@supabase/supabase-js";
-import { prismaClient } from "~/prisma.server";
-import {
-  createSearchParticipantsSchema,
-  SEARCH_PARTICIPANTS_SEARCH_PARAM,
-} from "./add.shared";
 import { parseWithZod } from "@conform-to/zod";
-import { getPublicURL } from "~/storage.server";
+import { type SupabaseClient } from "@supabase/supabase-js";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import {
@@ -13,6 +7,12 @@ import {
   mailer,
   mailerOptions,
 } from "~/mailer.server";
+import { prismaClient } from "~/prisma.server";
+import { getPublicURL } from "~/storage.server";
+import {
+  createSearchParticipantsSchema,
+  SEARCH_PARTICIPANTS_SEARCH_PARAM,
+} from "./add.shared";
 
 export async function getEventBySlug(slug: string) {
   const event = await prismaClient.event.findUnique({
@@ -21,10 +21,12 @@ export async function getEventBySlug(slug: string) {
     },
     select: {
       id: true,
+      slug: true,
       published: true,
       external: true,
       openForRegistration: true,
       parentParticipationRequired: true,
+      participationToken: true,
       parentEvent: {
         select: {
           parentParticipationRequired: true,
@@ -42,7 +44,21 @@ export async function getEventBySlug(slug: string) {
       },
     },
   });
-  return event;
+
+  if (event === null) {
+    return null;
+  }
+
+  const { participationToken, ...rest } = event;
+  let participationLink: string | null = null;
+  if (participationToken !== null) {
+    participationLink = `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail?token_hash=${participationToken}`;
+  }
+
+  return {
+    ...rest,
+    participationLink,
+  };
 }
 
 export async function searchProfiles(options: {

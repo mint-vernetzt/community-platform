@@ -499,6 +499,12 @@ function RegistrationAccess() {
                 </RadioSubmitButtonSettings.Subline>
               </RadioSubmitButtonSettings>
             </Form>
+            {loaderData.event.openForRegistration === false && (
+              <Hint>
+                <Hint.InfoIcon />
+                {locales.route.access.closed.hint}
+              </Hint>
+            )}
           </div>
         )}
         {event.external === false &&

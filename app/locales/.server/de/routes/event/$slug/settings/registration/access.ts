@@ -44,6 +44,7 @@ export const locale = {
       headline: "Geschlossene Veranstaltung",
       subline:
         "Nur auf Einladung zugänglich. Diese Option ist bei externer Registrierung nicht verfügbar.",
+      hint: "Nach der Veröffentlichung kannst du Teilnehmende auch über einen Einladungslink einladen.",
     },
   },
   parentParticipation: {
