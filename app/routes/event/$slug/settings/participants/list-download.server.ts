@@ -43,6 +43,18 @@ export async function getParticipantsOfEvent(slug: string) {
           },
         },
       },
+      guests: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          organizationName: true,
+        },
+        orderBy: {
+          firstName: "asc",
+        },
+      },
       childEvents: {
         select: {
           name: true,
@@ -77,6 +89,15 @@ export async function getParticipantsOfEvent(slug: string) {
               },
             },
           },
+          guests: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+              organizationName: true,
+            },
+          },
         },
       },
     },
@@ -86,18 +107,51 @@ export async function getParticipantsOfEvent(slug: string) {
     return [];
   }
 
+  const participantsOfEvent = event.participants.map((participant) => ({
+    ...participant.profile,
+    event: event.name,
+  }));
+
+  const guestsOfEvent = event.guests.map((guest) => ({
+    id: `guest:${guest.id}`,
+    firstName: guest.firstName,
+    lastName: guest.lastName,
+    email: guest.email,
+    position: "",
+    memberOf:
+      guest.organizationName !== null
+        ? [{ organization: { name: guest.organizationName } }]
+        : [],
+    areas: [],
+    event: event.name,
+  }));
+
+  const participantsAndGuestsOfChildEvents = event.childEvents.flatMap(
+    (childEvent) => [
+      ...childEvent.participants.map((participant) => ({
+        ...participant.profile,
+        event: childEvent.name,
+      })),
+      ...childEvent.guests.map((guest) => ({
+        id: `guest:${guest.id}`,
+        firstName: guest.firstName,
+        lastName: guest.lastName,
+        email: guest.email,
+        position: "",
+        memberOf:
+          guest.organizationName !== null
+            ? [{ organization: { name: guest.organizationName } }]
+            : [],
+        areas: [],
+        event: childEvent.name,
+      })),
+    ]
+  );
+
   const aggregatedParticipants = [
-    ...event.participants.map((participant) => {
-      return { ...participant.profile, event: event.name };
-    }),
-    ...event.childEvents
-      .map((childEvent) => {
-        const participants = childEvent.participants.map((participant) => {
-          return { ...participant.profile, event: childEvent.name };
-        });
-        return participants;
-      })
-      .flat(),
+    ...participantsOfEvent,
+    ...guestsOfEvent,
+    ...participantsAndGuestsOfChildEvents,
   ];
 
   const uniqueParticipants = aggregatedParticipants.filter(
