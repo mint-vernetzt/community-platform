@@ -4,16 +4,16 @@ export const locale = {
     description:
       "MINTvernetzt ist die Service- und Anlaufstelle für die Community der MINT-Akteur:innen in Deutschland. Diese werden durch Vernetzungsräume, Transferangebote und Innovationsimpulse unterstützt, innovative und nachhaltige MINT-Bildungsangebote zu machen, die noch breitere und diversere Zielgruppen ansprechen.",
     targetGroups:
-      "Hierzu zählen insbesondere Mädchen und junge Frauen. MINTvernetzt wird vom Bundesministerium für Bildung und Forschung (BMBF) gefördert und von Mitarbeitenden der Körber-Stiftung, der matrix gGmbH, dem Nationalen MINT Forum e.V., der Universität Regensburg und dem Stierverband gemeinsam umgesetzt.",
+      "Hierzu zählen insbesondere Mädchen und junge Frauen. MINTvernetzt wird vom Bundesministerium für Bildung, Familie, Senioren, Frauen und Jugend (BMBFSFJ) gefördert und von Mitarbeitenden der Körber-Stiftung, der matrix gGmbH, dem Nationalen MINT Forum e.V., der Universität Regensburg und dem Stierverband gemeinsam umgesetzt.",
     dataProcessing:
       "Die Plattform ist demzufolge als Special Interest-Plattform ausgerichtet und daher ist es essenziell wichtig, dass zu den jeweiligen Akteur:innen bestimmte Basisinformationen öffentlich und / oder innerhalb der Plattform sichtbar sind.",
     dataProcessors: {
       prefix:
         "Die in diesem Rahmen durchgeführte Datenverarbeitung wird gemeinsam von",
       organizations: [
-        "der Körber-Stiftung Pariser Platz 4a, 10117 Berlin,",
+        "der Körber-Stiftung Kehrwieder 12, 20457 Hamburg,",
         "der matrix gGmbH Düsseldorfer Str. 16, 40699 Erkrath,",
-        "dem Stifterverband für die deutsche Wissenschaft e.V. Baedekerstraße 1, 45128 Essen,",
+        "dem Stifterverband für die deutsche Wissenschaft e.V. Pariser Platz 6, 10117 Berlin,",
         "dem Nationalen MINT Forum e.V., Rosenstraße 2, 10178 Berlin und",
         "der Universität Regensburg, Universitätsstraße 31, 93053 Regensburg",
         "(nachfolgend zusammen „Verbundpartner:innen“)",

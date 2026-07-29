@@ -4,16 +4,16 @@ export const locale = {
     description:
       "Notice: The German version serves as the legal basis. MINTvernetzt is the service and contact point for the community of MINT stakeholders in Germany. They are supported through networking spaces, transfer offerings, and innovation impulses to create innovative and sustainable MINT educational offerings that reach even broader and more diverse target groups.",
     targetGroups:
-      "These include in particular girls and young women. MINTvernetzt is funded by the Federal Ministry of Education and Research (BMBF) and is jointly implemented by employees of the Körber-Stiftung, matrix gGmbH, the Nationales MINT Forum e.V., the Universität Regensburg, and the Stifterverband.",
+      "These include in particular girls and young women. MINTvernetzt is funded by the Federal Ministry for Education, Family Affairs, Senior Citizens, Women and Youth (BMBFSFJ) and is jointly implemented by employees of the Körber-Stiftung, matrix gGmbH, the Nationales MINT Forum e.V., the Universität Regensburg, and the Stifterverband.",
     dataProcessing:
       "The platform is therefore designed as a special-interest platform, and it is therefore of essential importance that certain basic information about the respective stakeholders is publicly visible and/or visible within the platform.",
     dataProcessors: {
       prefix:
         "The data processing carried out in this context is jointly managed by",
       organizations: [
-        "Körber-Stiftung, Pariser Platz 4a, 10117 Berlin,",
+        "Körber-Stiftung, Kehrwieder 12, 20457 Hamburg,",
         "matrix gGmbH, Düsseldorfer Str. 16, 40699 Erkrath,",
-        "Stifterverband für die deutsche Wissenschaft e.V., Baedekerstraße 1, 45128 Essen,",
+        "Stifterverband für die deutsche Wissenschaft e.V., Pariser Platz 6, 10117 Berlin,",
         "Nationales MINT Forum e.V., Rosenstraße 2, 10178 Berlin, and",
         "Universität Regensburg, Universitätsstraße 31, 93053 Regensburg",
         '(hereinafter collectively referred to as "consortium partners")',
