@@ -219,7 +219,7 @@ export function NavBar(props: NavBarProps) {
             <div className="gap-4 items-center hidden xl:flex">
               <div>
                 <Button
-                  to={`/login?login_redirect=${location.pathname}`}
+                  to={`/login?login_redirect=${location.pathname}${location.search}`}
                   as="link"
                   variant="outline"
                   prefetch="intent"
@@ -233,7 +233,7 @@ export function NavBar(props: NavBarProps) {
               </div>
               <div>
                 <Button
-                  to={`/register?login_redirect=${location.pathname}`}
+                  to={`/register?login_redirect=${location.pathname}${location.search}`}
                   as="link"
                   prefetch="intent"
                 >

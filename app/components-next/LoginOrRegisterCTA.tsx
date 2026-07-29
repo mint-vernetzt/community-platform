@@ -74,7 +74,7 @@ export function LoginOrRegisterCTA(props: {
         <div className="text-primary font-semibold hover:underline grow @sm:grow-0">
           <Button
             as="link"
-            to={`/login?login_redirect=${location.pathname}`}
+            to={`/login?login_redirect=${location.pathname}${location.search}`}
             variant="outline"
             fullSize
             prefetch="intent"
@@ -88,7 +88,7 @@ export function LoginOrRegisterCTA(props: {
         <div className="text-primary font-semibold hover:underline grow @sm:grow-0">
           <Button
             as="link"
-            to={`/register?login_redirect=${location.pathname}`}
+            to={`/register?login_redirect=${location.pathname}${location.search}`}
             fullSize
             prefetch="intent"
           >
