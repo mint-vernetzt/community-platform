@@ -212,7 +212,7 @@ function Modal(props: ModalProps) {
       <div
         id="modal"
         tabIndex={-1}
-        className="relative max-w-124 rounded-lg bg-white p-6 flex flex-col gap-6"
+        className="relative max-w-124 max-h-full overflow-auto rounded-lg bg-white p-6 flex flex-col gap-6"
       >
         {typeof title !== "undefined" ? (
           <div className="flex justify-between items-baseline gap-4">
