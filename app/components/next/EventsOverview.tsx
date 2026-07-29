@@ -24,6 +24,7 @@ import { HoneypotInputs } from "remix-utils/honeypot/react";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { Dropdown } from "~/components-next/Dropdown";
 import { FormControl } from "~/components-next/FormControl";
+import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "~/events.shared";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { HONEYPOT_CLASSNAME } from "~/honeypot.shared";
 import type { SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
@@ -1195,12 +1196,13 @@ function Login(props: {
     "loginOrRegister" | "guestAccess"
   >("loginOrRegister");
 
-  const tokenHash = searchParams.get("token_hash");
+  const tokenHash = searchParams.get(PARTICIPATION_TOKEN_HASH_SEARCH_PARAM);
 
   const enhancedSearchParamsForRedirect = extendSearchParams(searchParams, {
     addOrReplace: {
       [props.searchParam]: "true",
-      token_hash: tokenHash !== null ? tokenHash : undefined,
+      [PARTICIPATION_TOKEN_HASH_SEARCH_PARAM]:
+        tokenHash !== null ? tokenHash : undefined,
     },
     remove: [props.modal.searchParam],
   });

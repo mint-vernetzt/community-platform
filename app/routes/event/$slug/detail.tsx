@@ -76,6 +76,7 @@ import {
 } from "./details.shared";
 import { formatDateTime } from "./index.shared";
 import { filterEventConferenceLink } from "./utils.server";
+import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "~/events.shared";
 
 export function links() {
   return [
@@ -248,7 +249,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const url = new URL(request.url);
   const searchParams = url.searchParams;
-  const tokenHash = searchParams.get("token_hash");
+  const tokenHash = searchParams.get(PARTICIPATION_TOKEN_HASH_SEARCH_PARAM);
 
   const mode = await deriveModeForEvent({
     sessionUser,
@@ -525,7 +526,7 @@ export async function action(args: ActionFunctionArgs) {
 
   const url = new URL(request.url);
   const searchParams = url.searchParams;
-  const tokenHash = searchParams.get("token_hash");
+  const tokenHash = searchParams.get(PARTICIPATION_TOKEN_HASH_SEARCH_PARAM);
 
   const mode = await deriveModeForEvent({
     sessionUser,
@@ -734,7 +735,7 @@ function Detail() {
   const navigate = useNavigate();
 
   const [searchParams] = useSearchParams();
-  const tokenHash = searchParams.get("token_hash");
+  const tokenHash = searchParams.get(PARTICIPATION_TOKEN_HASH_SEARCH_PARAM);
 
   const zonedParticipationFrom = utcToZonedTime(
     loaderData.event.participationFrom,
@@ -1024,7 +1025,7 @@ function Detail() {
           <TabBar>
             <TabBar.Item active={pathname.endsWith("/about")}>
               <Link
-                to={`./about${tokenHash ? `?token_hash=${tokenHash}` : ""}`}
+                to={`./about${tokenHash ? `?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${tokenHash}` : ""}`}
                 preventScrollReset
                 {...TabBar.getItemElementClasses(pathname.endsWith("/about"))}
               >
@@ -1040,7 +1041,7 @@ function Detail() {
               loaderData.mode !== "anon" && (
                 <TabBar.Item active={pathname.endsWith("/participants")}>
                   <Link
-                    to={`./participants${tokenHash ? `?token_hash=${tokenHash}` : ""}`}
+                    to={`./participants${tokenHash ? `?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${tokenHash}` : ""}`}
                     preventScrollReset
                     {...TabBar.getItemElementClasses(
                       pathname.endsWith("/participants")
@@ -1059,7 +1060,7 @@ function Detail() {
             {loaderData.event._count.childEvents > 0 && (
               <TabBar.Item active={pathname.endsWith("/child-events")}>
                 <Link
-                  to={`./child-events${tokenHash ? `?token_hash=${tokenHash}` : ""}`}
+                  to={`./child-events${tokenHash ? `?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${tokenHash}` : ""}`}
                   preventScrollReset
                   {...TabBar.getItemElementClasses(
                     pathname.endsWith("/child-events")

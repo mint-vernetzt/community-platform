@@ -32,6 +32,7 @@ import {
   hasDescription,
   hasSubline,
 } from "./child-events.shared";
+import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "~/events.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -49,7 +50,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const url = new URL(request.url);
   const searchParams = url.searchParams;
-  const tokenHash = searchParams.get("token_hash");
+  const tokenHash = searchParams.get(PARTICIPATION_TOKEN_HASH_SEARCH_PARAM);
 
   const { submission, childEvents } = await getChildEventsOfEvent({
     slug,
@@ -104,7 +105,7 @@ export async function action(args: ActionFunctionArgs) {
 
   const url = new URL(request.url);
   const searchParams = url.searchParams;
-  const tokenHash = searchParams.get("token_hash");
+  const tokenHash = searchParams.get(PARTICIPATION_TOKEN_HASH_SEARCH_PARAM);
 
   const mode = await deriveModeForEvent({
     sessionUser,
@@ -192,7 +193,7 @@ function ChildEvents() {
   const loaderData = useLoaderData<typeof loader>();
 
   const [searchParams] = useSearchParams();
-  const tokenHash = searchParams.get("token_hash");
+  const tokenHash = searchParams.get(PARTICIPATION_TOKEN_HASH_SEARCH_PARAM);
 
   return (
     <div className="flex flex-col gap-4">
@@ -209,7 +210,7 @@ function ChildEvents() {
             <ListItemEvent
               key={event.id}
               index={index}
-              to={`/event/${event.slug}/detail/about${tokenHash ? `?token_hash=${tokenHash}` : ""}`}
+              to={`/event/${event.slug}/detail/about${tokenHash ? `?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${tokenHash}` : ""}`}
             >
               <ListItemEvent.Image
                 alt={event.name}
