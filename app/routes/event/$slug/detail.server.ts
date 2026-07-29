@@ -363,18 +363,19 @@ export async function deriveModeForEvent(options: {
     return null;
   }
 
-  // Check if user should participate on child event
+  // Check if user is on parent event and should participate on child event
   if (
-    eventInfo.hasChildEvents &&
+    eventInfo.parentEvent === null &&
     eventInfo.parentParticipationRequired === false
   ) {
     return null;
   }
 
-  // Check if user should first participate on parent event and isn't already participating on parent event
+  // Check if user is on child event and should first participate on parent event and isn't already participating on parent event
   if (
     eventInfo.parentEvent !== null &&
     eventInfo.parentParticipationRequired !== false &&
+    eventInfo.parentEvent.parentParticipationRequired !== false &&
     eventInfo.parentEvent.participants.some(
       (relation) => relation.profileId === sessionUser.id
     ) === false
