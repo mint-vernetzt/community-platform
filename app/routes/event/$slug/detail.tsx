@@ -56,7 +56,6 @@ import {
   getHasUserReportedEvent,
   getIsMember,
   getParticipantsCount,
-  isAdminOfEvent,
   removeProfileFromParticipants,
   removeProfileFromWaitingList,
   reportEvent,
