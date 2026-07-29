@@ -1,6 +1,7 @@
 import { type SupabaseClient, type User } from "@supabase/supabase-js";
 import { prismaClient } from "~/prisma.server";
 import { Stages } from "./settings/location.shared";
+import { generateValidationToken } from "~/utils.server";
 
 export async function getEventBySlug(slug: string) {
   const event = await prismaClient.event.findUnique({
@@ -16,6 +17,7 @@ export async function getEventBySlug(slug: string) {
       externalRegistrationUrl: true,
       startTime: true,
       external: true,
+      participationToken: true,
       parentEvent: {
         select: {
           published: true,
@@ -64,29 +66,45 @@ export async function getEventBySlug(slug: string) {
   return event;
 }
 
-export async function updateEventBySlug(
-  slug: string,
-  data: {
-    published?: boolean;
-    publishIntended?: boolean;
-  }
-) {
+export async function updateEventOnFirstPublish(eventId: string) {
+  const result = await prismaClient.event.update({
+    where: { id: eventId },
+    data: {
+      publishIntended: true,
+    },
+  });
+  return result;
+}
+
+export async function publishEvent(event: {
+  id: string;
+  participationToken: string | null;
+}) {
   const transactions = [];
+
+  let token = event.participationToken;
+  if (token === null) {
+    token = generateValidationToken({
+      data: JSON.stringify({ eventId: event.id, now: Date.now() }),
+      secret: process.env.PARTICIPATION_SECRET,
+      salt: process.env.PARTICIPATION_SALT,
+    });
+  }
   transactions.push(
     prismaClient.event.update({
-      where: { slug },
-      data,
+      where: { id: event.id },
+      data: {
+        published: true,
+        participationToken: token,
+      },
     })
   );
-
-  if (typeof data.published !== "undefined" && data.published) {
-    transactions.push(
-      prismaClient.requestToParentEventToAddChildEvent.updateMany({
-        where: { childEvent: { slug }, status: "pending" },
-        data: { status: "canceled" },
-      })
-    );
-  }
+  transactions.push(
+    prismaClient.requestToParentEventToAddChildEvent.updateMany({
+      where: { childEvent: { id: event.id }, status: "pending" },
+      data: { status: "canceled" },
+    })
+  );
 
   const [updatedEvent] = await prismaClient.$transaction(transactions);
   return updatedEvent;
