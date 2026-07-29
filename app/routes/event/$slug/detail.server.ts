@@ -464,6 +464,11 @@ export async function getIsMember(
                     profileId: sessionUser.id,
                   },
                 },
+                responsibleForEvents: {
+                  some: {
+                    eventId: event.id,
+                  },
+                },
               },
             },
           },
@@ -474,6 +479,7 @@ export async function getIsMember(
       id: true,
     },
   });
+
   return member !== null;
 }
 
