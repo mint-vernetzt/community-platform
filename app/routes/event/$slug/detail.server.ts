@@ -11,6 +11,7 @@ import {
   disconnectImageSchema,
 } from "~/components/legacy/ImageCropper/ImageCropper";
 import { removeParticipantFromEvent } from "~/events.server";
+import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "~/events.shared";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import {
@@ -23,6 +24,7 @@ import { filterProfileByVisibility } from "~/public-fields-filtering.server";
 import { getPublicURL, uploadFileToStorage } from "~/storage.server";
 import { FILE_FIELD_NAME } from "~/storage.shared";
 import { generateValidationToken } from "~/utils.server";
+import { PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM } from "./details.shared";
 
 export async function getEventBySlug(
   sessionUser: { id: string } | null,
@@ -1076,6 +1078,12 @@ export async function addGuestToEvent(options: {
     },
     select: {
       name: true,
+      participationToken: true,
+      _count: {
+        select: {
+          childEvents: true,
+        },
+      },
     },
   });
 
@@ -1232,10 +1240,43 @@ export async function addGuestToEvent(options: {
     const htmlTemplatePath =
       "mail-templates/guests/confirm-registration-html.hbs";
 
+    const redirectUrl = new URL(
+      `${process.env.COMMUNITY_BASE_URL}${options.redirectUrl}`
+    );
+    let participationToken = redirectUrl.searchParams.get(
+      PARTICIPATION_TOKEN_HASH_SEARCH_PARAM
+    );
+    let participateOnEventIntent = redirectUrl.searchParams.get(
+      PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM
+    );
+
+    if (
+      participationToken === null &&
+      event._count.childEvents > 0 &&
+      event.participationToken !== null
+    ) {
+      participationToken = event.participationToken;
+    }
+
+    const searchParams = new URLSearchParams();
+    if (participationToken !== null) {
+      searchParams.set(
+        PARTICIPATION_TOKEN_HASH_SEARCH_PARAM,
+        participationToken
+      );
+    }
+    if (participateOnEventIntent !== null) {
+      searchParams.set(
+        PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM,
+        participateOnEventIntent
+      );
+    }
+    redirectUrl.search = searchParams.toString();
+
     const data = {
       firstName: result.firstName,
       eventName: event.name,
-      buttonUrl: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?token_hash=${token}&confirmation_redirect=${process.env.COMMUNITY_BASE_URL}${options.redirectUrl}`)}`,
+      buttonUrl: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?token_hash=${token}&confirmation_redirect=${redirectUrl.toString()}`)}`,
     };
 
     const text = getCompiledMailTemplate<typeof textTemplatePath>(
