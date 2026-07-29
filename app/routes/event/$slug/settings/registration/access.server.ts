@@ -3,7 +3,6 @@ import {
   SET_PARENT_PARTICIPATION_TO_NOT_REQUIRED_INTENT,
   SET_PARENT_PARTICIPATION_TO_REQUIRED_INTENT,
 } from "./access.shared";
-import { generateValidationToken } from "~/utils.server";
 
 export async function getEventBySlug(slug: string) {
   const event = await prismaClient.event.findUnique({
