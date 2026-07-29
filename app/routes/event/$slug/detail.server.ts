@@ -80,6 +80,7 @@ export async function getEventBySlug(
           slug: true,
           parentParticipationRequired: true,
           participationToken: true,
+          external: true,
           participants: {
             select: {
               profileId: true,
@@ -269,6 +270,7 @@ export async function deriveModeForEvent(options: {
     parentEvent: {
       parentParticipationRequired: boolean | null;
       participationToken?: string | null;
+      external: boolean;
       participants: { profileId: string }[];
     } | null;
   };
@@ -304,7 +306,10 @@ export async function deriveModeForEvent(options: {
     // Check if user on child event
     if (eventInfo.parentEvent !== null) {
       // Check if user can participate on child event
-      if (eventInfo.parentEvent.parentParticipationRequired === false) {
+      if (
+        eventInfo.parentEvent.parentParticipationRequired === false ||
+        eventInfo.parentEvent.external
+      ) {
         return "anon" as const;
       }
       // Check if user should first participate on parent event

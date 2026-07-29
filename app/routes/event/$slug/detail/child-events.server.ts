@@ -50,6 +50,7 @@ export async function getChildEventsOfEvent(options: {
       select: {
         parentParticipationRequired: true,
         participationToken: true,
+        external: true,
         participants: {
           select: {
             profileId: true,
@@ -199,6 +200,7 @@ export async function getEventByIdForAction(id: string) {
         select: {
           parentParticipationRequired: true,
           participationToken: true,
+          external: true,
           participants: {
             select: {
               profileId: true,
