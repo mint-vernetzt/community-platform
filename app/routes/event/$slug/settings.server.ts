@@ -18,8 +18,10 @@ export async function getEventBySlug(slug: string) {
       startTime: true,
       external: true,
       participationToken: true,
+      parentParticipationRequired: true,
       parentEvent: {
         select: {
+          parentParticipationRequired: true,
           published: true,
         },
       },
@@ -78,12 +80,26 @@ export async function updateEventOnFirstPublish(eventId: string) {
 
 export async function publishEvent(event: {
   id: string;
+  parentEventId: string | null;
+  parentEvent: { parentParticipationRequired: boolean | null } | null;
+  parentParticipationRequired: boolean | null;
   participationToken: string | null;
 }) {
   const transactions = [];
 
   let token = event.participationToken;
-  if (token === null) {
+
+  const hasNoParentEvent = event.parentEventId === null;
+  const parentEventDoesNotRequireParticipation =
+    event.parentEvent !== null &&
+    event.parentEvent.parentParticipationRequired === false;
+  const canParticipateDirectly = event.parentParticipationRequired === false;
+  if (
+    token === null &&
+    (hasNoParentEvent ||
+      parentEventDoesNotRequireParticipation ||
+      canParticipateDirectly)
+  ) {
     token = generateValidationToken({
       data: JSON.stringify({ eventId: event.id, now: Date.now() }),
       secret: process.env.PARTICIPATION_SECRET,
