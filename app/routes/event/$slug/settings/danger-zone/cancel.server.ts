@@ -166,7 +166,7 @@ export async function cancelEventBySlug(options: {
   } else {
     await prismaClient.event.updateMany({
       where: { parentEvent: { slug }, canceled: false },
-      data: { parentEventId: null },
+      data: { parentEventId: null, participationToken: null },
     });
   }
 

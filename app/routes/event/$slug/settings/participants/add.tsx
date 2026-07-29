@@ -245,19 +245,39 @@ function ParticipantsAdd() {
         <TitleSection.Headline>{locales.route.title}</TitleSection.Headline>
         <TitleSection.Subline>{locales.route.subline}</TitleSection.Subline>
       </TitleSection>
-      {event.openForRegistration === false &&
-        event.participationLink !== null && (
-          <>
-            <Hint>
-              <Hint.InfoIcon />
-              {locales.route.participationLinkHint}
-            </Hint>
-            <div className="flex items-center justify-between py-3 px-4 bg-neutral-100 rounded-lg">
-              <div className="flex gap-4 items-center">
-                <span>{event.participationLink}</span>
-              </div>
-              <div>
-                {participationLinkCopiedToClipboard ? (
+      {event.participationLink !== null && (
+        <>
+          <Hint>
+            <Hint.InfoIcon />
+            {locales.route.participationLinkHint}
+          </Hint>
+          <div className="flex items-center justify-between py-3 px-4 bg-neutral-100 rounded-lg">
+            <div className="flex gap-4 items-center">
+              <span>{event.participationLink}</span>
+            </div>
+            <div>
+              {participationLinkCopiedToClipboard ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                >
+                  <path
+                    d="M13.8536 3.64645C14.0488 3.84171 14.0488 4.15829 13.8536 4.35355L6.85355 11.3536C6.75979 11.4473 6.63261 11.5 6.5 11.5C6.36739 11.5 6.24021 11.4473 6.14645 11.3536L2.64645 7.85355C2.45118 7.65829 2.45118 7.34171 2.64645 7.14645C2.84171 6.95118 3.15829 6.95118 3.35355 7.14645L6.5 10.2929L13.1464 3.64645C13.3417 3.45118 13.6583 3.45118 13.8536 3.64645Z"
+                    fill="#3C4658"
+                  />
+                </svg>
+              ) : (
+                <button
+                  onClick={() => {
+                    handleCopyToClipboard(
+                      event.participationLink as string, // This is safe because we only render this button if participationLink is not null
+                      "participationLink"
+                    );
+                  }}
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
@@ -266,37 +286,16 @@ function ParticipantsAdd() {
                     fill="none"
                   >
                     <path
-                      d="M13.8536 3.64645C14.0488 3.84171 14.0488 4.15829 13.8536 4.35355L6.85355 11.3536C6.75979 11.4473 6.63261 11.5 6.5 11.5C6.36739 11.5 6.24021 11.4473 6.14645 11.3536L2.64645 7.85355C2.45118 7.65829 2.45118 7.34171 2.64645 7.14645C2.84171 6.95118 3.15829 6.95118 3.35355 7.14645L6.5 10.2929L13.1464 3.64645C13.3417 3.45118 13.6583 3.45118 13.8536 3.64645Z"
+                      d="M13 0H6C4.89543 0 4 0.89543 4 2C2.89543 2 2 2.89543 2 4V14C2 15.1046 2.89543 16 4 16H11C12.1046 16 13 15.1046 13 14C14.1046 14 15 13.1046 15 12V2C15 0.89543 14.1046 0 13 0ZM13 13V4C13 2.89543 12.1046 2 11 2H5C5 1.44772 5.44772 1 6 1H13C13.5523 1 14 1.44772 14 2V12C14 12.5523 13.5523 13 13 13ZM3 4C3 3.44772 3.44772 3 4 3H11C11.5523 3 12 3.44772 12 4V14C12 14.5523 11.5523 15 11 15H4C3.44772 15 3 14.5523 3 14V4Z"
                       fill="#3C4658"
                     />
                   </svg>
-                ) : (
-                  <button
-                    onClick={() => {
-                      handleCopyToClipboard(
-                        event.participationLink as string, // This is safe because we only render this button if participationLink is not null
-                        "participationLink"
-                      );
-                    }}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                    >
-                      <path
-                        d="M13 0H6C4.89543 0 4 0.89543 4 2C2.89543 2 2 2.89543 2 4V14C2 15.1046 2.89543 16 4 16H11C12.1046 16 13 15.1046 13 14C14.1046 14 15 13.1046 15 12V2C15 0.89543 14.1046 0 13 0ZM13 13V4C13 2.89543 12.1046 2 11 2H5C5 1.44772 5.44772 1 6 1H13C13.5523 1 14 1.44772 14 2V12C14 12.5523 13.5523 13 13 13ZM3 4C3 3.44772 3.44772 3 4 3H11C11.5523 3 12 3.44772 12 4V14C12 14.5523 11.5523 15 11 15H4C3.44772 15 3 14.5523 3 14V4Z"
-                        fill="#3C4658"
-                      />
-                    </svg>
-                  </button>
-                )}
-              </div>
+                </button>
+              )}
             </div>
-          </>
-        )}
+          </div>
+        </>
+      )}
       {event.parentEvent !== null &&
       event.parentEvent.parentParticipationRequired &&
       event.parentParticipationRequired !== false &&

@@ -10,7 +10,7 @@ export const LastTimeStamp = "last-timestamp";
 export function extendSearchParams(
   params: URLSearchParams,
   options: {
-    addOrReplace?: Record<string, string>;
+    addOrReplace?: Record<string, string | undefined>;
     remove?: string[];
   }
 ) {
@@ -18,7 +18,9 @@ export function extendSearchParams(
   const extendSearchParams = new URLSearchParams(params);
   if (addOrReplace) {
     for (const key in addOrReplace) {
-      extendSearchParams.set(key, addOrReplace[key]);
+      if (typeof addOrReplace[key] !== "undefined") {
+        extendSearchParams.set(key, addOrReplace[key]!);
+      }
     }
   }
   if (remove) {

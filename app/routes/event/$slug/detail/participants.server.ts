@@ -241,6 +241,7 @@ export async function getEventBySlug(slug: string) {
       parentEvent: {
         select: {
           parentParticipationRequired: true,
+          external: true,
           participants: {
             select: {
               profileId: true,

@@ -57,13 +57,17 @@ export async function loader(args: LoaderFunctionArgs) {
   const afterParticipationPeriod = now > event.participationUntil;
   const inPast = now > event.endTime;
 
-  const mode = await deriveModeForEvent(sessionUser, {
-    ...event,
-    participantCount: event._count.participants,
-    beforeParticipationPeriod,
-    afterParticipationPeriod,
-    inPast,
-    hasChildEvents: event._count.childEvents > 0,
+  const mode = await deriveModeForEvent({
+    sessionUser,
+    tokenHash: null, // No need to check participation token here
+    eventInfo: {
+      ...event,
+      participantCount: event._count.participants,
+      beforeParticipationPeriod,
+      afterParticipationPeriod,
+      inPast,
+      hasChildEvents: event._count.childEvents > 0,
+    },
   });
 
   if (

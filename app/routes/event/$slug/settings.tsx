@@ -33,7 +33,8 @@ import {
   getEventBySlugForIssues,
   getIssues,
   getRedirectPathOnProtectedEventRoute,
-  updateEventBySlug,
+  publishEvent,
+  updateEventOnFirstPublish,
 } from "./settings.server";
 import {
   FIRST_PUBLISH_EVENT_INTENT,
@@ -129,9 +130,7 @@ export async function action(args: ActionFunctionArgs) {
 
   try {
     if (intent === FIRST_PUBLISH_EVENT_INTENT) {
-      await updateEventBySlug(params.slug, {
-        publishIntended: true,
-      });
+      await updateEventOnFirstPublish(event.id);
       const url = new URL(request.url);
       const location = formData.get("location");
       const searchParams = extendSearchParams(url.searchParams, {
@@ -139,9 +138,7 @@ export async function action(args: ActionFunctionArgs) {
       });
       return redirect(`${location}?${searchParams.toString()}`);
     } else if (intent === PUBLISH_EVENT_INTENT) {
-      await updateEventBySlug(params.slug, {
-        published: true,
-      });
+      await publishEvent(event);
     }
   } catch (error) {
     captureException(error);

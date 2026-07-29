@@ -13,6 +13,7 @@ import {
   createSearchParticipantsSchema,
   SEARCH_PARTICIPANTS_SEARCH_PARAM,
 } from "./add.shared";
+import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "~/events.shared";
 
 export async function getEventBySlug(slug: string) {
   const event = await prismaClient.event.findUnique({
@@ -52,7 +53,7 @@ export async function getEventBySlug(slug: string) {
   const { participationToken, ...rest } = event;
   let participationLink: string | null = null;
   if (participationToken !== null) {
-    participationLink = `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail?token_hash=${participationToken}`;
+    participationLink = `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${participationToken}`;
   }
 
   return {
