@@ -265,6 +265,7 @@ export async function deriveModeForEvent(options: {
     parentParticipationRequired: boolean | null;
     hasChildEvents: boolean;
     participationToken?: string | null;
+
     parentEvent: {
       parentParticipationRequired: boolean | null;
       participationToken?: string | null;
@@ -290,6 +291,7 @@ export async function deriveModeForEvent(options: {
     ) {
       return null;
     }
+
     // Check if closed event
     // Therefore, user can only participate via participation link
     if (eventInfo.openForRegistration === false) {
@@ -299,13 +301,16 @@ export async function deriveModeForEvent(options: {
       return null;
     }
 
-    // Check if user should first participate on parent event
-    // Therefore, user can only participate via participation link from parent event
-    if (
-      eventInfo.parentEvent !== null &&
-      eventInfo.parentParticipationRequired !== false
-    ) {
+    // Check if user on child event
+    if (eventInfo.parentEvent !== null) {
+      // Check if user can participate on child event
+      if (eventInfo.parentEvent.parentParticipationRequired === false) {
+        return "anon" as const;
+      }
+      // Check if user should first participate on parent event
+      // Therefore, user can only participate via participation link from parent event
       if (
+        eventInfo.parentParticipationRequired !== false &&
         tokenHash !== null &&
         tokenHash === eventInfo.parentEvent.participationToken
       ) {
