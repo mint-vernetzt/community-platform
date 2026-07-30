@@ -726,8 +726,15 @@ export async function acceptInviteAsAdmin(options: {
     throw new Error("Invite not found");
   }
 
-  await prismaClient.adminOfEvent.create({
-    data: {
+  await prismaClient.adminOfEvent.upsert({
+    where: {
+      profileId_eventId: {
+        eventId,
+        profileId: userId,
+      },
+    },
+    update: {},
+    create: {
       eventId,
       profileId: userId,
     },
@@ -954,8 +961,15 @@ export async function acceptInviteAsTeamMember(options: {
     throw new Error("Invite not found");
   }
 
-  await prismaClient.teamMemberOfEvent.create({
-    data: {
+  await prismaClient.teamMemberOfEvent.upsert({
+    where: {
+      eventId_profileId: {
+        eventId,
+        profileId: userId,
+      },
+    },
+    update: {},
+    create: {
       eventId,
       profileId: userId,
     },
@@ -1182,8 +1196,15 @@ export async function acceptInviteAsSpeaker(options: {
     throw new Error("Invite not found");
   }
 
-  await prismaClient.speakerOfEvent.create({
-    data: {
+  await prismaClient.speakerOfEvent.upsert({
+    where: {
+      profileId_eventId: {
+        eventId,
+        profileId: userId,
+      },
+    },
+    update: {},
+    create: {
       eventId,
       profileId: userId,
     },
@@ -1428,8 +1449,15 @@ export async function acceptInviteAsParticipant(options: {
   }
 
   const transactions = [
-    prismaClient.participantOfEvent.create({
-      data: {
+    prismaClient.participantOfEvent.upsert({
+      where: {
+        profileId_eventId: {
+          eventId,
+          profileId: userId,
+        },
+      },
+      update: {},
+      create: {
         eventId,
         profileId: userId,
       },
@@ -1686,8 +1714,15 @@ export async function acceptInviteAsResponsibleOrganization(options: {
     throw new Error("Invite not found");
   }
 
-  await prismaClient.responsibleOrganizationOfEvent.create({
-    data: {
+  await prismaClient.responsibleOrganizationOfEvent.upsert({
+    where: {
+      eventId_organizationId: {
+        eventId,
+        organizationId,
+      },
+    },
+    update: {},
+    create: {
       eventId,
       organizationId,
     },
@@ -2004,13 +2039,20 @@ export async function acceptRequestAsParentEvent(options: {
         },
       },
     }),
-    prismaClient.adminOfEvent.createMany({
-      data: missingAdmins.map((admin) => {
-        return {
-          profileId: admin.profileId,
+    ...missingAdmins.map((admin) => {
+      return prismaClient.adminOfEvent.upsert({
+        where: {
+          profileId_eventId: {
+            profileId: admin.profileId,
+            eventId: childEventId,
+          },
+        },
+        update: {},
+        create: {
           eventId: childEventId,
-        };
-      }),
+          profileId: admin.profileId,
+        },
+      });
     }),
     ...transactions,
   ]);
