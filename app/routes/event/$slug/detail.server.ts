@@ -490,7 +490,7 @@ export async function getIsMember(
           administeredOrganizations: {
             some: {
               organization: {
-                receivedResponsibleForEventRequests: {
+                responsibleForEventInvites: {
                   some: {
                     eventId: event.id,
                   },
