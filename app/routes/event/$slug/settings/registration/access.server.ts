@@ -43,7 +43,7 @@ export async function updateEventRegistrationAccess(options: {
   let data: {
     external?: boolean;
     openForRegistration?: boolean;
-    parentParticipationRequired?: boolean;
+    parentParticipationRequired?: boolean | null;
     externalRegistrationUrl?: null;
     participationToken?: string | null;
   } = {
@@ -57,9 +57,8 @@ export async function updateEventRegistrationAccess(options: {
       ...data,
       openForRegistration: true,
       participationToken: null,
-      parentParticipationRequired:
-        event._count.childEvents > 0 ? external === false : undefined,
-      externalRegistrationUrl: external === false ? null : undefined,
+      externalRegistrationUrl: null,
+      parentParticipationRequired: external ? false : null,
     };
   }
 
