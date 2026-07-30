@@ -211,6 +211,11 @@ async function main(
     "prisma/scripts/migrate-rte-fields/index.tsx",
   ]);
 
+  await executeCommand("npx", [
+    "tsx",
+    "prisma/scripts/add-participation-token-to-events/index.ts",
+  ]);
+
   console.log("\n--- Seeding finished ---\n");
   console.log("\n--- User list ---\n");
   for (const email of profileEmails) {

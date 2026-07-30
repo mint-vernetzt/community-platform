@@ -485,6 +485,20 @@ export async function getIsMember(
             },
           },
         },
+        // is admin of a potential responsible organization
+        {
+          administeredOrganizations: {
+            some: {
+              organization: {
+                responsibleForEventInvites: {
+                  some: {
+                    eventId: event.id,
+                  },
+                },
+              },
+            },
+          },
+        },
       ],
     },
     select: {
