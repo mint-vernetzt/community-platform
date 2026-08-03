@@ -210,7 +210,7 @@ export async function removeFromEvent(options: {
     eventId,
     type: options.type,
     notifyUsers: true,
-    recursively: false,
+    recursively: true,
     locales: {
       ...options.locales.mail,
       guestRemoved: {
