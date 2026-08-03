@@ -2,7 +2,7 @@ export const locale = {
   signup: {
     title: "Registration confirmation",
     description:
-      "Welcome to the MINTcommunity! Please confirm your email address within one hour to activate your profile on the MINTvernetzt platform via the following link:",
+      "Welcome to the MINTvernetzt community! Please confirm your email address within one hour to activate your profile on the MINTvernetzt platform via the following link:",
     action: "Confirm registration",
   },
   recovery: {
