@@ -1,4 +1,5 @@
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
+import { redirect } from "react-router";
 import {
   Link,
   useLoaderData,
@@ -61,6 +62,16 @@ export async function loader(args: LoaderFunctionArgs) {
   const type = url.searchParams.get("type");
 
   const event = await getEventByToken({ token: tokenHash, type });
+  if (event === null) {
+    const url = new URL(
+      `${process.env.COMMUNITY_BASE_URL}/auth/guest/not-found`
+    );
+    if (type !== null) {
+      url.searchParams.set("type", type);
+    }
+    return redirect(url.toString());
+  }
+
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   if (type !== "revoke") {

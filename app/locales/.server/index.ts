@@ -35,6 +35,7 @@ import { locale as deKeycloakCallback } from "./de/routes/auth/keycloak.callback
 import { locale as deGuestConfirm } from "./de/routes/auth/guest/confirm";
 import { locale as deGuestVerify } from "./de/routes/auth/guest/verify";
 import { locale as deGuestRequestConfirmation } from "./de/routes/auth/guest/request-confirmation";
+import { locale as deGuestNotFound } from "./de/routes/auth/guest/not-found";
 // event routes
 import { locale as deEventDetail } from "./de/routes/event/$slug/detail";
 import { locale as deAboutEvent } from "./de/routes/event/$slug/detail/about";
@@ -223,6 +224,7 @@ import { locale as enKeycloakCallback } from "./en/routes/auth/keycloak.callback
 import { locale as enGuestConfirm } from "./en/routes/auth/guest/confirm";
 import { locale as enGuestVerify } from "./en/routes/auth/guest/verify";
 import { locale as enGuestRequestConfirmation } from "./en/routes/auth/guest/request-confirmation";
+import { locale as enGuestNotFound } from "./en/routes/auth/guest/not-found";
 // event routes
 import { locale as enEventDetail } from "./en/routes/event/$slug/detail";
 import { locale as enAboutEvent } from "./en/routes/event/$slug/detail/about";
@@ -403,6 +405,7 @@ const de = {
   "auth/guest/confirm": deGuestConfirm,
   "auth/guest/verify": deGuestVerify,
   "auth/guest/request-confirmation": deGuestRequestConfirmation,
+  "auth/guest/not-found": deGuestNotFound,
   // event routes
   "event/$slug/documents-download": deDownloadEventDocuments,
   "event/$slug/detail": {
@@ -897,6 +900,7 @@ const en = {
   "auth/guest/confirm": enGuestConfirm,
   "auth/guest/verify": enGuestVerify,
   "auth/guest/request-confirmation": enGuestRequestConfirmation,
+  "auth/guest/not-found": enGuestNotFound,
   // event routes
   "event/$slug/documents-download": enDownloadEventDocuments,
   "event/$slug/detail": {
