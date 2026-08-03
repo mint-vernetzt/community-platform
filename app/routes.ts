@@ -457,6 +457,7 @@ export default [
     "/auth/guest/request-confirmation",
     "./routes/auth/guest/request-confirmation.tsx"
   ),
+  route("/auth/guest/not-found", "./routes/auth/guest/not-found.tsx"),
   route("/map", "./routes/map.tsx"),
   route("/map-proxy", "./routes/map-proxy.ts"),
   route("/map-style", "./routes/map-style.ts"),
