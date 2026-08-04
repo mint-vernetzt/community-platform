@@ -1,7 +1,7 @@
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
-import { redirect } from "react-router";
 import {
   Link,
+  redirect,
   useLoaderData,
   useSearchParams,
   type LoaderFunctionArgs,
