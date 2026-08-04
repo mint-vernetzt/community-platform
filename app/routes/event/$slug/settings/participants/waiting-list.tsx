@@ -234,6 +234,9 @@ function ParticipantsWaitingList() {
                   ? `${profile.academicTitle} `
                   : ""}
                 {profile.firstName} {profile.lastName}
+                {profile.type === "guest"
+                  ? ` (${locales.route.list.item.guest})`
+                  : ""}
               </ListItemPersonOrg.Headline>
               <ListItemPersonOrg.Subline>
                 {insertParametersIntoLocale(locales.route.list.item.subline, {
