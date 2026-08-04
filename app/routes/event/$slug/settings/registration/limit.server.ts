@@ -20,6 +20,12 @@ export async function getEventBySlug(slug: string) {
         select: {
           participants: true,
           waitingList: true,
+          guests: {
+            where: {
+              confirmed: true,
+              onWaitingList: true,
+            },
+          },
           childEvents: true,
         },
       },
@@ -81,9 +87,19 @@ export async function updateEventById(options: {
                 firstName: true,
               },
             },
+            createdAt: true,
           },
-          orderBy: {
-            createdAt: "asc",
+        },
+        guests: {
+          where: {
+            confirmed: true,
+            onWaitingList: true,
+          },
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            confirmedAt: true,
           },
         },
       },
@@ -97,39 +113,80 @@ export async function updateEventById(options: {
         : event._count.waitingList;
 
     if (participantsOffset > 0) {
-      const profilesToMoveUp = event.waitingList
-        .slice(0, participantsOffset)
-        .map((relation) => {
-          return { ...relation.profile };
-        });
-      await prismaClient.$transaction([
-        ...profilesToMoveUp.map((profile) => {
-          return prismaClient.participantOfEvent.create({
-            data: {
-              eventId,
-              profileId: profile.id,
-            },
-          });
+      const profilesToMoveUp = [
+        ...event.waitingList.map((relation) => {
+          return {
+            ...relation.profile,
+            createdAt: relation.createdAt,
+            type: "user" as const,
+          };
         }),
-        ...profilesToMoveUp.map((profile) => {
-          return prismaClient.waitingParticipantOfEvent.delete({
-            where: {
-              profileId_eventId: {
+        ...event.guests.map((guest) => {
+          // This should not happen, because we only select guests that are confirmed
+          let createdAt = guest.confirmedAt;
+          if (createdAt === null) {
+            createdAt = new Date();
+          }
+          return { ...guest, createdAt, type: "guest" as const };
+        }),
+      ]
+        .sort((a, b) => {
+          return a.createdAt.getTime() - b.createdAt.getTime();
+        })
+        .slice(0, participantsOffset);
+
+      console.log({ profilesToMoveUp });
+
+      const transactions = [];
+
+      for (const profile of profilesToMoveUp) {
+        if (profile.type === "user") {
+          transactions.push(
+            prismaClient.participantOfEvent.upsert({
+              where: {
+                profileId_eventId: {
+                  eventId,
+                  profileId: profile.id,
+                },
+              },
+              update: {},
+              create: {
                 eventId,
                 profileId: profile.id,
               },
-            },
-          });
-        }),
-      ]);
-
+            })
+          );
+          transactions.push(
+            prismaClient.waitingParticipantOfEvent.delete({
+              where: {
+                profileId_eventId: {
+                  eventId,
+                  profileId: profile.id,
+                },
+              },
+            })
+          );
+        } else if (profile.type === "guest") {
+          transactions.push(
+            prismaClient.guest.update({
+              where: {
+                id: profile.id,
+                eventId,
+              },
+              data: {
+                onWaitingList: false,
+              },
+            })
+          );
+        }
+        await prismaClient.$transaction(transactions);
+      }
       const sender = process.env.SYSTEM_MAIL_SENDER;
       const subject = options.locales.mail.moveUpToParticipants.subject;
       const textTemplatePath =
         "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-text.hbs";
       const htmlTemplatePath =
         "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-html.hbs";
-
       void Promise.all(
         profilesToMoveUp.map(async (profile) => {
           try {

@@ -16,6 +16,7 @@ export const locale = {
     item: {
       subline: "waiting since {{date}} (CET)",
       add: "Allow as participant",
+      guest: "Guest",
     },
     more: "Show {{count}} more",
     less: "Show {{count}} less",

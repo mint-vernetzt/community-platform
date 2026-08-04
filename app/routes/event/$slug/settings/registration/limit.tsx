@@ -222,6 +222,7 @@ export async function action(args: ActionFunctionArgs) {
       }
     );
   } catch (error) {
+    console.log({ error });
     captureException(error);
     return redirectWithToast(request.url, {
       id: "update-participant-limit-error",
@@ -321,7 +322,7 @@ function RegistrationLimit() {
         (submission.value.participantLimit === null ||
           submission.value.participantLimit >
             loaderData.event._count.participants) &&
-        loaderData.event._count.waitingList > 0
+        loaderData.event._count.waitingList + loaderData.event._count.guests > 0
       ) {
         if (
           searchParams.get(
@@ -490,7 +491,9 @@ function RegistrationLimit() {
                               .fillUpParticipantsAutomaticallyModal
                               .noParticipantLimit,
                       participantsCount: loaderData.event._count.participants,
-                      waitingListCount: loaderData.event._count.waitingList,
+                      waitingListCount:
+                        loaderData.event._count.waitingList +
+                        loaderData.event._count.guests,
                     }
                   ),
                   [<span key="highlight" className="font-semibold" />]
