@@ -129,6 +129,8 @@ export async function updateEventById(options: {
         })
         .slice(0, participantsOffset);
 
+      console.log({ profilesToMoveUp });
+
       const transactions = [];
 
       for (const profile of profilesToMoveUp) {
