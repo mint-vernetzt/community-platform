@@ -24,6 +24,8 @@ export const locale = {
       title:
         "Do you really want to remove {{firstName}} {{lastName}} from the participants list?",
       description: "The removed person will be informed by email.",
+      childEventsHint:
+        "The person is also registered for the following sub-events and will be removed from those as well:",
       submit: "Remove",
       abort: "Cancel",
     },

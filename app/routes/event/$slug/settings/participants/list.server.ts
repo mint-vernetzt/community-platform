@@ -1,6 +1,11 @@
 import { parseWithZod } from "@conform-to/zod";
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { removeParticipantFromEvent } from "~/events.server";
+import {
+  getChildEventsRemovalCascadesInto,
+  getEventsParticipantWillBeRemovedFrom,
+  removeParticipantFromEvent,
+  type ParticipantIdentifier,
+} from "~/events.server";
 import { ParticipationType } from "~/events.shared";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
@@ -127,7 +132,20 @@ export async function getParticipantsOfEvent(options: {
     return b.createdAt.getTime() - a.createdAt.getTime(); // Sort by createdAt descending
   });
 
+  const childEvents = await getChildEventsRemovalCascadesInto({ eventId });
+
   const enhancedParticipants = allParticipants.map((participant) => {
+    let identifier: ParticipantIdentifier;
+    if (participant.type === ParticipationType.Guest) {
+      identifier = { type: "guest", email: participant.email };
+    } else {
+      identifier = { type: "user", profileId: participant.id };
+    }
+    const eventsToBeRemovedFrom = getEventsParticipantWillBeRemovedFrom({
+      identifier,
+      childEvents,
+    });
+
     let avatar =
       participant.avatarImageMetaData !== null
         ? participant.avatarImageMetaData.path
@@ -156,6 +174,7 @@ export async function getParticipantsOfEvent(options: {
       ...participant,
       avatar,
       blurredAvatar,
+      eventsToBeRemovedFrom,
     };
   });
 

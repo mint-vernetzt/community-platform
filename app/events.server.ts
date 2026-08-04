@@ -6,7 +6,7 @@ import {
   mailerOptions,
 } from "./mailer.server";
 
-type ParticipantIdentifier =
+export type ParticipantIdentifier =
   | { type: "user"; profileId: string }
   | { type: "guest"; email: string };
 
@@ -160,6 +160,120 @@ function isOnWaitingListOnEvent(options: {
   return event.guests.some((guest) => {
     return guest.email === identifier.email && guest.onWaitingList;
   });
+}
+
+function willBeRemovedFromEvent(options: {
+  identifier: ParticipantIdentifier;
+  event: {
+    participants: { profileId: string }[];
+    waitingList: { profileId: string }[];
+    guests: { email: string; onWaitingList: boolean }[];
+  };
+}) {
+  return (
+    isParticipantOnEvent(options) === true ||
+    isOnWaitingListOnEvent(options) === true
+  );
+}
+
+export async function getChildEventsRemovalCascadesInto(options: {
+  eventId: string;
+}) {
+  const { eventId } = options;
+
+  const event = await prismaClient.event.findFirst({
+    where: {
+      id: eventId,
+    },
+    select: {
+      // Include child events where parent participation is required
+      childEvents: {
+        where: {
+          OR: [
+            { parentParticipationRequired: null },
+            { parentParticipationRequired: true },
+          ],
+        },
+        select: {
+          id: true,
+          name: true,
+          participants: {
+            select: {
+              profileId: true,
+            },
+          },
+          waitingList: {
+            select: {
+              profileId: true,
+            },
+          },
+          guests: {
+            select: {
+              email: true,
+              onWaitingList: true,
+            },
+          },
+          // For legacy reasons we need to check child events of child events
+          childEvents: {
+            where: {
+              OR: [
+                { parentParticipationRequired: null },
+                { parentParticipationRequired: true },
+              ],
+            },
+            select: {
+              id: true,
+              name: true,
+              participants: {
+                select: {
+                  profileId: true,
+                },
+              },
+              waitingList: {
+                select: {
+                  profileId: true,
+                },
+              },
+              guests: {
+                select: {
+                  email: true,
+                  onWaitingList: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+  if (event === null) {
+    return [];
+  }
+
+  return event.childEvents;
+}
+
+export function getEventsParticipantWillBeRemovedFrom(options: {
+  identifier: ParticipantIdentifier;
+  childEvents: Awaited<ReturnType<typeof getChildEventsRemovalCascadesInto>>;
+}) {
+  const { identifier, childEvents } = options;
+
+  const events: { id: string; name: string }[] = [];
+  for (const childEvent of childEvents) {
+    if (willBeRemovedFromEvent({ identifier, event: childEvent }) === false) {
+      continue;
+    }
+    events.push({ id: childEvent.id, name: childEvent.name });
+
+    for (const grandChildEvent of childEvent.childEvents) {
+      if (willBeRemovedFromEvent({ identifier, event: grandChildEvent })) {
+        events.push({ id: grandChildEvent.id, name: grandChildEvent.name });
+      }
+    }
+  }
+
+  return events;
 }
 
 export async function removeParticipantFromEvent(options: {
