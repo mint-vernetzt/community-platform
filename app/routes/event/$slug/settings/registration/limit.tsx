@@ -178,7 +178,6 @@ export async function action(args: ActionFunctionArgs) {
         }
       );
     } catch (error) {
-      console.log(error);
       captureException(error);
       return redirectWithToast(request.url, {
         id: "update-move-up-to-participants-error",
@@ -223,6 +222,7 @@ export async function action(args: ActionFunctionArgs) {
       }
     );
   } catch (error) {
+    console.log(error);
     captureException(error);
     return redirectWithToast(request.url, {
       id: "update-participant-limit-error",
