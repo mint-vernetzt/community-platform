@@ -196,6 +196,7 @@ export async function updateEventById(options: {
             );
             await mailer(mailerOptions, sender, recipient, subject, text, html);
           } catch (error) {
+            console.log(error);
             captureException(error);
           }
         })
