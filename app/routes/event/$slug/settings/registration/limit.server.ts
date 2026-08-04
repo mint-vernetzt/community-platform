@@ -129,15 +129,20 @@ export async function updateEventById(options: {
         })
         .slice(0, participantsOffset);
 
-      console.log({ profilesToMoveUp });
-
       const transactions = [];
 
       for (const profile of profilesToMoveUp) {
         if (profile.type === "user") {
           transactions.push(
-            prismaClient.participantOfEvent.create({
-              data: {
+            prismaClient.participantOfEvent.upsert({
+              where: {
+                profileId_eventId: {
+                  eventId,
+                  profileId: profile.id,
+                },
+              },
+              update: {},
+              create: {
                 eventId,
                 profileId: profile.id,
               },
@@ -196,7 +201,6 @@ export async function updateEventById(options: {
             );
             await mailer(mailerOptions, sender, recipient, subject, text, html);
           } catch (error) {
-            console.log(error);
             captureException(error);
           }
         })
