@@ -599,6 +599,7 @@ model Event {
   abuseReports                     EventAbuseReport[]                             @relation("event_of_event_abuse_report")
   sentParentEventJoinRequests      RequestToParentEventToAddChildEvent[]          @relation("sent_requests")
   receivedParentEventJoinRequests  RequestToParentEventToAddChildEvent[]          @relation("received_requests")
+  eventTransactions                EventTransaction[]
 
   filterVector Unsupported("tsvector")? @map("filter_vector")
 
@@ -674,6 +675,7 @@ model EventVisibility {
   filterVector                     Boolean @default(true)
   sentParentEventJoinRequests      Boolean @default(false)
   receivedParentEventJoinRequests  Boolean @default(false)
+  eventTransactions                Boolean @default(false)
   event                            Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId                          String  @unique
 
@@ -725,6 +727,33 @@ model EventAbuseReportRevision {
   eventAbuseReportId String
 
   @@map("event_abuse_report_revisions")
+}
+
+enum EventTransactionState {
+  open
+  processing
+  failed
+  sent
+  aborted
+}
+
+model EventTransaction {
+  id           String                @id @default(uuid())
+  event        Event                 @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId      String                @map("event_id")
+  subject      String
+  plainText    String                @map("plain_text")
+  html         String
+  sender       String
+  recipient    String
+  scheduledFor DateTime              @default(now()) @map("scheduled_for")
+  state        EventTransactionState @default(open)
+  retries      DateTime[]            @default([])
+  sentAt       DateTime?             @map("sent_at")
+  createdAt    DateTime              @default(now()) @map("created_at")
+  updatedAt    DateTime              @default(now()) @updatedAt @map("updated_at")
+
+  @@map("event_transactions")
 }
 
 model ResponsibleOrganizationOfEvent {
