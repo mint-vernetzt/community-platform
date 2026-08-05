@@ -1,0 +1,29 @@
+{{headline}}
+
+Hallo {{profile.firstName}},
+
+Du bist für das Event {{event.name}} angemeldet.
+
+Link zum Event: {{event.url}}
+Termin: {{event.startDate}}, {{event.startTime}} Uhr ({{event.timezone}})
+{{#if event.location}}
+Ort: {{event.location}}
+{{/if}}
+{{#if event.conferenceLink}}
+Konferenz-Link: {{event.conferenceLink}}
+{{/if}}
+
+Du kannst Dir den Termin am besten direkt im Kalender speichern.
+{{event.icsLink}}
+
+{{#if profile.isGuest}}
+Wenn sich bei Dir etwas ändert und Du doch nicht teilnehmen kannst, dann ziehe bitte Deine Teilnahme über den Abmeldelink zurück, so dass andere nachrücken können.
+Abmeldelink: {{event.revocationLink}}
+{{else}}
+Wenn sich bei Dir etwas ändert und Du doch nicht teilnehmen kannst, dann ziehe bitte auf der Community-Plattform Deine Teilnahme zurück, so dass andere nachrücken können. 
+{{/if}}
+
+Wir freuen uns auf Dich!
+
+Herzliche Grüße
+Dein MINTvernetzt-Team

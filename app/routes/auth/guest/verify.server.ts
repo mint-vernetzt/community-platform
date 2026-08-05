@@ -1,4 +1,6 @@
 import { captureException } from "@sentry/node";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { scheduleMail } from "~/mailer-queue.server";
 import {
   getCompiledMailTemplate,
   mailer,
@@ -6,6 +8,7 @@ import {
 } from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
 import { generateValidationToken } from "~/utils.server";
+import { getVenueString } from "~/utils.shared";
 
 export async function verifyConfirmationToken(options: {
   token: string;
@@ -68,7 +71,12 @@ export async function confirmGuest(options: {
   guestId: string;
   eventId: string;
   confirmationRedirect: string;
-  locales: { mail: { subject: string } };
+  locales: {
+    mail: {
+      addedToWaitingList: { subject: string };
+      addedToParticipants: { subject: string };
+    };
+  };
 }) {
   const { guestId, eventId, locales, confirmationRedirect } = options;
 
@@ -128,44 +136,118 @@ export async function confirmGuest(options: {
         select: {
           id: true,
           name: true,
+          slug: true,
+          startTime: true,
+          venueName: true,
+          venueStreet: true,
+          venueStreetNumber: true,
+          venueZipCode: true,
+          venueCity: true,
+          conferenceLink: true,
         },
       },
     },
   });
 
   try {
-    const sender = process.env.SYSTEM_MAIL_SENDER;
     const recipient = result.email;
-    const subject = locales.mail.subject;
-    const textTemplatePath = isOnWaitingList
-      ? "mail-templates/guests/registration-waiting-list-success-text.hbs"
-      : "mail-templates/guests/registration-success-text.hbs";
-    const htmlTemplatePath = isOnWaitingList
-      ? "mail-templates/guests/registration-waiting-list-success-html.hbs"
-      : "mail-templates/guests/registration-success-html.hbs";
-
     // Use plain URL without parameters
     const confirmationRedirectUrl = new URL(confirmationRedirect);
     const confirmationRedirectWithoutParams = `${confirmationRedirectUrl.origin}${confirmationRedirectUrl.pathname}`;
 
-    const data = {
-      firstName: result.firstName,
-      eventName: result.event.name,
-      buttonUrl: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?type=revoke&confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?type=revoke&token_hash=${result.revocationToken}&confirmation_redirect=${encodeURIComponent(confirmationRedirectWithoutParams)}`)}`,
-    };
+    const revocationLink = `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?type=revoke&confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?type=revoke&token_hash=${result.revocationToken}&confirmation_redirect=${encodeURIComponent(confirmationRedirectWithoutParams)}`)}`;
 
-    const text = getCompiledMailTemplate<typeof textTemplatePath>(
-      textTemplatePath,
-      data,
-      "text"
-    );
-    const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
-      htmlTemplatePath,
-      data,
-      "html"
-    );
+    if (result.onWaitingList) {
+      const subject = insertParametersIntoLocale(
+        locales.mail.addedToWaitingList.subject,
+        {
+          eventName: result.event.name,
+        }
+      );
+      const textTemplatePath =
+        "mail-templates/guests/registration-waiting-list-success-text.hbs";
+      const htmlTemplatePath =
+        "mail-templates/guests/registration-waiting-list-success-html.hbs";
 
-    await mailer(mailerOptions, sender, recipient, subject, text, html);
+      const data = {
+        firstName: result.firstName,
+        eventName: result.event.name,
+        buttonUrl: revocationLink,
+      };
+
+      const text = getCompiledMailTemplate<typeof textTemplatePath>(
+        textTemplatePath,
+        data,
+        "text"
+      );
+      const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+        htmlTemplatePath,
+        data,
+        "html"
+      );
+
+      await scheduleMail({
+        eventId,
+        recipient,
+        subject,
+        plainText: text,
+        html,
+      });
+    } else {
+      const subject = insertParametersIntoLocale(
+        locales.mail.addedToParticipants.subject,
+        {
+          eventName: result.event.name,
+        }
+      );
+      const content = {
+        headline: subject,
+        profile: {
+          firstName: result.firstName,
+          isGuest: true as const, // To handle different types for template content regarding guest or user
+        },
+        event: {
+          name: result.event.name,
+          url: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/detail`,
+          startDate: result.event.startTime.toLocaleDateString("de-DE", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          }),
+          startTime: result.event.startTime.toLocaleTimeString("de-DE", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          timezone: "MEZ",
+          location: getVenueString(result.event),
+          icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/ics-download`,
+          conferenceLink: result.event.conferenceLink,
+          revocationLink,
+        },
+      };
+      const textTemplatePath =
+        "mail-templates/event/profile-or-guest-added-to-participants-text.hbs";
+      const htmlTemplatePath =
+        "mail-templates/event/profile-or-guest-added-to-participants-html.hbs";
+      const text = getCompiledMailTemplate<typeof textTemplatePath>(
+        textTemplatePath,
+        content,
+        "text"
+      );
+      const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+        htmlTemplatePath,
+        content,
+        "html"
+      );
+
+      await scheduleMail({
+        eventId,
+        recipient,
+        subject,
+        plainText: text,
+        html,
+      });
+    }
   } catch (error) {
     captureException(error);
   }

@@ -1,6 +1,14 @@
 export const locale = {
   confirmation: {
-    subject: "Du hast Dich erfolgreich für eine Veranstaltung angemeldet",
+    mail: {
+      waitingList: {
+        subject:
+          "Du hast Dich auf die Warteliste für das Event {{eventName}} gesetzt",
+      },
+      participants: {
+        subject: "Deine Anmeldung zum Event {{eventName}}",
+      },
+    },
     success: {
       participant: "You are now registered as a participant for the event.",
       waitingList: "You are now registered on the waiting list for the event.",

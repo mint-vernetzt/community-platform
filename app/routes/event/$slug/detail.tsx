@@ -669,7 +669,13 @@ export async function action(args: ActionFunctionArgs) {
       async (data, ctx) => {
         let result: { error?: unknown } = {};
         if (intent === "participate" && mode === "canParticipate") {
-          result = await addProfileToParticipants(sessionUser.id, eventId);
+          result = await addProfileToParticipants({
+            profileId: sessionUser.id,
+            eventId,
+            locales: {
+              mail: { subject: locales.route.mail.participate.subject },
+            },
+          });
         } else if (
           intent === WITHDRAW_PARTICIPATION_INTENT &&
           mode === "participating"
