@@ -257,6 +257,44 @@ type GuestsContent = {
   buttonUrl: string;
 };
 
+type ProfileOrGuestAddedToParticipantsContent = {
+  headline: string;
+} & (
+  | {
+      profile: {
+        firstName: string;
+        isGuest: true;
+      };
+      event: {
+        name: string;
+        url: string;
+        startDate: string;
+        startTime: string;
+        timezone: string;
+        location?: string;
+        conferenceLink?: string | null;
+        icsLink: string;
+        revocationLink: string;
+      };
+    }
+  | {
+      profile: {
+        firstName: string;
+        isGuest: false;
+      };
+      event: {
+        name: string;
+        url: string;
+        startDate: string;
+        startTime: string;
+        timezone: string;
+        location?: string;
+        conferenceLink?: string | null;
+        icsLink: string;
+      };
+    }
+);
+
 type TemplatePath =
   | "mail-templates/standard-message/html.hbs"
   | "mail-templates/standard-message/text.hbs"
@@ -395,7 +433,9 @@ type TemplatePath =
   | "mail-templates/guests/registration-waiting-list-success-html.hbs"
   | "mail-templates/guests/registration-waiting-list-success-text.hbs"
   | "mail-templates/guests/guest-already-exists-html.hbs"
-  | "mail-templates/guests/guest-already-exists-text.hbs";
+  | "mail-templates/guests/guest-already-exists-text.hbs"
+  | "mail-templates/event/profile-or-guest-added-to-participants-html.hbs"
+  | "mail-templates/event/profile-or-guest-added-to-participants-text.hbs";
 
 type TemplateContent<TemplatePath> = TemplatePath extends
   | "mail-templates/standard-message/html.hbs"

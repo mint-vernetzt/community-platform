@@ -6,17 +6,20 @@ import {
   mailerOptions,
 } from "./mailer.server";
 
+export type ParticipantIdentifier =
+  | { type: "user"; profileId: string }
+  | { type: "guest"; email: string };
+
 function getRemoveFromParticipantsTransaction(options: {
-  id: string;
+  identifier: ParticipantIdentifier;
   eventId: string;
-  type: "user" | "guest";
 }) {
-  const { id, eventId, type } = options;
-  if (type === "user") {
+  const { identifier, eventId } = options;
+  if (identifier.type === "user") {
     const transaction = prismaClient.participantOfEvent.delete({
       where: {
         profileId_eventId: {
-          profileId: id,
+          profileId: identifier.profileId,
           eventId,
         },
       },
@@ -26,24 +29,25 @@ function getRemoveFromParticipantsTransaction(options: {
 
   const transaction = prismaClient.guest.delete({
     where: {
-      id,
-      eventId,
+      email_eventId: {
+        email: identifier.email,
+        eventId,
+      },
     },
   });
   return transaction;
 }
 
 function getRemoveFromWaitingListTransaction(options: {
-  id: string;
+  identifier: ParticipantIdentifier;
   eventId: string;
-  type: "user" | "guest";
 }) {
-  const { id, eventId, type } = options;
-  if (type === "user") {
+  const { identifier, eventId } = options;
+  if (identifier.type === "user") {
     const transaction = prismaClient.waitingParticipantOfEvent.delete({
       where: {
         profileId_eventId: {
-          profileId: id,
+          profileId: identifier.profileId,
           eventId,
         },
       },
@@ -51,12 +55,14 @@ function getRemoveFromWaitingListTransaction(options: {
     return transaction;
   }
 
-  const transaction = prismaClient.guest.update({
+  // Guests have no separate waiting list table, the registration itself carries
+  // the flag - so removing them from the waiting list deletes the registration
+  const transaction = prismaClient.guest.delete({
     where: {
-      id,
-    },
-    data: {
-      onWaitingList: false,
+      email_eventId: {
+        email: identifier.email,
+        eventId,
+      },
     },
   });
   return transaction;
@@ -121,41 +127,153 @@ function getNextOnWaitingList(options: {
 }
 
 function isParticipantOnEvent(options: {
-  id: string;
-  type: "user" | "guest";
+  identifier: ParticipantIdentifier;
   event: {
     participants: { profileId: string }[];
-    guests: { id: string; onWaitingList: boolean }[];
+    guests: { email: string; onWaitingList: boolean }[];
   };
 }) {
-  const { id, type, event } = options;
-  if (type === "user") {
+  const { identifier, event } = options;
+  if (identifier.type === "user") {
     return event.participants.some((participant) => {
-      return participant.profileId === id;
+      return participant.profileId === identifier.profileId;
     });
   }
   return event.guests.some((guest) => {
-    return guest.id === id;
+    return guest.email === identifier.email && guest.onWaitingList === false;
   });
 }
 
 function isOnWaitingListOnEvent(options: {
-  id: string;
-  type: "user" | "guest";
+  identifier: ParticipantIdentifier;
   event: {
     waitingList: { profileId: string }[];
-    guests: { id: string; onWaitingList: boolean }[];
+    guests: { email: string; onWaitingList: boolean }[];
   };
 }) {
-  const { id, type, event } = options;
-  if (type === "user") {
+  const { identifier, event } = options;
+  if (identifier.type === "user") {
     return event.waitingList.some((waitingListEntry) => {
-      return waitingListEntry.profileId === id;
+      return waitingListEntry.profileId === identifier.profileId;
     });
   }
   return event.guests.some((guest) => {
-    return guest.id === id && guest.onWaitingList;
+    return guest.email === identifier.email && guest.onWaitingList;
   });
+}
+
+function willBeRemovedFromEvent(options: {
+  identifier: ParticipantIdentifier;
+  event: {
+    participants: { profileId: string }[];
+    waitingList: { profileId: string }[];
+    guests: { email: string; onWaitingList: boolean }[];
+  };
+}) {
+  return (
+    isParticipantOnEvent(options) === true ||
+    isOnWaitingListOnEvent(options) === true
+  );
+}
+
+export async function getChildEventsRemovalCascadesInto(options: {
+  eventId: string;
+}) {
+  const { eventId } = options;
+
+  const event = await prismaClient.event.findFirst({
+    where: {
+      id: eventId,
+    },
+    select: {
+      // Include child events where parent participation is required
+      childEvents: {
+        where: {
+          OR: [
+            { parentParticipationRequired: null },
+            { parentParticipationRequired: true },
+          ],
+        },
+        select: {
+          id: true,
+          name: true,
+          participants: {
+            select: {
+              profileId: true,
+            },
+          },
+          waitingList: {
+            select: {
+              profileId: true,
+            },
+          },
+          guests: {
+            select: {
+              email: true,
+              onWaitingList: true,
+            },
+          },
+          // For legacy reasons we need to check child events of child events
+          childEvents: {
+            where: {
+              OR: [
+                { parentParticipationRequired: null },
+                { parentParticipationRequired: true },
+              ],
+            },
+            select: {
+              id: true,
+              name: true,
+              participants: {
+                select: {
+                  profileId: true,
+                },
+              },
+              waitingList: {
+                select: {
+                  profileId: true,
+                },
+              },
+              guests: {
+                select: {
+                  email: true,
+                  onWaitingList: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+  if (event === null) {
+    return [];
+  }
+
+  return event.childEvents;
+}
+
+export function getEventsParticipantWillBeRemovedFrom(options: {
+  identifier: ParticipantIdentifier;
+  childEvents: Awaited<ReturnType<typeof getChildEventsRemovalCascadesInto>>;
+}) {
+  const { identifier, childEvents } = options;
+
+  const events: { id: string; name: string }[] = [];
+  for (const childEvent of childEvents) {
+    if (willBeRemovedFromEvent({ identifier, event: childEvent }) === false) {
+      continue;
+    }
+    events.push({ id: childEvent.id, name: childEvent.name });
+
+    for (const grandChildEvent of childEvent.childEvents) {
+      if (willBeRemovedFromEvent({ identifier, event: grandChildEvent })) {
+        events.push({ id: grandChildEvent.id, name: grandChildEvent.name });
+      }
+    }
+  }
+
+  return events;
 }
 
 export async function removeParticipantFromEvent(options: {
@@ -185,6 +303,56 @@ export async function removeParticipantFromEvent(options: {
     notifyUsers,
   } = options;
 
+  let identifier: ParticipantIdentifier;
+  let guest: { firstName: string; email: string } | null = null;
+  if (type === "guest") {
+    guest = await prismaClient.guest.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        firstName: true,
+        email: true,
+      },
+    });
+    if (guest === null) {
+      const error = new Error("Guest not found");
+      return { error };
+    }
+    identifier = { type: "guest", email: guest.email };
+  } else {
+    identifier = { type: "user", profileId: id };
+  }
+
+  // Participant participates, is on waiting list, or is a guest
+  const participationFilter =
+    identifier.type === "user"
+      ? [
+          {
+            participants: {
+              some: {
+                profileId: identifier.profileId,
+              },
+            },
+          },
+          {
+            waitingList: {
+              some: {
+                profileId: identifier.profileId,
+              },
+            },
+          },
+        ]
+      : [
+          {
+            guests: {
+              some: {
+                email: identifier.email,
+              },
+            },
+          },
+        ];
+
   const event = await prismaClient.event.findFirst({
     where: {
       id: eventId,
@@ -205,29 +373,7 @@ export async function removeParticipantFromEvent(options: {
               ],
             },
             {
-              OR: [
-                {
-                  participants: {
-                    some: {
-                      profileId: id,
-                    },
-                  },
-                },
-                {
-                  waitingList: {
-                    some: {
-                      profileId: id,
-                    },
-                  },
-                },
-                {
-                  guests: {
-                    some: {
-                      id,
-                    },
-                  },
-                },
-              ],
+              OR: participationFilter,
             },
           ],
         },
@@ -244,12 +390,11 @@ export async function removeParticipantFromEvent(options: {
               profileId: true,
             },
           },
+          // Unconfirmed guest registrations are included on purpose - a pending
+          // registration on a child event has to be removed as well
           guests: {
-            where: {
-              confirmed: true,
-            },
             select: {
-              id: true,
+              email: true,
               onWaitingList: true,
             },
           },
@@ -267,29 +412,7 @@ export async function removeParticipantFromEvent(options: {
                   ],
                 },
                 {
-                  OR: [
-                    {
-                      participants: {
-                        some: {
-                          profileId: id,
-                        },
-                      },
-                    },
-                    {
-                      waitingList: {
-                        some: {
-                          profileId: id,
-                        },
-                      },
-                    },
-                    {
-                      guests: {
-                        some: {
-                          id,
-                        },
-                      },
-                    },
-                  ],
+                  OR: participationFilter,
                 },
               ],
             },
@@ -307,11 +430,8 @@ export async function removeParticipantFromEvent(options: {
                 },
               },
               guests: {
-                where: {
-                  confirmed: true,
-                },
                 select: {
-                  id: true,
+                  email: true,
                   onWaitingList: true,
                 },
               },
@@ -343,7 +463,7 @@ export async function removeParticipantFromEvent(options: {
 
   // First remove the participant from the event
   const transactions = [
-    getRemoveFromParticipantsTransaction({ id, eventId, type }),
+    getRemoveFromParticipantsTransaction({ identifier, eventId }),
   ];
 
   let childEvents: {
@@ -353,7 +473,7 @@ export async function removeParticipantFromEvent(options: {
       profileId: string;
     }[];
     guests: {
-      id: string;
+      email: string;
       onWaitingList: boolean;
     }[];
     waitingList: {
@@ -377,72 +497,49 @@ export async function removeParticipantFromEvent(options: {
   }
 
   // Iterate over child events and remove the participant from them as well
-  if (childEvents.length > 0 && event.parentParticipationRequired) {
-    for (const childEvent of childEvents) {
-      const isParticipant = isParticipantOnEvent({
-        id,
-        type,
-        event: childEvent,
-      });
-      const isOnWaitingList = isOnWaitingListOnEvent({
-        id,
-        type,
-        event: childEvent,
-      });
-      if (isParticipant) {
-        transactions.push(
-          getRemoveFromParticipantsTransaction({
-            id,
-            eventId: childEvent.id,
-            type,
-          })
-        );
-      } else if (isOnWaitingList) {
-        transactions.push(
-          getRemoveFromWaitingListTransaction({
-            id,
-            eventId: childEvent.id,
-            type,
-          })
-        );
-      }
-      eventsParticipantHasBeenRemovedFrom.push({
-        eventId: childEvent.id,
-        name: childEvent.name,
-        participationType: type,
-        removedFromWaitingList: isOnWaitingList,
-      });
+  for (const childEvent of childEvents) {
+    const isParticipant = isParticipantOnEvent({
+      identifier,
+      event: childEvent,
+    });
+    const isOnWaitingList = isOnWaitingListOnEvent({
+      identifier,
+      event: childEvent,
+    });
+    if (isParticipant) {
+      transactions.push(
+        getRemoveFromParticipantsTransaction({
+          identifier,
+          eventId: childEvent.id,
+        })
+      );
+    } else if (isOnWaitingList) {
+      transactions.push(
+        getRemoveFromWaitingListTransaction({
+          identifier,
+          eventId: childEvent.id,
+        })
+      );
+    } else {
+      continue;
     }
+    eventsParticipantHasBeenRemovedFrom.push({
+      eventId: childEvent.id,
+      name: childEvent.name,
+      participationType: type,
+      removedFromWaitingList: isOnWaitingList,
+    });
   }
 
   // Execute all remove transactions
   try {
-    // Get guest because guest will be deleted after the transaction and we need the email to send the notification
-    let guest: { firstName: string; email: string } | undefined | null;
-    if (type === "guest") {
-      guest = await prismaClient.guest.findFirst({
-        where: {
-          id,
-        },
-        select: {
-          firstName: true,
-          email: true,
-        },
-      });
-    }
-
     await prismaClient.$transaction(transactions);
     // Send emails to guest if they have been removed from any event;
     if (type === "guest") {
-      if (guest === null) {
-        const error = new Error("Guest not found");
-        return { error };
-      }
-
       void Promise.all(
         eventsParticipantHasBeenRemovedFrom.map(async (event) => {
           try {
-            if (guest === null || typeof guest === "undefined") {
+            if (guest === null) {
               // This should never happen, but makes TypeScript happy
               return;
             }
@@ -610,14 +707,14 @@ export async function removeParticipantFromEvent(options: {
                 where: {
                   profileId_eventId: {
                     profileId: nextOnWaitingList.id,
-                    eventId,
+                    eventId: event.eventId,
                   },
                 },
               });
               const result = await prisma.participantOfEvent.create({
                 data: {
                   profileId: nextOnWaitingList.id,
-                  eventId,
+                  eventId: event.eventId,
                 },
                 select: {
                   profile: {

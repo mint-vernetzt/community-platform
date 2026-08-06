@@ -201,6 +201,9 @@ export const locale = {
     },
   },
   mail: {
+    participate: {
+      subject: "Deine Anmeldung zum Event {{eventName}}",
+    },
     moveFromWaitingListToParticipants: {
       subject:
         "Du wurdest von der Warteliste zu den Teilnehmenden eines Events hinzugefügt",

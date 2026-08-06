@@ -141,7 +141,13 @@ export async function action(args: ActionFunctionArgs) {
     }).transform(async (data, context) => {
       let result: { error?: unknown } = {};
       if (intent === "participate") {
-        result = await addProfileToParticipants(sessionUser.id, data.eventId);
+        result = await addProfileToParticipants({
+          profileId: sessionUser.id,
+          eventId,
+          locales: {
+            mail: { subject: locales.route.mail.participate.subject },
+          },
+        });
       } else if (intent === "withdrawParticipation") {
         result = await removeProfileFromParticipants({
           profileId: sessionUser.id,

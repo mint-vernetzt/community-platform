@@ -25,6 +25,8 @@ import { getPublicURL, uploadFileToStorage } from "~/storage.server";
 import { FILE_FIELD_NAME } from "~/storage.shared";
 import { generateValidationToken } from "~/utils.server";
 import { PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM } from "./details.shared";
+import { scheduleMail } from "~/mailer-queue.server";
+import { getVenueString } from "~/utils.shared";
 
 export async function getEventBySlug(
   sessionUser: { id: string } | null,
@@ -509,21 +511,125 @@ export async function getIsMember(
   return member !== null;
 }
 
-export async function addProfileToParticipants(
-  profileId: string,
-  eventId: string
-) {
+export async function addProfileToParticipants(options: {
+  profileId: string;
+  eventId: string;
+  locales: {
+    mail: {
+      subject: string;
+    };
+  };
+}) {
+  const { profileId, eventId, locales } = options;
+
+  let data;
   try {
-    const data = await prismaClient.participantOfEvent.create({
+    data = await prismaClient.participantOfEvent.create({
       data: {
         eventId,
         profileId,
       },
+      select: {
+        profile: {
+          select: {
+            firstName: true,
+            email: true,
+          },
+        },
+        event: {
+          select: {
+            name: true,
+            slug: true,
+            startTime: true,
+            venueName: true,
+            venueStreet: true,
+            venueStreetNumber: true,
+            venueZipCode: true,
+            venueCity: true,
+            conferenceLink: true,
+          },
+        },
+      },
     });
-    return { data };
   } catch (error) {
     return { error };
   }
+
+  try {
+    setTimeout(async () => {
+      try {
+        const relation = await prismaClient.participantOfEvent.findFirst({
+          where: {
+            eventId,
+            profileId,
+          },
+        });
+
+        // Early return if participant has already canceled participation in the meantime
+        if (relation === null) {
+          return;
+        }
+
+        const recipient = data.profile.email;
+        const subject = insertParametersIntoLocale(locales.mail.subject, {
+          eventName: data.event.name,
+        });
+
+        const content = {
+          headline: subject,
+          profile: {
+            firstName: data.profile.firstName,
+            isGuest: false as const, // To handle different types for template content regarding guest or user
+          },
+          event: {
+            name: data.event.name,
+            url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail`,
+            startDate: data.event.startTime.toLocaleDateString("de-DE", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            }),
+            startTime: data.event.startTime.toLocaleTimeString("de-DE", {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            timezone: "MEZ",
+            location: getVenueString(data.event),
+            icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/ics-download`,
+            conferenceLink: data.event.conferenceLink,
+          },
+        };
+        const textTemplatePath =
+          "mail-templates/event/profile-or-guest-added-to-participants-text.hbs";
+        const htmlTemplatePath =
+          "mail-templates/event/profile-or-guest-added-to-participants-html.hbs";
+        const text = getCompiledMailTemplate<typeof textTemplatePath>(
+          textTemplatePath,
+          content,
+          "text"
+        );
+        const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+          htmlTemplatePath,
+          content,
+          "html"
+        );
+
+        await scheduleMail({
+          eventId,
+          recipient,
+          subject,
+          plainText: text,
+          html,
+        });
+      } catch (error) {
+        captureException(error);
+      }
+    }, 1000 * 10); // wait 10 seconds before sending the mail to ensure that participant didn't cancel participation in meantime
+  } catch (error) {
+    captureException(error);
+  }
+
+  return { data };
 }
 
 export async function removeProfileFromParticipants(options: {

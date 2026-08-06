@@ -96,7 +96,12 @@ export async function loader(args: LoaderFunctionArgs) {
     confirmationRedirect,
     locales: {
       mail: {
-        subject: locales.confirmation.subject,
+        addedToWaitingList: {
+          subject: locales.confirmation.mail.waitingList.subject,
+        },
+        addedToParticipants: {
+          subject: locales.confirmation.mail.participants.subject,
+        },
       },
     },
   });

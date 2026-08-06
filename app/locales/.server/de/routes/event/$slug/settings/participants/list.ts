@@ -24,6 +24,8 @@ export const locale = {
       title:
         "Willst Du wirklich {{firstName}} {{lastName}} von der Teilnehmer:innenliste entfernen?",
       description: "Die entfernte Person wird per Mail informiert.",
+      childEventsHint:
+        "Die Person ist auch für folgende Unterevents angemeldet und wird dort ebenfalls entfernt:",
       submit: "Entfernen",
       abort: "Abbrechen",
     },
