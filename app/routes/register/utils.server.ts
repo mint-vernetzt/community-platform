@@ -1,5 +1,6 @@
 import { type Profile } from "@prisma/client";
 import type { User } from "@supabase/supabase-js";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import {
   getCompiledMailTemplate,
   mailer,
@@ -57,7 +58,9 @@ export async function sendWelcomeMail(options: {
   locales: KeycloakCallbackLocales | VerifyLocales;
 }) {
   const { profile, locales } = options;
-  const subject = locales.welcomeEmail.subject;
+  const subject = insertParametersIntoLocale(locales.welcomeEmail.subject, {
+    firstName: profile.firstName,
+  });
   const sender = process.env.SYSTEM_MAIL_SENDER;
   const recipient = profile.email;
   const textTemplatePath = "mail-templates/welcome/text.hbs";

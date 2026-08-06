@@ -1,5 +1,5 @@
 export const locale = {
   welcomeEmail: {
-    subject: "Willkommen auf der MINTvernetzt Community-Plattform",
+    subject: "Schön, dass Du da bist, {{firstName}}",
   },
 } as const;
