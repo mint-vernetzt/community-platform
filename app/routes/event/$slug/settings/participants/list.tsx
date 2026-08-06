@@ -330,6 +330,23 @@ function ParticipantsList() {
                   <Modal.Section>
                     {locales.route.list.confirmation.description}
                   </Modal.Section>
+                  {participant.eventsToBeRemovedFrom.length > 0 ? (
+                    <Modal.Section>
+                      <Hint>
+                        <Hint.InfoIcon />
+                        <p>{locales.route.list.confirmation.childEventsHint}</p>
+                        <ul className="list-disc list-inside mt-2">
+                          {participant.eventsToBeRemovedFrom.map(
+                            (childEvent) => {
+                              return (
+                                <li key={childEvent.id}>{childEvent.name}</li>
+                              );
+                            }
+                          )}
+                        </ul>
+                      </Hint>
+                    </Modal.Section>
+                  ) : null}
                   <Modal.SubmitButton
                     form={`remove-participant-form-${participant.id}`}
                     level="negative"
