@@ -627,7 +627,11 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                                         | "mail-templates/guests/guest-already-exists-html.hbs"
                                                         | "mail-templates/guests/guest-already-exists-text.hbs"
                                                     ? GuestsContent
-                                                    : never;
+                                                    : TemplatePath extends
+                                                          | "mail-templates/event/profile-or-guest-added-to-participants-html.hbs"
+                                                          | "mail-templates/event/profile-or-guest-added-to-participants-text.hbs"
+                                                      ? ProfileOrGuestAddedToParticipantsContent
+                                                      : never;
 
 export function getCompiledMailTemplate<T extends TemplatePath>(
   templatePath: TemplatePath,
