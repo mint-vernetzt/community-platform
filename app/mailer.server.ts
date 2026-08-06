@@ -247,41 +247,40 @@ type GuestsContent = {
 
 type ProfileOrGuestAddedToParticipantsContent = {
   headline: string;
-} & (
-  | {
-      profile: {
-        firstName: string;
-        isGuest: true;
-      };
-      event: {
-        name: string;
-        url: string;
-        startDate: string;
-        startTime: string;
-        timezone: string;
-        location?: string;
-        conferenceLink?: string | null;
-        icsLink: string;
-        revocationLink: string;
-      };
-    }
-  | {
-      profile: {
-        firstName: string;
-        isGuest: false;
-      };
-      event: {
-        name: string;
-        url: string;
-        startDate: string;
-        startTime: string;
-        timezone: string;
-        location?: string;
-        conferenceLink?: string | null;
-        icsLink: string;
-      };
-    }
-);
+  profile: {
+    firstName: string;
+    isGuest: boolean;
+  };
+  event: {
+    name: string;
+    url: string;
+    startDate: string;
+    startTime: string;
+    timezone: string;
+    location?: string;
+    conferenceLink?: string | null;
+    icsLink: string;
+    revocationLink?: string | null;
+  };
+};
+
+type ProfileOrGuestMovedUpToParticipantsContent = {
+  headline: string;
+  profile: {
+    firstName: string;
+    isGuest: boolean;
+  };
+  event: {
+    name: string;
+    url: string;
+    startDate: string;
+    startTime: string;
+    timezone: string;
+    location?: string;
+    conferenceLink?: string | null;
+    revocationLink?: string | null;
+  };
+};
 
 type TemplatePath =
   | "mail-templates/standard-message/html.hbs"
@@ -415,7 +414,9 @@ type TemplatePath =
   | "mail-templates/guests/guest-already-exists-html.hbs"
   | "mail-templates/guests/guest-already-exists-text.hbs"
   | "mail-templates/event/profile-or-guest-added-to-participants-html.hbs"
-  | "mail-templates/event/profile-or-guest-added-to-participants-text.hbs";
+  | "mail-templates/event/profile-or-guest-added-to-participants-text.hbs"
+  | "mail-templates/event/profile-or-guest-moved-up-to-participants-html.hbs"
+  | "mail-templates/event/profile-or-guest-moved-up-to-participants-text.hbs";
 
 type TemplateContent<TemplatePath> = TemplatePath extends
   | "mail-templates/standard-message/html.hbs"
@@ -599,7 +600,11 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                                       | "mail-templates/event/profile-or-guest-added-to-participants-html.hbs"
                                                       | "mail-templates/event/profile-or-guest-added-to-participants-text.hbs"
                                                   ? ProfileOrGuestAddedToParticipantsContent
-                                                  : never;
+                                                  : TemplatePath extends
+                                                        | "mail-templates/event/profile-or-guest-moved-up-to-participants-html.hbs"
+                                                        | "mail-templates/event/profile-or-guest-moved-up-to-participants-text.hbs"
+                                                    ? ProfileOrGuestMovedUpToParticipantsContent
+                                                    : never;
 
 export function getCompiledMailTemplate<T extends TemplatePath>(
   templatePath: TemplatePath,

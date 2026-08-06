@@ -5,6 +5,9 @@ import {
   mailer,
   mailerOptions,
 } from "./mailer.server";
+import { insertParametersIntoLocale } from "./lib/utils/i18n";
+import { scheduleMail } from "./mailer-queue.server";
+import { getVenueString } from "./utils.shared";
 
 export type ParticipantIdentifier =
   | { type: "user"; profileId: string }
@@ -358,7 +361,15 @@ export async function removeParticipantFromEvent(options: {
       id: eventId,
     },
     select: {
+      slug: true,
       name: true,
+      startTime: true,
+      venueName: true,
+      venueStreet: true,
+      venueStreetNumber: true,
+      venueZipCode: true,
+      venueCity: true,
+      conferenceLink: true,
       parentParticipationRequired: true,
       childEvents: {
         where: {
@@ -379,7 +390,15 @@ export async function removeParticipantFromEvent(options: {
         },
         select: {
           id: true,
+          slug: true,
           name: true,
+          startTime: true,
+          venueName: true,
+          venueStreet: true,
+          venueStreetNumber: true,
+          venueZipCode: true,
+          venueCity: true,
+          conferenceLink: true,
           participants: {
             select: {
               profileId: true,
@@ -418,7 +437,15 @@ export async function removeParticipantFromEvent(options: {
             },
             select: {
               id: true,
+              slug: true,
               name: true,
+              startTime: true,
+              venueName: true,
+              venueStreet: true,
+              venueStreetNumber: true,
+              venueZipCode: true,
+              venueCity: true,
+              conferenceLink: true,
               participants: {
                 select: {
                   profileId: true,
@@ -447,16 +474,19 @@ export async function removeParticipantFromEvent(options: {
   }
 
   // Collect all events where the participant be removed from
-  const eventsParticipantHasBeenRemovedFrom: {
-    eventId: string;
-    name: string;
-    participationType: "user" | "guest";
-    removedFromWaitingList: boolean;
-  }[] = [
+  const eventsParticipantHasBeenRemovedFrom = [
     {
-      eventId,
+      id: eventId,
       participationType: type,
+      slug: event.slug,
       name: event.name,
+      startTime: event.startTime,
+      venueName: event.venueName,
+      venueStreet: event.venueStreet,
+      venueStreetNumber: event.venueStreetNumber,
+      venueZipCode: event.venueZipCode,
+      venueCity: event.venueCity,
+      conferenceLink: event.conferenceLink,
       removedFromWaitingList: false,
     },
   ];
@@ -468,7 +498,15 @@ export async function removeParticipantFromEvent(options: {
 
   let childEvents: {
     id: string;
+    slug: string;
     name: string;
+    startTime: Date;
+    venueName: string | null;
+    venueStreet: string | null;
+    venueStreetNumber: string | null;
+    venueZipCode: string | null;
+    venueCity: string | null;
+    conferenceLink: string | null;
     participants: {
       profileId: string;
     }[];
@@ -506,6 +544,9 @@ export async function removeParticipantFromEvent(options: {
       identifier,
       event: childEvent,
     });
+    if (isParticipant === false && isOnWaitingList === false) {
+      continue;
+    }
     if (isParticipant) {
       transactions.push(
         getRemoveFromParticipantsTransaction({
@@ -520,12 +561,9 @@ export async function removeParticipantFromEvent(options: {
           eventId: childEvent.id,
         })
       );
-    } else {
-      continue;
     }
     eventsParticipantHasBeenRemovedFrom.push({
-      eventId: childEvent.id,
-      name: childEvent.name,
+      ...childEvent,
       participationType: type,
       removedFromWaitingList: isOnWaitingList,
     });
@@ -636,7 +674,7 @@ export async function removeParticipantFromEvent(options: {
         const result = await prismaClient.$transaction(async (prisma) => {
           const eventData = await prisma.event.findFirst({
             where: {
-              id: event.eventId,
+              id: event.id,
             },
             select: {
               moveUpToParticipants: true,
@@ -707,14 +745,14 @@ export async function removeParticipantFromEvent(options: {
                 where: {
                   profileId_eventId: {
                     profileId: nextOnWaitingList.id,
-                    eventId: event.eventId,
+                    eventId: event.id,
                   },
                 },
               });
               const result = await prisma.participantOfEvent.create({
                 data: {
                   profileId: nextOnWaitingList.id,
-                  eventId: event.eventId,
+                  eventId: event.id,
                 },
                 select: {
                   profile: {
@@ -725,7 +763,7 @@ export async function removeParticipantFromEvent(options: {
                   },
                 },
               });
-              return result.profile;
+              return { ...result.profile, type: "user" as const };
             }
             const result = await prisma.guest.update({
               where: {
@@ -737,9 +775,10 @@ export async function removeParticipantFromEvent(options: {
               select: {
                 email: true,
                 firstName: true,
+                revocationToken: true,
               },
             });
-            return result;
+            return { ...result, type: "guest" as const };
           }
           return null;
         });
@@ -747,33 +786,66 @@ export async function removeParticipantFromEvent(options: {
         if (result === null) {
           return;
         }
-
-        const sender = process.env.SYSTEM_MAIL_SENDER;
         const recipient = result.email;
-        const subject =
-          options.locales.moveFromWaitingListToParticipants.subject;
+        const subject = insertParametersIntoLocale(
+          options.locales.moveFromWaitingListToParticipants.subject,
+          {
+            eventName: event.name,
+          }
+        );
+
+        const content = {
+          headline: subject,
+          profile: {
+            firstName: result.firstName,
+            isGuest: result.type === "guest",
+          },
+          event: {
+            name: event.name,
+            url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail`,
+            startDate: event.startTime.toLocaleDateString("de-DE", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            }),
+            startTime: event.startTime.toLocaleTimeString("de-DE", {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            timezone: "MEZ",
+            location: getVenueString(event),
+            conferenceLink: event.conferenceLink,
+            revocationLink: null as string | null,
+          },
+        };
+
+        if (result.type === "guest") {
+          const revocationLink = `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?type=revoke&confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?type=revoke&token_hash=${result.revocationToken}&confirmation_redirect=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail`)}`)}`;
+          content.event.revocationLink = revocationLink;
+        }
+
         const textTemplatePath =
-          "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-text.hbs";
+          "mail-templates/event/profile-or-guest-moved-up-to-participants-text.hbs";
         const htmlTemplatePath =
-          "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-html.hbs";
+          "mail-templates/event/profile-or-guest-moved-up-to-participants-html.hbs";
 
         const text = getCompiledMailTemplate<typeof textTemplatePath>(
           textTemplatePath,
-          {
-            firstName: result.firstName,
-            event: { name: event.name },
-          },
+          content,
           "text"
         );
         const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
           htmlTemplatePath,
-          {
-            firstName: result.firstName,
-            event: { name: event.name },
-          },
+          content,
           "html"
         );
-        await mailer(mailerOptions, sender, recipient, subject, text, html);
+        await scheduleMail({
+          eventId: event.id,
+          recipient,
+          subject,
+          plainText: text,
+          html,
+        });
       } catch (error) {
         captureException(error);
       }
