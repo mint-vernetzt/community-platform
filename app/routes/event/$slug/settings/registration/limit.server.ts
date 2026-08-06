@@ -1,11 +1,7 @@
 import { captureException } from "@sentry/node";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { scheduleMail } from "~/mailer-queue.server";
-import {
-  getCompiledMailTemplate,
-  mailer,
-  mailerOptions,
-} from "~/mailer.server";
+import { getCompiledMailTemplate } from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
 import { getVenueString } from "~/utils.shared";
 
