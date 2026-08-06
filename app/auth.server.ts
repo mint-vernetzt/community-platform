@@ -116,6 +116,13 @@ export const signUp = async (
   return { data, error };
 };
 
+export async function resetInactivityReminderState(userId: string) {
+  await prismaClient.profile.updateMany({
+    where: { id: userId, inactivityReminderState: { not: null } },
+    data: { inactivityReminderState: null, inactivityReminderSentAt: null },
+  });
+}
+
 export const signIn = async (
   request: Request,
   email: string,
@@ -126,6 +133,9 @@ export const signIn = async (
     email: email,
     password: password,
   });
+  if (error === null && data.user !== null) {
+    await resetInactivityReminderState(data.user.id);
+  }
   return { data, error, headers };
 };
 
