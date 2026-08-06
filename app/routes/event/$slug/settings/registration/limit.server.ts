@@ -1,10 +1,13 @@
 import { captureException } from "@sentry/node";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { scheduleMail } from "~/mailer-queue.server";
 import {
   getCompiledMailTemplate,
   mailer,
   mailerOptions,
 } from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
+import { getVenueString } from "~/utils.shared";
 
 export async function getEventBySlug(slug: string) {
   const event = await prismaClient.event.findUnique({
@@ -70,7 +73,15 @@ export async function updateEventById(options: {
     const event = await prismaClient.event.findUnique({
       where: { id: eventId },
       select: {
+        slug: true,
         name: true,
+        startTime: true,
+        venueName: true,
+        venueStreet: true,
+        venueStreetNumber: true,
+        venueZipCode: true,
+        venueCity: true,
+        conferenceLink: true,
         participantLimit: true,
         _count: {
           select: {
@@ -100,6 +111,7 @@ export async function updateEventById(options: {
             email: true,
             firstName: true,
             confirmedAt: true,
+            revocationToken: true,
           },
         },
       },
@@ -134,8 +146,6 @@ export async function updateEventById(options: {
           return a.createdAt.getTime() - b.createdAt.getTime();
         })
         .slice(0, participantsOffset);
-
-      console.log({ profilesToMoveUp });
 
       const transactions = [];
 
@@ -179,35 +189,76 @@ export async function updateEventById(options: {
             })
           );
         }
-        await prismaClient.$transaction(transactions);
       }
-      const sender = process.env.SYSTEM_MAIL_SENDER;
-      const subject = options.locales.mail.moveUpToParticipants.subject;
+      await prismaClient.$transaction(transactions);
+
+      const subject = insertParametersIntoLocale(
+        options.locales.mail.moveUpToParticipants.subject,
+        {
+          eventName: event.name,
+        }
+      );
       const textTemplatePath =
-        "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-text.hbs";
+        "mail-templates/event/profile-or-guest-moved-up-to-participants-text.hbs";
       const htmlTemplatePath =
-        "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-html.hbs";
+        "mail-templates/event/profile-or-guest-moved-up-to-participants-html.hbs";
+
+      const url = `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail`;
+      const startDate = event.startTime.toLocaleDateString("de-DE", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+      const startTime = event.startTime.toLocaleTimeString("de-DE", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      const location = getVenueString(event);
+
       void Promise.all(
         profilesToMoveUp.map(async (profile) => {
           try {
+            const content = {
+              headline: subject,
+              profile: {
+                firstName: profile.firstName,
+                isGuest: profile.type === "guest",
+              },
+              event: {
+                name: event.name,
+                url,
+                startDate,
+                startTime,
+                timezone: "MEZ",
+                location,
+                conferenceLink: event.conferenceLink,
+                revocationLink: null as string | null,
+              },
+            };
+
+            if (profile.type === "guest") {
+              const revocationLink = `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?type=revoke&confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?type=revoke&token_hash=${profile.revocationToken}&confirmation_redirect=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail`)}`)}`;
+              content.event.revocationLink = revocationLink;
+            }
+
             const recipient = profile.email;
             const text = getCompiledMailTemplate<typeof textTemplatePath>(
               textTemplatePath,
-              {
-                firstName: profile.firstName,
-                event: { name: event.name },
-              },
+              content,
               "text"
             );
             const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
               htmlTemplatePath,
-              {
-                firstName: profile.firstName,
-                event: { name: event.name },
-              },
+              content,
               "html"
             );
-            await mailer(mailerOptions, sender, recipient, subject, text, html);
+            await scheduleMail({
+              eventId,
+              recipient,
+              subject,
+              plainText: text,
+              html,
+            });
           } catch (error) {
             captureException(error);
           }

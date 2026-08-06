@@ -1,0 +1,28 @@
+{{headline}}
+
+Hallo {{profile.firstName}},
+
+wir freuen uns Dir mitteilen zu können, dass Du von der Warteliste nachgerückt bist und ab sofort als Teilnehmer:in beim Event {{event.name}} gelistet wirst. Wir wünschen Dir eine spannende und inspirierende Veranstaltung.
+
+Link zum Event: {{event.url}}
+Termin: {{event.startDate}}, {{event.startTime}} Uhr ({{event.timezone}})
+{{#if event.location}}
+Ort: {{event.location}}
+{{/if}}
+{{#if event.conferenceLink}}
+Konferenz-Link: {{event.conferenceLink}}
+{{/if}}
+
+{{#if profile.isGuest}}
+{{#if event.revocationLink}}
+Wenn sich bei Dir etwas ändert und Du doch nicht teilnehmen kannst, dann ziehe bitte Deine Teilnahme über den Abmeldelink zurück, so dass andere nachrücken können.
+Abmeldelink: {{event.revocationLink}}
+{{/if}}
+{{else}}
+Wenn sich bei Dir etwas ändert und Du doch nicht teilnehmen kannst, dann ziehe bitte auf der Community-Plattform Deine Teilnahme zurück, so dass andere nachrücken können. 
+{{/if}}
+
+Wenn Du Fragen dazu hast, melde Dich gern beim Event-Team.
+
+Viele Grüße
+Dein MINTvernetzt-Team

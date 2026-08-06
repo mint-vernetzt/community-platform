@@ -579,7 +579,7 @@ export async function addProfileToParticipants(options: {
           headline: subject,
           profile: {
             firstName: data.profile.firstName,
-            isGuest: false as const, // To handle different types for template content regarding guest or user
+            isGuest: false,
           },
           event: {
             name: data.event.name,
