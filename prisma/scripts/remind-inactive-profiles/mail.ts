@@ -32,14 +32,21 @@ export async function sendFirstMail(profile: Recipient) {
     "html"
   );
 
-  await mailer(
-    mailerOptions,
-    process.env.SYSTEM_MAIL_SENDER,
-    profile.email,
-    "Wir vermissen Dich in der Community",
-    text,
-    html
-  );
+  try {
+    await mailer(
+      mailerOptions,
+      process.env.SYSTEM_MAIL_SENDER,
+      profile.email,
+      "Wir vermissen Dich in der Community",
+      text,
+      html
+    );
+  } catch (error) {
+    console.error(`Erste Mail an ${profile.email} fehlgeschlagen`, error);
+    return false;
+  }
+
+  return true;
 }
 
 export async function sendSecondMail(profile: Recipient) {
@@ -65,14 +72,21 @@ export async function sendSecondMail(profile: Recipient) {
     "html"
   );
 
-  await mailer(
-    mailerOptions,
-    process.env.SYSTEM_MAIL_SENDER,
-    profile.email,
-    "Möchtest Du Dein Profil behalten?",
-    text,
-    html
-  );
+  try {
+    await mailer(
+      mailerOptions,
+      process.env.SYSTEM_MAIL_SENDER,
+      profile.email,
+      "Möchtest Du Dein Profil behalten?",
+      text,
+      html
+    );
+  } catch (error) {
+    console.error(`Zweite Mail an ${profile.email} fehlgeschlagen`, error);
+    return false;
+  }
+
+  return true;
 }
 
 export async function sendLastMail(profile: Recipient, deletionDate: Date) {
@@ -99,14 +113,21 @@ export async function sendLastMail(profile: Recipient, deletionDate: Date) {
     "html"
   );
 
-  await mailer(
-    mailerOptions,
-    process.env.SYSTEM_MAIL_SENDER,
-    profile.email,
-    "Letzte Erinnerung zu Deinem Profil",
-    text,
-    html
-  );
+  try {
+    await mailer(
+      mailerOptions,
+      process.env.SYSTEM_MAIL_SENDER,
+      profile.email,
+      "Letzte Erinnerung zu Deinem Profil",
+      text,
+      html
+    );
+  } catch (error) {
+    console.error(`Dritte Mail an ${profile.email} fehlgeschlagen`, error);
+    return false;
+  }
+
+  return true;
 }
 
 export async function sendDeletedMail(profile: Recipient) {
@@ -132,12 +153,19 @@ export async function sendDeletedMail(profile: Recipient) {
     "html"
   );
 
-  await mailer(
-    mailerOptions,
-    process.env.SYSTEM_MAIL_SENDER,
-    profile.email,
-    "Dein Account wurde gelöscht",
-    text,
-    html
-  );
+  try {
+    await mailer(
+      mailerOptions,
+      process.env.SYSTEM_MAIL_SENDER,
+      profile.email,
+      "Dein Account wurde gelöscht",
+      text,
+      html
+    );
+  } catch (error) {
+    console.error(`Löschbestätigung an ${profile.email} fehlgeschlagen`, error);
+    return false;
+  }
+
+  return true;
 }

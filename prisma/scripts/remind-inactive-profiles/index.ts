@@ -86,17 +86,19 @@ async function main() {
       console.log(
         `Erste Mail an ${profile.email} (${profile.username}, ${profile.id})`
       );
-      console.log(`  -> State auf "firstSent" setzen`);
+      const sent = await sendFirstMail(profile);
 
-      // await sendFirstMail(profile);
+      if (sent === false) {
+        continue;
+      }
 
-      // await prismaClient.profile.update({
-      //   where: { id: profile.id },
-      //   data: {
-      //     inactivityReminderState: "firstSent",
-      //     inactivityReminderSentAt: new Date(),
-      //   },
-      // });
+      await prismaClient.profile.update({
+        where: { id: profile.id },
+        data: {
+          inactivityReminderState: "firstSent",
+          inactivityReminderSentAt: new Date(),
+        },
+      });
     } else if (
       profile.inactivityReminderState === "firstSent" &&
       profile.inactivityReminderSentAt !== null &&
@@ -105,17 +107,19 @@ async function main() {
       console.log(
         `Zweite Mail an ${profile.email} (${profile.username}, ${profile.id})`
       );
-      console.log(`  -> State auf "secondSent" setzen`);
+      const sent = await sendSecondMail(profile);
 
-      // await sendSecondMail(profile);
+      if (sent === false) {
+        continue;
+      }
 
-      // await prismaClient.profile.update({
-      //   where: { id: profile.id },
-      //   data: {
-      //     inactivityReminderState: "secondSent",
-      //     inactivityReminderSentAt: new Date(),
-      //   },
-      // });
+      await prismaClient.profile.update({
+        where: { id: profile.id },
+        data: {
+          inactivityReminderState: "secondSent",
+          inactivityReminderSentAt: new Date(),
+        },
+      });
     } else if (
       profile.inactivityReminderState === "secondSent" &&
       profile.inactivityReminderSentAt !== null &&
@@ -129,17 +133,19 @@ async function main() {
           "de-DE"
         )}`
       );
-      console.log(`  -> State auf "lastSent" setzen`);
+      const sent = await sendLastMail(profile, deletionDate);
 
-      // await sendLastMail(profile, deletionDate);
+      if (sent === false) {
+        continue;
+      }
 
-      // await prismaClient.profile.update({
-      //   where: { id: profile.id },
-      //   data: {
-      //     inactivityReminderState: "lastSent",
-      //     inactivityReminderSentAt: new Date(),
-      //   },
-      // });
+      await prismaClient.profile.update({
+        where: { id: profile.id },
+        data: {
+          inactivityReminderState: "lastSent",
+          inactivityReminderSentAt: new Date(),
+        },
+      });
     } else if (
       profile.inactivityReminderState === "lastSent" &&
       profile.inactivityReminderSentAt !== null &&
@@ -181,8 +187,6 @@ async function main() {
       });
 
       if (profileBackup === null) {
-        // console.log(`Profil ${profile.username} konnte nicht gefunden werden`);
-        // continue;
         throw new Error(
           `Profil ${profile.username} konnte nicht gefunden werden`
         );
@@ -191,22 +195,24 @@ async function main() {
       const profileBackupJson = JSON.stringify(profileBackup, null, 2);
 
       console.log(`  -> Backup anlegen (${profileBackupJson.length} Zeichen)`);
-      console.log(`  -> Profil löschen`);
-      console.log(`  -> Löschbestätigung an ${profile.email} (${profile.id})`);
 
-      // await prismaClient.$transaction([
-      //   prismaClient.inactiveProfile.create({
-      //     data: {
-      //       id: profileBackup.id,
-      //       jsonData: profileBackupJson,
-      //     },
-      //   }),
-      //   prismaClient.profile.delete({
-      //     where: { id: profile.id },
-      //   }),
-      // ]);
+      await prismaClient.$transaction([
+        prismaClient.inactiveProfile.create({
+          data: {
+            id: profileBackup.id,
+            jsonData: profileBackupJson,
+          },
+        }),
+        prismaClient.profile.delete({
+          where: { id: profile.id },
+        }),
+      ]);
 
-      // await sendDeletedMail(profile);
+      await sendDeletedMail(profile);
+    } else {
+      console.log(
+        `Nichts zu tun für ${profile.username} (${profile.id}), State: ${profile.inactivityReminderState}`
+      );
     }
   }
 }
