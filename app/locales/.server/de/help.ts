@@ -358,7 +358,7 @@ export const locale = {
           question:
             "Was ist bei der Nutzung eines eigenen Anmeldelinks zu beachten?",
           answer:
-            "<p><ul><li>Nach der Veröffentlichung Deines Events kannst Du die Registierungsart nicht mehr ändern, das heißt, Du kannst ein Event mit externer Registrierung nicht mehr in ein internes Event umwandeln.</li><li>Bei Events mit externer Registrierung, kannst Du nicht die Teilnehmendenverwaltung der Community-Plattform nutzen und keinen Registrierungszeitraum einstellen.</li></ul></p>",
+            "<p><ul><li>Nach der Veröffentlichung Deines Events kannst Du die Registierungsart nicht mehr ändern, das heißt, Du kannst ein Event mit externer Registrierung nicht mehr in ein internes Event umwandeln.</li><li>Bei Events mit externer Registrierung, kannst Du nicht die Teilnehmendenverwaltung der Community-Plattform nutzen und keinen Registrierungszeitraum einstellen.</li><li>Geschlossene Events können nicht mit externer Registrierung angelegt werden.</li></ul></p>",
           featureFlag: "events",
         },
       },
@@ -435,13 +435,6 @@ export const locale = {
     specialEvents: {
       headline: "Fragen zu besonderen Event-Formaten & Einstellungen",
       qAndAs: {
-        externalEvent: {
-          question:
-            "Ist es möglich Events mit externer Registrierung zu erstellen?",
-          answer:
-            "<p>Ja, wenn Du Deinen Evententwurf bearbeitest, dann findest Du in den Einstellungen unter dem Punkt <b>Registrierung</b> die Möglichkeit <b>“Externe Registrierung”</b> auszuwählen. Du fügst dann einen externen Registrierungslink ein, über den Deine Teilnehmer:innen zur externen Registrierung weitergeleitet werden.<br /><br />Geschlossene Events können nicht mit externer Registrierung angelegt werden.</p>",
-          featureFlag: "events",
-        },
         closedEvent: {
           question: "Ist es möglich geschlossene Events zu erstellen?",
           answer:
