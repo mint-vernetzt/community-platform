@@ -175,6 +175,11 @@ export const locale = {
           answer:
             '<p>If you do not agree with your organization existing as an organization profile created by us on the platform, you can request deletion by sending an email to <a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a>. We will then check whether you are part of this organization and, if necessary, contact you about it. This ensures that no unauthorized persons can initiate the deletion of your organization.</p>',
         },
+        makeSomeoneOrganizationAdmin: {
+          question: "Can I make someone an admin of my organization?",
+          answer:
+            '<p>Yes, go to your <b>organization settings</b> to do so. You can find your organizations under <b>My space > My Organizations</b>. You get to the organization settings by clicking on <b>“Edit”</b> in the three-dot menu <span class="w-5 h-5 inline-flex place-items-center justify-center rounded-md border border-primary bg-neutral-50"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span>. Alternatively, you can open the organization page and click <b>“Edit”</b> there.</br></br>Within the settings you will find the menu item <b>“Administrators”</b>. There you can invite other people to become an admin. The invited person has to accept the invitation to be listed as an admin of your organization.</br></br>Unlike team members, admins are not displayed on the organization page.</p>',
+        },
       },
     },
     organizationMapView: {
@@ -291,6 +296,11 @@ export const locale = {
           answer:
             "<p>On your project page, you will find the button <b>“Hide”</b> after publishing your project. This allows you to turn your project back into a draft that is no longer visible to everyone. If you want to completely delete your project, you can find this option in the project settings under the tab <b>Danger zone”</b>. Select the tab <b>“Delete Project”</b> and follow the instructions.</p>",
         },
+        makeSomeoneProjectAdmin: {
+          question: "Can I make someone an admin of my project?",
+          answer:
+            '<p>Yes, go to your <b>project settings</b> to do so. You can find your projects under <b>My space > My Projects</b>. You get to the project settings by clicking on <b>“Edit”</b> in the three-dot menu <span class="w-5 h-5 inline-flex place-items-center justify-center rounded-md border border-primary bg-neutral-50"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span>. Alternatively, you can open the project page and click <b>“Edit project”</b> there.</br></br>Within the settings you will find the menu item <b>“Administrators”</b>. There you can add other people as an admin.</br></br>Unlike team members, admins are not displayed on the project page.</p>',
+        },
       },
     },
     events: {
@@ -390,6 +400,12 @@ export const locale = {
             "I no longer want to be an admin of my event. How can I remove myself as an admin?",
           answer:
             "<p>If you want to remove yourself as an administrator of an event, you must first designate another person as the event administrator. Once the person has accepted the invitation, you can remove yourself as an administrator or have yourself removed.</p>",
+          featureFlag: "events",
+        },
+        makeSomeoneEventAdmin: {
+          question: "Can I make someone an admin of my event?",
+          answer:
+            "<p>Yes, go to your <b>event settings</b> to do so. You can find your events under <b>My Space > My Events</b>. Go to your event and click the <b>“Edit Event”</b> button on the event page to access the event settings.</br></br>Within the settings you will find the menu item <b>“Administrators”</b>. There you can invite other people to become an admin. The invited person has to accept the invitation to be listed as an admin of your event.</br></br>Unlike team members, admins are not displayed on the event page.</p>",
           featureFlag: "events",
         },
       },
