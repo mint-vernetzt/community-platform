@@ -120,7 +120,7 @@ export const locale = {
         },
         whyNetwork: {
           question:
-            "Warum sollte ich in der Community-Plattform sichtbar machen, dass meine Organisation ein Netzwerk ist.",
+            "Warum sollte ich in der Community-Plattform sichtbar machen, dass meine Organisation ein Netzwerk ist?",
           answer:
             "<p>Als MINTvernetzt Community-Plattform ist es unser Ziel Netzwerke sichtbar zu machen und damit die Community zu unterstützen. MINT-Akteur:innen können sich auf der Plattform über Organisationen informieren und dabei sehen in welchen Netzwerken diese organisiert sind. Über die Such- und Filterfunktionen kannst Du nach verschiedenen Netzwerkformen suchen bzw. filtern.</p>",
         },
