@@ -121,6 +121,11 @@ export const locale = {
             "Find free STEM related images and graphics in the STEM media database",
           linkDescription: "Try out now",
         },
+        createEvent: {
+          headline: "New feature",
+          description: "Create your own events on the community platform",
+          linkDescription: "Create event now",
+        },
       },
     },
     newsTeaser: {
