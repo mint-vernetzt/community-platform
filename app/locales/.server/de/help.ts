@@ -317,13 +317,13 @@ export const locale = {
           question:
             "Ich möchte an einem Event teilnehmen. Wie kann ich mich anmelden?",
           answer:
-            '<p>Unter <b>Entdecken > Events</b> findest Du eine Liste mit aktuellen Veranstaltungen. Wähle dort das gewünschte Event aus und klicke auf „Teilnehmen“. Bitte beachte, dass Du auf der Plattform angemeldet sein musst, um Dich für ein Event anmelden zu können.</br></br>Hast Du noch kein Profil auf der MINTvernetzt Community-Plattform? Hier kannst Du Dich <a href="/register">registrieren</a>.</br></br>Für Events mit externer Registrierung wirst Du auf externe Anmeldeseiten weitergeleitet.</p>',
+            "<p>Unter <b>Entdecken > Events</b> findest Du eine Liste mit aktuellen Veranstaltungen. Wähle dort das gewünschte Event aus und klicke auf <b>„Teilnehmen“</b>. Falls Du noch nicht auf der Plattform registriert bist, kannst Du Dich daraufhin entscheiden, ob Du Dich registrieren oder ob Du ohne Profilerstellung per E-Mail-Adresse zum Event anmelden möchtest.</br></br>Für Events mit externer Registrierung wirst Du auf externe Anmeldeseiten weitergeleitet.</p>",
         },
         cancelParticipation: {
           question:
             "Ich habe mich zu einem Event angemeldet und kann doch nicht teilnehmen – muss ich mich abmelden?",
           answer:
-            "<p>Wenn Du Dich versehentlich angemeldet hast, oder Du feststellst, dass Du doch nicht teilnehmen kannst, dann ziehe bitte Deine Teilnahme auf der Eventseite per Klick auf den Button <b>“Nicht mehr teilnehmen”</b> wieder zurück. So gibst Du ggf. Plätze für andere frei.</br></br>Alle Events, für die Du Dich angemeldet hast, findest Du unter <b>Mein MINT-Bereich > Meine Events</b>. Per Klick auf ein Event gelangst Du auf die Eventseite, dort kannst Du Dich vom Event abmelden.</p>",
+            "<p>Wenn Du Dich versehentlich angemeldet hast, oder Du feststellst, dass Du doch nicht teilnehmen kannst, dann ziehe bitte Deine Teilnahme zurück. So gibst Du ggf. Plätze für andere frei.</br></br>Als registrierte:r Plattformnutzer:in findest Du alle Events, für die Du Dich angemeldet hast, unter <b>Mein MINT-Bereich > Meine Events</b>. Per Klick auf ein Event gelangst Du auf die Eventseite, dort kannst Du Dich per Klick auf den Button <b>“Nicht mehr teilnehmen”</b> vom Event abmelden.</br></br>Wenn Du Dich ohne Profilerstellung für ein Event angemeldet hast, dann ziehe bitte Deine Anmeldung über den Abmeldelink, den Du nach Deiner Anmeldung per E-Mail erhältst, zurück.</p>",
         },
       },
     },
@@ -398,6 +398,13 @@ export const locale = {
             "Ich möchte nicht mehr Admin meines Events sein. Wie kann ich mich als Admin entfernen?",
           answer:
             "<p>Wenn Du dich als Administrator:in eines Events entfernen möchtest, musst Du zunächst eine andere Person als Event-Administrator:in bestimmen. Sobald die Person die Einladung bestätigt hat, kannst Du Dich als Administrator:in entfernen bzw. Dich entfernen lassen.</p>",
+          featureFlag: "events",
+        },
+        guestParticipantsInCsv: {
+          question:
+            "Erscheinen die Personen, die sich ohne Profilerstellung auf der Plattform zum meinem Event angemeldet haben, auch in der CSV-Datei, die ich downloaden kann?",
+          answer:
+            "<p>Ja, die Personen, die sich ohne Profilerstellung angemeldet haben, werden mit Titel, Vorname, Nachname, ggf. Organisation und ihrer E-Mail-Adresse als Teilnehmer:in Deines Events in der CSV-Datei gelistet.</br></br>Mit dem Hinterlegen der E-Mail-Adresse erhalten diese Teilnehmer:innen automatische Anmelde-E-Mails. Sollte sich in Deinem Event etwas ändern, ist es wichtig, das Du die Teilnehmer:innen per E-Mail über die Änderung informierst.</p>",
           featureFlag: "events",
         },
       },
