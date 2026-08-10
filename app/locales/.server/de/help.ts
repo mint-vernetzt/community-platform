@@ -181,6 +181,11 @@ export const locale = {
           answer:
             '<p>Wenn Du nicht damit einverstanden bist, dass Deine Organisation als von uns angelegtes Organisationsprofil auf der Plattform existiert, dann kannst Du das Löschen beantragen, indem Du eine E-Mail an <a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a> sendest. Wir werden dann prüfen, ob Du Teil dieser Organisation bist und ggf. dazu mit Dir in Kontakt treten. Damit stellen wir sicher, dass keine organisationsfremden Personen das Löschen Deiner Organisation veranlassen können.</p>',
         },
+        makeSomeoneOrganizationAdmin: {
+          question: "Kann ich jemanden zum Admin meiner Organisation machen?",
+          answer:
+            '<p>Ja, gehe dafür in Deine <b>Organisationseinstellungen</b>. Du findest Deine Organisationen unter <b>Mein MINT-Bereich > Meine Organisationen</b>. In die Organisationseinstellungen gelangst Du per Klick auf <b>“Bearbeiten”</b> innerhalb des Drei-Punkte-Menüs <span class="w-5 h-5 inline-flex place-items-center justify-center rounded-md border border-primary bg-neutral-50"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span>. Oder Du rufst die Organisationsseite auf und klickst dort auf <b>“Bearbeiten”</b>.</br></br>Innerhalb der Einstellungen findest Du den Menüpunkt <b>“Admin-Rolle verwalten”</b>. Dort kannst Du andere Personen als Administrator:in einladen. Die eingeladene Person muss die Einladung annehmen, um als Administrator:in Deiner Organisation gelistet zu werden.</br></br>Im Gegensatz zu Teammitgliedern werden Administrator:innen nicht auf der Organisationsseite dargestellt.</p>',
+        },
       },
     },
     organizationMapView: {
@@ -303,6 +308,11 @@ export const locale = {
           answer:
             "<p>Auf Deiner Projektseite findest Du nach der Veröffentlichung Deines Projektes den Button <b>“Verstecken”</b>. Damit kannst Du Dein Projekt wieder in einen Entwurf verwandeln, der nicht mehr für alle sichtbar ist. Wenn Du Dein Projekt ganz löschen möchtest, dann findest Du diese Möglichkeit in den Projekteinstellungen im Reiter <b>“Kritischer Bereich”</b>. Wähle dort den Reiter <b>“Projekt löschen”</b> und folge den Anweisungen.</p>",
         },
+        makeSomeoneProjectAdmin: {
+          question: "Kann ich jemanden zum Admin meines Projekts machen?",
+          answer:
+            '<p>Ja, gehe dafür in Deine <b>Projekteinstellungen</b>. Du findest Deine Projekte unter <b>Mein MINT-Bereich > Meine Projekte</b>. In die Projekteinstellungen gelangst Du per Klick auf <b>“Bearbeiten”</b> innerhalb des Drei-Punkte-Menüs <span class="w-5 h-5 inline-flex place-items-center justify-center rounded-md border border-primary bg-neutral-50"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span>. Oder Du rufst die Projektseite auf und klickst dort auf <b>“Projekt bearbeiten”</b>.</br></br>Innerhalb der Einstellungen findest Du den Menüpunkt <b>“Admin-Rolle verwalten”</b>. Dort kannst Du andere Personen als Administrator:in hinzufügen.</br></br>Im Gegensatz zu Teammitgliedern werden Administrator:innen nicht auf der Projektseite dargestellt.</p>',
+        },
       },
     },
     events: {
@@ -398,6 +408,12 @@ export const locale = {
             "Ich möchte nicht mehr Admin meines Events sein. Wie kann ich mich als Admin entfernen?",
           answer:
             "<p>Wenn Du dich als Administrator:in eines Events entfernen möchtest, musst Du zunächst eine andere Person als Event-Administrator:in bestimmen. Sobald die Person die Einladung bestätigt hat, kannst Du Dich als Administrator:in entfernen bzw. Dich entfernen lassen.</p>",
+          featureFlag: "events",
+        },
+        makeSomeoneEventAdmin: {
+          question: "Kann ich jemanden zum Admin meines Events machen?",
+          answer:
+            "<p>Ja, gehe dafür in Deine <b>Event-Einstellungen</b>. Du findest Deine Events unter <b>Mein MINT-Bereich > Meine Events</b>. Gehe auf Dein Event und klicke auf der Eventseite auf den Button <b>“Event bearbeiten”</b>, so gelangst Du in die Event-Einstellungen.</br></br>Innerhalb der Einstellungen findest Du den Menüpunkt <b>“Administrator:innen”</b>. Dort kannst Du andere Personen als Administrator:in einladen. Die eingeladene Person muss die Einladung annehmen, um als Administrator:in Deines Events gelistet zu werden.</br></br>Im Gegensatz zu Teammitgliedern werden Administrator:innen nicht auf der Eventseite dargestellt.</p>",
           featureFlag: "events",
         },
         guestParticipantsInCsv: {
