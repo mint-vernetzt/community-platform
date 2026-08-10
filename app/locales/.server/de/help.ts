@@ -120,7 +120,7 @@ export const locale = {
         },
         whyNetwork: {
           question:
-            "Warum sollte ich in der Community-Plattform sichtbar machen, dass meine Organisation ein Netzwerk ist.",
+            "Warum sollte ich in der Community-Plattform sichtbar machen, dass meine Organisation ein Netzwerk ist?",
           answer:
             "<p>Als MINTvernetzt Community-Plattform ist es unser Ziel Netzwerke sichtbar zu machen und damit die Community zu unterstützen. MINT-Akteur:innen können sich auf der Plattform über Organisationen informieren und dabei sehen in welchen Netzwerken diese organisiert sind. Über die Such- und Filterfunktionen kannst Du nach verschiedenen Netzwerkformen suchen bzw. filtern.</p>",
         },
@@ -327,13 +327,13 @@ export const locale = {
           question:
             "Ich möchte an einem Event teilnehmen. Wie kann ich mich anmelden?",
           answer:
-            '<p>Unter <b>Entdecken > Events</b> findest Du eine Liste mit aktuellen Veranstaltungen. Wähle dort das gewünschte Event aus und klicke auf „Teilnehmen“. Bitte beachte, dass Du auf der Plattform angemeldet sein musst, um Dich für ein Event anmelden zu können.</br></br>Hast Du noch kein Profil auf der MINTvernetzt Community-Plattform? Hier kannst Du Dich <a href="/register">registrieren</a>.</br></br>Für Events mit externer Registrierung wirst Du auf externe Anmeldeseiten weitergeleitet.</p>',
+            "<p>Unter <b>Entdecken > Events</b> findest Du eine Liste mit aktuellen Veranstaltungen. Wähle dort das gewünschte Event aus und klicke auf <b>„Teilnehmen“</b>. Falls Du noch nicht auf der Plattform registriert bist, kannst Du Dich daraufhin entscheiden, ob Du Dich registrieren oder ob Du ohne Profilerstellung per E-Mail-Adresse zum Event anmelden möchtest.</br></br>Für Events mit externer Registrierung wirst Du auf externe Anmeldeseiten weitergeleitet.</p>",
         },
         cancelParticipation: {
           question:
             "Ich habe mich zu einem Event angemeldet und kann doch nicht teilnehmen – muss ich mich abmelden?",
           answer:
-            "<p>Wenn Du Dich versehentlich angemeldet hast, oder Du feststellst, dass Du doch nicht teilnehmen kannst, dann ziehe bitte Deine Teilnahme auf der Eventseite per Klick auf den Button <b>“Nicht mehr teilnehmen”</b> wieder zurück. So gibst Du ggf. Plätze für andere frei.</br></br>Alle Events, für die Du Dich angemeldet hast, findest Du unter <b>Mein MINT-Bereich > Meine Events</b>. Per Klick auf ein Event gelangst Du auf die Eventseite, dort kannst Du Dich vom Event abmelden.</p>",
+            "<p>Wenn Du Dich versehentlich angemeldet hast, oder Du feststellst, dass Du doch nicht teilnehmen kannst, dann ziehe bitte Deine Teilnahme zurück. So gibst Du ggf. Plätze für andere frei.</br></br>Als registrierte:r Plattformnutzer:in findest Du alle Events, für die Du Dich angemeldet hast, unter <b>Mein MINT-Bereich > Meine Events</b>. Per Klick auf ein Event gelangst Du auf die Eventseite, dort kannst Du Dich per Klick auf den Button <b>“Nicht mehr teilnehmen”</b> vom Event abmelden.</br></br>Wenn Du Dich ohne Profilerstellung für ein Event angemeldet hast, dann ziehe bitte Deine Anmeldung über den Abmeldelink, den Du nach Deiner Anmeldung per E-Mail erhältst, zurück.</p>",
         },
       },
     },
@@ -414,6 +414,13 @@ export const locale = {
           question: "Kann ich jemanden zum Admin meines Events machen?",
           answer:
             "<p>Ja, gehe dafür in Deine <b>Event-Einstellungen</b>. Du findest Deine Events unter <b>Mein MINT-Bereich > Meine Events</b>. Gehe auf Dein Event und klicke auf der Eventseite auf den Button <b>“Event bearbeiten”</b>, so gelangst Du in die Event-Einstellungen.</br></br>Innerhalb der Einstellungen findest Du den Menüpunkt <b>“Administrator:innen”</b>. Dort kannst Du andere Personen als Administrator:in einladen. Die eingeladene Person muss die Einladung annehmen, um als Administrator:in Deines Events gelistet zu werden.</br></br>Im Gegensatz zu Teammitgliedern werden Administrator:innen nicht auf der Eventseite dargestellt.</p>",
+          featureFlag: "events",
+        },
+        guestParticipantsInCsv: {
+          question:
+            "Erscheinen die Personen, die sich ohne Profilerstellung auf der Plattform zum meinem Event angemeldet haben, auch in der CSV-Datei, die ich downloaden kann?",
+          answer:
+            "<p>Ja, die Personen, die sich ohne Profilerstellung angemeldet haben, werden mit Titel, Vorname, Nachname, ggf. Organisation und ihrer E-Mail-Adresse als Teilnehmer:in Deines Events in der CSV-Datei gelistet.</br></br>Mit dem Hinterlegen der E-Mail-Adresse erhalten diese Teilnehmer:innen automatische Anmelde-E-Mails. Sollte sich in Deinem Event etwas ändern, ist es wichtig, das Du die Teilnehmer:innen per E-Mail über die Änderung informierst.</p>",
           featureFlag: "events",
         },
       },

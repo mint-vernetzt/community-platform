@@ -315,13 +315,13 @@ export const locale = {
         participate: {
           question: "I want to participate in an event. How can I register?",
           answer:
-            '<p>Under <b>Explore > Events</b> you will find a list of current events. Select the desired event and click on "Participate". Please note that you need to be registered on the platform to register for an event.</br></br>If you do not have a profile on the MINTvernetzt Community Platform yet, you can <b><a href="/register">register here</a></b>.</br></br>For events with external registration, you will be redirected to external registration pages.</p>',
+            '<p>Under <b>Explore > Events</b> you will find a list of current events. Select the desired event and click on <b>"Participate"</b>. If you are not registered on the platform yet, you can then decide whether you want to register or whether you want to sign up for the event with your email address without creating a profile.</br></br>For events with external registration, you will be redirected to external registration pages.</p>',
         },
         cancelParticipation: {
           question:
             "I have registered for an event, but I can no longer attend. How can I cancel my participation?",
           answer:
-            "<p>On the event page, you will find the button <b>“Cancel Participation”</b>. This allows you to withdraw your participation. This may free up spots for others.</br></br>All events you have registered for can be found under <b>My space > My events</b>. By clicking on an event, you will be taken to the event page, where you can cancel your participation.</p>",
+            "<p>If you registered by mistake, or if you realize that you cannot attend after all, please withdraw your participation. This may free up spots for others.</br></br>As a registered platform user, you can find all events you have registered for under <b>My space > My events</b>. By clicking on an event, you will be taken to the event page, where you can cancel your participation by clicking on the button <b>“Cancel Participation”</b>.</br></br>If you signed up for an event without creating a profile, please withdraw your registration via the cancellation link that you receive by email after signing up.</p>",
         },
       },
     },
@@ -406,6 +406,13 @@ export const locale = {
           question: "Can I make someone an admin of my event?",
           answer:
             "<p>Yes, go to your <b>event settings</b> to do so. You can find your events under <b>My Space > My Events</b>. Go to your event and click the <b>“Edit Event”</b> button on the event page to access the event settings.</br></br>Within the settings you will find the menu item <b>“Administrators”</b>. There you can invite other people to become an admin. The invited person has to accept the invitation to be listed as an admin of your event.</br></br>Unlike team members, admins are not displayed on the event page.</p>",
+          featureFlag: "events",
+        },
+        guestParticipantsInCsv: {
+          question:
+            "Do the people who signed up for my event without creating a profile on the platform also appear in the CSV file I can download?",
+          answer:
+            "<p>Yes, the people who signed up without creating a profile are listed in the CSV file as participants of your event with their title, first name, last name, organization (if provided) and their email address.</br></br>By providing their email address, these participants receive automatic registration emails. If anything changes in your event, it is important that you inform the participants about the change by email.</p>",
           featureFlag: "events",
         },
       },
