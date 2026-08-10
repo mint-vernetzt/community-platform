@@ -1,12 +1,9 @@
-import { redirect, type LoaderFunctionArgs } from "react-router";
-import {
-  createAuthClient,
-  getSessionUserOrRedirectPathToLogin,
-} from "~/auth.server";
+import { type LoaderFunctionArgs } from "react-router";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDownloadDocumentsResponse } from "~/storage.server";
-import { getDocumentById, getEventBySlug } from "./documents-download.server";
+import { getEventBySlug } from "./documents-download.server";
 import { detectLanguage } from "~/i18n.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
 import { languageModuleMap } from "~/locales/.server";
@@ -20,12 +17,8 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const { authClient } = createAuthClient(request);
 
-  const { sessionUser, redirectPath } =
-    await getSessionUserOrRedirectPathToLogin(authClient, request);
+  const sessionUser = await getSessionUser(authClient);
 
-  if (sessionUser === null && redirectPath !== null) {
-    return redirect(redirectPath);
-  }
   const slug = getParamValueOrThrow(params, "slug");
   const event = await getEventBySlug(slug);
   invariantResponse(event, "Event not found", { status: 404 });
@@ -67,13 +60,26 @@ export async function loader(args: LoaderFunctionArgs) {
       }
     });
   } else {
-    const document = await getDocumentById(documentId);
-    if (document === null) {
-      invariantResponse(false, "Document not found", { status: 500 });
+    let document = null;
+
+    console.log("Event documents:", event.documents);
+    console.log("Searching for document with ID:", documentId);
+    for (const relation of event.documents) {
+      if (relation.document.id === documentId) {
+        document = relation.document;
+      }
+    }
+    invariantResponse(document, "Document not found", { status: 404 });
+
+    let escapedFilename = escapeFilenameSpecialChars(
+      document.title || document.filename
+    );
+    if (escapedFilename.endsWith(document.extension) === false) {
+      escapedFilename = `${escapedFilename}.${document.extension}`;
     }
     const escapedDocument = {
       ...document,
-      filename: escapeFilenameSpecialChars(document.title || document.filename),
+      filename: escapedFilename,
     };
     documents = [escapedDocument];
   }
