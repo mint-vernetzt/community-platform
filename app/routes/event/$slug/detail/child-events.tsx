@@ -160,7 +160,15 @@ export async function action(args: ActionFunctionArgs) {
           },
         });
       } else if (intent === "joinWaitingList") {
-        result = await addProfileToWaitingList(sessionUser.id, data.eventId);
+        result = await addProfileToWaitingList({
+          profileId: sessionUser.id,
+          eventId: data.eventId,
+          locales: {
+            mail: {
+              subject: locales.route.mail.waitingList.subject,
+            },
+          },
+        });
       } else {
         result = await removeProfileFromWaitingList(
           sessionUser.id,

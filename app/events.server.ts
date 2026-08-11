@@ -799,6 +799,7 @@ export async function removeParticipantFromEvent(options: {
           profile: {
             firstName: result.firstName,
             isGuest: result.type === "guest",
+            isOnWaitingList: false,
           },
           event: {
             name: event.name,

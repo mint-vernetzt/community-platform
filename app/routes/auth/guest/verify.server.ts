@@ -157,97 +157,63 @@ export async function confirmGuest(options: {
 
     const revocationLink = `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?type=revoke&confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?type=revoke&token_hash=${result.revocationToken}&confirmation_redirect=${encodeURIComponent(confirmationRedirectWithoutParams)}`)}`;
 
-    if (result.onWaitingList) {
-      const subject = insertParametersIntoLocale(
-        locales.mail.addedToWaitingList.subject,
-        {
-          eventName: result.event.name,
-        }
-      );
-      const textTemplatePath =
-        "mail-templates/guests/registration-waiting-list-success-text.hbs";
-      const htmlTemplatePath =
-        "mail-templates/guests/registration-waiting-list-success-html.hbs";
+    const subjectSource = isOnWaitingList
+      ? locales.mail.addedToWaitingList.subject
+      : locales.mail.addedToParticipants.subject;
 
-      const data = {
+    const subject = insertParametersIntoLocale(subjectSource, {
+      eventName: result.event.name,
+    });
+    const content = {
+      headline: subject,
+      profile: {
         firstName: result.firstName,
-        eventName: result.event.name,
-        buttonUrl: revocationLink,
-      };
+        isGuest: true,
+        isOnWaitingList: result.onWaitingList,
+      },
+      event: {
+        name: result.event.name,
+        url: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/detail`,
+        startDate: result.event.startTime.toLocaleDateString("de-DE", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }),
+        startTime: result.event.startTime.toLocaleTimeString("de-DE", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        timezone: "MEZ",
+        location: getVenueString(result.event),
+        icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/ics-download`,
+        conferenceLink: result.onWaitingList
+          ? null
+          : result.event.conferenceLink, // If the guest is on the waiting list, we don't provide the conference link yet
+        revocationLink,
+      },
+    };
+    const textTemplatePath =
+      "mail-templates/event/profile-or-guest-added-to-participants-or-waiting-list-text.hbs";
+    const htmlTemplatePath =
+      "mail-templates/event/profile-or-guest-added-to-participants-or-waiting-list-html.hbs";
+    const text = getCompiledMailTemplate<typeof textTemplatePath>(
+      textTemplatePath,
+      content,
+      "text"
+    );
+    const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+      htmlTemplatePath,
+      content,
+      "html"
+    );
 
-      const text = getCompiledMailTemplate<typeof textTemplatePath>(
-        textTemplatePath,
-        data,
-        "text"
-      );
-      const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
-        htmlTemplatePath,
-        data,
-        "html"
-      );
-
-      await scheduleMail({
-        eventId,
-        recipient,
-        subject,
-        plainText: text,
-        html,
-      });
-    } else {
-      const subject = insertParametersIntoLocale(
-        locales.mail.addedToParticipants.subject,
-        {
-          eventName: result.event.name,
-        }
-      );
-      const content = {
-        headline: subject,
-        profile: {
-          firstName: result.firstName,
-          isGuest: true as const, // To handle different types for template content regarding guest or user
-        },
-        event: {
-          name: result.event.name,
-          url: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/detail`,
-          startDate: result.event.startTime.toLocaleDateString("de-DE", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-          }),
-          startTime: result.event.startTime.toLocaleTimeString("de-DE", {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-          timezone: "MEZ",
-          location: getVenueString(result.event),
-          icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/ics-download`,
-          conferenceLink: result.event.conferenceLink,
-          revocationLink,
-        },
-      };
-      const textTemplatePath =
-        "mail-templates/event/profile-or-guest-added-to-participants-text.hbs";
-      const htmlTemplatePath =
-        "mail-templates/event/profile-or-guest-added-to-participants-html.hbs";
-      const text = getCompiledMailTemplate<typeof textTemplatePath>(
-        textTemplatePath,
-        content,
-        "text"
-      );
-      const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
-        htmlTemplatePath,
-        content,
-        "html"
-      );
-
-      await scheduleMail({
-        eventId,
-        recipient,
-        subject,
-        plainText: text,
-        html,
-      });
-    }
+    await scheduleMail({
+      eventId,
+      recipient,
+      subject,
+      plainText: text,
+      html,
+    });
   } catch (error) {
     captureException(error);
   }

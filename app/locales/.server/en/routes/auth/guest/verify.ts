@@ -3,7 +3,7 @@ export const locale = {
     mail: {
       waitingList: {
         subject:
-          "Du hast Dich auf die Warteliste für das Event {{eventName}} gesetzt",
+          "Du wurdest auf die Warteliste des Events {{eventName}} gesetzt",
       },
       participants: {
         subject: "Deine Anmeldung zum Event {{eventName}}",
