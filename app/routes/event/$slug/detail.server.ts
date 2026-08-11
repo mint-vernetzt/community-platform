@@ -641,6 +641,12 @@ export async function removeProfileFromParticipants(options: {
       moveFromWaitingListToParticipants: {
         subject: string;
       };
+      removeFromParticipants: {
+        subject: string;
+      };
+      guestRemoved: {
+        subject: string;
+      };
     };
   };
 }) {
@@ -652,8 +658,6 @@ export async function removeProfileFromParticipants(options: {
     type: "user",
     locales: {
       ...options.locales.mail,
-      removeFromParticipants: { subject: "" }, // TODO: improve TS
-      guestRemoved: { subject: "" }, // TODO: improve TS
     },
   });
 
@@ -783,21 +787,105 @@ export async function addProfileToWaitingList(options: {
   return { data };
 }
 
-export async function removeProfileFromWaitingList(
-  profileId: string,
-  eventId: string
-) {
+export async function removeProfileFromWaitingList(options: {
+  profileId: string;
+  eventId: string;
+  locales: {
+    mail: {
+      removeFromWaitingList: {
+        subject: string;
+      };
+    };
+  };
+}) {
+  const { profileId, eventId, locales } = options;
+  let data;
   try {
-    const data = await prismaClient.waitingParticipantOfEvent.deleteMany({
+    data = await prismaClient.waitingParticipantOfEvent.delete({
       where: {
-        eventId,
-        profileId,
+        profileId_eventId: {
+          eventId,
+          profileId,
+        },
+      },
+      select: {
+        profile: {
+          select: {
+            firstName: true,
+            email: true,
+          },
+        },
+        event: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
-    return { data };
   } catch (error) {
     return { error };
   }
+
+  try {
+    setTimeout(async () => {
+      const relation = await prismaClient.waitingParticipantOfEvent.findFirst({
+        where: {
+          eventId,
+          profileId,
+        },
+      });
+
+      // Early return if user has already rejoined the waiting list in the meantime
+      if (relation !== null) {
+        return;
+      }
+
+      const recipient = data.profile.email;
+      const subject = insertParametersIntoLocale(
+        locales.mail.removeFromWaitingList.subject,
+        {
+          eventName: data.event.name,
+        }
+      );
+
+      const content = {
+        headline: subject,
+        profile: {
+          firstName: data.profile.firstName,
+          isOnWaitingList: true,
+        },
+        event: {
+          name: data.event.name,
+        },
+      };
+
+      const textTemplatePath =
+        "mail-templates/event/profile-or-guest-removed-from-participants-or-waiting-list-text.hbs";
+      const htmlTemplatePath =
+        "mail-templates/event/profile-or-guest-removed-from-participants-or-waiting-list-html.hbs";
+      const text = getCompiledMailTemplate<typeof textTemplatePath>(
+        textTemplatePath,
+        content,
+        "text"
+      );
+      const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+        htmlTemplatePath,
+        content,
+        "html"
+      );
+
+      await scheduleMail({
+        eventId,
+        recipient,
+        subject,
+        plainText: text,
+        html,
+      });
+    }, 1000 * 10); // wait 10 seconds before sending the mail to ensure that user didn't rejoin waiting list in the meantime
+  } catch (error) {
+    return { error };
+  }
+  return { data };
 }
 
 export async function getHasUserReportedEvent(

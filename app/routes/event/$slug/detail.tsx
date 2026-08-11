@@ -684,10 +684,7 @@ export async function action(args: ActionFunctionArgs) {
             profileId: sessionUser.id,
             eventId,
             locales: {
-              mail: {
-                moveFromWaitingListToParticipants:
-                  locales.route.mail.moveFromWaitingListToParticipants,
-              },
+              mail: locales.route.mail,
             },
           });
         } else if (intent === JOIN_WAITING_LIST_INTENT && mode === "canWait") {
@@ -699,7 +696,17 @@ export async function action(args: ActionFunctionArgs) {
             },
           });
         } else if (intent === LEAVE_WAITING_LIST_INTENT && mode === "waiting") {
-          result = await removeProfileFromWaitingList(sessionUser.id, eventId);
+          result = await removeProfileFromWaitingList({
+            profileId: sessionUser.id,
+            eventId,
+            locales: {
+              mail: {
+                removeFromWaitingList: {
+                  subject: locales.route.mail.removeFromWaitingList.subject,
+                },
+              },
+            },
+          });
         }
         if (typeof result.error !== "undefined") {
           ctx.addIssue({
