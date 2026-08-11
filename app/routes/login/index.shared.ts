@@ -1,9 +1,10 @@
 import { z } from "zod";
 import { type LandingPageLocales } from "../index.server";
+import { type NextLandingPageLocales } from "../next/index.server";
 import { type LoginLocales } from "./index.server";
 
 export const createLoginSchema = (
-  locales: LoginLocales | LandingPageLocales["route"]
+  locales: LoginLocales | LandingPageLocales["route"] | NextLandingPageLocales
 ) => {
   return z.object({
     email: z

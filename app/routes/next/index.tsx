@@ -1,0 +1,397 @@
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import {
+  Form,
+  Link,
+  redirect,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+  useSearchParams,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+} from "react-router";
+import { HoneypotInputs } from "remix-utils/honeypot/react";
+import { useHydrated } from "remix-utils/use-hydrated";
+import { createAuthClient, getSessionUser } from "~/auth.server";
+import { RichText } from "~/components/legacy/Richtext/RichText";
+import { checkHoneypot } from "~/honeypot.server";
+import { HONEYPOT_CLASSNAME } from "~/honeypot.shared";
+import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { invariantResponse } from "~/lib/utils/response";
+import { languageModuleMap } from "~/locales/.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
+import { isBotRequest } from "~/utils.server";
+import { login } from "../login/index.server";
+import { createLoginSchema } from "../login/index.shared";
+import {
+  getEventCount,
+  getOrganizationCount,
+  getProfileCount,
+  getProjectCount,
+} from "../utils.server";
+
+export const loader = async (args: LoaderFunctionArgs) => {
+  const { request } = args;
+
+  const { authClient } = createAuthClient(request);
+  await checkFeatureAbilitiesOrThrow(authClient, ["next_landingpage"]);
+
+  let isBot = false;
+  if (process.env.NODE_ENV !== "test") {
+    isBot = isBotRequest(request.headers.get("user-agent"));
+  }
+
+  const sessionUser = await getSessionUser(authClient);
+  if (sessionUser !== null) {
+    // Default redirect on logged in user
+    return redirect("/dashboard");
+  }
+
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["next/index"];
+
+  const profileCount = await getProfileCount();
+  const organizationCount = await getOrganizationCount();
+  const projectCount = await getProjectCount();
+  const eventCount = await getEventCount();
+
+  return {
+    locales,
+    isBot,
+    profileCount,
+    organizationCount,
+    projectCount,
+    eventCount,
+  };
+};
+
+export const action = async (args: ActionFunctionArgs) => {
+  const { request } = args;
+
+  const { authClient } = createAuthClient(request);
+  await checkFeatureAbilitiesOrThrow(authClient, ["next_landingpage"]);
+
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["next/index"];
+
+  // Conform
+  const formData = await request.formData();
+  if (process.env.NODE_ENV !== "test") {
+    await checkHoneypot(formData);
+    const isBot = isBotRequest(request.headers.get("user-agent"));
+    invariantResponse(
+      isBot === false,
+      "Bots are not allowed to access this resource",
+      { status: 403 }
+    );
+  }
+  const { submission } = await login({
+    formData,
+    request,
+    authClient,
+    locales,
+  });
+
+  if (submission.status !== "success") {
+    const reply = submission.reply();
+    const replyWithoutPassword = {
+      ...reply,
+      initialValue: {
+        loginRedirect: submission.payload.loginRedirect.toString(),
+        email: submission.payload.email.toString(),
+        password: "", // Don't return password to client
+      },
+    };
+    return replyWithoutPassword;
+  }
+
+  if (typeof submission.value.loginRedirect !== "undefined") {
+    return redirect(submission.value.loginRedirect, {
+      headers: submission.value.headers,
+    });
+  } else {
+    return redirect("/dashboard", {
+      headers: submission.value.headers,
+    });
+  }
+};
+
+export default function Index() {
+  const loaderData = useLoaderData<typeof loader>();
+  const { locales } = loaderData;
+  const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+  const isHydrated = useHydrated();
+  const isSubmitting = useIsSubmitting();
+  const [urlSearchParams] = useSearchParams();
+
+  const loginRedirect = urlSearchParams.get("login_redirect");
+
+  const [loginForm, loginFields] = useForm({
+    id: "login-form",
+    constraint: getZodConstraint(createLoginSchema(locales)),
+    defaultValue: {
+      email:
+        typeof actionData?.initialValue?.email === "string"
+          ? actionData?.initialValue?.email
+          : "",
+      password: "",
+      loginRedirect: loginRedirect,
+    },
+    shouldValidate: "onBlur",
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData : null,
+    onValidate({ formData }) {
+      const submission = parseWithZod(formData, {
+        schema: createLoginSchema(locales),
+      });
+      return submission;
+    },
+  });
+
+  return (
+    <section className="relative overflow-hidden bg-secondary-50 bg-linear-[358deg] from-neutral-50 from-[12.78%] via-neutral-50/40 via-[74.48%] to-neutral-50/40 to-[98.12%]">
+      <div className="absolute -top-90 -right-102.5 hidden @md:block">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 945 947"
+          width="838"
+          height="849"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            fill="#FFCF53"
+            d="M508.34 945.443c-89.582 9.463-180.276-67.216-195.857-76.352-15.581-9.136-180.122-118.666-263.692-206.297-104.462-109.538-28.635-229.26 123.96-490.517 152.596-261.258 257.514-203.28 580.525 27.841 338.964 242.537 139.878 409.42 56.878 514.42-83 105-212.232 221.442-301.814 230.905Z"
+          />
+        </svg>
+      </div>
+
+      <div className="py-16 @lg:py-20 relative min-h-[calc(100dvh-76px)] lg:min-h-[calc(100dvh-80px)] @md:flex @md:items-center">
+        <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
+          <div className="@md:grid @md:grid-cols-12 @md:gap-6 @lg:gap-8 @md:items-center">
+            <div className="@md:col-start-1 @md:col-span-6 @xl:col-start-2 @xl:col-span-5">
+              <h1 className="mb-8 text-primary-600 text-5xl leading-tight @lg:text-[3.75rem] @lg:leading-[4.5rem] @lg:tracking-[-2.4px] font-black hyphens-auto @lg:hyphens-none">
+                {locales.content.headline}
+              </h1>
+              <p className="mb-8 @md:mb-0 text-neutral-800 text-lg leading-[1.3] tracking-[0.18px] font-semibold">
+                {locales.content.intro}
+              </p>
+            </div>
+
+            <div className="@md:col-start-9 @md:col-span-4 @xl:col-start-8">
+              <div className="p-6 bg-white rounded-2xl shadow-[0px_4px_24px_0px_rgba(17,52,118,0.12)]">
+                <div className="text-center">
+                  <a
+                    id="login-start"
+                    href="#login-end"
+                    className="w-0 h-0 opacity-0 focus:w-fit focus:h-fit focus:opacity-100 focus:px-1"
+                  >
+                    {locales.login.skip.start}
+                  </a>
+                  <Button
+                    as="link"
+                    size="large"
+                    to={`/auth/keycloak${
+                      loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                    }`}
+                    variant="outline"
+                    fullSize
+                    name={locales.login.withMintId}
+                  >
+                    {locales.login.withMintId}
+                  </Button>
+                  <Link
+                    to="https://mint-id.org/faq"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="block py-2 text-primary font-semibold underline"
+                  >
+                    {locales.login.moreInformation}
+                  </Link>
+                  <div className="mt-4 mb-4">
+                    <hr className="mx-5" />
+                    <span className="block -my-3 mx-auto w-fit px-4 text-primary bg-white font-bold">
+                      {locales.login.or}
+                    </span>
+                  </div>
+                </div>
+                {loaderData.isBot === false && (
+                  <Form
+                    {...getFormProps(loginForm)}
+                    method="post"
+                    autoComplete="off"
+                  >
+                    <HoneypotInputs className={HONEYPOT_CLASSNAME} />
+                    {typeof loginForm.errors !== "undefined" &&
+                    loginForm.errors.length > 0 ? (
+                      <div>
+                        {loginForm.errors.map((error, index) => {
+                          return (
+                            <div
+                              key={index}
+                              className="p-3 mb-3 bg-negative-100 text-negative-900 rounded-md"
+                            >
+                              <RichText id={loginForm.errorId} html={error} />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : null}
+
+                    <div className="mb-4">
+                      <Input
+                        {...getInputProps(loginFields.email, {
+                          type: "text",
+                        })}
+                        key="email"
+                      >
+                        <Input.Label htmlFor={loginFields.email.id}>
+                          {locales.form.label.email}
+                        </Input.Label>
+                        {typeof loginFields.email.errors !== "undefined" &&
+                        loginFields.email.errors.length > 0
+                          ? loginFields.email.errors.map((error) => (
+                              <Input.Error
+                                id={loginFields.email.errorId}
+                                key={error}
+                              >
+                                {error}
+                              </Input.Error>
+                            ))
+                          : null}
+                      </Input>
+                    </div>
+                    <Input
+                      {...getInputProps(loginFields.password, {
+                        type: "password",
+                      })}
+                      key="password"
+                    >
+                      <Input.Label htmlFor={loginFields.password.id}>
+                        {locales.form.label.password}
+                      </Input.Label>
+                      {typeof loginFields.password.errors !== "undefined" &&
+                      loginFields.password.errors.length > 0
+                        ? loginFields.password.errors.map((error) => (
+                            <Input.Error
+                              id={loginFields.password.errorId}
+                              key={error}
+                            >
+                              {error}
+                            </Input.Error>
+                          ))
+                        : null}
+                    </Input>
+
+                    <input
+                      {...getInputProps(loginFields.loginRedirect, {
+                        type: "hidden",
+                      })}
+                      key="loginRedirect"
+                    />
+                    <div className="mt-4 mb-2">
+                      <Button
+                        type="submit"
+                        fullSize
+                        // Don't disable button when js is disabled
+                        disabled={
+                          isHydrated
+                            ? loginForm.dirty === false ||
+                              loginForm.valid === false ||
+                              isSubmitting
+                            : false
+                        }
+                      >
+                        {locales.form.label.submit}
+                      </Button>
+                    </div>
+                  </Form>
+                )}
+                <div className="mb-4 text-center">
+                  <Link
+                    to={`/reset${
+                      loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                    }`}
+                    className="text-primary font-bold underline"
+                    prefetch="intent"
+                  >
+                    {locales.login.passwordForgotten}
+                  </Link>
+                </div>
+                <div className="text-center">{locales.login.noMember}</div>
+                <div className="flex justify-center gap-6">
+                  <Link
+                    to={`/register${
+                      loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                    }`}
+                    className="text-primary font-semibold underline"
+                    prefetch="intent"
+                  >
+                    {locales.login.registerByEmail}
+                  </Link>
+                  <Link
+                    to={`/auth/keycloak${
+                      loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                    }`}
+                    className="text-primary font-semibold underline"
+                  >
+                    {locales.login.createMintId}
+                  </Link>
+                </div>
+                <div className="w-full flex justify-center">
+                  <a
+                    id="login-end"
+                    href="#login-start"
+                    className="w-0 h-0 opacity-0 focus:w-fit focus:h-fit focus:opacity-100 focus:px-1"
+                  >
+                    {locales.login.skip.end}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-16 @lg:mt-24 grid grid-cols-2 @md:grid-cols-4 gap-8 @md:gap-16 text-center">
+            <div className="flex flex-col gap-1">
+              <p className="text-primary-500 text-5xl leading-10 font-bold">
+                {loaderData.profileCount}
+              </p>
+              <p className="text-primary-500 text-lg leading-[22px] font-semibold">
+                {locales.counter.profiles}
+              </p>
+            </div>
+            <div className="flex flex-col gap-1">
+              <p className="text-primary-500 text-5xl leading-10 font-bold">
+                {loaderData.organizationCount}
+              </p>
+              <p className="text-primary-500 text-lg leading-[22px] font-semibold">
+                {locales.counter.organizations}
+              </p>
+            </div>
+            <div className="flex flex-col gap-1">
+              <p className="text-primary-500 text-5xl leading-10 font-bold">
+                {loaderData.eventCount}
+              </p>
+              <p className="text-primary-500 text-lg leading-[22px] font-semibold">
+                {locales.counter.events}
+              </p>
+            </div>
+            <div className="flex flex-col gap-1">
+              <p className="text-primary-500 text-5xl leading-10 font-bold">
+                {loaderData.projectCount}
+              </p>
+              <p className="text-primary-500 text-lg leading-[22px] font-semibold">
+                {locales.counter.projects}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
