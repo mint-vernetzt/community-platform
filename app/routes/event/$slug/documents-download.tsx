@@ -84,7 +84,7 @@ export async function loader(args: LoaderFunctionArgs) {
     documents = [escapedDocument];
   }
   const escapedEventName = escapeFilenameSpecialChars(event.name);
-  const zipFilename = `${escapedEventName} ${locales.zipSuffix}`;
+  const zipFilename = `${escapedEventName} ${locales.zipSuffix}.zip`;
 
   const documentResponse = getDownloadDocumentsResponse(
     authClient,
