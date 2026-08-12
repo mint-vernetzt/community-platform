@@ -632,7 +632,11 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                                           | "mail-templates/event/profile-or-guest-added-to-participants-html.hbs"
                                                           | "mail-templates/event/profile-or-guest-added-to-participants-text.hbs"
                                                       ? ProfileOrGuestAddedToParticipantsContent
-                                                      : never;
+                                                      : TemplatePath extends
+                                                            | "mail-templates/event/profile-or-guest-moved-up-to-participants-html.hbs"
+                                                            | "mail-templates/event/profile-or-guest-moved-up-to-participants-text.hbs"
+                                                        ? ProfileOrGuestMovedUpToParticipantsContent
+                                                        : never;
 
 export function getCompiledMailTemplate<T extends TemplatePath>(
   templatePath: TemplatePath,
