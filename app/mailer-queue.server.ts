@@ -18,7 +18,7 @@ if (process.env.NODE_ENV === "production") {
   mailQueue = queue(processTransaction, 1); // 1 concurrent job
 } else {
   if (typeof global.__taskTimer === "undefined") {
-    global.__taskTimer = new TaskTimer({ interval: 1000 }); // 1 second interval in development and test
+    global.__taskTimer = new TaskTimer({ interval: 1000 * 1 }); // 1 second interval in development and test
   }
   taskTimer = global.__taskTimer;
   taskTimer.removeAllListeners();
@@ -37,6 +37,9 @@ async function onTick() {
           lte: now,
         },
         state: { notIn: ["sent", "aborted", "processing"] },
+      },
+      orderBy: {
+        scheduledFor: "asc", // Process the oldest scheduled transaction first
       },
       take: 10, // Limit to 10 transactions per tick to limit mail sending rate
     });
@@ -100,7 +103,7 @@ const scheduleMailSchema = z.object({
     .optional()
     .transform((value) => {
       if (typeof value === "undefined") {
-        return new Date();
+        return new Date(Date.now() + 1000 * 5); // default to 5 seconds from now to handle deletion of existing transactions for the same eventId, recipient, and subject
       }
       return value;
     }),
@@ -118,6 +121,30 @@ export async function scheduleMail(options: {
   const parsedOptions = scheduleMailSchema.safeParse(options);
   if (parsedOptions.success === false) {
     return { error: parsedOptions.error };
+  }
+
+  // Delete any existing transaction for the same eventId, recipient, and subject that is not already sent or aborted
+  try {
+    const existingTransactions = await prismaClient.eventTransaction.findMany({
+      where: {
+        eventId: parsedOptions.data.eventId,
+        recipient: parsedOptions.data.recipient,
+        subject: parsedOptions.data.subject,
+        state: { notIn: ["sent", "aborted"] },
+      },
+    });
+
+    const ids = existingTransactions.map((transaction) => {
+      return transaction.id;
+    });
+
+    if (existingTransactions.length > 0) {
+      await prismaClient.eventTransaction.deleteMany({
+        where: { id: { in: ids } },
+      });
+    }
+  } catch (error) {
+    captureException(error);
   }
 
   try {

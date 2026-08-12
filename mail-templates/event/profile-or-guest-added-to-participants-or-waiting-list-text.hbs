@@ -2,7 +2,11 @@
 
 Hallo {{profile.firstName}},
 
+{{#if profile.isOnWaitingList}}
+Du bist auf der Warteliste beim Event {{event.name}}.
+{{else}}
 Du bist für das Event {{event.name}} angemeldet.
+{{/if}}
 
 Link zum Event: {{event.url}}
 Termin: {{event.startDate}}, {{event.startTime}} Uhr ({{event.timezone}})
@@ -16,11 +20,15 @@ Konferenz-Link: {{event.conferenceLink}}
 Du kannst Dir den Termin am besten direkt im Kalender speichern.
 {{event.icsLink}}
 
+{{#if profile.isOnWaitingList}}
+Sobald ein Platz frei wird und Du nachrückst, wirst Du per E-Mail darüber informiert.
+{{else}}
 {{#if profile.isGuest}}
 Wenn sich bei Dir etwas ändert und Du doch nicht teilnehmen kannst, dann ziehe bitte Deine Teilnahme über den Abmeldelink zurück, so dass andere nachrücken können.
 Abmeldelink: {{event.revocationLink}}
 {{else}}
 Wenn sich bei Dir etwas ändert und Du doch nicht teilnehmen kannst, dann ziehe bitte auf der Community-Plattform Deine Teilnahme zurück, so dass andere nachrücken können. 
+{{/if}}
 {{/if}}
 
 Wir freuen uns auf Dich!

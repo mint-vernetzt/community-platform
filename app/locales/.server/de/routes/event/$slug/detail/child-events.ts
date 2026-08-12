@@ -31,6 +31,21 @@ export const locale = {
     participate: {
       subject: "Deine Anmeldung zum Event {{eventName}}",
     },
+    waitingList: {
+      subject: "Du wurdest zur Warteliste des Events {{eventName}} hinzugefügt",
+    },
+    removeFromParticipants: {
+      subject:
+        "Du wurdest von den Teilnehmenden des Events {{eventName}} entfernt",
+    },
+    removeFromWaitingList: {
+      subject:
+        "Du wurdest von der Warteliste des Events {{eventName}} entfernt",
+    },
+    guestRemoved: {
+      subject:
+        "Du wurdest von den Teilnehmenden des Events {{eventName}} entfernt",
+    },
     moveFromWaitingListToParticipants: {
       subject:
         "Du wurdest von der Warteliste zu den Teilnehmenden eines Events hinzugefügt",
