@@ -228,7 +228,6 @@ export async function removeFromEvent(options: {
     id: participantId,
     eventId,
     type: options.type,
-    notifyUsers: true,
     recursively: true,
     locales: {
       ...options.locales.mail,

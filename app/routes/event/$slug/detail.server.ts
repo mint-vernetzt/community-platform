@@ -580,6 +580,7 @@ export async function addProfileToParticipants(options: {
           profile: {
             firstName: data.profile.firstName,
             isGuest: false,
+            isOnWaitingList: false,
           },
           event: {
             name: data.event.name,
@@ -600,9 +601,9 @@ export async function addProfileToParticipants(options: {
           },
         };
         const textTemplatePath =
-          "mail-templates/event/profile-or-guest-added-to-participants-text.hbs";
+          "mail-templates/event/profile-or-guest-added-to-participants-or-waiting-list-text.hbs";
         const htmlTemplatePath =
-          "mail-templates/event/profile-or-guest-added-to-participants-html.hbs";
+          "mail-templates/event/profile-or-guest-added-to-participants-or-waiting-list-html.hbs";
         const text = getCompiledMailTemplate<typeof textTemplatePath>(
           textTemplatePath,
           content,
@@ -640,6 +641,12 @@ export async function removeProfileFromParticipants(options: {
       moveFromWaitingListToParticipants: {
         subject: string;
       };
+      removeFromParticipants: {
+        subject: string;
+      };
+      guestRemoved: {
+        subject: string;
+      };
     };
   };
 }) {
@@ -651,46 +658,234 @@ export async function removeProfileFromParticipants(options: {
     type: "user",
     locales: {
       ...options.locales.mail,
-      removeFromParticipants: { subject: "" }, // TODO: improve TS
-      guestRemoved: { subject: "" }, // TODO: improve TS
     },
   });
 
   return result;
 }
 
-export async function addProfileToWaitingList(
-  profileId: string,
-  eventId: string
-) {
+export async function addProfileToWaitingList(options: {
+  profileId: string;
+  eventId: string;
+  locales: {
+    mail: {
+      subject: string;
+    };
+  };
+}) {
+  const { profileId, eventId, locales } = options;
+
+  let data;
   try {
-    const data = await prismaClient.waitingParticipantOfEvent.create({
+    data = await prismaClient.waitingParticipantOfEvent.create({
       data: {
         eventId,
         profileId,
       },
-    });
-    return { data };
-  } catch (error) {
-    return { error };
-  }
-}
-
-export async function removeProfileFromWaitingList(
-  profileId: string,
-  eventId: string
-) {
-  try {
-    const data = await prismaClient.waitingParticipantOfEvent.deleteMany({
-      where: {
-        eventId,
-        profileId,
+      select: {
+        profile: {
+          select: {
+            firstName: true,
+            email: true,
+          },
+        },
+        event: {
+          select: {
+            name: true,
+            slug: true,
+            startTime: true,
+            venueName: true,
+            venueStreet: true,
+            venueStreetNumber: true,
+            venueZipCode: true,
+            venueCity: true,
+            conferenceLink: true,
+          },
+        },
       },
     });
-    return { data };
   } catch (error) {
     return { error };
   }
+
+  try {
+    setTimeout(async () => {
+      try {
+        const relation = await prismaClient.waitingParticipantOfEvent.findFirst(
+          {
+            where: {
+              eventId,
+              profileId,
+            },
+          }
+        );
+
+        // Early return if user has already canceled being on the waiting list in the meantime
+        if (relation === null) {
+          return;
+        }
+
+        const recipient = data.profile.email;
+        const subject = insertParametersIntoLocale(locales.mail.subject, {
+          eventName: data.event.name,
+        });
+
+        const content = {
+          headline: subject,
+          profile: {
+            firstName: data.profile.firstName,
+            isGuest: false,
+            isOnWaitingList: true,
+          },
+          event: {
+            name: data.event.name,
+            url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail`,
+            startDate: data.event.startTime.toLocaleDateString("de-DE", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            }),
+            startTime: data.event.startTime.toLocaleTimeString("de-DE", {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            timezone: "MEZ",
+            location: getVenueString(data.event),
+            icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/ics-download`,
+          },
+        };
+        const textTemplatePath =
+          "mail-templates/event/profile-or-guest-added-to-participants-or-waiting-list-text.hbs";
+        const htmlTemplatePath =
+          "mail-templates/event/profile-or-guest-added-to-participants-or-waiting-list-html.hbs";
+        const text = getCompiledMailTemplate<typeof textTemplatePath>(
+          textTemplatePath,
+          content,
+          "text"
+        );
+        const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+          htmlTemplatePath,
+          content,
+          "html"
+        );
+
+        await scheduleMail({
+          eventId,
+          recipient,
+          subject,
+          plainText: text,
+          html,
+        });
+      } catch (error) {
+        captureException(error);
+      }
+    }, 1000 * 10); // wait 10 seconds before sending the mail to ensure that user didn't cancel being on the waiting list in meantime
+  } catch (error) {
+    captureException(error);
+  }
+
+  return { data };
+}
+
+export async function removeProfileFromWaitingList(options: {
+  profileId: string;
+  eventId: string;
+  locales: {
+    mail: {
+      removeFromWaitingList: {
+        subject: string;
+      };
+    };
+  };
+}) {
+  const { profileId, eventId, locales } = options;
+  let data;
+  try {
+    data = await prismaClient.waitingParticipantOfEvent.delete({
+      where: {
+        profileId_eventId: {
+          eventId,
+          profileId,
+        },
+      },
+      select: {
+        profile: {
+          select: {
+            firstName: true,
+            email: true,
+          },
+        },
+        event: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+  } catch (error) {
+    return { error };
+  }
+
+  try {
+    setTimeout(async () => {
+      const relation = await prismaClient.waitingParticipantOfEvent.findFirst({
+        where: {
+          eventId,
+          profileId,
+        },
+      });
+
+      // Early return if user has already rejoined the waiting list in the meantime
+      if (relation !== null) {
+        return;
+      }
+
+      const recipient = data.profile.email;
+      const subject = insertParametersIntoLocale(
+        locales.mail.removeFromWaitingList.subject,
+        {
+          eventName: data.event.name,
+        }
+      );
+
+      const content = {
+        headline: subject,
+        profile: {
+          firstName: data.profile.firstName,
+          isOnWaitingList: true,
+        },
+        event: {
+          name: data.event.name,
+        },
+      };
+
+      const textTemplatePath =
+        "mail-templates/event/profile-or-guest-removed-from-participants-or-waiting-list-text.hbs";
+      const htmlTemplatePath =
+        "mail-templates/event/profile-or-guest-removed-from-participants-or-waiting-list-html.hbs";
+      const text = getCompiledMailTemplate<typeof textTemplatePath>(
+        textTemplatePath,
+        content,
+        "text"
+      );
+      const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+        htmlTemplatePath,
+        content,
+        "html"
+      );
+
+      await scheduleMail({
+        eventId,
+        recipient,
+        subject,
+        plainText: text,
+        html,
+      });
+    }, 1000 * 10); // wait 10 seconds before sending the mail to ensure that user didn't rejoin waiting list in the meantime
+  } catch (error) {
+    return { error };
+  }
+  return { data };
 }
 
 export async function getHasUserReportedEvent(

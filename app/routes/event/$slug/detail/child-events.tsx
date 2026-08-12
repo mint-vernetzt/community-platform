@@ -153,19 +153,27 @@ export async function action(args: ActionFunctionArgs) {
           profileId: sessionUser.id,
           eventId: data.eventId,
           locales: {
-            mail: {
-              moveFromWaitingListToParticipants:
-                locales.route.mail.moveFromWaitingListToParticipants,
-            },
+            mail: locales.route.mail,
           },
         });
       } else if (intent === "joinWaitingList") {
-        result = await addProfileToWaitingList(sessionUser.id, data.eventId);
+        result = await addProfileToWaitingList({
+          profileId: sessionUser.id,
+          eventId: data.eventId,
+          locales: {
+            mail: {
+              subject: locales.route.mail.waitingList.subject,
+            },
+          },
+        });
       } else {
-        result = await removeProfileFromWaitingList(
-          sessionUser.id,
-          data.eventId
-        );
+        result = await removeProfileFromWaitingList({
+          profileId: sessionUser.id,
+          eventId: data.eventId,
+          locales: {
+            mail: locales.route.mail,
+          },
+        });
       }
       if (typeof result.error !== "undefined") {
         context.addIssue({
