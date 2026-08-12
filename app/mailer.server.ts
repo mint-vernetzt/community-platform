@@ -623,18 +623,38 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                                     | "mail-templates/general-notification/event-canceled-text.hbs"
                                                 ? GeneralNotificationEventCanceledContent
                                                 : TemplatePath extends
-                                                      | "mail-templates/event/profile-or-guest-added-to-participants-or-waiting-list-html.hbs"
-                                                      | "mail-templates/event/profile-or-guest-added-to-participants-or-waiting-list-text.hbs"
-                                                  ? ProfileOrGuestAddedToParticipantsOrWaitingListContent
+                                                      | "mail-templates/general-notification/disconnect-from-parent-event-html.hbs"
+                                                      | "mail-templates/general-notification/disconnect-from-parent-event-text.hbs"
+                                                      | "mail-templates/requests/parent-event-to-add-child-event/accepted-html.hbs"
+                                                      | "mail-templates/requests/parent-event-to-add-child-event/accepted-text.hbs"
+                                                      | "mail-templates/requests/parent-event-to-add-child-event/rejected-html.hbs"
+                                                      | "mail-templates/requests/parent-event-to-add-child-event/rejected-text.hbs"
+                                                  ? ChildAndParentEventConnection
                                                   : TemplatePath extends
-                                                        | "mail-templates/event/profile-or-guest-moved-up-to-participants-html.hbs"
-                                                        | "mail-templates/event/profile-or-guest-moved-up-to-participants-text.hbs"
-                                                    ? ProfileOrGuestMovedUpToParticipantsContent
+                                                        | "mail-templates/guests/profile-already-exists-html.hbs"
+                                                        | "mail-templates/guests/profile-already-exists-text.hbs"
+                                                        | "mail-templates/guests/confirm-registration-html.hbs"
+                                                        | "mail-templates/guests/confirm-registration-text.hbs"
+                                                        | "mail-templates/guests/registration-success-html.hbs"
+                                                        | "mail-templates/guests/registration-success-text.hbs"
+                                                        | "mail-templates/guests/registration-waiting-list-success-html.hbs"
+                                                        | "mail-templates/guests/registration-waiting-list-success-text.hbs"
+                                                        | "mail-templates/guests/guest-already-exists-html.hbs"
+                                                        | "mail-templates/guests/guest-already-exists-text.hbs"
+                                                    ? GuestsContent
                                                     : TemplatePath extends
-                                                          | "mail-templates/event/profile-or-guest-removed-from-participants-or-waiting-list-html.hbs"
-                                                          | "mail-templates/event/profile-or-guest-removed-from-participants-or-waiting-list-text.hbs"
-                                                      ? ProfileOrGuestRemovedFromParticipantsOrWaitingListContent
-                                                      : never;
+                                                          | "mail-templates/event/profile-or-guest-added-to-participants-or-waiting-list-html.hbs"
+                                                          | "mail-templates/event/profile-or-guest-added-to-participants-or-waiting-list-text.hbs"
+                                                      ? ProfileOrGuestAddedToParticipantsOrWaitingListContent
+                                                      : TemplatePath extends
+                                                            | "mail-templates/event/profile-or-guest-moved-up-to-participants-html.hbs"
+                                                            | "mail-templates/event/profile-or-guest-moved-up-to-participants-text.hbs"
+                                                        ? ProfileOrGuestMovedUpToParticipantsContent
+                                                        : TemplatePath extends
+                                                              | "mail-templates/event/profile-or-guest-removed-from-participants-or-waiting-list-html.hbs"
+                                                              | "mail-templates/event/profile-or-guest-removed-from-participants-or-waiting-list-text.hbs"
+                                                          ? ProfileOrGuestRemovedFromParticipantsOrWaitingListContent
+                                                          : never;
 
 export function getCompiledMailTemplate<T extends TemplatePath>(
   templatePath: TemplatePath,
