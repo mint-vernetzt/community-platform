@@ -62,8 +62,6 @@ export async function loader(args: LoaderFunctionArgs) {
   } else {
     let document = null;
 
-    console.log("Event documents:", event.documents);
-    console.log("Searching for document with ID:", documentId);
     for (const relation of event.documents) {
       if (relation.document.id === documentId) {
         document = relation.document;
