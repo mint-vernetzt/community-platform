@@ -20,9 +20,9 @@ export function getDataForUpdateTeasers() {
       icon: "box-seam",
       external: false,
     },
-    mapView: {
-      link: "/explore/organizations/map",
-      icon: "globe",
+    createEvent: {
+      link: "/event/create",
+      icon: "calendar-week",
       external: false,
     },
   };

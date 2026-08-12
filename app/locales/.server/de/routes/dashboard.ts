@@ -123,6 +123,12 @@ export const locale = {
             "Finde kostenlose MINT-Bilder und Grafiken in der MINT-Mediendatenbank",
           linkDescription: "Jetzt probieren",
         },
+        createEvent: {
+          headline: "Neues Feature",
+          description:
+            "Erstelle Deine eigenen Events auf der Community-Plattform",
+          linkDescription: "Jetzt Event anlegen",
+        },
       },
     },
     newsTeaser: {

@@ -1,17 +1,16 @@
 import { parseWithZod } from "@conform-to/zod";
 import { type SupabaseClient } from "@supabase/supabase-js";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { scheduleMail } from "~/mailer-queue.server";
+import { getCompiledMailTemplate } from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
+import { getPublicURL } from "~/storage.server";
+import { getVenueString } from "~/utils.shared";
 import {
   createSearchWaitingListSchema,
   SEARCH_WAITING_LIST_SEARCH_PARAM,
 } from "./waiting-list.shared";
-import { getPublicURL } from "~/storage.server";
-import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
-import {
-  getCompiledMailTemplate,
-  mailer,
-  mailerOptions,
-} from "~/mailer.server";
 
 export async function getEventBySlug(slug: string) {
   const event = await prismaClient.event.findUnique({
@@ -186,7 +185,7 @@ export async function moveToParticipants(options: {
 
   let result;
   if (type === "guest") {
-    result = await prismaClient.guest.update({
+    const guest = (result = await prismaClient.guest.update({
       where: {
         id: profileId,
       },
@@ -196,13 +195,26 @@ export async function moveToParticipants(options: {
       select: {
         email: true,
         firstName: true,
+        revocationToken: true,
         event: {
           select: {
+            slug: true,
             name: true,
+            startTime: true,
+            venueName: true,
+            venueStreet: true,
+            venueStreetNumber: true,
+            venueZipCode: true,
+            venueCity: true,
+            conferenceLink: true,
           },
         },
       },
-    });
+    }));
+    result = {
+      ...guest,
+      type: "guest" as const,
+    };
   } else {
     const transactionResults = await prismaClient.$transaction([
       prismaClient.participantOfEvent.create({
@@ -219,7 +231,15 @@ export async function moveToParticipants(options: {
           },
           event: {
             select: {
+              slug: true,
               name: true,
+              startTime: true,
+              venueName: true,
+              venueStreet: true,
+              venueStreetNumber: true,
+              venueZipCode: true,
+              venueCity: true,
+              conferenceLink: true,
             },
           },
         },
@@ -236,35 +256,68 @@ export async function moveToParticipants(options: {
     result = {
       ...transactionResults[0].profile,
       event: transactionResults[0].event,
+      type: "participant" as const,
     };
   }
 
-  const sender = process.env.SYSTEM_MAIL_SENDER;
   const recipient = result.email;
-  const subject = options.locales.mail.subject;
+  const subject = insertParametersIntoLocale(options.locales.mail.subject, {
+    eventName: result.event.name,
+  });
+
+  const content = {
+    headline: subject,
+    profile: {
+      firstName: result.firstName,
+      isGuest: type === "guest",
+    },
+    event: {
+      name: result.event.name,
+      url: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/detail`,
+      startDate: result.event.startTime.toLocaleDateString("de-DE", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      }),
+      startTime: result.event.startTime.toLocaleTimeString("de-DE", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      timezone: "MEZ",
+      location: getVenueString(result.event),
+      conferenceLink: result.event.conferenceLink,
+      revocationLink: null as string | null,
+    },
+  };
+
+  if (result.type === "guest") {
+    const revocationLink = `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?type=revoke&confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?type=revoke&token_hash=${result.revocationToken}&confirmation_redirect=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/detail`)}`)}`;
+    content.event.revocationLink = revocationLink;
+  }
+
   const textTemplatePath =
-    "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-text.hbs";
+    "mail-templates/event/profile-or-guest-moved-up-to-participants-text.hbs";
   const htmlTemplatePath =
-    "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-html.hbs";
+    "mail-templates/event/profile-or-guest-moved-up-to-participants-html.hbs";
 
   const text = getCompiledMailTemplate<typeof textTemplatePath>(
     textTemplatePath,
-    {
-      firstName: result.firstName,
-      event: { name: result.event.name },
-    },
+    content,
     "text"
   );
   const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
     htmlTemplatePath,
-    {
-      firstName: result.firstName,
-      event: { name: result.event.name },
-    },
+    content,
     "html"
   );
 
-  await mailer(mailerOptions, sender, recipient, subject, text, html);
+  await scheduleMail({
+    eventId,
+    recipient,
+    subject,
+    plainText: text,
+    html,
+  });
 
   return result;
 }

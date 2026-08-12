@@ -56,8 +56,7 @@ export const locale = {
   },
   mail: {
     moveUpToParticipants: {
-      subject:
-        "You have been added from the waiting list to the participants of an event",
+      subject: "Deine Teilnahme am Event {{eventName}}",
     },
   },
 } as const;
