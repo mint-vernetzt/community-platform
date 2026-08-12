@@ -46,7 +46,7 @@ export const locale = {
     allProjects: "View all projects",
     image: {
       alt: "People at an exhibition stand of the project Tinkertank",
-      credits: "© Jasmin Mertikat",
+      credits: "© Andi Weiland",
     },
   },
   form: {
