@@ -2,6 +2,8 @@ import { index, route, type RouteConfig } from "@react-router/dev/routes";
 
 export default [
   index("./routes/index.tsx"),
+  route("/next", "./routes/next/index.tsx"),
+  route("/next/get-involved", "./routes/next/get-involved.tsx"),
   route("*", "./routes/$.tsx"),
   route("/robots.txt", "./routes/robots.txt.tsx"),
   route("/status", "./routes/status.tsx"),
