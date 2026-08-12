@@ -1,7 +1,7 @@
 import { captureException } from "@sentry/node";
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { redirect, type LoaderFunctionArgs } from "react-router";
-import { createAuthClient } from "~/auth.server";
+import { createAuthClient, resetInactivityReminderState } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { createProfile, sendWelcomeMail } from "../register/utils.server";
 import { detectLanguage } from "~/i18n.server";
@@ -93,6 +93,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
   if (type === "recovery") {
+    await resetInactivityReminderState(user.id);
     return redirect(
       `/reset/set-password${
         loginRedirect !== null ? `?login_redirect=${loginRedirect}` : ""

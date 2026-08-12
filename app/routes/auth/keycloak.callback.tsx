@@ -1,5 +1,9 @@
 import { redirect, type LoaderFunctionArgs } from "react-router";
-import { createAuthClient, getSessionUser } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUser,
+  resetInactivityReminderState,
+} from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { createProfile, sendWelcomeMail } from "../register/utils.server";
@@ -72,6 +76,7 @@ export async function loader(args: LoaderFunctionArgs) {
       headers,
     });
   }
+  await resetInactivityReminderState(profile.id);
   return redirect(loginRedirect || "/dashboard", {
     headers,
   });
