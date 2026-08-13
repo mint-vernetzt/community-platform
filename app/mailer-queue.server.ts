@@ -12,7 +12,6 @@ import { prismaClient } from "./prisma.server";
 import { insertParametersIntoLocale } from "./lib/utils/i18n";
 import { languageModuleMap } from "./locales/.server";
 import { getVenueString } from "./utils.shared";
-import { utcToZonedTime } from "date-fns-tz";
 
 declare global {
   var __taskTimer: TaskTimer | undefined;
@@ -371,7 +370,7 @@ async function onTick() {
         reminderState = "firstScheduled";
       } else if (event.starts === "inOneHour") {
         if (
-          event === null ||
+          event.stage === null ||
           (event.stage !== null && event.stage.slug === "hybrid")
         ) {
           reminderState = "secondScheduled";
