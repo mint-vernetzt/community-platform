@@ -96,6 +96,15 @@ async function onTick() {
         0,
         0,
         0
+      ).toISOString(),
+      "-",
+      new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() + 2,
+        0,
+        0,
+        0
       ).toISOString()
     );
 
@@ -126,6 +135,8 @@ async function onTick() {
       select,
     });
 
+    console.log({ tomorrowEvents });
+
     console.log(
       "inOneHour:",
       new Date(
@@ -133,6 +144,15 @@ async function onTick() {
         now.getMonth(),
         now.getDate(),
         now.getHours() + 1,
+        0,
+        0
+      ).toISOString(),
+      "-",
+      new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        now.getHours() + 2,
         0,
         0
       ).toISOString()
@@ -170,8 +190,19 @@ async function onTick() {
       select,
     });
 
+    console.log({ oneHourEvents });
+
     console.log(
       "inFifteenMinutes:",
+      new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        now.getHours(),
+        now.getMinutes(),
+        0
+      ).toISOString(),
+      "-",
       new Date(
         now.getFullYear(),
         now.getMonth(),
@@ -213,6 +244,8 @@ async function onTick() {
       },
       select,
     });
+
+    console.log({ fifteenMinutesEvents });
 
     const events = [
       ...tomorrowEvents.map((event) => {
