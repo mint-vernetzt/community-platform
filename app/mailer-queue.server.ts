@@ -6,6 +6,7 @@ import {
   getCompiledMailTemplate,
   mailer,
   mailerOptions,
+  type TemplatePath,
 } from "./mailer.server";
 import { prismaClient } from "./prisma.server";
 import { insertParametersIntoLocale } from "./lib/utils/i18n";
@@ -39,9 +40,54 @@ async function onTick() {
   const now = new Date();
   // Fetch all events where participants or guests should be reminded
   try {
+    const select = {
+      id: true,
+      slug: true,
+      name: true,
+      startTime: true,
+      venueName: true,
+      venueStreet: true,
+      venueStreetNumber: true,
+      venueZipCode: true,
+      venueCity: true,
+      conferenceLink: true,
+      stage: {
+        select: {
+          slug: true,
+        },
+      },
+      participants: {
+        select: {
+          profile: {
+            select: {
+              firstName: true,
+              email: true,
+            },
+          },
+        },
+      },
+      guests: {
+        select: {
+          email: true,
+          firstName: true,
+          revocationToken: true,
+        },
+        where: {
+          confirmed: true,
+          onWaitingList: false,
+        },
+      },
+    };
+    const generalWhere = {
+      published: true,
+      external: false,
+      canceled: false,
+    };
+
     // Fetch all events that are starting tomorrow
-    const events = await prismaClient.event.findMany({
+    const tomorrowEvents = await prismaClient.event.findMany({
       where: {
+        ...generalWhere,
         startTime: {
           gte: new Date(
             now.getFullYear(),
@@ -60,44 +106,95 @@ async function onTick() {
             0
           ),
         },
-        published: true,
-        external: false,
         reminderState: "open",
       },
-      select: {
-        id: true,
-        slug: true,
-        name: true,
-        startTime: true,
-        venueName: true,
-        venueStreet: true,
-        venueStreetNumber: true,
-        venueZipCode: true,
-        venueCity: true,
-        conferenceLink: true,
-        participants: {
-          select: {
-            profile: {
-              select: {
-                firstName: true,
-                email: true,
-              },
-            },
-          },
-        },
-        guests: {
-          select: {
-            email: true,
-            firstName: true,
-            revocationToken: true,
-          },
-          where: {
-            confirmed: true,
-            onWaitingList: false,
-          },
-        },
-      },
+      select,
     });
+
+    // Fetch all events that are starting in one hour and are not online events
+    const oneHourEvents = await prismaClient.event.findMany({
+      where: {
+        ...generalWhere,
+        startTime: {
+          gte: new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+            now.getHours() + 1,
+            0,
+            0
+          ),
+          lt: new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+            now.getHours() + 2,
+            0,
+            0
+          ),
+        },
+        stage: {
+          slug: {
+            not: "online",
+          },
+        },
+        reminderState: "firstScheduled",
+      },
+      select,
+    });
+
+    // Fetch all events that are starting in 15 Minutes and are not on site events
+    const fifteenMinutesEvents = await prismaClient.event.findMany({
+      where: {
+        ...generalWhere,
+        startTime: {
+          gte: new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+            now.getHours(),
+            now.getMinutes(),
+            0
+          ),
+          lt: new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+            now.getHours(),
+            now.getMinutes() + 15,
+            0
+          ),
+        },
+        stage: {
+          slug: {
+            not: "on-site",
+          },
+        },
+        reminderState: { in: ["firstScheduled", "secondScheduled"] },
+      },
+      select,
+    });
+
+    const events = [
+      ...tomorrowEvents.map((event) => {
+        return {
+          ...event,
+          starts: "tomorrow" as const,
+        };
+      }),
+      ...oneHourEvents.map((event) => {
+        return {
+          ...event,
+          starts: "inOneHour" as const,
+        };
+      }),
+      ...fifteenMinutesEvents.map((event) => {
+        return {
+          ...event,
+          starts: "inFifteenMinutes" as const,
+        };
+      }),
+    ];
 
     for (const event of events) {
       const receiver = [
@@ -118,16 +215,39 @@ async function onTick() {
 
       const locales = languageModuleMap["de"]["root"];
 
-      const subject = insertParametersIntoLocale(
-        locales.route.event.reminder.oneDayBefore.subject,
-        {
-          eventName: event.name,
-        }
-      );
-      const textTemplatePath =
-        "mail-templates/event/reminder-one-day-before-text.hbs";
-      const htmlTemplatePath =
-        "mail-templates/event/reminder-one-day-before-html.hbs";
+      let subjectSource;
+      if (event.starts === "tomorrow") {
+        subjectSource = locales.route.event.reminder.oneDayBefore.subject;
+      } else if (event.starts === "inOneHour") {
+        subjectSource = locales.route.event.reminder.oneHourBefore.subject;
+      } else {
+        subjectSource =
+          locales.route.event.reminder.fifteenMinutesBefore.subject;
+      }
+
+      const subject = insertParametersIntoLocale(subjectSource, {
+        eventName: event.name,
+      });
+
+      let textTemplatePath: TemplatePath;
+      let htmlTemplatePath: TemplatePath;
+
+      if (event.starts === "tomorrow") {
+        textTemplatePath =
+          "mail-templates/event/reminder-one-day-before-text.hbs";
+        htmlTemplatePath =
+          "mail-templates/event/reminder-one-day-before-html.hbs";
+      } else if (event.starts === "inOneHour") {
+        textTemplatePath =
+          "mail-templates/event/reminder-one-hour-before-text.hbs";
+        htmlTemplatePath =
+          "mail-templates/event/reminder-one-hour-before-html.hbs";
+      } else {
+        textTemplatePath =
+          "mail-templates/event/reminder-fifteen-minutes-before-text.hbs";
+        htmlTemplatePath =
+          "mail-templates/event/reminder-fifteen-minutes-before-html.hbs";
+      }
 
       for (const profile of receiver) {
         const content = {
@@ -175,9 +295,23 @@ async function onTick() {
           html,
         });
       }
+
+      let reminderState: "firstScheduled" | "secondScheduled" | "lastScheduled";
+      if (event.starts === "tomorrow") {
+        reminderState = "firstScheduled";
+      } else if (event.starts === "inOneHour") {
+        if (event.stage !== null && event.stage.slug === "hybrid") {
+          reminderState = "secondScheduled";
+        } else {
+          reminderState = "lastScheduled";
+        }
+      } else {
+        reminderState = "lastScheduled";
+      }
+
       await prismaClient.event.update({
         where: { id: event.id },
-        data: { reminderState: "firstScheduled" },
+        data: { reminderState },
       });
     }
   } catch (error) {

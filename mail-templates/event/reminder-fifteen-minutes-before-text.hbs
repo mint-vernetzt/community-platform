@@ -1,0 +1,19 @@
+{{headline}}
+
+Hallo {{profile.firstName}},
+
+Das Event {{event.name}} findet bald statt.
+
+Link zum Event: {{event.url}}
+Termin: {{event.startDate}}, {{event.startTime}} Uhr ({{event.timezone}})
+{{#if event.location}}
+Ort: {{event.location}}
+{{/if}}
+{{#if event.conferenceLink}}
+Konferenz-Link: {{event.conferenceLink}}
+{{/if}}
+
+Wir freuen uns sehr, dass Du dabei bist!
+
+Bis gleich
+Dein MINTvernetzt-Team
