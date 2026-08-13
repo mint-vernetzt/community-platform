@@ -324,7 +324,7 @@ type ReminderContent = {
   };
 };
 
-type TemplatePath =
+export type TemplatePath =
   | "mail-templates/standard-message/html.hbs"
   | "mail-templates/standard-message/text.hbs"
   | "mail-templates/claim-organization/created-html.hbs"
@@ -470,7 +470,11 @@ type TemplatePath =
   | "mail-templates/event/profile-or-guest-removed-from-participants-or-waiting-list-html.hbs"
   | "mail-templates/event/profile-or-guest-removed-from-participants-or-waiting-list-text.hbs"
   | "mail-templates/event/reminder-one-day-before-html.hbs"
-  | "mail-templates/event/reminder-one-day-before-text.hbs";
+  | "mail-templates/event/reminder-one-day-before-text.hbs"
+  | "mail-templates/event/reminder-one-hour-before-html.hbs"
+  | "mail-templates/event/reminder-one-hour-before-text.hbs"
+  | "mail-templates/event/reminder-fifteen-minutes-before-html.hbs"
+  | "mail-templates/event/reminder-fifteen-minutes-before-text.hbs";
 
 type TemplateContent<TemplatePath> = TemplatePath extends
   | "mail-templates/standard-message/html.hbs"
@@ -677,6 +681,10 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                                           : TemplatePath extends
                                                                 | "mail-templates/event/reminder-one-day-before-html.hbs"
                                                                 | "mail-templates/event/reminder-one-day-before-text.hbs"
+                                                                | "mail-templates/event/reminder-one-hour-before-html.hbs"
+                                                                | "mail-templates/event/reminder-one-hour-before-text.hbs"
+                                                                | "mail-templates/event/reminder-fifteen-minutes-before-html.hbs"
+                                                                | "mail-templates/event/reminder-fifteen-minutes-before-text.hbs"
                                                             ? ReminderContent
                                                             : never;
 
