@@ -35,6 +35,20 @@ export const locale = {
     registerByEmail: "Register with email",
     createMintId: "Create MINT-ID",
   },
+  projectTeaser: {
+    headline: "Get inspired by other STEM projects",
+    benefits: {
+      ideas: "Ideas and good practice from the community",
+      cooperations: "Find starting points for cooperations",
+      ownProjects: "Make your own projects visible",
+      learn: "Learn from the experiences of others",
+    },
+    allProjects: "View all projects",
+    image: {
+      alt: "People at an exhibition stand of the project Tinkertank",
+      credits: "© Andi Weiland",
+    },
+  },
   eventTeaser: {
     headline: "Discover STEM events",
     benefits: {

@@ -36,6 +36,20 @@ export const locale = {
     registerByEmail: "Registrieren mit E-Mail",
     createMintId: "MINT-ID erstellen",
   },
+  projectTeaser: {
+    headline: "Lass Dich von anderen MINT-Projekten inspirieren",
+    benefits: {
+      ideas: "Ideen und gute Praxis aus der Community",
+      cooperations: "Anknüpfungspunkte für Kooperationen finden",
+      ownProjects: "Eigene Projekte sichtbar machen",
+      learn: "Von Erfahrungen anderer lernen",
+    },
+    allProjects: "Alle Projekte ansehen",
+    image: {
+      alt: "Personen an einem Messestand des Projekts Tinkertank",
+      credits: "© Andi Weiland",
+    },
+  },
   eventTeaser: {
     headline: "Entdecke MINT-Events",
     benefits: {
