@@ -3,6 +3,7 @@ import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { utcToZonedTime } from "date-fns-tz";
 import {
   Form,
   Link,
@@ -22,6 +23,7 @@ import { checkHoneypot } from "~/honeypot.server";
 import { HONEYPOT_CLASSNAME } from "~/honeypot.shared";
 import { detectLanguage } from "~/i18n.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { getDateDuration } from "~/lib/utils/time";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
@@ -34,7 +36,11 @@ import {
   getProfileCount,
   getProjectCount,
 } from "../utils.server";
-import { getProjectTeaserOrganizationSlug } from "./index.server";
+import {
+  getEventTeaserOrganizationSlug,
+  getProjectTeaserOrganizationSlug,
+  getUpcomingEvents,
+} from "./index.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -63,15 +69,20 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const projectTeaserOrganizationSlug =
     await getProjectTeaserOrganizationSlug();
+  const upcomingEvents = await getUpcomingEvents();
+  const eventTeaserOrganizationSlug = await getEventTeaserOrganizationSlug();
 
   return {
     locales,
+    language,
     isBot,
     profileCount,
     organizationCount,
     projectCount,
     eventCount,
     projectTeaserOrganizationSlug,
+    upcomingEvents,
+    eventTeaserOrganizationSlug,
   };
 };
 
@@ -178,7 +189,7 @@ export default function Index() {
           </svg>
         </div>
 
-        <div className="py-16 @lg:py-20 relative min-h-[calc(100dvh-76px)] lg:min-h-[calc(100dvh-80px)] @md:flex @md:items-center">
+        <div className="py-16 @lg:py-20 relative min-h-[calc(100dvh-76px)] lg:min-h-[calc(100dvh-80px)] @md:flex @md:items-end">
           <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
             <div className="@md:grid @md:grid-cols-12 @md:gap-6 @lg:gap-8 @md:items-center">
               <div className="@md:col-start-1 @md:col-span-6 @xl:col-start-2 @xl:col-span-5">
@@ -397,6 +408,142 @@ export default function Index() {
                 </p>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 relative">
+        <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
+          <div className="@md:grid @md:grid-cols-12 @md:gap-6 @lg:gap-8 @md:items-center">
+            <div className="@md:col-start-1 @md:col-span-5">
+              <h2 className="mb-6 text-primary-600 text-[2rem] leading-9 tracking-[-0.64px] font-bold">
+                {locales.eventTeaser.headline}
+              </h2>
+              <ul className="mb-8 flex flex-col gap-4">
+                {[
+                  locales.eventTeaser.benefits.formats,
+                  locales.eventTeaser.benefits.knowledge,
+                  locales.eventTeaser.benefits.ownEvents,
+                ].map((benefit) => {
+                  return (
+                    <li
+                      key={benefit}
+                      className="flex items-center gap-3 text-neutral-800 text-lg leading-[1.3] tracking-[0.18px] font-semibold"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        aria-hidden="true"
+                        className="shrink-0"
+                      >
+                        <circle cx="12" cy="12" r="12" fill="#EDF3FF" />
+                        <path
+                          d="M7.59888 13.1995L10.5989 15.7995L17.1989 7.99951"
+                          stroke="#703D6B"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      <span>{benefit}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+              <Button
+                as="link"
+                to="/explore/events"
+                variant="outline"
+                prefetch="intent"
+              >
+                {locales.eventTeaser.allEvents}
+              </Button>
+            </div>
+
+            <div className="mt-8 @md:mt-0 @md:col-start-7 @md:col-span-6">
+              <div className="relative w-full aspect-3/2 rounded-2xl overflow-hidden">
+                <Image
+                  src="/images/MINTvernetzt_tag.jpg"
+                  alt={locales.eventTeaser.image.alt}
+                >
+                  <Image.Credits credits={locales.eventTeaser.image.credits} />
+                </Image>
+                {loaderData.eventTeaserOrganizationSlug !== null ? (
+                  <Link
+                    to={`/organization/${loaderData.eventTeaserOrganizationSlug}/detail/about`}
+                    prefetch="intent"
+                    className="absolute top-4 left-4 h-8 flex items-center gap-2.5 py-1 pl-1 pr-2 bg-neutral-800/60 rounded-lg"
+                  >
+                    <img
+                      src="/images/mint-vernetzt_shortlogo.png"
+                      alt=""
+                      className="w-6 h-6 rounded-full"
+                    />
+                    <span className="text-neutral-50 text-xs leading-4 font-semibold">
+                      MINTvernetzt
+                    </span>
+                  </Link>
+                ) : (
+                  <div className="absolute top-4 left-4 h-8 flex items-center gap-2.5 py-1 pl-1 pr-2 bg-neutral-800/60 rounded-lg">
+                    <img
+                      src="/images/mint-vernetzt_shortlogo.png"
+                      alt=""
+                      className="w-6 h-6 rounded-full"
+                    />
+                    <span className="text-neutral-50 text-xs leading-4 font-semibold">
+                      MINTvernetzt
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <h3 className="mb-4 @lg:mb-6 text-primary-600 text-lg leading-6 font-bold">
+              {locales.eventTeaser.upcomingEvents.headline}
+            </h3>
+            {loaderData.upcomingEvents.length === 0 ? (
+              <p className="text-neutral-700 text-base leading-5">
+                {locales.eventTeaser.upcomingEvents.empty}
+              </p>
+            ) : (
+              <ul className="grid grid-cols-1 @md:grid-cols-3 gap-4 @lg:gap-6">
+                {loaderData.upcomingEvents.map((event) => {
+                  const startTime = utcToZonedTime(
+                    event.startTime,
+                    "Europe/Berlin"
+                  );
+                  const endTime = utcToZonedTime(
+                    event.endTime,
+                    "Europe/Berlin"
+                  );
+                  return (
+                    <li key={event.slug}>
+                      <Link
+                        to={`/event/${event.slug}`}
+                        prefetch="intent"
+                        className="group block h-full p-4 bg-white rounded-lg border border-neutral-200"
+                      >
+                        <p className="mb-2 text-neutral-700 text-sm leading-5 font-semibold">
+                          {getDateDuration(
+                            startTime,
+                            endTime,
+                            loaderData.language
+                          )}
+                        </p>
+                        <p className="text-primary-600 text-sm leading-5 font-bold group-hover:underline">
+                          {event.name}
+                        </p>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
         </div>
       </section>

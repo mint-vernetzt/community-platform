@@ -50,6 +50,23 @@ export const locale = {
       credits: "© Andi Weiland",
     },
   },
+  eventTeaser: {
+    headline: "Entdecke MINT-Events",
+    benefits: {
+      formats: "Online-, Vor-Ort- oder Hybrid-Events",
+      knowledge: "Neues lernen und Wissen weitergeben",
+      ownEvents: "Eigene Events erstellen und verwalten",
+    },
+    allEvents: "Alle Events ansehen",
+    image: {
+      alt: "Zwei Personen auf einer Bühne bei einem MINT-Event",
+      credits: "© Anti Wieland",
+    },
+    upcomingEvents: {
+      headline: "Bevorstehende Events",
+      empty: "Zurzeit sind keine bevorstehenden Events geplant.",
+    },
+  },
   form: {
     label: {
       email: "E-Mail",

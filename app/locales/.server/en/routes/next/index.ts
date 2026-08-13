@@ -49,6 +49,23 @@ export const locale = {
       credits: "© Andi Weiland",
     },
   },
+  eventTeaser: {
+    headline: "Discover STEM events",
+    benefits: {
+      formats: "Online, on-site or hybrid events",
+      knowledge: "Learn new things and share knowledge",
+      ownEvents: "Create and manage your own events",
+    },
+    allEvents: "View all events",
+    image: {
+      alt: "Two people on stage at a STEM event",
+      credits: "© Anti Wieland",
+    },
+    upcomingEvents: {
+      headline: "Upcoming events",
+      empty: "There are no upcoming events at the moment.",
+    },
+  },
   form: {
     label: {
       email: "Email",
