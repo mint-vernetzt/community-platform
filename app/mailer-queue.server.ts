@@ -180,11 +180,10 @@ async function onTick() {
             0
           ),
         },
-        stage: {
-          slug: {
-            not: "online",
-          },
-        },
+        OR: [
+          { stageId: null },
+          { stage: { slug: { in: ["on-site", "hybrid"] } } },
+        ],
         reminderState: "firstScheduled",
       },
       select,
@@ -235,11 +234,10 @@ async function onTick() {
             0
           ),
         },
-        stage: {
-          slug: {
-            not: "on-site",
-          },
-        },
+        OR: [
+          { stageId: null },
+          { stage: { slug: { in: ["online", "hybrid"] } } },
+        ],
         reminderState: { in: ["firstScheduled", "secondScheduled"] },
       },
       select,
@@ -372,7 +370,10 @@ async function onTick() {
       if (event.starts === "tomorrow") {
         reminderState = "firstScheduled";
       } else if (event.starts === "inOneHour") {
-        if (event.stage !== null && event.stage.slug === "hybrid") {
+        if (
+          event === null ||
+          (event.stage !== null && event.stage.slug === "hybrid")
+        ) {
           reminderState = "secondScheduled";
         } else {
           reminderState = "lastScheduled";
