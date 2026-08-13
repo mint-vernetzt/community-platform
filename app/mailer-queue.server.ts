@@ -22,7 +22,7 @@ let taskTimer: TaskTimer;
 let mailQueue: queueAsPromised<string>;
 
 if (process.env.NODE_ENV === "production") {
-  taskTimer = new TaskTimer(1000 * 60); // 1 minute interval in production
+  taskTimer = new TaskTimer({ interval: 1000 * 60 }); // 1 minute interval in production
   mailQueue = queue(processTransaction, 1); // 1 concurrent job
 } else {
   if (typeof global.__taskTimer === "undefined") {
@@ -84,29 +84,6 @@ async function onTick() {
       canceled: false,
     };
 
-    console.log("now:", now.toISOString());
-
-    console.log(
-      "tomorrow:",
-      new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate() + 1,
-        0,
-        0,
-        0
-      ).toISOString(),
-      "-",
-      new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate() + 2,
-        0,
-        0,
-        0
-      ).toISOString()
-    );
-
     // Fetch all events that are starting tomorrow
     const tomorrowEvents = await prismaClient.event.findMany({
       where: {
@@ -134,29 +111,6 @@ async function onTick() {
       select,
     });
 
-    console.log({ tomorrowEvents });
-
-    console.log(
-      "inOneHour:",
-      new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        now.getHours() + 1,
-        0,
-        0
-      ).toISOString(),
-      "-",
-      new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        now.getHours() + 2,
-        0,
-        0
-      ).toISOString()
-    );
-
     // Fetch all events that are starting in one hour and are not online events
     const oneHourEvents = await prismaClient.event.findMany({
       where: {
@@ -170,7 +124,7 @@ async function onTick() {
             0,
             0
           ),
-          lt: new Date(
+          lte: new Date(
             now.getFullYear(),
             now.getMonth(),
             now.getDate(),
@@ -188,29 +142,6 @@ async function onTick() {
       select,
     });
 
-    console.log({ oneHourEvents });
-
-    console.log(
-      "inFifteenMinutes:",
-      new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        now.getHours(),
-        now.getMinutes(),
-        0
-      ).toISOString(),
-      "-",
-      new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        now.getHours(),
-        now.getMinutes() + 15,
-        0
-      ).toISOString()
-    );
-
     // Fetch all events that are starting in 15 Minutes and are not on site events
     const fifteenMinutesEvents = await prismaClient.event.findMany({
       where: {
@@ -224,7 +155,7 @@ async function onTick() {
             now.getMinutes(),
             0
           ),
-          lt: new Date(
+          lte: new Date(
             now.getFullYear(),
             now.getMonth(),
             now.getDate(),
@@ -241,8 +172,6 @@ async function onTick() {
       },
       select,
     });
-
-    console.log({ fifteenMinutesEvents });
 
     const events = [
       ...tomorrowEvents.map((event) => {
@@ -366,6 +295,7 @@ async function onTick() {
         });
       }
 
+      // hybrid events and events without a stage should be reminded three times, on site and online events only twice
       let reminderState: "firstScheduled" | "secondScheduled" | "lastScheduled";
       if (event.starts === "tomorrow") {
         reminderState = "firstScheduled";
