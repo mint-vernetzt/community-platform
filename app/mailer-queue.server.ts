@@ -22,7 +22,7 @@ let taskTimer: TaskTimer;
 let mailQueue: queueAsPromised<string>;
 
 if (process.env.NODE_ENV === "production") {
-  taskTimer = new TaskTimer(1000 * 60); // 1 minute interval in production
+  taskTimer = new TaskTimer({ interval: 1000 * 60 }); // 1 minute interval in production
   mailQueue = queue(processTransaction, 1); // 1 concurrent job
 } else {
   if (typeof global.__taskTimer === "undefined") {
@@ -124,7 +124,7 @@ async function onTick() {
             0,
             0
           ),
-          lt: new Date(
+          lte: new Date(
             now.getFullYear(),
             now.getMonth(),
             now.getDate(),
@@ -133,11 +133,10 @@ async function onTick() {
             0
           ),
         },
-        stage: {
-          slug: {
-            not: "online",
-          },
-        },
+        OR: [
+          { stageId: null },
+          { stage: { slug: { in: ["on-site", "hybrid"] } } },
+        ],
         reminderState: "firstScheduled",
       },
       select,
@@ -156,7 +155,7 @@ async function onTick() {
             now.getMinutes(),
             0
           ),
-          lt: new Date(
+          lte: new Date(
             now.getFullYear(),
             now.getMonth(),
             now.getDate(),
@@ -165,11 +164,10 @@ async function onTick() {
             0
           ),
         },
-        stage: {
-          slug: {
-            not: "on-site",
-          },
-        },
+        OR: [
+          { stageId: null },
+          { stage: { slug: { in: ["online", "hybrid"] } } },
+        ],
         reminderState: { in: ["firstScheduled", "secondScheduled"] },
       },
       select,
@@ -293,14 +291,19 @@ async function onTick() {
           subject,
           plainText: text,
           html,
+          scheduledFor: now, // send immediately
         });
       }
 
+      // hybrid events and events without a stage should be reminded three times, on site and online events only twice
       let reminderState: "firstScheduled" | "secondScheduled" | "lastScheduled";
       if (event.starts === "tomorrow") {
         reminderState = "firstScheduled";
       } else if (event.starts === "inOneHour") {
-        if (event.stage !== null && event.stage.slug === "hybrid") {
+        if (
+          event.stage === null ||
+          (event.stage !== null && event.stage.slug === "hybrid")
+        ) {
           reminderState = "secondScheduled";
         } else {
           reminderState = "lastScheduled";
