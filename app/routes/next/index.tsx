@@ -1,7 +1,9 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { useEffect, useState } from "react";
 import {
   Form,
   Link,
@@ -21,6 +23,7 @@ import { checkHoneypot } from "~/honeypot.server";
 import { HONEYPOT_CLASSNAME } from "~/honeypot.shared";
 import { detectLanguage } from "~/i18n.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
@@ -33,6 +36,49 @@ import {
   getProfileCount,
   getProjectCount,
 } from "../utils.server";
+
+const communityImages: { src: string; credit?: string }[] = [
+  {
+    src: "/images/landingpage_images/231121_Thinkaton_HF_1425_1.png",
+    credit: "© Andi Weiland",
+  },
+  {
+    src: "/images/landingpage_images/231121_Thinkaton_HF_1689.png",
+    credit: "© Andi Weiland",
+  },
+  {
+    src: "/images/landingpage_images/Designbasedlearning_Bbarth.png",
+    credit: "© Andi Weiland",
+  },
+  {
+    src: "/images/landingpage_images/Designbasedlearning_Bbarth_2.png",
+    credit: "© Andi Weiland",
+  },
+  {
+    src: "/images/landingpage_images/Jahrestagung_2025_Head_NMF.jpg",
+    credit: "© Andi Weiland",
+  },
+  {
+    src: "/images/landingpage_images/Lisa_Ihde.png",
+    credit: "© Andi Weiland",
+  },
+  {
+    src: "/images/landingpage_images/MINTvernetzt_Tag_01_Foto_andi_weiland_01.png",
+    credit: "© Andi Weiland",
+  },
+  {
+    src: "/images/landingpage_images/MINTvernetzt_Tag_01_Foto_andi_weiland_02.png",
+    credit: "© Andi Weiland",
+  },
+  {
+    src: "/images/landingpage_images/MINTVJT11022025.png",
+    credit: "© Andi Weiland",
+  },
+  {
+    src: "/images/landingpage_images/Yosa_Peit.png",
+    credit: "© Andi Weiland",
+  },
+];
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -131,6 +177,21 @@ export default function Index() {
 
   const loginRedirect = urlSearchParams.get("login_redirect");
 
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [autoPlay, setAutoPlay] = useState(true);
+
+  useEffect(() => {
+    if (autoPlay === false) {
+      return;
+    }
+    const interval = setInterval(() => {
+      setActiveSlide(
+        (currentSlide) => (currentSlide + 1) % communityImages.length
+      );
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [autoPlay]);
+
   const [loginForm, loginFields] = useForm({
     id: "login-form",
     constraint: getZodConstraint(createLoginSchema(locales)),
@@ -154,110 +215,133 @@ export default function Index() {
   });
 
   return (
-    <section className="relative overflow-hidden bg-secondary-50 bg-linear-[358deg] from-neutral-50 from-[12.78%] via-neutral-50/40 via-[74.48%] to-neutral-50/40 to-[98.12%]">
-      <div className="absolute -top-90 -right-102.5 hidden @md:block">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 945 947"
-          width="838"
-          height="849"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            fill="#FFCF53"
-            d="M508.34 945.443c-89.582 9.463-180.276-67.216-195.857-76.352-15.581-9.136-180.122-118.666-263.692-206.297-104.462-109.538-28.635-229.26 123.96-490.517 152.596-261.258 257.514-203.28 580.525 27.841 338.964 242.537 139.878 409.42 56.878 514.42-83 105-212.232 221.442-301.814 230.905Z"
-          />
-        </svg>
-      </div>
+    <>
+      <section className="relative overflow-hidden bg-secondary-50 bg-linear-[358deg] from-neutral-50 from-[12.78%] via-neutral-50/40 via-[74.48%] to-neutral-50/40 to-[98.12%]">
+        <div className="absolute -top-90 -right-102.5 hidden @md:block">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 945 947"
+            width="838"
+            height="849"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              fill="#FFCF53"
+              d="M508.34 945.443c-89.582 9.463-180.276-67.216-195.857-76.352-15.581-9.136-180.122-118.666-263.692-206.297-104.462-109.538-28.635-229.26 123.96-490.517 152.596-261.258 257.514-203.28 580.525 27.841 338.964 242.537 139.878 409.42 56.878 514.42-83 105-212.232 221.442-301.814 230.905Z"
+            />
+          </svg>
+        </div>
 
-      <div className="py-16 @lg:py-20 relative min-h-[calc(100dvh-76px)] lg:min-h-[calc(100dvh-80px)] @md:flex @md:items-center">
-        <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
-          <div className="@md:grid @md:grid-cols-12 @md:gap-6 @lg:gap-8 @md:items-center">
-            <div className="@md:col-start-1 @md:col-span-6 @xl:col-start-2 @xl:col-span-5">
-              <h1 className="mb-8 text-primary-600 text-5xl leading-tight @lg:text-[3.75rem] @lg:leading-[4.5rem] @lg:tracking-[-2.4px] font-black hyphens-auto @lg:hyphens-none">
-                {locales.content.headline}
-              </h1>
-              <p className="mb-8 @md:mb-0 text-neutral-800 text-lg leading-[1.3] tracking-[0.18px] font-semibold">
-                {locales.content.intro}
-              </p>
-            </div>
+        <div className="py-16 @lg:py-20 relative min-h-[calc(100dvh-76px)] lg:min-h-[calc(100dvh-80px)] @md:flex @md:items-center">
+          <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
+            <div className="@md:grid @md:grid-cols-12 @md:gap-6 @lg:gap-8 @md:items-center">
+              <div className="@md:col-start-1 @md:col-span-6 @xl:col-start-2 @xl:col-span-5">
+                <h1 className="mb-8 text-primary-600 text-5xl leading-tight @lg:text-[3.75rem] @lg:leading-[4.5rem] @lg:tracking-[-2.4px] font-black hyphens-auto @lg:hyphens-none">
+                  {locales.content.headline}
+                </h1>
+                <p className="mb-8 @md:mb-0 text-neutral-800 text-lg leading-[1.3] tracking-[0.18px] font-semibold">
+                  {locales.content.intro}
+                </p>
+              </div>
 
-            <div className="@md:col-start-9 @md:col-span-4 @xl:col-start-8">
-              <div className="p-6 bg-white rounded-2xl shadow-[0px_4px_24px_0px_rgba(17,52,118,0.12)]">
-                <div className="text-center">
-                  <a
-                    id="login-start"
-                    href="#login-end"
-                    className="w-0 h-0 opacity-0 focus:w-fit focus:h-fit focus:opacity-100 focus:px-1"
-                  >
-                    {locales.login.skip.start}
-                  </a>
-                  <Button
-                    as="link"
-                    size="large"
-                    to={`/auth/keycloak${
-                      loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-                    }`}
-                    variant="outline"
-                    fullSize
-                    name={locales.login.withMintId}
-                  >
-                    {locales.login.withMintId}
-                  </Button>
-                  <Link
-                    to="https://mint-id.org/faq"
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    className="block py-2 text-primary font-semibold underline"
-                  >
-                    {locales.login.moreInformation}
-                  </Link>
-                  <div className="mt-4 mb-4">
-                    <hr className="mx-5" />
-                    <span className="block -my-3 mx-auto w-fit px-4 text-primary bg-white font-bold">
-                      {locales.login.or}
-                    </span>
+              <div className="@md:col-start-9 @md:col-span-4 @xl:col-start-8">
+                <div className="p-6 bg-white rounded-2xl shadow-[0px_4px_24px_0px_rgba(17,52,118,0.12)]">
+                  <div className="text-center">
+                    <a
+                      id="login-start"
+                      href="#login-end"
+                      className="w-0 h-0 opacity-0 focus:w-fit focus:h-fit focus:opacity-100 focus:px-1"
+                    >
+                      {locales.login.skip.start}
+                    </a>
+                    <Button
+                      as="link"
+                      size="large"
+                      to={`/auth/keycloak${
+                        loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                      }`}
+                      variant="outline"
+                      fullSize
+                      name={locales.login.withMintId}
+                    >
+                      {locales.login.withMintId}
+                    </Button>
+                    <Link
+                      to="https://mint-id.org/faq"
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="block py-2 text-primary font-semibold underline"
+                    >
+                      {locales.login.moreInformation}
+                    </Link>
+                    <div className="mt-4 mb-4">
+                      <hr className="mx-5" />
+                      <span className="block -my-3 mx-auto w-fit px-4 text-primary bg-white font-bold">
+                        {locales.login.or}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                {loaderData.isBot === false && (
-                  <Form
-                    {...getFormProps(loginForm)}
-                    method="post"
-                    autoComplete="off"
-                  >
-                    <HoneypotInputs className={HONEYPOT_CLASSNAME} />
-                    {typeof loginForm.errors !== "undefined" &&
-                    loginForm.errors.length > 0 ? (
-                      <div>
-                        {loginForm.errors.map((error, index) => {
-                          return (
-                            <div
-                              key={index}
-                              className="p-3 mb-3 bg-negative-100 text-negative-900 rounded-md"
-                            >
-                              <RichText id={loginForm.errorId} html={error} />
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : null}
+                  {loaderData.isBot === false && (
+                    <Form
+                      {...getFormProps(loginForm)}
+                      method="post"
+                      autoComplete="off"
+                    >
+                      <HoneypotInputs className={HONEYPOT_CLASSNAME} />
+                      {typeof loginForm.errors !== "undefined" &&
+                      loginForm.errors.length > 0 ? (
+                        <div>
+                          {loginForm.errors.map((error, index) => {
+                            return (
+                              <div
+                                key={index}
+                                className="p-3 mb-3 bg-negative-100 text-negative-900 rounded-md"
+                              >
+                                <RichText id={loginForm.errorId} html={error} />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : null}
 
-                    <div className="mb-4">
+                      <div className="mb-4">
+                        <Input
+                          {...getInputProps(loginFields.email, {
+                            type: "text",
+                          })}
+                          key="email"
+                        >
+                          <Input.Label htmlFor={loginFields.email.id}>
+                            {locales.form.label.email}
+                          </Input.Label>
+                          {typeof loginFields.email.errors !== "undefined" &&
+                          loginFields.email.errors.length > 0
+                            ? loginFields.email.errors.map((error) => (
+                                <Input.Error
+                                  id={loginFields.email.errorId}
+                                  key={error}
+                                >
+                                  {error}
+                                </Input.Error>
+                              ))
+                            : null}
+                        </Input>
+                      </div>
                       <Input
-                        {...getInputProps(loginFields.email, {
-                          type: "text",
+                        {...getInputProps(loginFields.password, {
+                          type: "password",
                         })}
-                        key="email"
+                        key="password"
                       >
-                        <Input.Label htmlFor={loginFields.email.id}>
-                          {locales.form.label.email}
+                        <Input.Label htmlFor={loginFields.password.id}>
+                          {locales.form.label.password}
                         </Input.Label>
-                        {typeof loginFields.email.errors !== "undefined" &&
-                        loginFields.email.errors.length > 0
-                          ? loginFields.email.errors.map((error) => (
+                        {typeof loginFields.password.errors !== "undefined" &&
+                        loginFields.password.errors.length > 0
+                          ? loginFields.password.errors.map((error) => (
                               <Input.Error
-                                id={loginFields.email.errorId}
+                                id={loginFields.password.errorId}
                                 key={error}
                               >
                                 {error}
@@ -265,133 +349,177 @@ export default function Index() {
                             ))
                           : null}
                       </Input>
-                    </div>
-                    <Input
-                      {...getInputProps(loginFields.password, {
-                        type: "password",
-                      })}
-                      key="password"
-                    >
-                      <Input.Label htmlFor={loginFields.password.id}>
-                        {locales.form.label.password}
-                      </Input.Label>
-                      {typeof loginFields.password.errors !== "undefined" &&
-                      loginFields.password.errors.length > 0
-                        ? loginFields.password.errors.map((error) => (
-                            <Input.Error
-                              id={loginFields.password.errorId}
-                              key={error}
-                            >
-                              {error}
-                            </Input.Error>
-                          ))
-                        : null}
-                    </Input>
 
-                    <input
-                      {...getInputProps(loginFields.loginRedirect, {
-                        type: "hidden",
-                      })}
-                      key="loginRedirect"
-                    />
-                    <div className="mt-4 mb-2">
-                      <Button
-                        type="submit"
-                        fullSize
-                        // Don't disable button when js is disabled
-                        disabled={
-                          isHydrated
-                            ? loginForm.dirty === false ||
-                              loginForm.valid === false ||
-                              isSubmitting
-                            : false
-                        }
-                      >
-                        {locales.form.label.submit}
-                      </Button>
-                    </div>
-                  </Form>
-                )}
-                <div className="mb-4 text-center">
-                  <Link
-                    to={`/reset${
-                      loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-                    }`}
-                    className="text-primary font-bold underline"
-                    prefetch="intent"
-                  >
-                    {locales.login.passwordForgotten}
-                  </Link>
-                </div>
-                <div className="text-center">{locales.login.noMember}</div>
-                <div className="flex justify-center gap-6">
-                  <Link
-                    to={`/register${
-                      loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-                    }`}
-                    className="text-primary font-semibold underline"
-                    prefetch="intent"
-                  >
-                    {locales.login.registerByEmail}
-                  </Link>
-                  <Link
-                    to={`/auth/keycloak${
-                      loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-                    }`}
-                    className="text-primary font-semibold underline"
-                  >
-                    {locales.login.createMintId}
-                  </Link>
-                </div>
-                <div className="w-full flex justify-center">
-                  <a
-                    id="login-end"
-                    href="#login-start"
-                    className="w-0 h-0 opacity-0 focus:w-fit focus:h-fit focus:opacity-100 focus:px-1"
-                  >
-                    {locales.login.skip.end}
-                  </a>
+                      <input
+                        {...getInputProps(loginFields.loginRedirect, {
+                          type: "hidden",
+                        })}
+                        key="loginRedirect"
+                      />
+                      <div className="mt-4 mb-2">
+                        <Button
+                          type="submit"
+                          fullSize
+                          // Don't disable button when js is disabled
+                          disabled={
+                            isHydrated
+                              ? loginForm.dirty === false ||
+                                loginForm.valid === false ||
+                                isSubmitting
+                              : false
+                          }
+                        >
+                          {locales.form.label.submit}
+                        </Button>
+                      </div>
+                    </Form>
+                  )}
+                  <div className="mb-4 text-center">
+                    <Link
+                      to={`/reset${
+                        loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                      }`}
+                      className="text-primary font-bold underline"
+                      prefetch="intent"
+                    >
+                      {locales.login.passwordForgotten}
+                    </Link>
+                  </div>
+                  <div className="text-center">{locales.login.noMember}</div>
+                  <div className="flex justify-center gap-6">
+                    <Link
+                      to={`/register${
+                        loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                      }`}
+                      className="text-primary font-semibold underline"
+                      prefetch="intent"
+                    >
+                      {locales.login.registerByEmail}
+                    </Link>
+                    <Link
+                      to={`/auth/keycloak${
+                        loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                      }`}
+                      className="text-primary font-semibold underline"
+                    >
+                      {locales.login.createMintId}
+                    </Link>
+                  </div>
+                  <div className="w-full flex justify-center">
+                    <a
+                      id="login-end"
+                      href="#login-start"
+                      className="w-0 h-0 opacity-0 focus:w-fit focus:h-fit focus:opacity-100 focus:px-1"
+                    >
+                      {locales.login.skip.end}
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="mt-16 @lg:mt-24 grid grid-cols-2 @md:grid-cols-4 gap-8 @md:gap-16 text-center">
-            <div className="flex flex-col gap-1">
-              <p className="text-primary-500 text-5xl leading-10 font-bold">
-                {loaderData.profileCount}
-              </p>
-              <p className="text-primary-500 text-lg leading-[22px] font-semibold">
-                {locales.counter.profiles}
-              </p>
-            </div>
-            <div className="flex flex-col gap-1">
-              <p className="text-primary-500 text-5xl leading-10 font-bold">
-                {loaderData.organizationCount}
-              </p>
-              <p className="text-primary-500 text-lg leading-[22px] font-semibold">
-                {locales.counter.organizations}
-              </p>
-            </div>
-            <div className="flex flex-col gap-1">
-              <p className="text-primary-500 text-5xl leading-10 font-bold">
-                {loaderData.eventCount}
-              </p>
-              <p className="text-primary-500 text-lg leading-[22px] font-semibold">
-                {locales.counter.events}
-              </p>
-            </div>
-            <div className="flex flex-col gap-1">
-              <p className="text-primary-500 text-5xl leading-10 font-bold">
-                {loaderData.projectCount}
-              </p>
-              <p className="text-primary-500 text-lg leading-[22px] font-semibold">
-                {locales.counter.projects}
-              </p>
+            <div className="mt-16 @lg:mt-24 grid grid-cols-2 @md:grid-cols-4 gap-8 @md:gap-16 text-center">
+              <div className="flex flex-col gap-1">
+                <p className="text-primary-500 text-5xl leading-10 font-bold">
+                  {loaderData.profileCount}
+                </p>
+                <p className="text-primary-500 text-lg leading-[22px] font-semibold">
+                  {locales.counter.profiles}
+                </p>
+              </div>
+              <div className="flex flex-col gap-1">
+                <p className="text-primary-500 text-5xl leading-10 font-bold">
+                  {loaderData.organizationCount}
+                </p>
+                <p className="text-primary-500 text-lg leading-[22px] font-semibold">
+                  {locales.counter.organizations}
+                </p>
+              </div>
+              <div className="flex flex-col gap-1">
+                <p className="text-primary-500 text-5xl leading-10 font-bold">
+                  {loaderData.eventCount}
+                </p>
+                <p className="text-primary-500 text-lg leading-[22px] font-semibold">
+                  {locales.counter.events}
+                </p>
+              </div>
+              <div className="flex flex-col gap-1">
+                <p className="text-primary-500 text-5xl leading-10 font-bold">
+                  {loaderData.projectCount}
+                </p>
+                <p className="text-primary-500 text-lg leading-[22px] font-semibold">
+                  {locales.counter.projects}
+                </p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <section className="py-16 @lg:py-24 relative bg-white">
+        <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl">
+          <h2 className="mb-4 text-primary-600 text-4xl @lg:text-5xl leading-tight font-black">
+            {locales.community.headline}
+          </h2>
+          <p className="mb-8 text-neutral-800 text-lg leading-[1.3] tracking-[0.18px]">
+            {locales.community.intro}
+          </p>
+          <div className="relative aspect-4/5 @md:aspect-1056/444 rounded-2xl overflow-hidden">
+            {communityImages.map((image, index) => {
+              return (
+                <div
+                  key={image.src}
+                  className={`absolute inset-0 transition-opacity duration-700 ${
+                    index === activeSlide ? "opacity-100" : "opacity-0"
+                  }`}
+                  aria-hidden={index !== activeSlide}
+                >
+                  <Image
+                    src={image.src}
+                    alt={locales.community.slideshow.imageAlt}
+                    disableFadeIn
+                  />
+                  {typeof image.credit !== "undefined" &&
+                  image.credit !== "" ? (
+                    <>
+                      <div className="@md:hidden absolute bottom-4 right-4 px-2 py-1 rounded-full bg-neutral-800/70 text-white text-xs font-semibold leading-4">
+                        {image.credit}
+                      </div>
+                      <div className="hidden @md:flex absolute bottom-2 right-2 origin-bottom-right transform-[rotate(-90deg)_translateX(100%)] px-1.5 py-1 bg-neutral-50/80 items-center text-neutral-700 text-xxs font-semibold leading-4">
+                        {image.credit}
+                      </div>
+                    </>
+                  ) : null}
+                </div>
+              );
+            })}
+            <div className="absolute bottom-4 left-4 @md:left-1/2 @md:-translate-x-1/2 flex items-center gap-2 px-2 py-1.5 rounded-full bg-neutral-800/70">
+              {communityImages.map((image, index) => {
+                return (
+                  <button
+                    key={image.src}
+                    type="button"
+                    onClick={() => {
+                      setActiveSlide(index);
+                      setAutoPlay(false);
+                    }}
+                    aria-label={insertParametersIntoLocale(
+                      locales.community.slideshow.showImage,
+                      { number: index + 1, total: communityImages.length }
+                    )}
+                    aria-current={index === activeSlide}
+                    className={`w-2 h-2 rounded-full transition-colors ${
+                      index === activeSlide
+                        ? "bg-primary-300"
+                        : "bg-white hover:bg-primary-100"
+                    }`}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

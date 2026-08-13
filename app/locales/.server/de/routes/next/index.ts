@@ -23,6 +23,15 @@ export const locale = {
     events: "Veranstaltungen",
     projects: "Projekte",
   },
+  community: {
+    headline: "Unsere Community",
+    intro:
+      "Austausch, der Dich weiterbringt – mit frischen Impulsen aus der Community und neuen Perspektiven von außen.",
+    slideshow: {
+      imageAlt: "Foto aus der MINTvernetzt-Community",
+      showImage: "Bild {{number}} von {{total}} anzeigen",
+    },
+  },
   login: {
     skip: {
       start: "Anmeldebereich überspringen",

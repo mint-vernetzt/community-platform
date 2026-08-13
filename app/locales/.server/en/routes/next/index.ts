@@ -22,6 +22,15 @@ export const locale = {
     events: "Events",
     projects: "Projects",
   },
+  community: {
+    headline: "Our community",
+    intro:
+      "Exchange that takes you further – with fresh impulses from the community and new perspectives from outside.",
+    slideshow: {
+      imageAlt: "Photo from the MINTvernetzt community",
+      showImage: "Show image {{number}} of {{total}}",
+    },
+  },
   login: {
     skip: {
       start: "Skip login area",
