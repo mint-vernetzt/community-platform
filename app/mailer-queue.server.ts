@@ -362,6 +362,7 @@ async function onTick() {
           subject,
           plainText: text,
           html,
+          scheduledFor: now, // send immediately
         });
       }
 
