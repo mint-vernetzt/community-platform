@@ -85,6 +85,10 @@ async function onTick() {
       canceled: false,
     };
 
+    console.log(
+      `tomorrowEvents: ${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate() + 1}`
+    );
+
     // Fetch all events that are starting tomorrow
     const tomorrowEvents = await prismaClient.event.findMany({
       where: {
@@ -111,6 +115,10 @@ async function onTick() {
       },
       select,
     });
+
+    console.log(
+      `oneHourEvents: ${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()} ${now.getHours() + 1}:00:00`
+    );
 
     // Fetch all events that are starting in one hour and are not online events
     const oneHourEvents = await prismaClient.event.findMany({
@@ -143,6 +151,10 @@ async function onTick() {
       },
       select,
     });
+
+    console.log(
+      `fifteenMinutesEvents: ${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()} ${now.getHours()}:${now.getMinutes()}:00`
+    );
 
     // Fetch all events that are starting in 15 Minutes and are not on site events
     const fifteenMinutesEvents = await prismaClient.event.findMany({
