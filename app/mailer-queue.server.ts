@@ -12,6 +12,7 @@ import { prismaClient } from "./prisma.server";
 import { insertParametersIntoLocale } from "./lib/utils/i18n";
 import { languageModuleMap } from "./locales/.server";
 import { getVenueString } from "./utils.shared";
+import { utcToZonedTime } from "date-fns-tz";
 
 declare global {
   var __taskTimer: TaskTimer | undefined;
@@ -37,7 +38,7 @@ if (process.env.NODE_ENV === "production") {
 }
 
 async function onTick() {
-  const now = new Date();
+  const now = utcToZonedTime(new Date(), "Europe/Berlin");
   // Fetch all events where participants or guests should be reminded
   try {
     const select = {
