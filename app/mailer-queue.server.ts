@@ -2,8 +2,15 @@ import { captureException } from "@sentry/node";
 import { promise as queue, type queueAsPromised } from "fastq";
 import { Event, TaskTimer } from "tasktimer";
 import { z } from "zod";
-import { mailer, mailerOptions } from "./mailer.server";
+import {
+  getCompiledMailTemplate,
+  mailer,
+  mailerOptions,
+} from "./mailer.server";
 import { prismaClient } from "./prisma.server";
+import { insertParametersIntoLocale } from "./lib/utils/i18n";
+import { languageModuleMap } from "./locales/.server";
+import { getVenueString } from "./utils.shared";
 
 declare global {
   var __taskTimer: TaskTimer | undefined;
@@ -30,6 +37,154 @@ if (process.env.NODE_ENV === "production") {
 
 async function onTick() {
   const now = new Date();
+  // Fetch all events where participants or guests should be reminded
+  try {
+    // Fetch all events that are starting tomorrow
+    const events = await prismaClient.event.findMany({
+      where: {
+        startTime: {
+          gte: new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate() + 1,
+            0,
+            0,
+            0
+          ),
+          lt: new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate() + 2,
+            0,
+            0,
+            0
+          ),
+        },
+        published: true,
+        external: false,
+        reminderState: "open",
+      },
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        startTime: true,
+        venueName: true,
+        venueStreet: true,
+        venueStreetNumber: true,
+        venueZipCode: true,
+        venueCity: true,
+        conferenceLink: true,
+        participants: {
+          select: {
+            profile: {
+              select: {
+                firstName: true,
+                email: true,
+              },
+            },
+          },
+        },
+        guests: {
+          select: {
+            email: true,
+            firstName: true,
+            revocationToken: true,
+          },
+          where: {
+            confirmed: true,
+            onWaitingList: false,
+          },
+        },
+      },
+    });
+
+    for (const event of events) {
+      const receiver = [
+        ...event.participants.map((relation) => {
+          return {
+            ...relation.profile,
+            revocationToken: null as string | null,
+            isGuest: false,
+          };
+        }),
+        ...event.guests.map((guest) => {
+          return {
+            ...guest,
+            isGuest: true,
+          };
+        }),
+      ];
+
+      const locales = languageModuleMap["de"]["root"];
+
+      const subject = insertParametersIntoLocale(
+        locales.route.event.reminder.oneDayBefore.subject,
+        {
+          eventName: event.name,
+        }
+      );
+      const textTemplatePath =
+        "mail-templates/event/reminder-one-day-before-text.hbs";
+      const htmlTemplatePath =
+        "mail-templates/event/reminder-one-day-before-html.hbs";
+
+      for (const profile of receiver) {
+        const content = {
+          headline: subject,
+          profile,
+          event: {
+            name: event.name,
+            url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail`,
+            startDate: event.startTime.toLocaleDateString("de-DE", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            }),
+            startTime: event.startTime.toLocaleTimeString("de-DE", {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            timezone: "MEZ",
+            location: getVenueString(event),
+            conferenceLink: event.conferenceLink,
+            revocationLink: null as string | null,
+          },
+        };
+
+        if (profile.isGuest && profile.revocationToken !== null) {
+          const revocationLink = `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?type=revoke&confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?type=revoke&token_hash=${profile.revocationToken}&confirmation_redirect=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail`)}`)}`;
+          content.event.revocationLink = revocationLink;
+        }
+
+        const text = await getCompiledMailTemplate(
+          textTemplatePath,
+          content,
+          "text"
+        );
+        const html = await getCompiledMailTemplate(
+          htmlTemplatePath,
+          content,
+          "html"
+        );
+        await scheduleMail({
+          eventId: event.id,
+          recipient: profile.email,
+          subject,
+          plainText: text,
+          html,
+        });
+      }
+      await prismaClient.event.update({
+        where: { id: event.id },
+        data: { reminderState: "firstScheduled" },
+      });
+    }
+  } catch (error) {
+    captureException(error);
+  }
+
+  // Fetch all event transactions that are scheduled for now or earlier and are not already sent or aborted
   try {
     const eventTransactions = await prismaClient.eventTransaction.findMany({
       where: {
