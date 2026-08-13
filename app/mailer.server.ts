@@ -306,6 +306,24 @@ type ProfileOrGuestRemovedFromParticipantsOrWaitingListContent = {
   };
 };
 
+type ReminderContent = {
+  headline: string;
+  profile: {
+    firstName: string;
+    isGuest: boolean;
+  };
+  event: {
+    name: string;
+    url: string;
+    startDate: string;
+    startTime: string;
+    timezone: string;
+    location?: string;
+    conferenceLink?: string | null;
+    revocationLink?: string | null;
+  };
+};
+
 type TemplatePath =
   | "mail-templates/standard-message/html.hbs"
   | "mail-templates/standard-message/text.hbs"
@@ -450,7 +468,9 @@ type TemplatePath =
   | "mail-templates/event/profile-or-guest-moved-up-to-participants-html.hbs"
   | "mail-templates/event/profile-or-guest-moved-up-to-participants-text.hbs"
   | "mail-templates/event/profile-or-guest-removed-from-participants-or-waiting-list-html.hbs"
-  | "mail-templates/event/profile-or-guest-removed-from-participants-or-waiting-list-text.hbs";
+  | "mail-templates/event/profile-or-guest-removed-from-participants-or-waiting-list-text.hbs"
+  | "mail-templates/event/reminder-one-day-before-html.hbs"
+  | "mail-templates/event/reminder-one-day-before-text.hbs";
 
 type TemplateContent<TemplatePath> = TemplatePath extends
   | "mail-templates/standard-message/html.hbs"
@@ -654,7 +674,11 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                                               | "mail-templates/event/profile-or-guest-removed-from-participants-or-waiting-list-html.hbs"
                                                               | "mail-templates/event/profile-or-guest-removed-from-participants-or-waiting-list-text.hbs"
                                                           ? ProfileOrGuestRemovedFromParticipantsOrWaitingListContent
-                                                          : never;
+                                                          : TemplatePath extends
+                                                                | "mail-templates/event/reminder-one-day-before-html.hbs"
+                                                                | "mail-templates/event/reminder-one-day-before-text.hbs"
+                                                            ? ReminderContent
+                                                            : never;
 
 export function getCompiledMailTemplate<T extends TemplatePath>(
   templatePath: TemplatePath,
