@@ -38,7 +38,7 @@ if (process.env.NODE_ENV === "production") {
 }
 
 async function onTick() {
-  const now = utcToZonedTime(new Date(), "Europe/Berlin");
+  const now = new Date();
   // Fetch all events where participants or guests should be reminded
   try {
     const select = {
@@ -85,8 +85,18 @@ async function onTick() {
       canceled: false,
     };
 
+    console.log("now:", now.toISOString());
+
     console.log(
-      `tomorrowEvents: ${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate() + 1}`
+      "tomorrow:",
+      new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() + 1,
+        0,
+        0,
+        0
+      ).toISOString()
     );
 
     // Fetch all events that are starting tomorrow
@@ -117,7 +127,15 @@ async function onTick() {
     });
 
     console.log(
-      `oneHourEvents: ${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()} ${now.getHours() + 1}:00:00`
+      "inOneHour:",
+      new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        now.getHours() + 1,
+        0,
+        0
+      ).toISOString()
     );
 
     // Fetch all events that are starting in one hour and are not online events
@@ -153,7 +171,15 @@ async function onTick() {
     });
 
     console.log(
-      `fifteenMinutesEvents: ${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()} ${now.getHours()}:${now.getMinutes()}:00`
+      "inFifteenMinutes:",
+      new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        now.getHours(),
+        now.getMinutes() + 15,
+        0
+      ).toISOString()
     );
 
     // Fetch all events that are starting in 15 Minutes and are not on site events
