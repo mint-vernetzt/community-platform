@@ -1,0 +1,52 @@
+[
+  {
+    "username": "katrinschneideroezbek",
+    "name": "Katrin Schneider-Özbek",
+    "organization": "Forscherstation",
+    "image": "/images/katrinschneideroezbek.png",
+    "quote": {
+      "de": "Die Community-Plattform vernetzt uns MINT-Akteur:innen, macht Expertise sichtbar und schafft die Grundlage für wirkungsvolle Zusammenarbeit und gemeinsame Sichtbarkeit.",
+      "en": "The community platform connects us STEM actors, makes expertise visible and creates the basis for effective collaboration and shared visibility."
+    }
+  },
+  {
+    "username": "franziskaschwab",
+    "name": "Franziska Schwab",
+    "organization": "jumpps* – Fachstelle für geschlechtersensible Pädagogik",
+    "image": "/images/franziskaschwab.png",
+    "quote": {
+      "de": "Ich sehe, wer beim Event dabei war – und kann direkt anknüpfen. Das bringt echten Wissenstransfer.",
+      "en": "I can see who attended the event – and can connect directly. That creates real knowledge transfer."
+    }
+  },
+  {
+    "username": "piacukic",
+    "name": "Pia Čukić",
+    "organization": "freigeista – MINT Zukunftsberufe im Kindergarten",
+    "image": "/images/piacukic.png",
+    "quote": {
+      "de": "Ich baue gerade mein eigenes Projekt auf und lasse mich dabei gern von anderen mutigen Ideen und Geschichten inspirieren.",
+      "en": "I am currently building my own project and like to get inspired by other bold ideas and stories."
+    }
+  },
+  {
+    "username": "nelesteigerwald",
+    "name": "Nele Steigerwald",
+    "organization": "Code Week Germany / Körber-Stiftung",
+    "image": "/images/nelesteigerwald.png",
+    "quote": {
+      "de": "Einige Organisationen dürfen Canva nicht nutzen – daher ist der MINT-Sharepic-Generator eine gute, datenschutzkonforme Alternative.",
+      "en": "Some organizations are not allowed to use Canva – so the MINT-Sharepic-Generator is a good, privacy-compliant alternative."
+    }
+  },
+  {
+    "username": "irislangeschmalz",
+    "name": "Iris Lange-Schmalz",
+    "organization": "MINT-Region Main-Tauber e.V.",
+    "image": "/images/irislangeschmalz.png",
+    "quote": {
+      "de": "Ich nutze die Filterfunktionen, um gezielt nach guter Praxis zu suchen – zum Beispiel für neue Pilotprojekte im Bereich Mathematik.",
+      "en": "I use the filter functions to search specifically for good practice – for example for new pilot projects in the field of mathematics."
+    }
+  }
+]
