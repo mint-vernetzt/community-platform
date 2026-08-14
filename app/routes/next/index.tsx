@@ -398,7 +398,11 @@ export default function Index() {
       <section className="py-10 @md:py-12.5 @lg:py-15 bg-neutral-50">
         <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl">
           <div className="relative overflow-hidden rounded-2xl bg-primary-400 px-6 py-8 @md:px-10 @md:py-10 @lg:px-12 @lg:py-12">
-            {/* TODO: Add background elements */}
+            <img
+              src="/images/bubble-grafik-blau.svg"
+              alt=""
+              className="absolute top-30 right-[-16%] w-[54%] max-w-none hidden @md:block @lg:top-25 @lg:right-[-17%] @lg:w-[68%] @xl:top-15 @xl:right-[-13%] @xl:w-[52%]"
+            />
 
             <div className="relative @md:w-2/3 @lg:w-1/2">
               <h2 className="mb-4 text-neutral-50 text-3xl leading-tight @lg:text-4xl @lg:leading-[2.75rem] font-bold hyphens-auto @lg:hyphens-none">
