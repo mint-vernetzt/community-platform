@@ -1,0 +1,26 @@
+{{headline}}
+
+Hallo {{profile.firstName}},
+
+Das Event {{event.name}} findet morgen statt.
+
+Link zum Event: {{event.url}}
+Termin: {{event.startDate}}, {{event.startTime}} Uhr ({{event.timezone}})
+{{#if event.location}}
+Ort: {{event.location}}
+{{/if}}
+{{#if event.conferenceLink}}
+Konferenz-Link: {{event.conferenceLink}}
+{{/if}}
+
+Wir freuen uns sehr, dass Du dabei bist!
+
+{{#if profile.isGuest}}
+Wenn sich bei Dir etwas ändert und Du doch nicht teilnehmen kannst, dann ziehe bitte Deine Teilnahme über den Abmeldelink zurück, so dass andere nachrücken können.
+Abmeldelink: {{event.revocationLink}}
+{{else}}
+Wenn sich bei Dir etwas ändert und Du doch nicht teilnehmen kannst, dann ziehe bitte auf der Community-Plattform Deine Teilnahme zurück, so dass andere nachrücken können. 
+{{/if}}
+
+Bis bald und herzliche Grüße
+Dein MINTvernetzt-Team

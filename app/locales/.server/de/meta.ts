@@ -109,4 +109,17 @@ export const locale = {
       },
     },
   },
+  event: {
+    reminder: {
+      oneDayBefore: {
+        subject: "Erinnerung: Das Event {{eventName}} findet morgen statt",
+      },
+      oneHourBefore: {
+        subject: "Erinnerung: Das Event {{eventName}} findet bald statt",
+      },
+      fifteenMinutesBefore: {
+        subject: "Erinnerung: Das Event {{eventName}} findet gleich statt",
+      },
+    },
+  },
 } as const;

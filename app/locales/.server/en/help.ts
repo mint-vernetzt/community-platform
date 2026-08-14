@@ -356,7 +356,7 @@ export const locale = {
           question:
             "What should I consider when using my own registration link?",
           answer:
-            "<p><ul><li>After publishing your event, you cannot change the registration type, which means you cannot convert an event with external registration into an internal event.</li><li>For events with external registration, you cannot use the participant management of the community platform and cannot set a registration period.</li></ul></p>",
+            "<p><ul><li>After publishing your event, you cannot change the registration type, which means you cannot convert an event with external registration into an internal event.</li><li>For events with external registration, you cannot use the participant management of the community platform and cannot set a registration period.</li><li>Closed events cannot be created with external registration.</li></ul></p>",
           featureFlag: "events",
         },
       },
@@ -450,13 +450,6 @@ export const locale = {
     specialEvents: {
       headline: "Questions about special event formats & settings",
       qAndAs: {
-        externalEvent: {
-          question:
-            "Is it possible to create events with external registration?",
-          answer:
-            "<p>Yes, when you edit your event draft, you will find the option <b>“External Registration”</b> under the <b>Registration</b> settings. You can then add an external registration link, through which your participants will be redirected to the external registration.<br /><br />Closed events cannot be created with external registration.</p>",
-          featureFlag: "events",
-        },
         closedEvent: {
           question: "Is it possible to create closed events?",
           answer:
