@@ -17,6 +17,11 @@ export const locale = {
     intro:
       "Finde Menschen, Ideen und Unterstützung für Deine Arbeit in der MINT-Bildung.",
   },
+  funding: {
+    headline: "Finde 4000+ Förderungen für Deine Arbeit",
+    info: "Entdecke Fördermöglichkeiten aus vier Datenbanken, finde zusätzliche Mittel für Deine Projekte und vernetze Dich für gemeinsame Förderanträge.",
+    cta: "Förderungen finden",
+  },
   counter: {
     profiles: "Profile",
     organizations: "Organisationen",
