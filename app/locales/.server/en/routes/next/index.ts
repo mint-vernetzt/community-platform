@@ -66,6 +66,13 @@ export const locale = {
       empty: "There are no upcoming events at the moment.",
     },
   },
+  testimonials: {
+    headline: "Voices from the community",
+    controls: {
+      previous: "Show previous voices",
+      next: "Show next voices",
+    },
+  },
   form: {
     label: {
       email: "Email",
