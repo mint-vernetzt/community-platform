@@ -27,6 +27,7 @@ import { generateValidationToken } from "~/utils.server";
 import { PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM } from "./details.shared";
 import { scheduleMail } from "~/mailer-queue.server";
 import { getVenueString } from "~/utils.shared";
+import { utcToZonedTime } from "date-fns-tz";
 
 export async function getEventBySlug(
   sessionUser: { id: string } | null,
@@ -575,6 +576,11 @@ export async function addProfileToParticipants(options: {
           eventName: data.event.name,
         });
 
+        const zonedStartTime = utcToZonedTime(
+          data.event.startTime,
+          "Europe/Berlin"
+        );
+
         const content = {
           headline: subject,
           profile: {
@@ -585,12 +591,12 @@ export async function addProfileToParticipants(options: {
           event: {
             name: data.event.name,
             url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail`,
-            startDate: data.event.startTime.toLocaleDateString("de-DE", {
+            startDate: zonedStartTime.toLocaleDateString("de-DE", {
               day: "2-digit",
               month: "2-digit",
               year: "numeric",
             }),
-            startTime: data.event.startTime.toLocaleTimeString("de-DE", {
+            startTime: zonedStartTime.toLocaleTimeString("de-DE", {
               hour: "2-digit",
               minute: "2-digit",
             }),
@@ -730,6 +736,11 @@ export async function addProfileToWaitingList(options: {
           eventName: data.event.name,
         });
 
+        const zonedStartTime = utcToZonedTime(
+          data.event.startTime,
+          "Europe/Berlin"
+        );
+
         const content = {
           headline: subject,
           profile: {
@@ -740,12 +751,12 @@ export async function addProfileToWaitingList(options: {
           event: {
             name: data.event.name,
             url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail`,
-            startDate: data.event.startTime.toLocaleDateString("de-DE", {
+            startDate: zonedStartTime.toLocaleDateString("de-DE", {
               day: "2-digit",
               month: "2-digit",
               year: "numeric",
             }),
-            startTime: data.event.startTime.toLocaleTimeString("de-DE", {
+            startTime: zonedStartTime.toLocaleTimeString("de-DE", {
               hour: "2-digit",
               minute: "2-digit",
             }),

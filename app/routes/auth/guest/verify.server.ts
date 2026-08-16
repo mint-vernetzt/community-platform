@@ -1,4 +1,5 @@
 import { captureException } from "@sentry/node";
+import { utcToZonedTime } from "date-fns-tz";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { scheduleMail } from "~/mailer-queue.server";
 import {
@@ -164,6 +165,12 @@ export async function confirmGuest(options: {
     const subject = insertParametersIntoLocale(subjectSource, {
       eventName: result.event.name,
     });
+
+    const zonedStartTime = utcToZonedTime(
+      result.event.startTime,
+      "Europe/Berlin"
+    );
+
     const content = {
       headline: subject,
       profile: {
@@ -174,12 +181,12 @@ export async function confirmGuest(options: {
       event: {
         name: result.event.name,
         url: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/detail`,
-        startDate: result.event.startTime.toLocaleDateString("de-DE", {
+        startDate: zonedStartTime.toLocaleDateString("de-DE", {
           day: "2-digit",
           month: "2-digit",
           year: "numeric",
         }),
-        startTime: result.event.startTime.toLocaleTimeString("de-DE", {
+        startTime: zonedStartTime.toLocaleTimeString("de-DE", {
           hour: "2-digit",
           minute: "2-digit",
         }),
