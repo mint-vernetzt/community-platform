@@ -642,6 +642,54 @@ export default function Index() {
           </div>
         </div>
       </section>
+
+      <section className="py-16 relative overflow-hidden">
+        <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
+          <div
+            className="absolute top-2/3 -translate-y-1/2 left-1/2 -translate-x-1/2 @md:-top-14 @md:translate-y-0 @md:-left-20 @md:translate-x-0"
+            aria-hidden="true"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 511 511"
+              fill="none"
+              className="w-112 h-112 @md:w-72 @md:h-72"
+            >
+              <path
+                fill="#D0A9CD"
+                d="M201.799 57.4368C237.555 48.0792 279.068 73.5963 285.952 76.3423C292.835 79.0883 366.328 113.382 405.626 143.78C454.749 181.778 431.366 235.014 385.562 350.393C339.757 465.772 293.626 448.717 148.36 374.864C-4.08188 297.363 66.3955 217.402 93.5953 169.696C120.795 121.99 166.044 66.7943 201.799 57.4368Z"
+              />
+              <path
+                stroke="#BBD1FC"
+                strokeWidth="2"
+                d="M460.775 278.011C456.13 316.774 414.981 347.696 409.617 353.398C404.254 359.099 342.099 418.054 297.01 444.908C240.648 478.477 197.379 434.887 101.716 345.204C6.05168 255.521 40.6721 216.785 169.492 102.606C304.675 -17.2132 355.977 83.0075 392.334 128.208C428.69 173.408 465.42 239.247 460.775 278.011Z"
+              />
+            </svg>
+          </div>
+
+          <div className="relative max-w-72 mx-auto p-6 @md:max-w-none @md:mx-0 @lg:p-8 bg-white rounded-2xl shadow-[0px_4px_24px_0px_rgba(17,52,118,0.12)] @md:flex @md:items-center @md:justify-between @md:gap-8 @lg:gap-16">
+            <div className="@md:max-w-[45%]">
+              <h2 className="mb-4 text-primary-600 text-2xl leading-7 font-bold">
+                {locales.communityCta.headline}
+              </h2>
+              <p className="mb-6 @md:mb-0 text-neutral-800 text-base leading-[1.3] font-semibold">
+                {locales.communityCta.intro}
+              </p>
+            </div>
+            <div className="@md:shrink-0">
+              <Button
+                as="link"
+                to="/next/get-involved"
+                variant="outline"
+                fullSize
+                prefetch="intent"
+              >
+                {locales.communityCta.getInvolved}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
     </>
   );
 }

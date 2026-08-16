@@ -66,6 +66,12 @@ export const locale = {
       empty: "There are no upcoming events at the moment.",
     },
   },
+  communityCta: {
+    headline: "Actively help shape the platform",
+    intro:
+      "Your perspective helps to develop the platform further. Contribute your ideas or test new features early. Learn more about planned features and how you can get involved.",
+    getInvolved: "Get involved now",
+  },
   form: {
     label: {
       email: "Email",
