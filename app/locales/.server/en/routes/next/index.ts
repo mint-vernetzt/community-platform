@@ -66,6 +66,18 @@ export const locale = {
       empty: "There are no upcoming events at the moment.",
     },
   },
+  about: {
+    headline: "Who is behind the platform",
+    description:
+      "The MINTvernetzt community platform is a project by MINTvernetzt. MINTvernetzt is the central point of contact for extracurricular STEM education in Germany. We are funded by the Federal Ministry of Education, Family Affairs, Senior Citizens, Women and Youth.",
+    moreInformation:
+      "Learn more about MINTvernetzt and other projects on our website.",
+    website: "MINTvernetzt website",
+    image: {
+      alt: "The MINTvernetzt team standing on a spiral staircase",
+      credits: "",
+    },
+  },
   form: {
     label: {
       email: "Email",
