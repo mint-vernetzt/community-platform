@@ -540,6 +540,15 @@ model AreasOnOrganizations {
   @@map("areas_on_organizations")
 }
 
+enum EventReminderState {
+  open
+  firstScheduled
+  secondScheduled
+  lastScheduled
+
+  @@map("event_reminder_state")
+}
+
 model Event {
   id                               String                                         @id @default(uuid())
   name                             String
@@ -610,6 +619,7 @@ model Event {
   sentParentEventJoinRequests      RequestToParentEventToAddChildEvent[]          @relation("sent_requests")
   receivedParentEventJoinRequests  RequestToParentEventToAddChildEvent[]          @relation("received_requests")
   eventTransactions                EventTransaction[]
+  reminderState                    EventReminderState                             @default(open) @map("reminder_state")
 
   filterVector Unsupported("tsvector")? @map("filter_vector")
 

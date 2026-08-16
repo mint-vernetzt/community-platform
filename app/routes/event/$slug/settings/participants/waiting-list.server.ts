@@ -11,6 +11,7 @@ import {
   createSearchWaitingListSchema,
   SEARCH_WAITING_LIST_SEARCH_PARAM,
 } from "./waiting-list.shared";
+import { utcToZonedTime } from "date-fns-tz";
 
 export async function getEventBySlug(slug: string) {
   const event = await prismaClient.event.findUnique({
@@ -265,6 +266,11 @@ export async function moveToParticipants(options: {
     eventName: result.event.name,
   });
 
+  const zonedStartTime = utcToZonedTime(
+    result.event.startTime,
+    "Europe/Berlin"
+  );
+
   const content = {
     headline: subject,
     profile: {
@@ -274,12 +280,12 @@ export async function moveToParticipants(options: {
     event: {
       name: result.event.name,
       url: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/detail`,
-      startDate: result.event.startTime.toLocaleDateString("de-DE", {
+      startDate: zonedStartTime.toLocaleDateString("de-DE", {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
       }),
-      startTime: result.event.startTime.toLocaleTimeString("de-DE", {
+      startTime: zonedStartTime.toLocaleTimeString("de-DE", {
         hour: "2-digit",
         minute: "2-digit",
       }),

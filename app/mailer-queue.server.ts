@@ -2,8 +2,17 @@ import { captureException } from "@sentry/node";
 import { promise as queue, type queueAsPromised } from "fastq";
 import { Event, TaskTimer } from "tasktimer";
 import { z } from "zod";
-import { mailer, mailerOptions } from "./mailer.server";
+import {
+  getCompiledMailTemplate,
+  mailer,
+  mailerOptions,
+  type TemplatePath,
+} from "./mailer.server";
 import { prismaClient } from "./prisma.server";
+import { insertParametersIntoLocale } from "./lib/utils/i18n";
+import { languageModuleMap } from "./locales/.server";
+import { getVenueString } from "./utils.shared";
+import { utcToZonedTime } from "date-fns-tz";
 
 declare global {
   var __taskTimer: TaskTimer | undefined;
@@ -14,7 +23,7 @@ let taskTimer: TaskTimer;
 let mailQueue: queueAsPromised<string>;
 
 if (process.env.NODE_ENV === "production") {
-  taskTimer = new TaskTimer(1000 * 60); // 1 minute interval in production
+  taskTimer = new TaskTimer({ interval: 1000 * 60 }); // 1 minute interval in production
   mailQueue = queue(processTransaction, 1); // 1 concurrent job
 } else {
   if (typeof global.__taskTimer === "undefined") {
@@ -30,6 +39,291 @@ if (process.env.NODE_ENV === "production") {
 
 async function onTick() {
   const now = new Date();
+  // Fetch all events where participants or guests should be reminded
+  try {
+    const select = {
+      id: true,
+      slug: true,
+      name: true,
+      startTime: true,
+      venueName: true,
+      venueStreet: true,
+      venueStreetNumber: true,
+      venueZipCode: true,
+      venueCity: true,
+      conferenceLink: true,
+      stage: {
+        select: {
+          slug: true,
+        },
+      },
+      participants: {
+        select: {
+          profile: {
+            select: {
+              firstName: true,
+              email: true,
+            },
+          },
+        },
+      },
+      guests: {
+        select: {
+          email: true,
+          firstName: true,
+          revocationToken: true,
+        },
+        where: {
+          confirmed: true,
+          onWaitingList: false,
+        },
+      },
+    };
+    const generalWhere = {
+      published: true,
+      external: false,
+      canceled: false,
+    };
+
+    // Fetch all events that are starting tomorrow
+    const tomorrowEvents = await prismaClient.event.findMany({
+      where: {
+        ...generalWhere,
+        startTime: {
+          gte: new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate() + 1,
+            0,
+            0,
+            0
+          ),
+          lt: new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate() + 2,
+            0,
+            0,
+            0
+          ),
+        },
+        reminderState: "open",
+      },
+      select,
+    });
+
+    // Fetch all events that are starting in one hour and are not online events
+    const oneHourEvents = await prismaClient.event.findMany({
+      where: {
+        ...generalWhere,
+        startTime: {
+          gte: new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+            now.getHours() + 1,
+            0,
+            0
+          ),
+          lte: new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+            now.getHours() + 2,
+            0,
+            0
+          ),
+        },
+        OR: [
+          { stageId: null },
+          { stage: { slug: { in: ["on-site", "hybrid"] } } },
+        ],
+        reminderState: "firstScheduled",
+      },
+      select,
+    });
+
+    // Fetch all events that are starting in 15 Minutes and are not on site events
+    const fifteenMinutesEvents = await prismaClient.event.findMany({
+      where: {
+        ...generalWhere,
+        startTime: {
+          gte: new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+            now.getHours(),
+            now.getMinutes(),
+            0
+          ),
+          lte: new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+            now.getHours(),
+            now.getMinutes() + 15,
+            0
+          ),
+        },
+        OR: [
+          { stageId: null },
+          { stage: { slug: { in: ["online", "hybrid"] } } },
+        ],
+        reminderState: { in: ["firstScheduled", "secondScheduled"] },
+      },
+      select,
+    });
+
+    const events = [
+      ...tomorrowEvents.map((event) => {
+        return {
+          ...event,
+          starts: "tomorrow" as const,
+        };
+      }),
+      ...oneHourEvents.map((event) => {
+        return {
+          ...event,
+          starts: "inOneHour" as const,
+        };
+      }),
+      ...fifteenMinutesEvents.map((event) => {
+        return {
+          ...event,
+          starts: "inFifteenMinutes" as const,
+        };
+      }),
+    ];
+
+    for (const event of events) {
+      const receiver = [
+        ...event.participants.map((relation) => {
+          return {
+            ...relation.profile,
+            revocationToken: null as string | null,
+            isGuest: false,
+          };
+        }),
+        ...event.guests.map((guest) => {
+          return {
+            ...guest,
+            isGuest: true,
+          };
+        }),
+      ];
+
+      const locales = languageModuleMap["de"]["root"];
+
+      let subjectSource;
+      if (event.starts === "tomorrow") {
+        subjectSource = locales.route.event.reminder.oneDayBefore.subject;
+      } else if (event.starts === "inOneHour") {
+        subjectSource = locales.route.event.reminder.oneHourBefore.subject;
+      } else {
+        subjectSource =
+          locales.route.event.reminder.fifteenMinutesBefore.subject;
+      }
+
+      const subject = insertParametersIntoLocale(subjectSource, {
+        eventName: event.name,
+      });
+
+      let textTemplatePath: TemplatePath;
+      let htmlTemplatePath: TemplatePath;
+
+      if (event.starts === "tomorrow") {
+        textTemplatePath =
+          "mail-templates/event/reminder-one-day-before-text.hbs";
+        htmlTemplatePath =
+          "mail-templates/event/reminder-one-day-before-html.hbs";
+      } else if (event.starts === "inOneHour") {
+        textTemplatePath =
+          "mail-templates/event/reminder-one-hour-before-text.hbs";
+        htmlTemplatePath =
+          "mail-templates/event/reminder-one-hour-before-html.hbs";
+      } else {
+        textTemplatePath =
+          "mail-templates/event/reminder-fifteen-minutes-before-text.hbs";
+        htmlTemplatePath =
+          "mail-templates/event/reminder-fifteen-minutes-before-html.hbs";
+      }
+
+      for (const profile of receiver) {
+        const zonedStartTime = utcToZonedTime(event.startTime, "Europe/Berlin");
+        const content = {
+          headline: subject,
+          profile,
+          event: {
+            name: event.name,
+            url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail`,
+            startDate: zonedStartTime.toLocaleDateString("de-DE", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            }),
+            startTime: zonedStartTime.toLocaleTimeString("de-DE", {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            timezone: "MEZ",
+            location: getVenueString(event),
+            conferenceLink: event.conferenceLink,
+            revocationLink: null as string | null,
+          },
+        };
+
+        if (profile.isGuest && profile.revocationToken !== null) {
+          const revocationLink = `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?type=revoke&confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?type=revoke&token_hash=${profile.revocationToken}&confirmation_redirect=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail`)}`)}`;
+          content.event.revocationLink = revocationLink;
+        }
+
+        const text = await getCompiledMailTemplate(
+          textTemplatePath,
+          content,
+          "text"
+        );
+        const html = await getCompiledMailTemplate(
+          htmlTemplatePath,
+          content,
+          "html"
+        );
+        await scheduleMail({
+          eventId: event.id,
+          recipient: profile.email,
+          subject,
+          plainText: text,
+          html,
+          scheduledFor: now, // send immediately
+        });
+      }
+
+      // hybrid events and events without a stage should be reminded three times, on site and online events only twice
+      let reminderState: "firstScheduled" | "secondScheduled" | "lastScheduled";
+      if (event.starts === "tomorrow") {
+        reminderState = "firstScheduled";
+      } else if (event.starts === "inOneHour") {
+        if (
+          event.stage === null ||
+          (event.stage !== null && event.stage.slug === "hybrid")
+        ) {
+          reminderState = "secondScheduled";
+        } else {
+          reminderState = "lastScheduled";
+        }
+      } else {
+        reminderState = "lastScheduled";
+      }
+
+      await prismaClient.event.update({
+        where: { id: event.id },
+        data: { reminderState },
+      });
+    }
+  } catch (error) {
+    captureException(error);
+  }
+
+  // Fetch all event transactions that are scheduled for now or earlier and are not already sent or aborted
   try {
     const eventTransactions = await prismaClient.eventTransaction.findMany({
       where: {
