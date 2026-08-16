@@ -4,6 +4,7 @@ import { getCompiledMailTemplate } from "./mailer.server";
 import { insertParametersIntoLocale } from "./lib/utils/i18n";
 import { scheduleMail } from "./mailer-queue.server";
 import { getVenueString } from "./utils.shared";
+import { utcToZonedTime } from "date-fns-tz";
 
 export type ParticipantIdentifier =
   | { type: "user"; profileId: string }
@@ -774,6 +775,8 @@ export async function removeParticipantFromEvent(options: {
           }
         );
 
+        const zonedStartTime = utcToZonedTime(event.startTime, "Europe/Berlin");
+
         const content = {
           headline: subject,
           profile: {
@@ -784,12 +787,12 @@ export async function removeParticipantFromEvent(options: {
           event: {
             name: event.name,
             url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail`,
-            startDate: event.startTime.toLocaleDateString("de-DE", {
+            startDate: zonedStartTime.toLocaleDateString("de-DE", {
               day: "2-digit",
               month: "2-digit",
               year: "numeric",
             }),
-            startTime: event.startTime.toLocaleTimeString("de-DE", {
+            startTime: zonedStartTime.toLocaleTimeString("de-DE", {
               hour: "2-digit",
               minute: "2-digit",
             }),

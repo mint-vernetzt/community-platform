@@ -12,6 +12,7 @@ import { prismaClient } from "./prisma.server";
 import { insertParametersIntoLocale } from "./lib/utils/i18n";
 import { languageModuleMap } from "./locales/.server";
 import { getVenueString } from "./utils.shared";
+import { utcToZonedTime } from "date-fns-tz";
 
 declare global {
   var __taskTimer: TaskTimer | undefined;
@@ -248,18 +249,19 @@ async function onTick() {
       }
 
       for (const profile of receiver) {
+        const zonedStartTime = utcToZonedTime(event.startTime, "Europe/Berlin");
         const content = {
           headline: subject,
           profile,
           event: {
             name: event.name,
             url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail`,
-            startDate: event.startTime.toLocaleDateString("de-DE", {
+            startDate: zonedStartTime.toLocaleDateString("de-DE", {
               day: "2-digit",
               month: "2-digit",
               year: "numeric",
             }),
-            startTime: event.startTime.toLocaleTimeString("de-DE", {
+            startTime: zonedStartTime.toLocaleTimeString("de-DE", {
               hour: "2-digit",
               minute: "2-digit",
             }),

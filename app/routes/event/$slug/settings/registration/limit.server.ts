@@ -1,4 +1,5 @@
 import { captureException } from "@sentry/node";
+import { utcToZonedTime } from "date-fns-tz";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { scheduleMail } from "~/mailer-queue.server";
 import { getCompiledMailTemplate } from "~/mailer.server";
@@ -200,12 +201,13 @@ export async function updateEventById(options: {
         "mail-templates/event/profile-or-guest-moved-up-to-participants-html.hbs";
 
       const url = `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail`;
-      const startDate = event.startTime.toLocaleDateString("de-DE", {
+      const zonedStartTime = utcToZonedTime(event.startTime, "Europe/Berlin");
+      const startDate = zonedStartTime.toLocaleDateString("de-DE", {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
       });
-      const startTime = event.startTime.toLocaleTimeString("de-DE", {
+      const startTime = zonedStartTime.toLocaleTimeString("de-DE", {
         hour: "2-digit",
         minute: "2-digit",
       });
