@@ -852,7 +852,6 @@ function Detail() {
           {loaderData.afterParticipationPeriod &&
             loaderData.inPast === false &&
             loaderData.event.external === false &&
-            loaderData.event.openForRegistration &&
             (loaderData.event._count.childEvents === 0 ||
               loaderData.event.parentParticipationRequired) &&
             (loaderData.event.parentEvent === null ||
