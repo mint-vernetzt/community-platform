@@ -14,6 +14,7 @@ export async function sendFirstMail(profile: Recipient) {
   const htmlTemplatePath = "mail-templates/inactivity/first-html.hbs";
 
   const content = {
+    headline: "Wir vermissen Dich in der Community",
     firstName: profile.firstName,
     button: {
       url: process.env.COMMUNITY_BASE_URL,
@@ -37,7 +38,7 @@ export async function sendFirstMail(profile: Recipient) {
       mailerOptions,
       process.env.SYSTEM_MAIL_SENDER,
       profile.email,
-      "Wir vermissen Dich in der Community",
+      content.headline,
       text,
       html
     );
@@ -54,6 +55,7 @@ export async function sendSecondMail(profile: Recipient) {
   const htmlTemplatePath = "mail-templates/inactivity/second-html.hbs";
 
   const content = {
+    headline: "Möchtest Du Dein Profil behalten?",
     firstName: profile.firstName,
     button: {
       url: process.env.COMMUNITY_BASE_URL,
@@ -77,7 +79,7 @@ export async function sendSecondMail(profile: Recipient) {
       mailerOptions,
       process.env.SYSTEM_MAIL_SENDER,
       profile.email,
-      "Möchtest Du Dein Profil behalten?",
+      content.headline,
       text,
       html
     );
@@ -94,6 +96,7 @@ export async function sendLastMail(profile: Recipient, deletionDate: Date) {
   const htmlTemplatePath = "mail-templates/inactivity/last-html.hbs";
 
   const content = {
+    headline: "Letzte Errinnerung zu Deinem Profil",
     firstName: profile.firstName,
     button: {
       url: process.env.COMMUNITY_BASE_URL,
@@ -118,7 +121,7 @@ export async function sendLastMail(profile: Recipient, deletionDate: Date) {
       mailerOptions,
       process.env.SYSTEM_MAIL_SENDER,
       profile.email,
-      "Letzte Erinnerung zu Deinem Profil",
+      content.headline,
       text,
       html
     );
@@ -135,6 +138,7 @@ export async function sendDeletedMail(profile: Recipient) {
   const htmlTemplatePath = "mail-templates/inactivity/deleted-html.hbs";
 
   const content = {
+    headline: "Dein Account wurde gelöscht",
     firstName: profile.firstName,
     button: {
       url: `${process.env.COMMUNITY_BASE_URL}/register`,
@@ -158,7 +162,7 @@ export async function sendDeletedMail(profile: Recipient) {
       mailerOptions,
       process.env.SYSTEM_MAIL_SENDER,
       profile.email,
-      "Dein Account wurde gelöscht",
+      content.headline,
       text,
       html
     );

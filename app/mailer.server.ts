@@ -106,11 +106,19 @@ type MoveToParticipantsContent = {
 };
 
 type WelcomeContent = {
+  headline: string;
   firstName: string;
   email: string;
+  url: string;
+  supportMail: string;
+  contact: {
+    firstName: string;
+    url: string;
+  };
 };
 
 type InactivityContent = {
+  headline: string;
   firstName: string;
   button: {
     url: string;

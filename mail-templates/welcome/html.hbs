@@ -16,6 +16,25 @@
             <table width="100%" style="vertical-align: top;" role="presentation" cellspacing="0" cellpadding="0"
               border="0">
               <tbody>
+                 <tr>
+                  <td style="font-size: 0px;
+                      padding: 10px 25px;
+                      word-break: break-word;" align="left">
+                    <div style="font-family: Source Sans Pro, Arial;
+                        font-size: 13px;
+                        line-height: 1.6;
+                        text-align: left;
+                        color: #154194;">
+                      <h2 style="font-weight: 600;
+                          margin: 0;
+                          padding: 0;
+                          font-size: 24px;
+                          color: #154194;">
+                        {{headline}}
+                      </h2>
+                    </div>
+                  </td>
+                </tr>
                 <tr>
                   <td style="font-size: 0px;
                       padding: 10px 25px;
@@ -27,35 +46,14 @@
                         text-align: left;
                         color: #333333;">
                       <p>Hallo {{firstName}},<br><br>
-
                         wie schön, dass Du da bist – herzlich willkommen in der <b>MINTvernetzt Community</b>!</p>
-
-                      <p>Mit über 4000 Akteur:innen und mehr als 1000 Initiativen bist Du jetzt Teil eines Netzwerks, in
-                        dem Austausch, Inspiration und Zusammenarbeit im Mittelpunkt stehen.</p>
-
-                      <p>Damit Du Dich schnell zurechtfindest, haben wir ein paar Ideen für Dich:</p>
-
-                      <p><b>Das kannst Du hier direkt entdecken:</b></p>
-
-                      <ul>
-                        <li key="contacts"><b>Finde passende Kontakte</b>: Entdecke andere Akteur:innen, Organisationen
-                          und Projekte, die zu Deiner Arbeit passen.</li>
-                        <li key="search-and-filter"><b>Suche gezielt nach dem, was Du brauchst</b>: Nutze die Suche oder
-                          die Filter, um z. B. nach Themen, Regionen oder Expert:innen zu suchen.</li>
-                        <li key="events"><b>Entdecke Veranstaltungen</b>: Finde spannende Events und erstelle und
-                          verwalte eigene Events.</li>
-                        <li key="projects"><b>Mach Deine Arbeit sichtbar</b>: Teile Deine Projekte und inspiriere andere
-                          mit Deiner Erfahrung.</li>
-                        <li key="fundings"><b>Finde Fördermöglichkeiten</b>: Unsere Fördermittelsuche trägt Förderungen
-                          aus verschiedenen Datenbanken zusammen.</li>
-                        <li key="public-relations"><b>Unterstützung für Deine Öffentlichkeitsarbeit</b>: Nutze die
-                          MINT-Mediendatenbank für kostenfreie Bilder und den MINT-Sharepic-Generator für Deine
-                          Öffentlichkeitsarbeit.</li>
-                      </ul>
-
-                      <p><b>Unser Tipp</b><br>
-                        Nimm Dir ein paar Minuten Zeit und fülle Dein Profil aus. So können Dich andere besser finden –
-                        und Du bekommst passendere Vorschläge.</p>
+                      <p>Hier kannst Du Dich mit anderen MINT-Akteur:innen vernetzen, Ideen für Deine Arbeit finden und Deine eigenen Projekte und Angebote sichtbar machen.</p>
+                      <p><b>Finde passende Kontakte</b><br>Suche nach Akteur:innen und Organisationen – zum Beispiel nach Themen, Kompetenzen oder Orten – und finde Menschen, mit denen Du Dich austauschen kannst.</p>
+                      <p><b>Entdecke Veranstaltungen</b><br>Finde spannende Veranstaltungen aus der MINT-Community. Du kannst auch eigene Veranstaltungen erstellen und verwalten.</p>
+                      <p><b>Lass Dich inspirieren und zeige Deine Arbeit</b><br>Entdecke Projekte anderer MINT-Akteur:innen und teile Deine eigenen. So können andere von Deinen Erfahrungen lernen – und Deine Arbeit wird sichtbarer.</p>
+                      <p><b>Finde passende Fördermöglichkeiten</b><br>Mit der MINTvernetzt Fördermittelsuche findest Du Förderprogramme aus verschiedenen Förderdatenbanken gebündelt an einem Ort.</p>
+                      <p><b>Unterstützung für Deine Öffentlichkeitsarbeit</b><br>In der MINT-Mediendatenbank findest Du kostenfreie Bilder und Grafiken. Mit dem MINT-Sharepic-Generator kannst Du außerdem einfach Grafiken für Deine Öffentlichkeitsarbeit erstellen.</p>
+                      <p><b>Unser Tipp für Deinen Start</b><br>Nimm Dir ein paar Minuten Zeit und ergänze Dein Profil. So sehen andere, was Du machst, was Du suchst und was Du in die Community einbringst. Das macht es leichter, passende Kontakte und Anknüpfungspunkte zu finden.</p>
                     </div>
                   </td>
                 </tr>
@@ -84,8 +82,8 @@
                                 text-transform: none;
                                 padding: 10px 25px;
                                 mso-padding-alt: 0px;
-                                border-radius: 8px;" href="https://community.mint-vernetzt.de/">
-                              Zur Plattform
+                                border-radius: 8px;" href="{{url}}">
+                              MINTvernetzt Community entdecken
                             </a>
                           </td>
                         </tr>
@@ -103,11 +101,10 @@
                         line-height: 1.6;
                         text-align: left;
                         color: #333333;">
-                      <p>Wenn Du Fragen hast, findest Du viele Antworten im <a
-                          href="https://community.mint-vernetzt.de/help">Hilfebereich</a> oder schreib uns einfach: <a
-                          href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a></p>
+                        <p>Du hast eine Frage? Viele Antworten findest Du im Hilfebereich. Oder schreib uns einfach an <a
+                          href="mailto:{{supportMail}}">{{supportMail}}</a>. Wir helfen Dir gern weiter.</p>
 
-                      <p>Herzliche Grüße<br><a href="https://community.mint-vernetzt.de/profile/ingaleffers">Inga</a>
+                      <p>Herzliche Grüße<br><a href="{{supportContact.url}}">{{supportContact.firstName}}</a>
                         vom MINTvernetzt-Team</p>
                     </div>
                   </td>
