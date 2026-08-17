@@ -41,6 +41,8 @@ const schema = z.object({
   SENTRY_AUTH_TOKEN: z.string().optional(),
   TRIGGER_SENTRY_RELEASE: z.enum(["true"] as const).optional(),
   SUPPORT_MAIL: z.string(),
+  CONTACT_PERSON_FIRST_NAME: z.string(),
+  CONTACT_PERSON_URL: z.string(),
   GUEST_SECRET: z.string(),
   GUEST_SALT: z.string(),
   PARTICIPATION_SECRET: z.string(),

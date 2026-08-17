@@ -66,14 +66,26 @@ export async function sendWelcomeMail(options: {
   const textTemplatePath = "mail-templates/welcome/text.hbs";
   const htmlTemplatePath = "mail-templates/welcome/html.hbs";
 
+  const content = {
+    headline: subject,
+    firstName: profile.firstName,
+    email: profile.email,
+    url: process.env.COMMUNITY_BASE_URL,
+    supportMail: process.env.SUPPORT_MAIL,
+    contact: {
+      firstName: process.env.CONTACT_PERSON_FIRST_NAME,
+      url: process.env.CONTACT_PERSON_URL,
+    },
+  };
+
   const text = getCompiledMailTemplate<typeof textTemplatePath>(
     textTemplatePath,
-    profile,
+    content,
     "text"
   );
   const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
     htmlTemplatePath,
-    profile,
+    content,
     "html"
   );
   await mailer(mailerOptions, sender, recipient, subject, text, html);
