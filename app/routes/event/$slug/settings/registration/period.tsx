@@ -228,16 +228,21 @@ function RegistrationPeriod() {
   const navigation = useNavigation();
 
   const [isDefault, setIsDefault] = useState(
-    event.participationFrom.getDate() === event.createdAt.getDate() &&
-      event.participationUntil.getDate() === event.startTime.getDate()
+    event.participationFrom.getTime() === event.createdAt.getTime() &&
+      event.participationUntil.getTime() === event.startTime.getTime()
   );
 
   useEffect(() => {
     if (navigation.state === "idle") {
-      setIsDefault(
-        searchParams.get(REGISTRATION_PERIOD_SEARCH_PARAM) !==
-          REGISTRATION_PERIOD_CUSTOM
+      const registrationSearchParamValue = searchParams.get(
+        REGISTRATION_PERIOD_SEARCH_PARAM
       );
+      if (registrationSearchParamValue !== null) {
+        setIsDefault(
+          searchParams.get(REGISTRATION_PERIOD_SEARCH_PARAM) !==
+            REGISTRATION_PERIOD_CUSTOM
+        );
+      }
     }
   }, [navigation.state, searchParams]);
 
