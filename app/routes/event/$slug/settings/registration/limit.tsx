@@ -89,7 +89,6 @@ export async function loader(args: LoaderFunctionArgs) {
 
   if (
     event.external ||
-    event.openForRegistration === false ||
     (event._count.childEvents > 0 &&
       event.parentParticipationRequired === false)
   ) {
