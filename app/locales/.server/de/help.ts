@@ -148,13 +148,13 @@ export const locale = {
         },
         filterOrganizationsByFocus: {
           question:
-            "Was bedeutet “Arbeitsschwerpunkte” und welche Auswahlmöglichkeiten gibt es?",
+            "Was bedeutet “Schwerpunkte” und welche Auswahlmöglichkeiten gibt es?",
           answer:
-            "<p>“Arbeitsschwerpunkte” beschreibt, zu welchen Themen eine Organisation arbeitet – z.B. Diversität, frühkindliche Bildung, Bildung für nachhaltige Entwicklung, Berufsorientierung und viele weitere.</p>",
+            "<p>“Schwerpunkte” beschreibt, zu welchen Themen eine Organisation arbeitet – z.B. Diversität, frühkindliche Bildung, Bildung für nachhaltige Entwicklung, Berufsorientierung und viele weitere.</p>",
         },
         filterOrganizationsByMultipleCriteria: {
           question:
-            "Kann ich nach mehreren Kriterien gleichzeitig filtern (z.B. Organisationsform und Arbeitsschwerpunkt)?",
+            "Kann ich nach mehreren Kriterien gleichzeitig filtern (z.B. Organisationsform und Schwerpunkt)?",
           answer:
             "<p>Ja. Die Liste bzw. Karte zeigt Dir dann nur Organisationen an, die <i>alle</i> ausgewählten Kriterien erfüllen.</p>",
         },
@@ -222,7 +222,7 @@ export const locale = {
           question:
             "Wie kann ich meine eigene Organisation auf der Karte sichtbar machen?",
           answer:
-            "<p>Lege auf der Plattform ein Organisationsprofil an oder bearbeite Dein bestehendes Profil. Gib dabei die Adresse, das Aktivitätsgebiet, die Organisationsform, Netzwerkform(en) und Arbeitsschwerpunkte an. Sobald die Angaben gespeichert sind, erscheint Deine Organisation automatisch auf der Karte. Am wichtigsten ist die Information zur Adresse um auf der Kartenansicht zu erscheinen.</p>",
+            "<p>Lege auf der Plattform ein Organisationsprofil an oder bearbeite Dein bestehendes Profil. Gib dabei die Adresse, das Aktivitätsgebiet, die Organisationsform, Netzwerkform(en) und Schwerpunkte an. Sobald die Angaben gespeichert sind, erscheint Deine Organisation automatisch auf der Karte. Am wichtigsten ist die Information zur Adresse um auf der Kartenansicht zu erscheinen.</p>",
         },
         currentnessOfData: {
           question: "Wie aktuell sind die Daten auf der Karte?",

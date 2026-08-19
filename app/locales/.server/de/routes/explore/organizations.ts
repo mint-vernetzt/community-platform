@@ -5,7 +5,7 @@ export const locale = {
     showMore: "Mehr anzeigen",
     showLess: "Weniger anzeigen",
     types: "Organisationsform",
-    focuses: "Arbeitsschwerpunkte",
+    focuses: "Schwerpunkte",
     areas: "Aktivitätsgebiet",
     networkTypes: "Netzwerkform",
     network: "Netzwerk",

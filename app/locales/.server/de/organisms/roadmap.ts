@@ -51,7 +51,7 @@ export const locale = {
     map: {
       title: "MINT-Community Karte",
       description:
-        "Die MINT-Community Karte zeigt Dir auf einen Blick, welche Organisationen im MINT-Bereich aktiv sind. Du kannst gezielt nach Region, Organisationsform, Netzwerkzugehörigkeit und Arbeitsschwerpunkt filtern.",
+        "Die MINT-Community Karte zeigt Dir auf einen Blick, welche Organisationen im MINT-Bereich aktiv sind. Du kannst gezielt nach Region, Organisationsform, Netzwerkzugehörigkeit und Schwerpunkt filtern.",
     },
     accessibility: {
       title: "Barrierefreiheit",
