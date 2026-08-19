@@ -6,7 +6,7 @@ export const locale = {
     showLess: "Show less",
     networkTypes: "Network type",
     types: "Organizational form",
-    focuses: "Focus of work",
+    focuses: "Focuses",
     areas: "Area of activity",
     network: "Network",
     networkSearchPlaceholder: "Search by network...",

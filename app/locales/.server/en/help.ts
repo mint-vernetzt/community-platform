@@ -142,14 +142,13 @@ export const locale = {
             "<p>You can filter by the following network types: Alliance, MINT-Cluster, MINT-Region, State Initiative, or Other Network.</p>",
         },
         filterOrganizationsByFocus: {
-          question:
-            "What does “Focus of work” mean and what options are available?",
+          question: "What does “Focuses” mean and what options are available?",
           answer:
-            "<p>“Focus of work” describes the topics an organization works on – e.g. diversity, early childhood education, education for sustainable development, career orientation, and many more.</p>",
+            "<p>“Focuses” describes the topics an organization works on – e.g. diversity, early childhood education, education for sustainable development, career orientation, and many more.</p>",
         },
         filterOrganizationsByMultipleCriteria: {
           question:
-            "Can I filter by multiple criteria at the same time (e.g. organizational form and focus of work)?",
+            "Can I filter by multiple criteria at the same time (e.g. organizational form and focuses)?",
           answer:
             "<p>Yes. The list or map will only show you organizations that meet <i>all</i> selected criteria.</p>",
         },
@@ -214,7 +213,7 @@ export const locale = {
         showOwnOrganizationOnMap: {
           question: "How can I make my own organization visible on the map?",
           answer:
-            "<p>To make your organization visible on the map, create an organization profile on the platform or edit your existing profile. Provide the address, areas of activity, organization type, network type(s), and focus of work. Once the information is saved, your organization will automatically appear on the map. The most important information is the address, which will appear on the map view.</p>",
+            "<p>To make your organization visible on the map, create an organization profile on the platform or edit your existing profile. Provide the address, areas of activity, organization type, network type(s), and focuses. Once the information is saved, your organization will automatically appear on the map. The most important information is the address, which will appear on the map view.</p>",
         },
         currentnessOfData: {
           question: "How current is the data on the map?",
