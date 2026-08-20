@@ -5,6 +5,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getIsMember } from "./detail.server";
 import { createIcsString, getEventBySlug } from "./ics-download.server";
+import { getIsParticipant } from "./utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -17,6 +18,7 @@ export async function loader(args: LoaderFunctionArgs) {
   invariantResponse(event, "Event not found", { status: 404 });
 
   const isMember = await getIsMember(sessionUser, event);
+  const isParticipant = await getIsParticipant(event.id, sessionUser?.id);
 
   if (event.published === false) {
     invariantResponse(isMember, "Forbidden", { status: 403 });
@@ -25,7 +27,11 @@ export async function loader(args: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const absoluteEventURL =
     url.protocol + "//" + url.host + `/event/${event.slug}/detail/about`;
-  const ics = createIcsString(event, absoluteEventURL, isMember);
+  const ics = createIcsString({
+    event,
+    absoluteEventUrl: absoluteEventURL,
+    hasAccessToConferenceLink: isMember || isParticipant,
+  });
   const filename = escapeFilenameSpecialChars(event.name + ".ics");
 
   // TODO: Check for missing headers
