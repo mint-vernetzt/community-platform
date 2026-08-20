@@ -41,7 +41,7 @@ export async function getEventBySlug(slug: string) {
 
 // TODO: Add organizer to the ics file (see #432)
 // see https://www.npmjs.com/package/ics
-export function createIcsString(
+export function createIcsString(options: {
   event: Pick<
     Event,
     | "id"
@@ -58,15 +58,17 @@ export function createIcsString(
     | "venueZipCode"
     | "conferenceLink"
     | "conferenceCode"
-  > & { tags: Array<{ tag: { title: string } }> },
-  absoluteEventUrl: string,
-  isMember: boolean
-) {
+  > & { tags: Array<{ tag: { title: string } }> };
+  absoluteEventUrl: string;
+  hasAccessToConferenceLink: boolean;
+}) {
+  const { event, absoluteEventUrl, hasAccessToConferenceLink } = options;
+
   const location: string[] = [];
-  if (event.conferenceLink && isMember) {
+  if (event.conferenceLink && hasAccessToConferenceLink) {
     location.push(`Konferenzlink: ${event.conferenceLink}`);
   }
-  if (event.conferenceCode && isMember) {
+  if (event.conferenceCode && hasAccessToConferenceLink) {
     location.push(`Zugangscode zur Konferenz: ${event.conferenceCode}`);
   }
   if (
