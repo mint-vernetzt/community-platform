@@ -213,9 +213,7 @@ export function MapView(props: {
           ? event.duplicate_count
           : typeof event.features !== "undefined"
             ? (event.features[0].properties.duplicate_count as
-                | number
-                | null
-                | undefined)
+                number | null | undefined)
             : null;
       if (typeof duplicateCount === "undefined" || duplicateCount === null) {
         return;
@@ -333,6 +331,8 @@ export function MapView(props: {
     ) {
       lastOrgsRef.current = organizations;
 
+      // TODO: Fix this assertions -> Check for type support in maplibregl
+      // @ts-ignore
       const geoJSON: GeoJSON.FeatureCollection = {
         type: "FeatureCollection",
         features: [],
@@ -408,6 +408,8 @@ export function MapView(props: {
             const currentZoom = mapRef.current.getZoom();
             const duration = ((zoom - currentZoom) * 4000) / zoom;
             mapRef.current.flyTo({
+              // TODO: Fix this assertions -> Check for type support in maplibregl
+              // @ts-ignore
               center: (features[0].geometry as GeoJSON.Point).coordinates as [
                 number,
                 number,
@@ -434,9 +436,7 @@ export function MapView(props: {
           }
           const feature = event.features[0];
           const commaSeparatedSlugs = feature.properties.id as
-            | string
-            | null
-            | undefined;
+            string | null | undefined;
           if (
             typeof commaSeparatedSlugs === "undefined" ||
             commaSeparatedSlugs === null
@@ -445,9 +445,7 @@ export function MapView(props: {
           }
           const slugs = commaSeparatedSlugs.split(",");
           const duplicateCount = feature.properties.duplicate_count as
-            | number
-            | null
-            | undefined;
+            number | null | undefined;
           if (
             typeof duplicateCount === "undefined" ||
             duplicateCount === null
