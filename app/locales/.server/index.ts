@@ -87,6 +87,7 @@ import { locale as deEventSettingsTeamInvites } from "./de/routes/event/$slug/se
 import { locale as deEventSettingsTimePeriod } from "./de/routes/event/$slug/settings/time-period";
 import { locale as deEventSettingsNotifications } from "./de/routes/event/$slug/settings/notifications";
 import { locale as deEventSettingsNotificationsList } from "./de/routes/event/$slug/settings/notifications/list";
+import { locale as deEventSettingsNotificationsPreview } from "./de/routes/event/$slug/settings/notifications/preview";
 // explore routes
 import { locale as deExplore } from "./de/routes/explore";
 import { locale as deExploreIndex } from "./de/routes/explore/index";
@@ -279,6 +280,7 @@ import { locale as enEventSettingsTeamInvites } from "./en/routes/event/$slug/se
 import { locale as enEventSettingsTimePeriod } from "./en/routes/event/$slug/settings/time-period";
 import { locale as enEventSettingsNotifications } from "./en/routes/event/$slug/settings/notifications";
 import { locale as enEventSettingsNotificationsList } from "./en/routes/event/$slug/settings/notifications/list";
+import { locale as enEventSettingsNotificationsPreview } from "./en/routes/event/$slug/settings/notifications/preview";
 // explore routes
 import { locale as enExplore } from "./en/routes/explore";
 import { locale as enExploreIndex } from "./en/routes/explore/index";
@@ -589,6 +591,9 @@ const de = {
   },
   "event/$slug/settings/notifications/list": {
     route: deEventSettingsNotificationsList,
+  },
+  "event/$slug/settings/notifications/preview": {
+    route: deEventSettingsNotificationsPreview,
   },
   // explore routes
   explore: {
@@ -1087,6 +1092,9 @@ const en = {
   },
   "event/$slug/settings/notifications/list": {
     route: enEventSettingsNotificationsList,
+  },
+  "event/$slug/settings/notifications/preview": {
+    route: enEventSettingsNotificationsPreview,
   },
   // explore routes
   explore: {

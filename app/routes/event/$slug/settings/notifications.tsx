@@ -73,6 +73,20 @@ function Notifications() {
               <TabBar.Item.Title>{locales.route.tabbar.list}</TabBar.Item.Title>
             </Link>
           </TabBar.Item>
+          {pathname.endsWith("/preview") && (
+            <TabBar.Item active={pathname.endsWith("/preview")}>
+              <Link
+                to={`./preview?${Deep}=true`}
+                {...TabBar.getItemElementClasses(pathname.endsWith("/preview"))}
+                preventScrollReset
+                prefetch="intent"
+              >
+                <TabBar.Item.Title>
+                  {locales.route.tabbar.preview}
+                </TabBar.Item.Title>
+              </Link>
+            </TabBar.Item>
+          )}
         </TabBar>
         <Outlet />
       </BasicStructure.Container>

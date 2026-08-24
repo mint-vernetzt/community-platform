@@ -3,6 +3,8 @@ export const locale = {
     title: "Automatic Emails",
     description: "Automatic emails are not editable.",
     list: {
+      close: "Close",
+      preview: "Preview",
       oneDayBefore: {
         title: "Reminder – 1 Day Before",
         description: "Reminds your participants one day before",

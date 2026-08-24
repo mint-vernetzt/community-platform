@@ -332,6 +332,19 @@ type ReminderContent = {
   };
 };
 
+type GeneralContent = {
+  de: {
+    headline: string;
+    body: string;
+    footer: string;
+  };
+  en: {
+    headline: string;
+    body: string;
+    footer: string;
+  };
+};
+
 export type TemplatePath =
   | "mail-templates/standard-message/html.hbs"
   | "mail-templates/standard-message/text.hbs"
@@ -482,7 +495,8 @@ export type TemplatePath =
   | "mail-templates/event/reminder-one-hour-before-html.hbs"
   | "mail-templates/event/reminder-one-hour-before-text.hbs"
   | "mail-templates/event/reminder-fifteen-minutes-before-html.hbs"
-  | "mail-templates/event/reminder-fifteen-minutes-before-text.hbs";
+  | "mail-templates/event/reminder-fifteen-minutes-before-text.hbs"
+  | "mail-templates/event/reminder.hbs";
 
 type TemplateContent<TemplatePath> = TemplatePath extends
   | "mail-templates/standard-message/html.hbs"
@@ -694,7 +708,9 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                                                 | "mail-templates/event/reminder-fifteen-minutes-before-html.hbs"
                                                                 | "mail-templates/event/reminder-fifteen-minutes-before-text.hbs"
                                                             ? ReminderContent
-                                                            : never;
+                                                            : TemplatePath extends "mail-templates/event/reminder.hbs"
+                                                              ? GeneralContent
+                                                              : never;
 
 export function getCompiledMailTemplate<T extends TemplatePath>(
   templatePath: TemplatePath,
