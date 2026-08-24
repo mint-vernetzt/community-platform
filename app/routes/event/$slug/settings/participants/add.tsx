@@ -252,8 +252,8 @@ function ParticipantsAdd() {
             {locales.route.participationLinkHint}
           </Hint>
           <div className="flex items-center justify-between py-3 px-4 bg-neutral-100 rounded-lg">
-            <div className="flex gap-4 items-center">
-              <span>{event.participationLink}</span>
+            <div className="flex gap-4 items-center overflow-hidden">
+              <span className="truncate">{event.participationLink}</span>
             </div>
             <div>
               {participationLinkCopiedToClipboard ? (
