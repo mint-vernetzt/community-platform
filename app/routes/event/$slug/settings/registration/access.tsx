@@ -568,7 +568,9 @@ function RegistrationAccess() {
                   disabled={
                     event.published ||
                     (event.parentEvent !== null &&
-                      event.parentEvent.parentParticipationRequired === false)
+                      event.parentEvent.parentParticipationRequired ===
+                        false) ||
+                    event.openForRegistration === false
                   }
                 >
                   <RadioSubmitButtonSettings.Title>
@@ -585,7 +587,9 @@ function RegistrationAccess() {
                       ? event.parentEvent.parentParticipationRequired === false
                       : event.parentParticipationRequired === false
                   }
-                  disabled={event.published}
+                  disabled={
+                    event.published || event.openForRegistration === false
+                  }
                 >
                   <RadioSubmitButtonSettings.Title>
                     {event.parentEvent !== null
