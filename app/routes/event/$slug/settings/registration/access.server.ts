@@ -69,7 +69,11 @@ export async function updateEventRegistrationAccess(options: {
       external: false,
       externalRegistrationUrl: null,
       parentParticipationRequired:
-        event._count.childEvents > 0 ? openForRegistration : undefined,
+        event._count.childEvents > 0
+          ? openForRegistration
+          : openForRegistration // Participation on closed events should be forced
+            ? null
+            : false,
     };
   }
 
