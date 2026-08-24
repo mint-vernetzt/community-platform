@@ -508,7 +508,6 @@ function RegistrationAccess() {
           </div>
         )}
         {event.external === false &&
-          event.openForRegistration &&
           (event._count.childEvents > 0 || event.parentEvent !== null) && (
             <div className="flex flex-col gap-4">
               <TitleSection>
