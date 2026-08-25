@@ -1,4 +1,4 @@
-{{headline}}
+{{headline.de}}
 
 Hallo {{profile.firstName}},
 
@@ -9,7 +9,7 @@ Du bist für das Event {{event.name}} angemeldet.
 {{/if}}
 
 Link zum Event: {{event.url}}
-Termin: {{event.startDate}}, {{event.startTime}} Uhr ({{event.timezone}})
+Termin: {{event.startDate}}, {{event.startTime}} Uhr ({{event.timezone.de}})
 {{#if event.location}}
 Ort: {{event.location}}
 {{/if}}
@@ -35,3 +35,43 @@ Wir freuen uns auf Dich!
 
 Herzliche Grüße
 Dein MINTvernetzt-Team
+
+---
+
+{{headline.en}}
+
+Hello {{profile.firstName}},
+
+{{#if profile.isOnWaitingList}}
+You are on the waiting list for the event {{event.name}}.
+{{else}}
+You are registered for the event {{event.name}}.
+{{/if}}
+
+Event link: {{event.url}}
+Date: {{event.startDate}}, {{event.startTime}} ({{event.timezone.en}})
+{{#if event.location}}
+Location: {{event.location}}
+{{/if}}
+{{#if event.conferenceLink}}
+Conference link: {{event.conferenceLink}}
+{{/if}}
+
+You can save the event directly to your calendar.
+{{event.icsLink}}
+
+{{#if profile.isOnWaitingList}}
+As soon as a spot becomes available and you move up, you will be notified by email.
+{{else}}
+{{#if profile.isGuest}}
+If your plans change and you can no longer attend, please withdraw your participation using the revocation link, so that others can move up.
+Revocation link: {{event.revocationLink}}
+{{else}}
+If your plans change and you can no longer attend, please withdraw your participation on the community platform, so that others can move up.
+{{/if}}
+{{/if}}
+
+We look forward to seeing you!
+
+Best regards,
+Your MINTvernetzt team

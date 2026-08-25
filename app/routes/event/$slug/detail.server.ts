@@ -517,8 +517,9 @@ export async function addProfileToParticipants(options: {
   eventId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: { de: string; en: string };
     };
+    timezone: { de: string; en: string };
   };
 }) {
   const { profileId, eventId, locales } = options;
@@ -548,6 +549,7 @@ export async function addProfileToParticipants(options: {
             venueZipCode: true,
             venueCity: true,
             conferenceLink: true,
+            participationToken: true,
           },
         },
       },
@@ -572,9 +574,14 @@ export async function addProfileToParticipants(options: {
         }
 
         const recipient = data.profile.email;
-        const subject = insertParametersIntoLocale(locales.mail.subject, {
-          eventName: data.event.name,
-        });
+        const subject = {
+          de: insertParametersIntoLocale(locales.mail.subject.de, {
+            eventName: data.event.name,
+          }),
+          en: insertParametersIntoLocale(locales.mail.subject.en, {
+            eventName: data.event.name,
+          }),
+        };
 
         const zonedStartTime = utcToZonedTime(
           data.event.startTime,
@@ -590,7 +597,7 @@ export async function addProfileToParticipants(options: {
           },
           event: {
             name: data.event.name,
-            url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail`,
+            url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${data.event.participationToken}`, // Add participation token to ensure that guests can participate on child events
             startDate: zonedStartTime.toLocaleDateString("de-DE", {
               day: "2-digit",
               month: "2-digit",
@@ -600,7 +607,7 @@ export async function addProfileToParticipants(options: {
               hour: "2-digit",
               minute: "2-digit",
             }),
-            timezone: "MEZ",
+            timezone: locales.timezone,
             location: getVenueString(data.event),
             icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/ics-download`,
             conferenceLink: data.event.conferenceLink,
@@ -624,7 +631,7 @@ export async function addProfileToParticipants(options: {
         await scheduleMail({
           eventId,
           recipient,
-          subject,
+          subject: `${subject.de} | ${subject.en}`,
           plainText: text,
           html,
         });
@@ -675,8 +682,9 @@ export async function addProfileToWaitingList(options: {
   eventId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: { de: string; en: string };
     };
+    timezone: { de: string; en: string };
   };
 }) {
   const { profileId, eventId, locales } = options;
@@ -706,6 +714,7 @@ export async function addProfileToWaitingList(options: {
             venueZipCode: true,
             venueCity: true,
             conferenceLink: true,
+            participationToken: true,
           },
         },
       },
@@ -732,9 +741,14 @@ export async function addProfileToWaitingList(options: {
         }
 
         const recipient = data.profile.email;
-        const subject = insertParametersIntoLocale(locales.mail.subject, {
-          eventName: data.event.name,
-        });
+        const subject = {
+          de: insertParametersIntoLocale(locales.mail.subject.de, {
+            eventName: data.event.name,
+          }),
+          en: insertParametersIntoLocale(locales.mail.subject.en, {
+            eventName: data.event.name,
+          }),
+        };
 
         const zonedStartTime = utcToZonedTime(
           data.event.startTime,
@@ -750,7 +764,7 @@ export async function addProfileToWaitingList(options: {
           },
           event: {
             name: data.event.name,
-            url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail`,
+            url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${data.event.participationToken}`, // Add participation token to ensure that guests can participate on child events
             startDate: zonedStartTime.toLocaleDateString("de-DE", {
               day: "2-digit",
               month: "2-digit",
@@ -760,7 +774,7 @@ export async function addProfileToWaitingList(options: {
               hour: "2-digit",
               minute: "2-digit",
             }),
-            timezone: "MEZ",
+            timezone: locales.timezone,
             location: getVenueString(data.event),
             icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/ics-download`,
           },
@@ -783,7 +797,7 @@ export async function addProfileToWaitingList(options: {
         await scheduleMail({
           eventId,
           recipient,
-          subject,
+          subject: `${subject.de} | ${subject.en}`,
           plainText: text,
           html,
         });

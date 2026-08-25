@@ -122,4 +122,5 @@ export const locale = {
       },
     },
   },
+  timezone: "MEZ",
 } as const;

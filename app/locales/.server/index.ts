@@ -401,6 +401,7 @@ import { locale as enMeta } from "./en/meta";
  */
 
 const de = {
+  meta: deMeta,
   // root
   root: { route: deMeta, footer: deFooter },
   // auth routes
@@ -899,6 +900,7 @@ const de = {
 } as const;
 
 const en = {
+  meta: enMeta,
   // root
   root: { route: enMeta, footer: enFooter },
   // auth routes

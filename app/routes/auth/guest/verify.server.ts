@@ -1,5 +1,6 @@
 import { captureException } from "@sentry/node";
 import { utcToZonedTime } from "date-fns-tz";
+import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "~/events.shared";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { scheduleMail } from "~/mailer-queue.server";
 import {
@@ -74,8 +75,9 @@ export async function confirmGuest(options: {
   confirmationRedirect: string;
   locales: {
     mail: {
-      addedToWaitingList: { subject: string };
-      addedToParticipants: { subject: string };
+      addedToWaitingList: { subject: { de: string; en: string } };
+      addedToParticipants: { subject: { de: string; en: string } };
+      timezone: { de: string; en: string };
     };
   };
 }) {
@@ -145,6 +147,7 @@ export async function confirmGuest(options: {
           venueZipCode: true,
           venueCity: true,
           conferenceLink: true,
+          participationToken: true,
         },
       },
     },
@@ -162,9 +165,14 @@ export async function confirmGuest(options: {
       ? locales.mail.addedToWaitingList.subject
       : locales.mail.addedToParticipants.subject;
 
-    const subject = insertParametersIntoLocale(subjectSource, {
-      eventName: result.event.name,
-    });
+    const subject = {
+      de: insertParametersIntoLocale(subjectSource.de, {
+        eventName: result.event.name,
+      }),
+      en: insertParametersIntoLocale(subjectSource.en, {
+        eventName: result.event.name,
+      }),
+    };
 
     const zonedStartTime = utcToZonedTime(
       result.event.startTime,
@@ -180,7 +188,7 @@ export async function confirmGuest(options: {
       },
       event: {
         name: result.event.name,
-        url: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/detail`,
+        url: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/detail?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${result.event.participationToken}`, // Add participation token to ensure that guests can participate on child events
         startDate: zonedStartTime.toLocaleDateString("de-DE", {
           day: "2-digit",
           month: "2-digit",
@@ -190,7 +198,7 @@ export async function confirmGuest(options: {
           hour: "2-digit",
           minute: "2-digit",
         }),
-        timezone: "MEZ",
+        timezone: locales.mail.timezone,
         location: getVenueString(result.event),
         icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/ics-download`,
         conferenceLink: result.onWaitingList
@@ -217,7 +225,7 @@ export async function confirmGuest(options: {
     await scheduleMail({
       eventId,
       recipient,
-      subject,
+      subject: `${subject.de} | ${subject.en}`,
       plainText: text,
       html,
     });

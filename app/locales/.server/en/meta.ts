@@ -122,4 +122,5 @@ export const locale = {
       },
     },
   },
+  timezone: "CET",
 } as const;
