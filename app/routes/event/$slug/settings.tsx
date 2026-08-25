@@ -344,7 +344,7 @@ export default function Settings() {
                 }`.trim()}
               </p>
               {event.publishIntended === false ? (
-                <Form method="post" action={location.pathname}>
+                <Form method="post">
                   <input
                     type="hidden"
                     name="location"
