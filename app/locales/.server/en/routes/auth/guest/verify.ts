@@ -2,11 +2,10 @@ export const locale = {
   confirmation: {
     mail: {
       waitingList: {
-        subject:
-          "Du wurdest auf die Warteliste des Events {{eventName}} gesetzt",
+        subject: "You are now on the waiting list for the event {{eventName}}",
       },
       participants: {
-        subject: "Deine Anmeldung zum Event {{eventName}}",
+        subject: "Your registration for the event {{eventName}}",
       },
     },
     success: {

@@ -145,7 +145,18 @@ export async function action(args: ActionFunctionArgs) {
           profileId: sessionUser.id,
           eventId,
           locales: {
-            mail: { subject: locales.route.mail.participate.subject },
+            mail: {
+              subject: {
+                de: languageModuleMap["de"]["event/$slug/detail/child-events"]
+                  .route.mail.participate.subject,
+                en: languageModuleMap["en"]["event/$slug/detail/child-events"]
+                  .route.mail.participate.subject,
+              },
+            },
+            timezone: {
+              de: languageModuleMap["de"]["meta"].timezone,
+              en: languageModuleMap["en"]["meta"].timezone,
+            },
           },
         });
       } else if (intent === "withdrawParticipation") {
@@ -162,7 +173,16 @@ export async function action(args: ActionFunctionArgs) {
           eventId: data.eventId,
           locales: {
             mail: {
-              subject: locales.route.mail.waitingList.subject,
+              subject: {
+                de: languageModuleMap["de"]["event/$slug/detail/child-events"]
+                  .route.mail.waitingList.subject,
+                en: languageModuleMap["en"]["event/$slug/detail/child-events"]
+                  .route.mail.waitingList.subject,
+              },
+            },
+            timezone: {
+              de: languageModuleMap["de"]["meta"].timezone,
+              en: languageModuleMap["en"]["meta"].timezone,
             },
           },
         });

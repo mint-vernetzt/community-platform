@@ -266,7 +266,10 @@ type GuestsContent = {
 };
 
 type ProfileOrGuestAddedToParticipantsOrWaitingListContent = {
-  headline: string;
+  headline: {
+    de: string;
+    en: string;
+  };
   profile: {
     firstName: string;
     isGuest: boolean;
@@ -277,7 +280,10 @@ type ProfileOrGuestAddedToParticipantsOrWaitingListContent = {
     url: string;
     startDate: string;
     startTime: string;
-    timezone: string;
+    timezone: {
+      de: string;
+      en: string;
+    };
     location?: string;
     conferenceLink?: string | null;
     icsLink: string;

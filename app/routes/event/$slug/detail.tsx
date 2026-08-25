@@ -673,7 +673,18 @@ export async function action(args: ActionFunctionArgs) {
             profileId: sessionUser.id,
             eventId,
             locales: {
-              mail: { subject: locales.route.mail.participate.subject },
+              mail: {
+                subject: {
+                  de: languageModuleMap["de"]["event/$slug/detail"].route.mail
+                    .participate.subject,
+                  en: languageModuleMap["en"]["event/$slug/detail"].route.mail
+                    .participate.subject,
+                },
+              },
+              timezone: {
+                de: languageModuleMap["de"]["meta"].timezone,
+                en: languageModuleMap["en"]["meta"].timezone,
+              },
             },
           });
         } else if (
@@ -692,7 +703,18 @@ export async function action(args: ActionFunctionArgs) {
             profileId: sessionUser.id,
             eventId,
             locales: {
-              mail: { subject: locales.route.mail.waitingList.subject },
+              mail: {
+                subject: {
+                  de: languageModuleMap["de"]["event/$slug/detail"].route.mail
+                    .waitingList.subject,
+                  en: languageModuleMap["en"]["event/$slug/detail"].route.mail
+                    .waitingList.subject,
+                },
+              },
+              timezone: {
+                de: languageModuleMap["de"]["meta"].timezone,
+                en: languageModuleMap["en"]["meta"].timezone,
+              },
             },
           });
         } else if (intent === LEAVE_WAITING_LIST_INTENT && mode === "waiting") {

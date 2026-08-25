@@ -97,10 +97,24 @@ export async function loader(args: LoaderFunctionArgs) {
     locales: {
       mail: {
         addedToWaitingList: {
-          subject: locales.confirmation.mail.waitingList.subject,
+          subject: {
+            de: languageModuleMap["de"]["auth/guest/verify"].confirmation.mail
+              .waitingList.subject,
+            en: languageModuleMap["en"]["auth/guest/verify"].confirmation.mail
+              .waitingList.subject,
+          },
         },
         addedToParticipants: {
-          subject: locales.confirmation.mail.participants.subject,
+          subject: {
+            de: languageModuleMap["de"]["auth/guest/verify"].confirmation.mail
+              .participants.subject,
+            en: languageModuleMap["en"]["auth/guest/verify"].confirmation.mail
+              .participants.subject,
+          },
+        },
+        timezone: {
+          de: languageModuleMap["de"]["meta"].timezone,
+          en: languageModuleMap["en"]["meta"].timezone,
         },
       },
     },
