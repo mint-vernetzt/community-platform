@@ -229,7 +229,8 @@ export const locale = {
         "Deine E-Mail-Adresse wurde benutzt, um sich als Gast an einem Event anzumelden.",
     },
     guestAlreadyExists: {
-      subject: "Du bist bereits als Gast für das Event angemeldet.",
+      subject:
+        "You are already registered as a guest for the event {{eventName}}",
     },
     confirmRegistration: {
       subject: "Please confirm your registration for the event {{eventName}}",

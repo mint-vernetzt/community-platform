@@ -482,6 +482,14 @@ export async function action(args: ActionFunctionArgs) {
         locales: {
           mail: {
             ...locales.route.mail,
+            guestAlreadyExists: {
+              subject: {
+                de: languageModuleMap["de"]["event/$slug/detail"].route.mail
+                  .guestAlreadyExists.subject,
+                en: languageModuleMap["en"]["event/$slug/detail"].route.mail
+                  .guestAlreadyExists.subject,
+              },
+            },
             confirmRegistration: {
               subject: {
                 de: languageModuleMap["de"]["event/$slug/detail"].route.mail

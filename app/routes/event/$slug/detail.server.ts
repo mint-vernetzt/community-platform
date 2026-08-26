@@ -1412,7 +1412,7 @@ export async function addGuestToEvent(options: {
         subject: string;
       };
       guestAlreadyExists: {
-        subject: string;
+        subject: { de: string; en: string };
       };
       confirmRegistration: {
         subject: { de: string; en: string };
@@ -1501,7 +1501,6 @@ export async function addGuestToEvent(options: {
     try {
       const sender = process.env.SYSTEM_MAIL_SENDER;
       const recipient = guest.email;
-      const subject = options.locales.mail.guestAlreadyExists.subject;
       const textTemplatePath =
         "mail-templates/guests/guest-already-exists-text.hbs";
       const htmlTemplatePath =
@@ -1513,22 +1512,34 @@ export async function addGuestToEvent(options: {
       );
       const confirmationRedirectWithoutParams = `${confirmationRedirectUrl.origin}${confirmationRedirectUrl.pathname}`;
 
-      const data = {
+      const content = {
+        headline: {
+          de: insertParametersIntoLocale(
+            locales.mail.guestAlreadyExists.subject.de,
+            { eventName: event.name }
+          ),
+          en: insertParametersIntoLocale(
+            locales.mail.guestAlreadyExists.subject.en,
+            { eventName: event.name }
+          ),
+        },
         firstName: existingGuest.firstName,
-        eventName: event.name,
-        buttonUrl: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?type=revoke&confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?type=revoke&token_hash=${existingGuest.revocationToken}&confirmation_redirect=${encodeURIComponent(confirmationRedirectWithoutParams)}`)}`,
+        event: { name: event.name },
+        url: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?type=revoke&confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?type=revoke&token_hash=${existingGuest.revocationToken}&confirmation_redirect=${encodeURIComponent(confirmationRedirectWithoutParams)}`)}`,
       };
 
       const text = getCompiledMailTemplate<typeof textTemplatePath>(
         textTemplatePath,
-        data,
+        content,
         "text"
       );
       const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
         htmlTemplatePath,
-        data,
+        content,
         "html"
       );
+
+      const subject = `${content.headline.de} | ${content.headline.en}`;
 
       await mailer(mailerOptions, sender, recipient, subject, text, html);
     } catch (error) {
