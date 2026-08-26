@@ -2,6 +2,7 @@ import { captureException } from "@sentry/node";
 import { utcToZonedTime } from "date-fns-tz";
 import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "~/events.shared";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { getDuration } from "~/lib/utils/time";
 import { scheduleMail } from "~/mailer-queue.server";
 import {
   getCompiledMailTemplate,
@@ -179,6 +180,11 @@ export async function confirmGuest(options: {
       "Europe/Berlin"
     );
 
+    const date = {
+      de: getDuration(zonedStartTime, zonedStartTime, "de"),
+      en: getDuration(zonedStartTime, zonedStartTime, "en"),
+    };
+
     const content = {
       headline: subject,
       profile: {
@@ -189,16 +195,7 @@ export async function confirmGuest(options: {
       event: {
         name: result.event.name,
         url: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/detail?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${result.event.participationToken}`, // Add participation token to ensure that guests can participate on child events
-        startDate: zonedStartTime.toLocaleDateString("de-DE", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        }),
-        startTime: zonedStartTime.toLocaleTimeString("de-DE", {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        timezone: locales.mail.timezone,
+        date,
         location: getVenueString(result.event),
         icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/ics-download`,
         conferenceLink: result.onWaitingList

@@ -278,9 +278,7 @@ type ProfileOrGuestAddedToParticipantsOrWaitingListContent = {
   event: {
     name: string;
     url: string;
-    startDate: string;
-    startTime: string;
-    timezone: {
+    date: {
       de: string;
       en: string;
     };

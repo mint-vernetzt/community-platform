@@ -1,6 +1,7 @@
 import { parseWithZod } from "@conform-to/zod";
 import { captureException } from "@sentry/node";
 import { type SupabaseClient, type User } from "@supabase/supabase-js";
+import { utcToZonedTime } from "date-fns-tz";
 import { z } from "zod";
 import {
   getReporter,
@@ -14,6 +15,8 @@ import { removeParticipantFromEvent } from "~/events.server";
 import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "~/events.shared";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { getDuration } from "~/lib/utils/time";
+import { scheduleMail } from "~/mailer-queue.server";
 import {
   getCompiledMailTemplate,
   mailer,
@@ -24,10 +27,8 @@ import { filterProfileByVisibility } from "~/public-fields-filtering.server";
 import { getPublicURL, uploadFileToStorage } from "~/storage.server";
 import { FILE_FIELD_NAME } from "~/storage.shared";
 import { generateValidationToken } from "~/utils.server";
-import { PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM } from "./details.shared";
-import { scheduleMail } from "~/mailer-queue.server";
 import { getVenueString } from "~/utils.shared";
-import { utcToZonedTime } from "date-fns-tz";
+import { PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM } from "./details.shared";
 
 export async function getEventBySlug(
   sessionUser: { id: string } | null,
@@ -543,6 +544,7 @@ export async function addProfileToParticipants(options: {
             name: true,
             slug: true,
             startTime: true,
+            endTime: true,
             venueName: true,
             venueStreet: true,
             venueStreetNumber: true,
@@ -587,6 +589,15 @@ export async function addProfileToParticipants(options: {
           data.event.startTime,
           "Europe/Berlin"
         );
+        const zonedEndTime = utcToZonedTime(
+          data.event.endTime,
+          "Europe/Berlin"
+        );
+
+        const date = {
+          de: getDuration(zonedStartTime, zonedEndTime, "de"),
+          en: getDuration(zonedStartTime, zonedEndTime, "en"),
+        };
 
         const content = {
           headline: subject,
@@ -598,16 +609,7 @@ export async function addProfileToParticipants(options: {
           event: {
             name: data.event.name,
             url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${data.event.participationToken}`, // Add participation token to ensure that guests can participate on child events
-            startDate: zonedStartTime.toLocaleDateString("de-DE", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-            }),
-            startTime: zonedStartTime.toLocaleTimeString("de-DE", {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-            timezone: locales.timezone,
+            date,
             location: getVenueString(data.event),
             icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/ics-download`,
             conferenceLink: data.event.conferenceLink,
@@ -708,6 +710,7 @@ export async function addProfileToWaitingList(options: {
             name: true,
             slug: true,
             startTime: true,
+            endTime: true,
             venueName: true,
             venueStreet: true,
             venueStreetNumber: true,
@@ -754,6 +757,15 @@ export async function addProfileToWaitingList(options: {
           data.event.startTime,
           "Europe/Berlin"
         );
+        const zonedEndTime = utcToZonedTime(
+          data.event.endTime,
+          "Europe/Berlin"
+        );
+
+        const date = {
+          de: getDuration(zonedStartTime, zonedEndTime, "de"),
+          en: getDuration(zonedStartTime, zonedEndTime, "en"),
+        };
 
         const content = {
           headline: subject,
@@ -765,16 +777,7 @@ export async function addProfileToWaitingList(options: {
           event: {
             name: data.event.name,
             url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${data.event.participationToken}`, // Add participation token to ensure that guests can participate on child events
-            startDate: zonedStartTime.toLocaleDateString("de-DE", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-            }),
-            startTime: zonedStartTime.toLocaleTimeString("de-DE", {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-            timezone: locales.timezone,
+            date,
             location: getVenueString(data.event),
             icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/ics-download`,
           },

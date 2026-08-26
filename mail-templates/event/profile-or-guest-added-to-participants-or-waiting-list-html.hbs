@@ -110,9 +110,7 @@
                           angemeldet.<br /><br />
                         {{/if}}
                         Termin:
-                        {{event.startDate}},
-                        {{event.startTime}}
-                        Uhr ({{event.timezone}})<br />
+                        {{event.date.de}}<br />
                         {{#if event.location}}
                           Ort:
                           {{event.location}}<br />
@@ -329,9 +327,7 @@
                           .<br /><br />
                         {{/if}}
                         Date:
-                        {{event.startDate}},
-                        {{event.startTime}}
-                        ({{event.timezone}})<br />
+                        {{event.date.en}}<br />
                         {{#if event.location}}
                           Location:
                           {{event.location}}<br />
