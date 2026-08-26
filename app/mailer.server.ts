@@ -106,7 +106,7 @@ type MoveToParticipantsContent = {
 };
 
 type WelcomeContent = {
-  headline: string;
+  headline: { de: string; en: string };
   firstName: string;
   email: string;
   url: string;
