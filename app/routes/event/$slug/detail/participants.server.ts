@@ -68,8 +68,6 @@ export async function getParticipantsOfEvent(options: {
   const guestWhere = {
     event: {
       slug,
-      external: false,
-      openForRegistration: true,
     },
     confirmed: true,
     onWaitingList: false,
