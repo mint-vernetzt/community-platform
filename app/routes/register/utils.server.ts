@@ -55,12 +55,21 @@ export async function createProfile(user: User) {
 
 export async function sendWelcomeMail(options: {
   profile: Pick<Profile, "firstName" | "email">;
-  locales: KeycloakCallbackLocales | VerifyLocales;
+  locales: {
+    mail: {
+      subject: { de: string; en: string };
+    };
+  };
 }) {
   const { profile, locales } = options;
-  const subject = insertParametersIntoLocale(locales.welcomeEmail.subject, {
-    firstName: profile.firstName,
-  });
+  const subject = {
+    de: insertParametersIntoLocale(locales.mail.subject.de, {
+      firstName: profile.firstName,
+    }),
+    en: insertParametersIntoLocale(locales.mail.subject.en, {
+      firstName: profile.firstName,
+    }),
+  };
   const sender = process.env.SYSTEM_MAIL_SENDER;
   const recipient = profile.email;
   const textTemplatePath = "mail-templates/welcome/text.hbs";
@@ -88,5 +97,12 @@ export async function sendWelcomeMail(options: {
     content,
     "html"
   );
-  await mailer(mailerOptions, sender, recipient, subject, text, html);
+  await mailer(
+    mailerOptions,
+    sender,
+    recipient,
+    `${subject.de} | ${subject.en}`,
+    text,
+    html
+  );
 }
