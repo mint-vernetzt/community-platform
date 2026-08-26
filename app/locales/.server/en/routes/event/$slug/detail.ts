@@ -225,8 +225,7 @@ export const locale = {
         "Du wurdest von den Teilnehmenden des Events {{eventName}} entfernt",
     },
     profileAlreadyExists: {
-      subject:
-        "Deine E-Mail-Adresse wurde benutzt, um sich als Gast an einem Event anzumelden.",
+      subject: "Your email was used to register as a guest",
     },
     guestAlreadyExists: {
       subject:

@@ -227,7 +227,7 @@ export const locale = {
     },
     profileAlreadyExists: {
       subject:
-        "Deine E-Mail-Adresse wurde benutzt, um sich als Gast an einem Event anzumelden.",
+        "Deine E-Mail-Adresse wurde benutzt, um sich als Gast anzumelden",
     },
     guestAlreadyExists: {
       subject:

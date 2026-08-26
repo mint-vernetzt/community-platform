@@ -265,7 +265,7 @@ type GuestsContent = {
     en: string;
   };
   firstName: string;
-  event: { name: string };
+  eventName: string;
   url: string;
 };
 
@@ -473,10 +473,6 @@ export type TemplatePath =
   | "mail-templates/guests/profile-already-exists-text.hbs"
   | "mail-templates/guests/confirm-registration-html.hbs"
   | "mail-templates/guests/confirm-registration-text.hbs"
-  | "mail-templates/guests/registration-success-html.hbs"
-  | "mail-templates/guests/registration-success-text.hbs"
-  | "mail-templates/guests/registration-waiting-list-success-html.hbs"
-  | "mail-templates/guests/registration-waiting-list-success-text.hbs"
   | "mail-templates/guests/guest-already-exists-html.hbs"
   | "mail-templates/guests/guest-already-exists-text.hbs"
   | "mail-templates/event/profile-or-guest-added-to-participants-or-waiting-list-html.hbs"
@@ -675,10 +671,6 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                                         | "mail-templates/guests/profile-already-exists-text.hbs"
                                                         | "mail-templates/guests/confirm-registration-html.hbs"
                                                         | "mail-templates/guests/confirm-registration-text.hbs"
-                                                        | "mail-templates/guests/registration-success-html.hbs"
-                                                        | "mail-templates/guests/registration-success-text.hbs"
-                                                        | "mail-templates/guests/registration-waiting-list-success-html.hbs"
-                                                        | "mail-templates/guests/registration-waiting-list-success-text.hbs"
                                                         | "mail-templates/guests/guest-already-exists-html.hbs"
                                                         | "mail-templates/guests/guest-already-exists-text.hbs"
                                                     ? GuestsContent

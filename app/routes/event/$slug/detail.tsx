@@ -481,7 +481,14 @@ export async function action(args: ActionFunctionArgs) {
         },
         locales: {
           mail: {
-            ...locales.route.mail,
+            profileAlreadyExists: {
+              subject: {
+                de: languageModuleMap["de"]["event/$slug/detail"].route.mail
+                  .profileAlreadyExists.subject,
+                en: languageModuleMap["en"]["event/$slug/detail"].route.mail
+                  .profileAlreadyExists.subject,
+              },
+            },
             guestAlreadyExists: {
               subject: {
                 de: languageModuleMap["de"]["event/$slug/detail"].route.mail

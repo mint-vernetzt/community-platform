@@ -1409,7 +1409,7 @@ export async function addGuestToEvent(options: {
   locales: {
     mail: {
       profileAlreadyExists: {
-        subject: string;
+        subject: { de: string; en: string };
       };
       guestAlreadyExists: {
         subject: { de: string; en: string };
@@ -1455,28 +1455,30 @@ export async function addGuestToEvent(options: {
     try {
       const sender = process.env.SYSTEM_MAIL_SENDER;
       const recipient = guest.email;
-      const subject = options.locales.mail.profileAlreadyExists.subject;
       const textTemplatePath =
         "mail-templates/guests/profile-already-exists-text.hbs";
       const htmlTemplatePath =
         "mail-templates/guests/profile-already-exists-html.hbs";
 
-      const data = {
+      const content = {
+        headline: locales.mail.profileAlreadyExists.subject,
         firstName: existingProfile.firstName,
         eventName: event.name,
-        buttonUrl: `${process.env.COMMUNITY_BASE_URL}/login?login_redirect=${encodeURIComponent(options.redirectUrl)}`,
+        url: `${process.env.COMMUNITY_BASE_URL}/login?login_redirect=${encodeURIComponent(options.redirectUrl)}`,
       };
 
       const text = getCompiledMailTemplate<typeof textTemplatePath>(
         textTemplatePath,
-        data,
+        content,
         "text"
       );
       const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
         htmlTemplatePath,
-        data,
+        content,
         "html"
       );
+
+      const subject = `${locales.mail.profileAlreadyExists.subject.de} | ${locales.mail.profileAlreadyExists.subject.en}`;
 
       await mailer(mailerOptions, sender, recipient, subject, text, html);
     } catch (error) {
@@ -1524,7 +1526,7 @@ export async function addGuestToEvent(options: {
           ),
         },
         firstName: existingGuest.firstName,
-        event: { name: event.name },
+        eventName: event.name,
         url: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?type=revoke&confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?type=revoke&token_hash=${existingGuest.revocationToken}&confirmation_redirect=${encodeURIComponent(confirmationRedirectWithoutParams)}`)}`,
       };
 
@@ -1646,7 +1648,7 @@ export async function addGuestToEvent(options: {
         ),
       },
       firstName: result.firstName,
-      event: { name: event.name },
+      eventName: event.name,
       url: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?token_hash=${token}&confirmation_redirect=${redirectUrl.toString()}`)}`,
     };
 

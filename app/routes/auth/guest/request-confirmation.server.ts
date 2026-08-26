@@ -1,4 +1,5 @@
 import { captureException } from "@sentry/node";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import {
   getCompiledMailTemplate,
   mailer,
@@ -81,11 +82,17 @@ export async function requestConfirmation(options: {
 
     const content = {
       headline: {
-        de: locales.mail.confirmRegistration.subject.de,
-        en: locales.mail.confirmRegistration.subject.en,
+        de: insertParametersIntoLocale(
+          locales.mail.confirmRegistration.subject.de,
+          { eventName: result.event.name }
+        ),
+        en: insertParametersIntoLocale(
+          locales.mail.confirmRegistration.subject.en,
+          { eventName: result.event.name }
+        ),
       },
       firstName: result.firstName,
-      event: { name: result.event.name },
+      eventName: result.event.name,
       url: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?token_hash=${token}&confirmation_redirect=${confirmationRedirect}`)}`,
     };
 
