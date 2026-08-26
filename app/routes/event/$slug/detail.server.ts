@@ -1409,19 +1409,19 @@ export async function addGuestToEvent(options: {
   locales: {
     mail: {
       profileAlreadyExists: {
-        subject: string;
+        subject: { de: string; en: string };
       };
       guestAlreadyExists: {
-        subject: string;
+        subject: { de: string; en: string };
       };
       confirmRegistration: {
-        subject: string;
+        subject: { de: string; en: string };
       };
     };
   };
   redirectUrl: string;
 }) {
-  const { eventId, guest } = options;
+  const { eventId, guest, locales } = options;
 
   const event = await prismaClient.event.findUnique({
     where: {
@@ -1455,28 +1455,30 @@ export async function addGuestToEvent(options: {
     try {
       const sender = process.env.SYSTEM_MAIL_SENDER;
       const recipient = guest.email;
-      const subject = options.locales.mail.profileAlreadyExists.subject;
       const textTemplatePath =
         "mail-templates/guests/profile-already-exists-text.hbs";
       const htmlTemplatePath =
         "mail-templates/guests/profile-already-exists-html.hbs";
 
-      const data = {
+      const content = {
+        headline: locales.mail.profileAlreadyExists.subject,
         firstName: existingProfile.firstName,
         eventName: event.name,
-        buttonUrl: `${process.env.COMMUNITY_BASE_URL}/login?login_redirect=${encodeURIComponent(options.redirectUrl)}`,
+        url: `${process.env.COMMUNITY_BASE_URL}/login?login_redirect=${encodeURIComponent(options.redirectUrl)}`,
       };
 
       const text = getCompiledMailTemplate<typeof textTemplatePath>(
         textTemplatePath,
-        data,
+        content,
         "text"
       );
       const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
         htmlTemplatePath,
-        data,
+        content,
         "html"
       );
+
+      const subject = `${locales.mail.profileAlreadyExists.subject.de} | ${locales.mail.profileAlreadyExists.subject.en}`;
 
       await mailer(mailerOptions, sender, recipient, subject, text, html);
     } catch (error) {
@@ -1501,7 +1503,6 @@ export async function addGuestToEvent(options: {
     try {
       const sender = process.env.SYSTEM_MAIL_SENDER;
       const recipient = guest.email;
-      const subject = options.locales.mail.guestAlreadyExists.subject;
       const textTemplatePath =
         "mail-templates/guests/guest-already-exists-text.hbs";
       const htmlTemplatePath =
@@ -1513,22 +1514,34 @@ export async function addGuestToEvent(options: {
       );
       const confirmationRedirectWithoutParams = `${confirmationRedirectUrl.origin}${confirmationRedirectUrl.pathname}`;
 
-      const data = {
+      const content = {
+        headline: {
+          de: insertParametersIntoLocale(
+            locales.mail.guestAlreadyExists.subject.de,
+            { eventName: event.name }
+          ),
+          en: insertParametersIntoLocale(
+            locales.mail.guestAlreadyExists.subject.en,
+            { eventName: event.name }
+          ),
+        },
         firstName: existingGuest.firstName,
         eventName: event.name,
-        buttonUrl: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?type=revoke&confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?type=revoke&token_hash=${existingGuest.revocationToken}&confirmation_redirect=${encodeURIComponent(confirmationRedirectWithoutParams)}`)}`,
+        url: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?type=revoke&confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?type=revoke&token_hash=${existingGuest.revocationToken}&confirmation_redirect=${encodeURIComponent(confirmationRedirectWithoutParams)}`)}`,
       };
 
       const text = getCompiledMailTemplate<typeof textTemplatePath>(
         textTemplatePath,
-        data,
+        content,
         "text"
       );
       const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
         htmlTemplatePath,
-        data,
+        content,
         "html"
       );
+
+      const subject = `${content.headline.de} | ${content.headline.en}`;
 
       await mailer(mailerOptions, sender, recipient, subject, text, html);
     } catch (error) {
@@ -1585,7 +1598,6 @@ export async function addGuestToEvent(options: {
   try {
     const sender = process.env.SYSTEM_MAIL_SENDER;
     const recipient = result.email;
-    const subject = options.locales.mail.confirmRegistration.subject;
     const textTemplatePath =
       "mail-templates/guests/confirm-registration-text.hbs";
     const htmlTemplatePath =
@@ -1624,22 +1636,34 @@ export async function addGuestToEvent(options: {
     }
     redirectUrl.search = searchParams.toString();
 
-    const data = {
+    const content = {
+      headline: {
+        de: insertParametersIntoLocale(
+          locales.mail.confirmRegistration.subject.de,
+          { eventName: event.name }
+        ),
+        en: insertParametersIntoLocale(
+          locales.mail.confirmRegistration.subject.en,
+          { eventName: event.name }
+        ),
+      },
       firstName: result.firstName,
       eventName: event.name,
-      buttonUrl: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?token_hash=${token}&confirmation_redirect=${redirectUrl.toString()}`)}`,
+      url: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?token_hash=${token}&confirmation_redirect=${redirectUrl.toString()}`)}`,
     };
 
     const text = getCompiledMailTemplate<typeof textTemplatePath>(
       textTemplatePath,
-      data,
+      content,
       "text"
     );
     const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
       htmlTemplatePath,
-      data,
+      content,
       "html"
     );
+
+    const subject = `${content.headline.de} | ${content.headline.en}`;
 
     await mailer(mailerOptions, sender, recipient, subject, text, html);
   } catch (error) {

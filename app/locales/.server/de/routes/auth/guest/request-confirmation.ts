@@ -13,7 +13,7 @@ export const locale = {
   },
   mail: {
     confirmRegistration: {
-      subject: "Bitte bestätige Deine Anmeldung für das Event",
+      subject: "Bitte bestätige Deine Anmeldung für das Event {{eventName}}",
     },
   },
   errors: {

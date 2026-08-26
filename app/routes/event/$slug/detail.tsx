@@ -480,7 +480,32 @@ export async function action(args: ActionFunctionArgs) {
           organizationName: submission.value.organizationName,
         },
         locales: {
-          mail: locales.route.mail,
+          mail: {
+            profileAlreadyExists: {
+              subject: {
+                de: languageModuleMap["de"]["event/$slug/detail"].route.mail
+                  .profileAlreadyExists.subject,
+                en: languageModuleMap["en"]["event/$slug/detail"].route.mail
+                  .profileAlreadyExists.subject,
+              },
+            },
+            guestAlreadyExists: {
+              subject: {
+                de: languageModuleMap["de"]["event/$slug/detail"].route.mail
+                  .guestAlreadyExists.subject,
+                en: languageModuleMap["en"]["event/$slug/detail"].route.mail
+                  .guestAlreadyExists.subject,
+              },
+            },
+            confirmRegistration: {
+              subject: {
+                de: languageModuleMap["de"]["event/$slug/detail"].route.mail
+                  .confirmRegistration.subject,
+                en: languageModuleMap["en"]["event/$slug/detail"].route.mail
+                  .confirmRegistration.subject,
+              },
+            },
+          },
         },
         redirectUrl: submission.value.redirectTo,
       });

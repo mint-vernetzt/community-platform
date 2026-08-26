@@ -225,14 +225,14 @@ export const locale = {
         "Du wurdest von den Teilnehmenden des Events {{eventName}} entfernt",
     },
     profileAlreadyExists: {
-      subject:
-        "Deine E-Mail-Adresse wurde benutzt, um sich als Gast an einem Event anzumelden.",
+      subject: "Your email was used to register as a guest",
     },
     guestAlreadyExists: {
-      subject: "Du bist bereits als Gast für das Event angemeldet.",
+      subject:
+        "You are already registered as a guest for the event {{eventName}}",
     },
     confirmRegistration: {
-      subject: "Bitte bestätige Deine Anmeldung für das Event",
+      subject: "Please confirm your registration for the event {{eventName}}",
     },
   },
 } as const;

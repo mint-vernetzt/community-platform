@@ -131,7 +131,12 @@ export async function action(args: ActionFunctionArgs) {
       locales: {
         mail: {
           confirmRegistration: {
-            subject: locales.mail.confirmRegistration.subject,
+            subject: {
+              de: languageModuleMap["de"]["auth/guest/request-confirmation"]
+                .mail.confirmRegistration.subject,
+              en: languageModuleMap["en"]["auth/guest/request-confirmation"]
+                .mail.confirmRegistration.subject,
+            },
           },
         },
       },
