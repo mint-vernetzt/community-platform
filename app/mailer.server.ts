@@ -260,9 +260,13 @@ type ChildAndParentEventConnection = {
 };
 
 type GuestsContent = {
+  headline: {
+    de: string;
+    en: string;
+  };
   firstName: string;
-  eventName: string;
-  buttonUrl: string;
+  event: { name: string };
+  url: string;
 };
 
 type ProfileOrGuestAddedToParticipantsOrWaitingListContent = {

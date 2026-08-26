@@ -232,7 +232,7 @@ export const locale = {
       subject: "Du bist bereits als Gast für das Event angemeldet.",
     },
     confirmRegistration: {
-      subject: "Bitte bestätige Deine Anmeldung für das Event",
+      subject: "Please confirm your registration for the event {{eventName}}",
     },
   },
 } as const;

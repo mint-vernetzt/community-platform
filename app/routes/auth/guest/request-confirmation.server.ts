@@ -30,9 +30,11 @@ export async function requestConfirmation(options: {
   eventId: string;
   oldToken: string;
   confirmationRedirect: string;
-  locales: { mail: { confirmRegistration: { subject: string } } };
+  locales: {
+    mail: { confirmRegistration: { subject: { de: string; en: string } } };
+  };
 }) {
-  const { email, confirmationRedirect, eventId, oldToken } = options;
+  const { email, confirmationRedirect, eventId, oldToken, locales } = options;
 
   const data = JSON.stringify({
     eventId,
@@ -72,28 +74,33 @@ export async function requestConfirmation(options: {
   try {
     const sender = process.env.SYSTEM_MAIL_SENDER;
     const recipient = result.email;
-    const subject = options.locales.mail.confirmRegistration.subject;
     const textTemplatePath =
       "mail-templates/guests/confirm-registration-text.hbs";
     const htmlTemplatePath =
       "mail-templates/guests/confirm-registration-html.hbs";
 
-    const data = {
+    const content = {
+      headline: {
+        de: locales.mail.confirmRegistration.subject.de,
+        en: locales.mail.confirmRegistration.subject.en,
+      },
       firstName: result.firstName,
-      eventName: result.event.name,
-      buttonUrl: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?token_hash=${token}&confirmation_redirect=${confirmationRedirect}`)}`,
+      event: { name: result.event.name },
+      url: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?token_hash=${token}&confirmation_redirect=${confirmationRedirect}`)}`,
     };
 
     const text = getCompiledMailTemplate<typeof textTemplatePath>(
       textTemplatePath,
-      data,
+      content,
       "text"
     );
     const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
       htmlTemplatePath,
-      data,
+      content,
       "html"
     );
+
+    const subject = `${content.headline.de} | ${content.headline.en}`;
 
     await mailer(mailerOptions, sender, recipient, subject, text, html);
   } catch (error) {

@@ -1415,13 +1415,13 @@ export async function addGuestToEvent(options: {
         subject: string;
       };
       confirmRegistration: {
-        subject: string;
+        subject: { de: string; en: string };
       };
     };
   };
   redirectUrl: string;
 }) {
-  const { eventId, guest } = options;
+  const { eventId, guest, locales } = options;
 
   const event = await prismaClient.event.findUnique({
     where: {
@@ -1585,7 +1585,6 @@ export async function addGuestToEvent(options: {
   try {
     const sender = process.env.SYSTEM_MAIL_SENDER;
     const recipient = result.email;
-    const subject = options.locales.mail.confirmRegistration.subject;
     const textTemplatePath =
       "mail-templates/guests/confirm-registration-text.hbs";
     const htmlTemplatePath =
@@ -1624,22 +1623,34 @@ export async function addGuestToEvent(options: {
     }
     redirectUrl.search = searchParams.toString();
 
-    const data = {
+    const content = {
+      headline: {
+        de: insertParametersIntoLocale(
+          locales.mail.confirmRegistration.subject.de,
+          { eventName: event.name }
+        ),
+        en: insertParametersIntoLocale(
+          locales.mail.confirmRegistration.subject.en,
+          { eventName: event.name }
+        ),
+      },
       firstName: result.firstName,
-      eventName: event.name,
-      buttonUrl: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?token_hash=${token}&confirmation_redirect=${redirectUrl.toString()}`)}`,
+      event: { name: event.name },
+      url: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?token_hash=${token}&confirmation_redirect=${redirectUrl.toString()}`)}`,
     };
 
     const text = getCompiledMailTemplate<typeof textTemplatePath>(
       textTemplatePath,
-      data,
+      content,
       "text"
     );
     const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
       htmlTemplatePath,
-      data,
+      content,
       "html"
     );
+
+    const subject = `${content.headline.de} | ${content.headline.en}`;
 
     await mailer(mailerOptions, sender, recipient, subject, text, html);
   } catch (error) {
