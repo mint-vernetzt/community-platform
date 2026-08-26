@@ -7,8 +7,6 @@ import {
   mailerOptions,
 } from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
-import { type KeycloakCallbackLocales } from "../auth/keycloak.callback.server";
-import { type VerifyLocales } from "../auth/verify.server";
 
 export async function createProfile(user: User) {
   if (
