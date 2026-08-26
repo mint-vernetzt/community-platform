@@ -775,6 +775,11 @@ function Detail() {
     "Europe/Berlin"
   );
 
+  const guestCanParticipateOnChildEvent =
+    tokenHash !== null &&
+    loaderData.event.parentEvent !== null &&
+    tokenHash === loaderData.event.parentEvent.participationToken;
+
   return (
     <>
       <BasicStructure>
@@ -935,6 +940,7 @@ function Detail() {
               ) : loaderData.event.parentEvent !== null &&
                 loaderData.event.parentParticipationRequired !== false &&
                 loaderData.event.parentEvent.parentParticipationRequired &&
+                guestCanParticipateOnChildEvent === false &&
                 loaderData.event.parentEvent.participants.some(
                   (relation) => relation.profileId === loaderData.profileId
                 ) === false ? (
