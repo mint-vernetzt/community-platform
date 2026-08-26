@@ -78,7 +78,6 @@ export async function confirmGuest(options: {
     mail: {
       addedToWaitingList: { subject: { de: string; en: string } };
       addedToParticipants: { subject: { de: string; en: string } };
-      timezone: { de: string; en: string };
     };
   };
 }) {
@@ -142,6 +141,7 @@ export async function confirmGuest(options: {
           name: true,
           slug: true,
           startTime: true,
+          endTime: true,
           venueName: true,
           venueStreet: true,
           venueStreetNumber: true,
@@ -179,10 +179,11 @@ export async function confirmGuest(options: {
       result.event.startTime,
       "Europe/Berlin"
     );
+    const zonedEndTime = utcToZonedTime(result.event.endTime, "Europe/Berlin");
 
     const date = {
-      de: getDuration(zonedStartTime, zonedStartTime, "de"),
-      en: getDuration(zonedStartTime, zonedStartTime, "en"),
+      de: getDuration(zonedStartTime, zonedEndTime, "de"),
+      en: getDuration(zonedStartTime, zonedEndTime, "en"),
     };
 
     const content = {

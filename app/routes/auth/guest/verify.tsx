@@ -112,10 +112,6 @@ export async function loader(args: LoaderFunctionArgs) {
               .participants.subject,
           },
         },
-        timezone: {
-          de: languageModuleMap["de"]["meta"].timezone,
-          en: languageModuleMap["en"]["meta"].timezone,
-        },
       },
     },
   });

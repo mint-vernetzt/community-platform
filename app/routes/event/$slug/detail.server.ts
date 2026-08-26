@@ -520,7 +520,6 @@ export async function addProfileToParticipants(options: {
     mail: {
       subject: { de: string; en: string };
     };
-    timezone: { de: string; en: string };
   };
 }) {
   const { profileId, eventId, locales } = options;
@@ -686,7 +685,6 @@ export async function addProfileToWaitingList(options: {
     mail: {
       subject: { de: string; en: string };
     };
-    timezone: { de: string; en: string };
   };
 }) {
   const { profileId, eventId, locales } = options;

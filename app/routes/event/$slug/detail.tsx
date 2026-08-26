@@ -681,10 +681,6 @@ export async function action(args: ActionFunctionArgs) {
                     .participate.subject,
                 },
               },
-              timezone: {
-                de: languageModuleMap["de"]["meta"].timezone,
-                en: languageModuleMap["en"]["meta"].timezone,
-              },
             },
           });
         } else if (
@@ -710,10 +706,6 @@ export async function action(args: ActionFunctionArgs) {
                   en: languageModuleMap["en"]["event/$slug/detail"].route.mail
                     .waitingList.subject,
                 },
-              },
-              timezone: {
-                de: languageModuleMap["de"]["meta"].timezone,
-                en: languageModuleMap["en"]["meta"].timezone,
               },
             },
           });
