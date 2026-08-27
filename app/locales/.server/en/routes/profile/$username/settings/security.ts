@@ -56,9 +56,6 @@ export const locale = {
       },
       emailNotice: {
         subject: "Your password has been changed",
-        headline: "Hello {{firstName}},",
-        message:
-          "the password of your MINTvernetzt profile has been changed. If you did not make this change, please contact support at:",
       },
     },
     changeEmail: {

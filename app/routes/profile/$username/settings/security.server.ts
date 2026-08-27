@@ -191,7 +191,29 @@ export async function changeEmail(options: {
 export async function changePassword(options: {
   formData: FormData;
   sessionUser: User;
-  locales: ProfileSecurityLocales;
+  locales: {
+    error: {
+      passwordMismatch: string;
+    };
+    validation: {
+      password: {
+        required: string;
+        min: string;
+      };
+      confirmPassword: {
+        required: string;
+        min: string;
+      };
+    };
+    section: {
+      changePassword2: {
+        emailNotice: {
+          subject: { de: string; en: string };
+        };
+        feedback: string;
+      };
+    };
+  };
 }) {
   const { formData, sessionUser, locales } = options;
 
@@ -222,20 +244,28 @@ export async function changePassword(options: {
 
       // Send email notice to user
       const sender = process.env.SYSTEM_MAIL_SENDER;
-      const subject = locales.section.changePassword2.emailNotice.subject;
       const recipient = profile.email;
-      const textTemplatePath = "mail-templates/standard-message/text.hbs";
-      const htmlTemplatePath = "mail-templates/standard-message/html.hbs";
+      const textTemplatePath =
+        "mail-templates/profile/password-changed-text.hbs";
+      const htmlTemplatePath =
+        "mail-templates/profile/password-changed-html.hbs";
       const content = {
-        headline: insertParametersIntoLocale(
-          locales.section.changePassword2.emailNotice.headline,
-          {
-            firstName: profile.firstName,
-          }
-        ),
-        message: locales.section.changePassword2.emailNotice.message,
-        buttonText: process.env.SUPPORT_MAIL,
-        buttonUrl: `mailto:${process.env.SUPPORT_MAIL}`,
+        headline: {
+          de: insertParametersIntoLocale(
+            locales.section.changePassword2.emailNotice.subject.de,
+            {
+              firstName: profile.firstName,
+            }
+          ),
+          en: insertParametersIntoLocale(
+            locales.section.changePassword2.emailNotice.subject.en,
+            {
+              firstName: profile.firstName,
+            }
+          ),
+        },
+        firstName: profile.firstName,
+        supportMail: process.env.SUPPORT_MAIL,
       };
 
       const text = getCompiledMailTemplate<typeof textTemplatePath>(
@@ -248,6 +278,8 @@ export async function changePassword(options: {
         content,
         "html"
       );
+
+      const subject = `${content.headline.de} | ${content.headline.en}`;
 
       try {
         await mailer(mailerOptions, sender, recipient, subject, text, html);
