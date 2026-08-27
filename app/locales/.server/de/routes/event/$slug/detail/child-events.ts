@@ -48,7 +48,7 @@ export const locale = {
     },
     moveFromWaitingListToParticipants: {
       subject:
-        "Du wurdest von der Warteliste zu den Teilnehmenden eines Events hinzugefügt",
+        "Du wurdest von der Warteliste zu den Teilnehmenden des Events {{eventName}} hinzugefügt",
     },
   },
 } as const;

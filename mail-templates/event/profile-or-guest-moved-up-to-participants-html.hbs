@@ -30,7 +30,7 @@
                           padding: 0;
                           font-size: 24px;
                           color: #154194;">
-                        {{headline}}
+                        {{headline.de}}
                       </h2>
                     </div>
                   </td>
@@ -46,24 +46,153 @@
                         text-align: left;
                         color: #333333;">
                       Hallo {{profile.firstName}},<br><br>
-                      wir freuen uns Dir mitteilen zu können, dass Du von der Warteliste nachgerückt bist und ab sofort als Teilnehmer:in beim Event <a href="{{event.url}}" style="text-decoration: underline; font-weight: bold;">{{event.name}}</a> gelistet wirst. Wir wünschen Dir eine spannende und inspirierende Veranstaltung.<br><br>
-                      Termin: {{event.startDate}}, {{event.startTime}} Uhr ({{event.timezone}})<br>
+                      wir freuen uns Dir mitteilen zu können, dass Du von der Warteliste nachgerückt bist und ab sofort als Teilnehmer:in beim Event <b><a href="{{event.url}}">{{event.name}}</a></b> gelistet wirst. Wir wünschen Dir eine spannende und inspirierende Veranstaltung.<br><br>
+                      Termin: {{event.date.de}}<br>
                       {{#if event.location}}
                       Ort: {{event.location}}<br>
                       {{/if}}
                       {{#if event.conferenceLink}}
-                      Konferenz-Link: <a href="{{event.conferenceLink}}" style="text-decoration: underline;">{{event.conferenceLink}}</a><br>
+                      Konferenz-Link: <a href="{{event.conferenceLink}}">{{event.conferenceLink}}</a><br>
                       {{/if}}
                       <br>
                       {{#if profile.isGuest}}
                         {{#if event.revocationLink}}
-                      Wenn sich bei Dir etwas ändert und Du doch nicht teilnehmen kannst, dann ziehe bitte Deine Teilnahme über den <a href="{{event.revocationLink}}" target="_blank" style="text-decoration: underline;">Abmeldelink</a> zurück, so dass andere nachrücken können.<br><br>
+                      Wenn sich bei Dir etwas ändert und Du doch nicht teilnehmen kannst, dann ziehe bitte Deine Teilnahme über den <a href="{{event.revocationLink}}">Abmeldelink</a> zurück, so dass andere nachrücken können.<br><br>
                         {{/if}}
                       {{else}}
                       Wenn sich bei Dir etwas ändert und Du doch nicht teilnehmen kannst, dann ziehe bitte auf der Community-Plattform Deine Teilnahme zurück, so dass andere nachrücken können.<br><br>
                       {{/if}}
                       Wenn Du Fragen dazu hast, melde Dich gern beim Event-Team.<br><br>
                       Viele Grüße<br>Dein MINTvernetzt-Team
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!--[if mso | IE]></td></tr></table><![endif]-->
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<table
+    style="background: #e6e8ec; background-color: #e6e8ec; width: 100%"
+    role="presentation"
+    cellspacing="0"
+    cellpadding="0"
+    border="0"
+    align="center"
+  >
+    <tbody>
+      <tr>
+        <td>
+          <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:800px;" width="600" bgcolor="#E6E8EC" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+          <div style="margin: 0px auto; max-width: 800px">
+            <table
+              style="width: 100%"
+              role="presentation"
+              cellspacing="0"
+              cellpadding="0"
+              border="0"
+              align="center"
+            >
+              <tbody>
+                <tr>
+                  <td
+                    style="
+                      direction: ltr;
+                      font-size: 0px;
+                      padding: 1px 0;
+                      text-align: center;
+                    "
+                  >
+                    <!--[if mso | IE
+                      ]><table
+                        role="presentation"
+                        border="0"
+                        cellpadding="0"
+                        cellspacing="0"
+                      ></table
+                    ><![endif]-->
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!--[if mso | IE]></td></tr></table><![endif]-->
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin: 0px auto; max-width: 800px;">
+  <table style="width: 100%;" role="presentation" cellspacing="0" cellpadding="0" border="0" align="center">
+    <tbody>
+      <tr>
+        <td style="direction: ltr;
+            font-size: 0px;
+            padding: 50px 0;
+            text-align: center;">
+          <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:800px;" ><![endif]-->
+          <div style="font-size: 0px;
+              text-align: left;
+              direction: ltr;
+              display: inline-block;
+              vertical-align: top;
+              width: 100%;" class="mj-column-per-100 mj-outlook-group-fix">
+            <table width="100%" style="vertical-align: top;" role="presentation" cellspacing="0" cellpadding="0"
+              border="0">
+              <tbody>
+                <tr>
+                  <td style="font-size: 0px;
+                      padding: 10px 25px;
+                      word-break: break-word;" align="left">
+                    <div style="font-family: Source Sans Pro, Arial;
+                        font-size: 13px;
+                        line-height: 1.6;
+                        text-align: left;
+                        color: #154194;">
+                      <h2 style="font-weight: 600;
+                          margin: 0;
+                          padding: 0;
+                          font-size: 24px;
+                          color: #154194;">
+                        {{headline.en}}
+                      </h2>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="font-size: 0px;
+                      padding: 10px 25px;
+                      padding-bottom: 32px;
+                      word-break: break-word;" align="left">
+                    <div style="font-family: Source Sans Pro, Arial;
+                        font-size: 18px;
+                        line-height: 1.6;
+                        text-align: left;
+                        color: #333333;">
+                      Hello {{profile.firstName}},<br><br>
+                      we are pleased to inform you that you have moved up from the waiting list and are now listed as a participant for the event <b><a href="{{event.url}}">{{event.name}}</a></b>. We wish you an exciting and inspiring event.<br><br>
+                      Date: {{event.date.en}}<br>
+                      {{#if event.location}}
+                      Location: {{event.location}}<br>
+                      {{/if}}
+                      {{#if event.conferenceLink}}
+                      Conference link: <a href="{{event.conferenceLink}}">{{event.conferenceLink}}</a><br>
+                      {{/if}}
+                      <br>
+                      {{#if profile.isGuest}}
+                        {{#if event.revocationLink}}
+                      If your plans change and you are unable to attend, please withdraw your participation using the <a href="{{event.revocationLink}}">revocation link</a> so that others can move up.<br><br>
+                        {{/if}}
+                      {{else}}
+                      If your plans change and you are unable to attend, please withdraw your participation on the community platform so that others can move up.<br><br>
+                      {{/if}}
+                      If you have any questions, feel free to contact the event team.<br><br>
+                      Best regards<br>The MINTvernetzt Team
                     </div>
                   </td>
                 </tr>

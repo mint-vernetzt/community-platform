@@ -177,8 +177,16 @@ export async function action(args: ActionFunctionArgs) {
       locales: {
         mail: {
           removeFromParticipants: locales.route.mail.removeParticipant,
-          moveFromWaitingListToParticipants:
-            locales.route.mail.moveFromWaitingListToParticipants,
+          moveFromWaitingListToParticipants: {
+            subject: {
+              de: languageModuleMap["de"][
+                "event/$slug/settings/participants/list"
+              ].route.mail.moveFromWaitingListToParticipants.subject,
+              en: languageModuleMap["en"][
+                "event/$slug/settings/participants/list"
+              ].route.mail.moveFromWaitingListToParticipants.subject,
+            },
+          },
         },
       },
     });

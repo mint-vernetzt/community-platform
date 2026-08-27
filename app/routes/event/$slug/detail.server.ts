@@ -653,7 +653,7 @@ export async function removeProfileFromParticipants(options: {
   locales: {
     mail: {
       moveFromWaitingListToParticipants: {
-        subject: string;
+        subject: { de: string; en: string };
       };
       removeFromParticipants: {
         subject: string;

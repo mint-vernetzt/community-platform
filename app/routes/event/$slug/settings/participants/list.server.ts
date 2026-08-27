@@ -217,7 +217,7 @@ export async function removeFromEvent(options: {
         subject: string;
       };
       moveFromWaitingListToParticipants: {
-        subject: string;
+        subject: { de: string; en: string };
       };
     };
   };

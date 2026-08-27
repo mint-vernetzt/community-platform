@@ -1,11 +1,11 @@
-{{headline}}
+{{headline.de}}
 
 Hallo {{profile.firstName}},
 
 wir freuen uns Dir mitteilen zu können, dass Du von der Warteliste nachgerückt bist und ab sofort als Teilnehmer:in beim Event {{event.name}} gelistet wirst. Wir wünschen Dir eine spannende und inspirierende Veranstaltung.
 
 Link zum Event: {{event.url}}
-Termin: {{event.startDate}}, {{event.startTime}} Uhr ({{event.timezone}})
+Termin: {{event.date.de}}
 {{#if event.location}}
 Ort: {{event.location}}
 {{/if}}
@@ -26,3 +26,34 @@ Wenn Du Fragen dazu hast, melde Dich gern beim Event-Team.
 
 Viele Grüße
 Dein MINTvernetzt-Team
+
+---
+
+{{headline.en}}
+
+Hello {{profile.firstName}},
+
+we are pleased to inform you that you have moved up from the waiting list and are now listed as a participant for the event {{event.name}}. We wish you an exciting and inspiring event.
+
+Event link: {{event.url}}
+Date: {{event.date.en}}
+{{#if event.location}}
+Location: {{event.location}}
+{{/if}}
+{{#if event.conferenceLink}}
+Conference link: {{event.conferenceLink}}
+{{/if}}
+
+{{#if profile.isGuest}}
+{{#if event.revocationLink}}
+If your plans change and you are unable to attend, please withdraw your participation using the revocation link so that others can move up.
+Revocation link: {{event.revocationLink}}
+{{/if}}
+{{else}}
+If your plans change and you are unable to attend, please withdraw your participation on the community platform so that others can move up.
+{{/if}}
+
+If you have any questions, feel free to contact the event team.
+
+Best regards
+The MINTvernetzt Team

@@ -716,7 +716,17 @@ export async function action(args: ActionFunctionArgs) {
             profileId: sessionUser.id,
             eventId,
             locales: {
-              mail: locales.route.mail,
+              mail: {
+                ...locales.route.mail,
+                moveFromWaitingListToParticipants: {
+                  subject: {
+                    de: languageModuleMap["de"]["event/$slug/detail"].route.mail
+                      .moveFromWaitingListToParticipants.subject,
+                    en: languageModuleMap["en"]["event/$slug/detail"].route.mail
+                      .moveFromWaitingListToParticipants.subject,
+                  },
+                },
+              },
             },
           });
         } else if (intent === JOIN_WAITING_LIST_INTENT && mode === "canWait") {

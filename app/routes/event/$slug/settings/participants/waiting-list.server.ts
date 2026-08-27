@@ -12,6 +12,7 @@ import {
   SEARCH_WAITING_LIST_SEARCH_PARAM,
 } from "./waiting-list.shared";
 import { utcToZonedTime } from "date-fns-tz";
+import { getDuration } from "~/lib/utils/time";
 
 export async function getEventBySlug(slug: string) {
   const event = await prismaClient.event.findUnique({
@@ -178,11 +179,11 @@ export async function moveToParticipants(options: {
   type: "participant" | "guest";
   locales: {
     mail: {
-      subject: string;
+      subject: { de: string; en: string };
     };
   };
 }) {
-  const { profileId, eventId, type } = options;
+  const { profileId, eventId, type, locales } = options;
 
   let result;
   if (type === "guest") {
@@ -202,6 +203,7 @@ export async function moveToParticipants(options: {
             slug: true,
             name: true,
             startTime: true,
+            endTime: true,
             venueName: true,
             venueStreet: true,
             venueStreetNumber: true,
@@ -235,6 +237,7 @@ export async function moveToParticipants(options: {
               slug: true,
               name: true,
               startTime: true,
+              endTime: true,
               venueName: true,
               venueStreet: true,
               venueStreetNumber: true,
@@ -262,17 +265,27 @@ export async function moveToParticipants(options: {
   }
 
   const recipient = result.email;
-  const subject = insertParametersIntoLocale(options.locales.mail.subject, {
-    eventName: result.event.name,
-  });
 
   const zonedStartTime = utcToZonedTime(
     result.event.startTime,
     "Europe/Berlin"
   );
+  const zonedEndTime = utcToZonedTime(result.event.endTime, "Europe/Berlin");
+
+  const date = {
+    de: getDuration(zonedStartTime, zonedEndTime, "de"),
+    en: getDuration(zonedStartTime, zonedEndTime, "en"),
+  };
 
   const content = {
-    headline: subject,
+    headline: {
+      de: insertParametersIntoLocale(locales.mail.subject.de, {
+        eventName: result.event.name,
+      }),
+      en: insertParametersIntoLocale(locales.mail.subject.en, {
+        eventName: result.event.name,
+      }),
+    },
     profile: {
       firstName: result.firstName,
       isGuest: type === "guest",
@@ -280,16 +293,7 @@ export async function moveToParticipants(options: {
     event: {
       name: result.event.name,
       url: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/detail`,
-      startDate: zonedStartTime.toLocaleDateString("de-DE", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      }),
-      startTime: zonedStartTime.toLocaleTimeString("de-DE", {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-      timezone: "MEZ",
+      date,
       location: getVenueString(result.event),
       conferenceLink: result.event.conferenceLink,
       revocationLink: null as string | null,
@@ -316,6 +320,8 @@ export async function moveToParticipants(options: {
     content,
     "html"
   );
+
+  const subject = `${content.headline.de} | ${content.headline.en}`;
 
   await scheduleMail({
     eventId,

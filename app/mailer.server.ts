@@ -276,7 +276,10 @@ type ProfileOrGuestAddedToParticipantsOrWaitingListContent = {
 };
 
 type ProfileOrGuestMovedUpToParticipantsContent = {
-  headline: string;
+  headline: {
+    de: string;
+    en: string;
+  };
   profile: {
     firstName: string;
     isGuest: boolean;
@@ -284,9 +287,10 @@ type ProfileOrGuestMovedUpToParticipantsContent = {
   event: {
     name: string;
     url: string;
-    startDate: string;
-    startTime: string;
-    timezone: string;
+    date: {
+      de: string;
+      en: string;
+    };
     location?: string;
     conferenceLink?: string | null;
     revocationLink?: string | null;

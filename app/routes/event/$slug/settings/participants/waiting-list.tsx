@@ -152,7 +152,14 @@ export async function action(args: ActionFunctionArgs) {
       eventId: event.id,
       locales: {
         mail: {
-          subject: locales.route.mail.moveToParticipants.subject,
+          subject: {
+            de: languageModuleMap["de"][
+              "event/$slug/settings/participants/waiting-list"
+            ].route.mail.moveToParticipants.subject,
+            en: languageModuleMap["en"][
+              "event/$slug/settings/participants/waiting-list"
+            ].route.mail.moveToParticipants.subject,
+          },
         },
       },
     });
