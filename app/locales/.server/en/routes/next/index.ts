@@ -1,3 +1,5 @@
+import { locale as helpLocale } from "../../help";
+
 export const locale = {
   validation: {
     email: "Please enter a valid email address.",
@@ -138,6 +140,21 @@ export const locale = {
     image: {
       alt: "The MINTvernetzt team standing on a spiral staircase",
       credits: "",
+    },
+  },
+  faq: {
+    headline: "Questions and answers",
+    cta: "Complete help section",
+    qAndAs: {
+      whatIsStem: helpLocale.faq.stemEducation.qAndAs.whatIsStem,
+      whoIsThePlatformFor:
+        helpLocale.faq.generalPlatformInformation.qAndAs.whoIsThePlatformFor,
+      benefitsOfThePlatform:
+        helpLocale.faq.generalPlatformInformation.qAndAs.benefitsOfThePlatform,
+      isItFree: helpLocale.faq.generalPlatformInformation.qAndAs.isItFree,
+      benefitsOfRegistration:
+        helpLocale.faq.registration.qAndAs.benefitsOfRegistration,
+      mintId: helpLocale.faq.registration.qAndAs.mintId,
     },
   },
   form: {

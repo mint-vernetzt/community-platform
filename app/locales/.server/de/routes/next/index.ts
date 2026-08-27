@@ -1,3 +1,5 @@
+import { locale as helpLocale } from "../../help";
+
 export const locale = {
   validation: {
     email: "Bitte gib eine gültige E-Mail-Adresse ein.",
@@ -139,6 +141,21 @@ export const locale = {
     image: {
       alt: "Das MINTvernetzt-Team steht auf einer Wendeltreppe",
       credits: "",
+    },
+  },
+  faq: {
+    headline: "Fragen und Antworten",
+    cta: "Gesamter Hilfebereich",
+    qAndAs: {
+      whatIsStem: helpLocale.faq.stemEducation.qAndAs.whatIsStem,
+      whoIsThePlatformFor:
+        helpLocale.faq.generalPlatformInformation.qAndAs.whoIsThePlatformFor,
+      benefitsOfThePlatform:
+        helpLocale.faq.generalPlatformInformation.qAndAs.benefitsOfThePlatform,
+      isItFree: helpLocale.faq.generalPlatformInformation.qAndAs.isItFree,
+      benefitsOfRegistration:
+        helpLocale.faq.registration.qAndAs.benefitsOfRegistration,
+      mintId: helpLocale.faq.registration.qAndAs.mintId,
     },
   },
   form: {

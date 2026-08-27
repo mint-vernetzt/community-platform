@@ -22,6 +22,7 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import BetaTag from "~/components-next/BetaTag";
 import { External } from "~/components-next/icons/External";
 import { Icon } from "~/components-next/icons/Icon";
+import { Accordion } from "~/components-next/Accordion";
 import { RichText } from "~/components/legacy/Richtext/RichText";
 import { checkHoneypot } from "~/honeypot.server";
 import { HONEYPOT_CLASSNAME } from "~/honeypot.shared";
@@ -1143,6 +1144,80 @@ export default function Index() {
                 {locales.about.website}
               </Button>
             </div>
+          </div>
+        </div>
+      </section>
+      <section className="py-16 relative">
+        <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
+          <h2 className="mb-10 text-center text-primary-600 text-[2rem] leading-9 tracking-[-0.64px] font-bold">
+            {locales.faq.headline}
+          </h2>
+          <div className="mb-10">
+            <Accordion>
+              <Accordion.Item id="whatIsStem" key="whatIsStem">
+                {locales.faq.qAndAs.whatIsStem.question}
+                <RichText
+                  id="faq-content"
+                  html={locales.faq.qAndAs.whatIsStem.answer}
+                />
+              </Accordion.Item>
+              <Accordion.Item
+                id="whoIsThePlatformFor"
+                key="whoIsThePlatformFor"
+              >
+                {locales.faq.qAndAs.whoIsThePlatformFor.question}
+                <RichText
+                  id="faq-content"
+                  html={locales.faq.qAndAs.whoIsThePlatformFor.answer}
+                />
+              </Accordion.Item>
+              <Accordion.Item
+                id="benefitsOfThePlatform"
+                key="benefitsOfThePlatform"
+              >
+                {locales.faq.qAndAs.benefitsOfThePlatform.question}
+                <RichText
+                  id="faq-content"
+                  html={locales.faq.qAndAs.benefitsOfThePlatform.answer}
+                />
+              </Accordion.Item>
+            </Accordion>
+            {/* These two questions are only shown on mobile */}
+            <div className="@md:hidden">
+              <Accordion>
+                <Accordion.Item id="isItFree" key="isItFree">
+                  {locales.faq.qAndAs.isItFree.question}
+                  <RichText
+                    id="faq-content"
+                    html={locales.faq.qAndAs.isItFree.answer}
+                  />
+                </Accordion.Item>
+                <Accordion.Item
+                  id="benefitsOfRegistration"
+                  key="benefitsOfRegistration"
+                >
+                  {locales.faq.qAndAs.benefitsOfRegistration.question}
+                  <RichText
+                    id="faq-content"
+                    html={locales.faq.qAndAs.benefitsOfRegistration.answer}
+                  />
+                </Accordion.Item>
+              </Accordion>
+            </div>
+            <Accordion>
+              <Accordion.Item id="mintId" key="mintId">
+                {locales.faq.qAndAs.mintId.question}
+                <RichText
+                  id="faq-content"
+                  html={locales.faq.qAndAs.mintId.answer}
+                />
+              </Accordion.Item>
+            </Accordion>
+          </div>
+          <div className="flex justify-center">
+            <Button as="link" to="/help" variant="outline" prefetch="intent">
+              {locales.faq.cta}
+            </Button>
           </div>
         </div>
       </section>
