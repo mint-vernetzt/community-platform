@@ -234,6 +234,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       locales,
       isLoggedIn,
       submission,
+      timestamp: Date.now(),
     },
     {
       headers: viewCookieHeader,
@@ -275,7 +276,7 @@ export default function ExploreOrganizationsList() {
         <div className="w-full flex justify-center mt-4 @lg:mt-6 @xl:mt-8">
           <ConformForm
             useFormOptions={{
-              id: "load-more-organizations",
+              id: `load-more-organizations-${loaderData.timestamp}`,
               defaultValue: {
                 ...loaderData.submission.value,
                 orgPage: loaderData.submission.value.orgPage + 1,

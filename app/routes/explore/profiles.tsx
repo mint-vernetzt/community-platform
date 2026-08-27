@@ -347,6 +347,7 @@ export async function loader(args: LoaderFunctionArgs) {
     filteredByVisibilityCount,
     profilesCount: profileCount,
     locales: routeLocales,
+    timestamp: Date.now(),
   };
 }
 
@@ -358,7 +359,7 @@ export default function ExploreProfiles() {
   const isHydrated = useHydrated();
 
   const [form, fields] = useForm<FilterSchemes>({
-    id: "filter-profiles",
+    id: `filter-profiles-${loaderData.timestamp}`,
     defaultValue: {
       ...loaderData.submission.value,
       search: [loaderData.submission.value.search.join(" ")],
@@ -371,7 +372,7 @@ export default function ExploreProfiles() {
   const prfFilterFieldset = fields.prfFilter.getFieldset();
 
   const [loadMoreForm, loadMoreFields] = useForm<FilterSchemes>({
-    id: "load-more-profiles",
+    id: `load-more-profiles-${loaderData.timestamp}`,
     defaultValue: {
       ...loaderData.submission.value,
       prfPage: loaderData.submission.value.prfPage + 1,
@@ -383,7 +384,7 @@ export default function ExploreProfiles() {
   });
 
   const [resetForm, resetFields] = useForm<FilterSchemes>({
-    id: "reset-profile-filters",
+    id: `reset-profile-filters-${loaderData.timestamp}`,
     defaultValue: {
       ...loaderData.submission.value,
       prfFilter: {
@@ -831,7 +832,7 @@ export default function ExploreProfiles() {
                     <ConformForm
                       key={selectedOffer}
                       useFormOptions={{
-                        id: `delete-filter-${selectedOffer}`,
+                        id: `delete-filter-${selectedOffer}-${loaderData.timestamp}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           prfFilter: {
@@ -882,7 +883,7 @@ export default function ExploreProfiles() {
                     <ConformForm
                       key={selectedArea.slug}
                       useFormOptions={{
-                        id: `delete-filter-${selectedArea.slug}`,
+                        id: `delete-filter-${selectedArea.slug}-${loaderData.timestamp}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           prfFilter: {
