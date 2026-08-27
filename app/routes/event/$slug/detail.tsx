@@ -1110,7 +1110,6 @@ function Detail() {
             {loaderData.event._count.participants +
               loaderData.event._count.guests >
               0 &&
-              loaderData.mode !== null &&
               loaderData.mode !== "anon" && (
                 <TabBar.Item active={pathname.endsWith("/participants")}>
                   <Link
