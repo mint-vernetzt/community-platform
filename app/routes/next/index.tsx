@@ -4,6 +4,7 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { utcToZonedTime } from "date-fns-tz";
+import { useRef } from "react";
 import {
   Form,
   Link,
@@ -18,6 +19,9 @@ import {
 import { HoneypotInputs } from "remix-utils/honeypot/react";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import BetaTag from "~/components-next/BetaTag";
+import { External } from "~/components-next/icons/External";
+import { Icon } from "~/components-next/icons/Icon";
 import { RichText } from "~/components/legacy/Richtext/RichText";
 import { checkHoneypot } from "~/honeypot.server";
 import { HONEYPOT_CLASSNAME } from "~/honeypot.shared";
@@ -30,6 +34,7 @@ import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { isBotRequest } from "~/utils.server";
 import { login } from "../login/index.server";
 import { createLoginSchema } from "../login/index.shared";
+import { getDataForToolsSection } from "../resources";
 import {
   getEventCount,
   getOrganizationCount,
@@ -170,6 +175,32 @@ export default function Index() {
     },
   });
 
+  const toolKeys = [
+    "fundingSearch",
+    "sharepic",
+    "mediaDatabase",
+    "oeb",
+  ] as const;
+  const toolsSectionData = getDataForToolsSection();
+  const toolsSliderRef = useRef<HTMLDivElement>(null);
+
+  function scrollToolsSlider(direction: "previous" | "next") {
+    const slider = toolsSliderRef.current;
+    if (slider === null) {
+      return;
+    }
+    const firstCard = slider.firstElementChild;
+    if (firstCard === null) {
+      return;
+    }
+    const scrollAmount = firstCard.clientWidth + 24;
+    if (direction === "previous") {
+      slider.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+    } else {
+      slider.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
+  }
+
   return (
     <>
       <section className="relative overflow-hidden bg-secondary-50 bg-linear-[358deg] from-neutral-50 from-[12.78%] via-neutral-50/40 via-[74.48%] to-neutral-50/40 to-[98.12%]">
@@ -189,7 +220,7 @@ export default function Index() {
           </svg>
         </div>
 
-        <div className="py-16 @lg:py-20 relative min-h-[calc(100dvh-76px)] lg:min-h-[calc(100dvh-80px)] @md:flex @md:items-end">
+        <div className="py-16 @lg:py-20 relative min-h-[calc(100dvh-76px)] lg:min-h-[calc(100dvh-80px)] @md:flex @md:items-center">
           <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
             <div className="@md:grid @md:grid-cols-12 @md:gap-6 @lg:gap-8 @md:items-center">
               <div className="@md:col-start-1 @md:col-span-6 @xl:col-start-2 @xl:col-span-5">
@@ -202,7 +233,7 @@ export default function Index() {
               </div>
 
               <div className="@md:col-start-9 @md:col-span-4 @xl:col-start-8">
-                <div className="p-6 bg-white rounded-2xl shadow-[0px_4px_24px_0px_rgba(17,52,118,0.12)]">
+                <div className="p-6 bg-white rounded-3xl shadow-[0px_4px_24px_0px_rgba(17,52,118,0.12)]">
                   <div className="text-center">
                     <a
                       id="login-start"
@@ -639,6 +670,89 @@ export default function Index() {
                 {locales.projectTeaser.allProjects}
               </Button>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 @lg:py-24">
+        <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl">
+          <h2 className="mb-12 text-center text-primary-600 text-3xl @lg:text-4xl font-bold">
+            {locales.tools.headline}
+          </h2>
+          <div
+            ref={toolsSliderRef}
+            className="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-none [&::-webkit-scrollbar]:hidden @xl:scroll-pl-12"
+          >
+            {toolKeys.map((toolKey) => {
+              const tool = toolsSectionData[toolKey];
+              const toolLocales = locales.tools[toolKey];
+
+              return (
+                <div
+                  key={toolKey}
+                  className="flex-none w-full @md:w-[calc(50%-12px)] @xl:w-[calc(50%-60px)] snap-start flex flex-col bg-white border border-neutral-200 rounded-2xl overflow-hidden"
+                >
+                  <div className={`w-full h-64 ${tool.bgClassName ?? ""}`}>
+                    <Image
+                      src={tool.imagePath}
+                      blurredSrc={tool.blurredImagePath}
+                      alt={toolLocales.imgAlt}
+                    />
+                  </div>
+                  <div className="grow flex flex-col gap-4 p-6">
+                    <div className="flex items-center gap-2">
+                      <h3 className="mb-0 text-primary text-xl font-bold leading-6">
+                        {toolLocales.headline}
+                      </h3>
+                      {tool.beta ? <BetaTag /> : null}
+                    </div>
+                    <p className="text-neutral-600 text-base leading-5">
+                      {toolLocales.content}
+                    </p>
+                    <div className="mt-auto">
+                      <Button
+                        as="link"
+                        variant="outline"
+                        to={tool.link}
+                        rel={tool.external ? "noopener noreferrer" : undefined}
+                        target={tool.external ? "_blank" : undefined}
+                        prefetch={tool.external ? "none" : "intent"}
+                        className="w-full @lg:w-fit"
+                      >
+                        {tool.external ? (
+                          <span>
+                            <External />
+                          </span>
+                        ) : null}
+                        <span>{toolLocales.action}</span>
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="mt-8 flex justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => scrollToolsSlider("previous")}
+              aria-label={locales.tools.slider.previous}
+              className="w-10 h-10 flex items-center justify-center bg-white border border-neutral-200 rounded-lg hover:bg-neutral-100"
+            >
+              <Icon
+                type="chevron-right"
+                className="rotate-180"
+                aria-hidden="true"
+              />
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollToolsSlider("next")}
+              aria-label={locales.tools.slider.next}
+              className="w-10 h-10 flex items-center justify-center bg-white border border-neutral-200 rounded-lg hover:bg-neutral-100"
+            >
+              <Icon type="chevron-right" aria-hidden="true" />
+            </button>
           </div>
         </div>
       </section>

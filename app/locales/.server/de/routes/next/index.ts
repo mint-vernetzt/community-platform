@@ -23,6 +23,41 @@ export const locale = {
     events: "Veranstaltungen",
     projects: "Projekte",
   },
+  tools: {
+    headline: "Tools für Deine Arbeit",
+    slider: {
+      previous: "Vorherige Tools anzeigen",
+      next: "Weitere Tools anzeigen",
+    },
+    fundingSearch: {
+      imgAlt: "Ein Sparschwein.",
+      headline: "Fördermittelsuche",
+      content:
+        "Finde passende Förderungen mit unserer Fördermittelsuche. Wir durchsuchen Förderdatenbanken nach relevanten Suchbegriffen und spielen die Ergebnisse gesammelt aus.",
+      action: "Zur Fördermittelsuche",
+    },
+    sharepic: {
+      imgAlt: "Ein Bild eines jungen Mädchens mit VR-Brille.",
+      headline: "MINT-Sharepic-Generator",
+      content:
+        "Erstelle ganz einfach Grafiken für Deine Öffentlichkeitsarbeit und nutze datenschutzkonform Deine eigenen Bilder oder greife auf Bilder und Grafiken der integrierten MINT-Mediendatenbank zurück.",
+      action: "Zum Sharepic-Generator",
+    },
+    mediaDatabase: {
+      imgAlt: "Vier Bilder als Kacheln angeordnet mit MINT-Bezug.",
+      headline: "MINT-Mediendatenbank",
+      content:
+        "Finde in unserer sich stetig erweiternden Datenbank freie MINT-Bilder und Grafiken, um Deine Öffentlichkeitsarbeit ansprechend und zielgruppengerecht zu gestalten.",
+      action: "Zur MINT-Mediendatenbank",
+    },
+    oeb: {
+      imgAlt: "Das Logo von MINT Open Educational Badges.",
+      headline: "MINT Open Educational Badges (OEB)",
+      content:
+        "Erstelle mit Open Educational Badges minutenschnell Badges (digitale Nachweise) für Deine Lernenden und schaffe mehr Sichtbarkeit für die Qualität Deiner Lernangebote.",
+      action: "Zu MINT-OEB",
+    },
+  },
   login: {
     skip: {
       start: "Anmeldebereich überspringen",
