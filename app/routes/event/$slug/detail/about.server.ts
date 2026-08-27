@@ -145,6 +145,7 @@ export async function getEventBySlug(options: {
       accessibilityInformation: true,
       privacyInformation: true,
       external: true,
+      published: true,
       openForRegistration: true,
       parentParticipationRequired: true,
       parentEvent: {
