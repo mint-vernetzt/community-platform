@@ -717,13 +717,28 @@ export async function action(args: ActionFunctionArgs) {
             eventId,
             locales: {
               mail: {
-                ...locales.route.mail,
                 moveFromWaitingListToParticipants: {
                   subject: {
                     de: languageModuleMap["de"]["event/$slug/detail"].route.mail
                       .moveFromWaitingListToParticipants.subject,
                     en: languageModuleMap["en"]["event/$slug/detail"].route.mail
                       .moveFromWaitingListToParticipants.subject,
+                  },
+                },
+                removeFromParticipants: {
+                  subject: {
+                    de: languageModuleMap["de"]["event/$slug/detail"].route.mail
+                      .removeFromWaitingList.subject,
+                    en: languageModuleMap["en"]["event/$slug/detail"].route.mail
+                      .removeFromWaitingList.subject,
+                  },
+                },
+                removeFromWaitingList: {
+                  subject: {
+                    de: languageModuleMap["de"]["event/$slug/detail"].route.mail
+                      .removeFromWaitingList.subject,
+                    en: languageModuleMap["en"]["event/$slug/detail"].route.mail
+                      .removeFromWaitingList.subject,
                   },
                 },
               },
@@ -751,7 +766,12 @@ export async function action(args: ActionFunctionArgs) {
             locales: {
               mail: {
                 removeFromWaitingList: {
-                  subject: locales.route.mail.removeFromWaitingList.subject,
+                  subject: {
+                    de: languageModuleMap["de"]["event/$slug/detail"].route.mail
+                      .removeFromWaitingList.subject,
+                    en: languageModuleMap["en"]["event/$slug/detail"].route.mail
+                      .removeFromWaitingList.subject,
+                  },
                 },
               },
             },

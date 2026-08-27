@@ -214,15 +214,11 @@ export const locale = {
     },
     removeFromParticipants: {
       subject:
-        "Du wurdest von den Teilnehmenden des Events {{eventName}} entfernt",
+        "You have been removed from the participants of the event {{eventName}}",
     },
     removeFromWaitingList: {
       subject:
-        "Du wurdest von der Warteliste des Events {{eventName}} entfernt",
-    },
-    guestRemoved: {
-      subject:
-        "Du wurdest von den Teilnehmenden des Events {{eventName}} entfernt",
+        "You have been removed from the waiting list for the event {{eventName}}",
     },
     profileAlreadyExists: {
       subject: "Your email was used to register as a guest",

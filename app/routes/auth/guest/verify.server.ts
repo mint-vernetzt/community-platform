@@ -240,7 +240,10 @@ export async function revokeGuest(options: {
         subject: { de: string; en: string };
       };
       removeFromParticipants: {
-        subject: string;
+        subject: { de: string; en: string };
+      };
+      removeFromWaitingList: {
+        subject: { de: string; en: string };
       };
     };
   };

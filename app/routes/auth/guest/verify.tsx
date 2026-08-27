@@ -87,7 +87,20 @@ export async function loader(args: LoaderFunctionArgs) {
             },
           },
           removeFromParticipants: {
-            subject: locales.revocation.subject,
+            subject: {
+              de: languageModuleMap["de"]["auth/guest/verify"].revocation.mail
+                .removeFromParticipants.subject,
+              en: languageModuleMap["en"]["auth/guest/verify"].revocation.mail
+                .removeFromParticipants.subject,
+            },
+          },
+          removeFromWaitingList: {
+            subject: {
+              de: languageModuleMap["de"]["auth/guest/verify"].revocation.mail
+                .removeFromWaitingList.subject,
+              en: languageModuleMap["en"]["auth/guest/verify"].revocation.mail
+                .removeFromWaitingList.subject,
+            },
           },
         },
       },

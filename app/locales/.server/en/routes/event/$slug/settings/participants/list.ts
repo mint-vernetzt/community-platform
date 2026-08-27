@@ -40,12 +40,17 @@ export const locale = {
     action: "Save CSV File",
   },
   mail: {
-    removeParticipant: {
-      subject: "Du wurdest als Teilnehmer:in von einem Event entfernt",
+    removeFromParticipants: {
+      subject:
+        "You have been removed from the participants of the event {{eventName}}",
     },
     moveFromWaitingListToParticipants: {
       subject:
         "You have been moved from the waiting list to the participants of the event {{eventName}}",
+    },
+    removeFromWaitingList: {
+      subject:
+        "You have been removed from the waiting list of the event {{eventName}}",
     },
   },
   errors: {

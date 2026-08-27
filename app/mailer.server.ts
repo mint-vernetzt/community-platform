@@ -298,13 +298,17 @@ type ProfileOrGuestMovedUpToParticipantsContent = {
 };
 
 type ProfileOrGuestRemovedFromParticipantsOrWaitingListContent = {
-  headline: string;
+  headline: {
+    de: string;
+    en: string;
+  };
   profile: {
     firstName: string;
     isOnWaitingList: boolean;
   };
   event: {
     name: string;
+    url: string;
   };
 };
 
