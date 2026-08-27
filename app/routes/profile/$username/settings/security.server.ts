@@ -37,7 +37,30 @@ export async function getProfileByUsername(username: string) {
 export async function changeEmail(options: {
   formData: FormData;
   sessionUser: User;
-  locales: ProfileSecurityLocales;
+  locales: {
+    error: {
+      emailsDoNotMatch: string;
+      emailAlreadyUsed: string;
+    };
+    validation: {
+      email: {
+        required: string;
+        min: string;
+      };
+      confirmEmail: {
+        required: string;
+        min: string;
+      };
+    };
+    section: {
+      changeEmail: {
+        emailNotice: {
+          subject: { de: string; en: string };
+        };
+        feedback: string;
+      };
+    };
+  };
 }) {
   const { formData, sessionUser, locales } = options;
 
@@ -46,7 +69,7 @@ export async function changeEmail(options: {
       if (data.email !== data.confirmEmail) {
         ctx.addIssue({
           code: "custom",
-          message: locales.error.emailsDontMatch,
+          message: locales.error.emailsDoNotMatch,
           path: ["confirmEmail"],
         });
         return z.NEVER;
@@ -93,26 +116,28 @@ export async function changeEmail(options: {
 
       // Send email notice to old email address
       const sender = process.env.SYSTEM_MAIL_SENDER;
-      const subject = locales.section.changeEmail.emailNotice.subject;
       const recipient = profile.email;
-      const textTemplatePath = "mail-templates/standard-message/text.hbs";
-      const htmlTemplatePath = "mail-templates/standard-message/html.hbs";
+      const textTemplatePath = "mail-templates/profile/email-changed-text.hbs";
+      const htmlTemplatePath = "mail-templates/profile/email-changed-html.hbs";
       const content = {
-        headline: insertParametersIntoLocale(
-          locales.section.changeEmail.emailNotice.headline,
-          {
-            firstName: profile.firstName,
-          }
-        ),
-        message: insertParametersIntoLocale(
-          locales.section.changeEmail.emailNotice.message,
-          {
-            oldEmail: profile.email,
-            newEmail: data.email,
-          }
-        ),
-        buttonText: process.env.SUPPORT_MAIL,
-        buttonUrl: `mailto:${process.env.SUPPORT_MAIL}`,
+        headline: {
+          de: insertParametersIntoLocale(
+            locales.section.changeEmail.emailNotice.subject.de,
+            {
+              firstName: profile.firstName,
+            }
+          ),
+          en: insertParametersIntoLocale(
+            locales.section.changeEmail.emailNotice.subject.en,
+            {
+              firstName: profile.firstName,
+            }
+          ),
+        },
+        firstName: profile.firstName,
+        oldEmail: profile.email,
+        newEmail: data.email,
+        supportMail: process.env.SUPPORT_MAIL,
       };
 
       const text = getCompiledMailTemplate<typeof textTemplatePath>(
@@ -125,6 +150,8 @@ export async function changeEmail(options: {
         content,
         "html"
       );
+
+      const subject = `${content.headline.de} | ${content.headline.en}`;
 
       try {
         await mailer(mailerOptions, sender, recipient, subject, text, html);

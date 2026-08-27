@@ -18,7 +18,7 @@ export const locale = {
     },
   },
   error: {
-    emailsDontMatch: "Your emails do not match.",
+    emailsDoNotMatch: "Your emails do not match.",
     passwordMismatch: "The passwords do not match.",
     notPrivileged: "Not privileged",
     notAllowed: "Not allowed.",
@@ -80,9 +80,6 @@ export const locale = {
       },
       emailNotice: {
         subject: "Your email address has been changed",
-        headline: "Hello {{firstName}},",
-        message:
-          "the email address of your MINTvernetzt profile has been changed from {{oldEmail}} to {{newEmail}}. If you did not make this change, please contact support at:",
       },
     },
   },
