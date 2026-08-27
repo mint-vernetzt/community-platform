@@ -193,6 +193,7 @@ export async function getEventByIdForAction(id: string) {
       participationUntil: true,
       endTime: true,
       external: true,
+      published: true,
       openForRegistration: true,
       parentParticipationRequired: true,
       participationToken: true,
