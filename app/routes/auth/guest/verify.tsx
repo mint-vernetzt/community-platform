@@ -78,7 +78,17 @@ export async function loader(args: LoaderFunctionArgs) {
       eventId: data.eventId,
       locales: {
         mail: {
-          subject: locales.revocation.subject,
+          moveFromWaitingListToParticipants: {
+            subject: {
+              de: languageModuleMap["de"]["auth/guest/verify"].revocation.mail
+                .moveFromWaitingListToParticipants.subject,
+              en: languageModuleMap["en"]["auth/guest/verify"].revocation.mail
+                .moveFromWaitingListToParticipants.subject,
+            },
+          },
+          removeFromParticipants: {
+            subject: locales.revocation.subject,
+          },
         },
       },
     });

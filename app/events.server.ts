@@ -5,10 +5,10 @@ import { insertParametersIntoLocale } from "./lib/utils/i18n";
 import { scheduleMail } from "./mailer-queue.server";
 import { getVenueString } from "./utils.shared";
 import { utcToZonedTime } from "date-fns-tz";
+import { getDuration } from "./lib/utils/time";
 
 export type ParticipantIdentifier =
-  | { type: "user"; profileId: string }
-  | { type: "guest"; email: string };
+  { type: "user"; profileId: string } | { type: "guest"; email: string };
 
 function getRemoveFromParticipantsTransaction(options: {
   identifier: ParticipantIdentifier;
@@ -283,12 +283,9 @@ export async function removeParticipantFromEvent(options: {
   recursively?: boolean;
   locales: {
     moveFromWaitingListToParticipants: {
-      subject: string;
+      subject: { de: string; en: string };
     };
     removeFromParticipants: {
-      subject: string;
-    };
-    guestRemoved: {
       subject: string;
     };
   };
@@ -367,6 +364,7 @@ export async function removeParticipantFromEvent(options: {
       slug: true,
       name: true,
       startTime: true,
+      endTime: true,
       venueName: true,
       venueStreet: true,
       venueStreetNumber: true,
@@ -396,6 +394,7 @@ export async function removeParticipantFromEvent(options: {
           slug: true,
           name: true,
           startTime: true,
+          endTime: true,
           venueName: true,
           venueStreet: true,
           venueStreetNumber: true,
@@ -443,6 +442,7 @@ export async function removeParticipantFromEvent(options: {
               slug: true,
               name: true,
               startTime: true,
+              endTime: true,
               venueName: true,
               venueStreet: true,
               venueStreetNumber: true,
@@ -484,6 +484,7 @@ export async function removeParticipantFromEvent(options: {
       slug: event.slug,
       name: event.name,
       startTime: event.startTime,
+      endTime: event.endTime,
       venueName: event.venueName,
       venueStreet: event.venueStreet,
       venueStreetNumber: event.venueStreetNumber,
@@ -504,6 +505,7 @@ export async function removeParticipantFromEvent(options: {
     slug: string;
     name: string;
     startTime: Date;
+    endTime: Date;
     venueName: string | null;
     venueStreet: string | null;
     venueStreetNumber: string | null;
@@ -580,17 +582,19 @@ export async function removeParticipantFromEvent(options: {
       eventsParticipantHasBeenRemovedFrom.map(async (event) => {
         try {
           let recipient;
-          let subject;
           let firstName;
+          const subject = insertParametersIntoLocale(
+            locales.removeFromParticipants.subject,
+            {
+              eventName: event.name,
+            }
+          );
           if (type === "guest") {
             if (guest === null) {
               // This should never happen, but makes TypeScript happy
               return;
             }
             recipient = guest.email;
-            subject = insertParametersIntoLocale(locales.guestRemoved.subject, {
-              eventName: event.name,
-            });
             firstName = guest.firstName;
           } else {
             if (user === null) {
@@ -598,12 +602,6 @@ export async function removeParticipantFromEvent(options: {
               return;
             }
             recipient = user.email;
-            subject = insertParametersIntoLocale(
-              locales.removeFromParticipants.subject,
-              {
-                eventName: event.name,
-              }
-            );
             firstName = user.firstName;
           }
           const textTemplatePath =
@@ -768,17 +766,30 @@ export async function removeParticipantFromEvent(options: {
           return;
         }
         const recipient = result.email;
-        const subject = insertParametersIntoLocale(
-          options.locales.moveFromWaitingListToParticipants.subject,
-          {
-            eventName: event.name,
-          }
-        );
 
         const zonedStartTime = utcToZonedTime(event.startTime, "Europe/Berlin");
+        const zonedEndTime = utcToZonedTime(event.endTime, "Europe/Berlin");
+
+        const date = {
+          de: getDuration(zonedStartTime, zonedEndTime, "de"),
+          en: getDuration(zonedStartTime, zonedEndTime, "en"),
+        };
 
         const content = {
-          headline: subject,
+          headline: {
+            de: insertParametersIntoLocale(
+              options.locales.moveFromWaitingListToParticipants.subject.de,
+              {
+                eventName: event.name,
+              }
+            ),
+            en: insertParametersIntoLocale(
+              options.locales.moveFromWaitingListToParticipants.subject.en,
+              {
+                eventName: event.name,
+              }
+            ),
+          },
           profile: {
             firstName: result.firstName,
             isGuest: result.type === "guest",
@@ -787,16 +798,7 @@ export async function removeParticipantFromEvent(options: {
           event: {
             name: event.name,
             url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail`,
-            startDate: zonedStartTime.toLocaleDateString("de-DE", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-            }),
-            startTime: zonedStartTime.toLocaleTimeString("de-DE", {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-            timezone: "MEZ",
+            date,
             location: getVenueString(event),
             conferenceLink: event.conferenceLink,
             revocationLink: null as string | null,
@@ -823,6 +825,9 @@ export async function removeParticipantFromEvent(options: {
           content,
           "html"
         );
+
+        const subject = `${content.headline.de} | ${content.headline.en}`;
+
         await scheduleMail({
           eventId: event.id,
           recipient,

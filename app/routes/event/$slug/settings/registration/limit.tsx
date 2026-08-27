@@ -160,7 +160,16 @@ export async function action(args: ActionFunctionArgs) {
         },
         locales: {
           mail: {
-            moveUpToParticipants: locales.route.mail.moveUpToParticipants,
+            moveUpToParticipants: {
+              subject: {
+                de: languageModuleMap["de"][
+                  "event/$slug/settings/registration/limit"
+                ].route.mail.moveUpToParticipants.subject,
+                en: languageModuleMap["en"][
+                  "event/$slug/settings/registration/limit"
+                ].route.mail.moveUpToParticipants.subject,
+              },
+            },
           },
         },
       });
@@ -204,7 +213,16 @@ export async function action(args: ActionFunctionArgs) {
         ACCEPT_FILL_UP_PARTICIPANTS_AUTOMATICALLY,
       locales: {
         mail: {
-          moveUpToParticipants: locales.route.mail.moveUpToParticipants,
+          moveUpToParticipants: {
+            subject: {
+              de: languageModuleMap["de"][
+                "event/$slug/settings/registration/limit"
+              ].route.mail.moveUpToParticipants.subject,
+              en: languageModuleMap["en"][
+                "event/$slug/settings/registration/limit"
+              ].route.mail.moveUpToParticipants.subject,
+            },
+          },
         },
       },
     });

@@ -217,7 +217,7 @@ export async function removeFromEvent(options: {
         subject: string;
       };
       moveFromWaitingListToParticipants: {
-        subject: string;
+        subject: { de: string; en: string };
       };
     };
   };
@@ -231,9 +231,6 @@ export async function removeFromEvent(options: {
     recursively: true,
     locales: {
       ...options.locales.mail,
-      guestRemoved: {
-        subject: options.locales.mail.removeFromParticipants.subject,
-      },
     }, // TODO: improve TS
   });
 

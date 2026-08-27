@@ -160,7 +160,17 @@ export async function action(args: ActionFunctionArgs) {
           profileId: sessionUser.id,
           eventId: data.eventId,
           locales: {
-            mail: locales.route.mail,
+            mail: {
+              ...locales.route.mail,
+              moveFromWaitingListToParticipants: {
+                subject: {
+                  de: languageModuleMap["de"]["event/$slug/detail/child-events"]
+                    .route.mail.moveFromWaitingListToParticipants.subject,
+                  en: languageModuleMap["en"]["event/$slug/detail/child-events"]
+                    .route.mail.moveFromWaitingListToParticipants.subject,
+                },
+              },
+            },
           },
         });
       } else if (intent === "joinWaitingList") {

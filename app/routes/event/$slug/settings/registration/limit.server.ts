@@ -1,6 +1,7 @@
 import { captureException } from "@sentry/node";
 import { utcToZonedTime } from "date-fns-tz";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { getDuration } from "~/lib/utils/time";
 import { scheduleMail } from "~/mailer-queue.server";
 import { getCompiledMailTemplate } from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
@@ -54,12 +55,15 @@ export async function updateEventById(options: {
   locales: {
     mail: {
       moveUpToParticipants: {
-        subject: string;
+        subject: {
+          de: string;
+          en: string;
+        };
       };
     };
   };
 }) {
-  const { eventId, data, moveUpToParticipantsAutomatically } = options;
+  const { eventId, data, moveUpToParticipantsAutomatically, locales } = options;
 
   const updatedEvent = await prismaClient.event.update({
     where: { id: eventId },
@@ -73,6 +77,7 @@ export async function updateEventById(options: {
         slug: true,
         name: true,
         startTime: true,
+        endTime: true,
         venueName: true,
         venueStreet: true,
         venueStreetNumber: true,
@@ -189,35 +194,41 @@ export async function updateEventById(options: {
       }
       await prismaClient.$transaction(transactions);
 
-      const subject = insertParametersIntoLocale(
-        options.locales.mail.moveUpToParticipants.subject,
-        {
-          eventName: event.name,
-        }
-      );
+      const zonedStartTime = utcToZonedTime(event.startTime, "Europe/Berlin");
+      const zonedEndTime = utcToZonedTime(event.endTime, "Europe/Berlin");
+
+      const date = {
+        de: getDuration(zonedStartTime, zonedEndTime, "de"),
+        en: getDuration(zonedStartTime, zonedEndTime, "en"),
+      };
+
       const textTemplatePath =
         "mail-templates/event/profile-or-guest-moved-up-to-participants-text.hbs";
       const htmlTemplatePath =
         "mail-templates/event/profile-or-guest-moved-up-to-participants-html.hbs";
 
       const url = `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail`;
-      const zonedStartTime = utcToZonedTime(event.startTime, "Europe/Berlin");
-      const startDate = zonedStartTime.toLocaleDateString("de-DE", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      });
-      const startTime = zonedStartTime.toLocaleTimeString("de-DE", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+
       const location = getVenueString(event);
 
       void Promise.all(
         profilesToMoveUp.map(async (profile) => {
           try {
             const content = {
-              headline: subject,
+              headline: {
+                de: insertParametersIntoLocale(
+                  locales.mail.moveUpToParticipants.subject.de,
+                  {
+                    eventName: event.name,
+                  }
+                ),
+                en: insertParametersIntoLocale(
+                  locales.mail.moveUpToParticipants.subject.en,
+                  {
+                    eventName: event.name,
+                  }
+                ),
+              },
               profile: {
                 firstName: profile.firstName,
                 isGuest: profile.type === "guest",
@@ -225,9 +236,7 @@ export async function updateEventById(options: {
               event: {
                 name: event.name,
                 url,
-                startDate,
-                startTime,
-                timezone: "MEZ",
+                date,
                 location,
                 conferenceLink: event.conferenceLink,
                 revocationLink: null as string | null,
@@ -250,6 +259,9 @@ export async function updateEventById(options: {
               content,
               "html"
             );
+
+            const subject = `${content.headline.de} | ${content.headline.en}`;
+
             await scheduleMail({
               eventId,
               recipient,

@@ -454,7 +454,6 @@ export default [
   route("/auth/verify", "./routes/auth/verify.tsx"),
   route("/auth/guest/confirm", "./routes/auth/guest/confirm.tsx"),
   route("/auth/guest/verify", "./routes/auth/guest/verify.tsx"),
-  route("/auth/guest/revoke", "./routes/auth/guest/revoke.tsx"),
   route(
     "/auth/guest/request-confirmation",
     "./routes/auth/guest/request-confirmation.tsx"
