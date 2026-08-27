@@ -2,6 +2,7 @@ import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
+import testimonials from "./testimonials.json";
 
 export type NextLandingPageLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES
@@ -52,6 +53,37 @@ export async function getProjectTeaserOrganizationSlug() {
   }
 
   return organization.slug;
+}
+
+export async function getTestimonials() {
+  const usernames = testimonials.map((testimonial) => {
+    return testimonial.username;
+  });
+
+  const profiles = await prismaClient.profile.findMany({
+    select: {
+      username: true,
+    },
+    where: {
+      username: {
+        in: usernames,
+      },
+    },
+  });
+
+  const existingUsernames = profiles.map((profile) => {
+    return profile.username;
+  });
+
+  // Does the profile still exist? Link to the profile : don't link to the profile
+  const result = testimonials.map((testimonial) => {
+    return {
+      ...testimonial,
+      profileExists: existingUsernames.includes(testimonial.username),
+    };
+  });
+
+  return result;
 }
 
 export async function getEventTeaserOrganizationSlug() {

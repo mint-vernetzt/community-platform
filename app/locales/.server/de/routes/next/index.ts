@@ -1,3 +1,5 @@
+import { locale as helpLocale } from "../../help";
+
 export const locale = {
   validation: {
     email: "Bitte gib eine gültige E-Mail-Adresse ein.",
@@ -17,11 +19,60 @@ export const locale = {
     intro:
       "Finde Menschen, Ideen und Unterstützung für Deine Arbeit in der MINT-Bildung.",
   },
+  funding: {
+    headline: "Finde 4000+ Förderungen für Deine Arbeit",
+    info: "Entdecke Fördermöglichkeiten aus vier Datenbanken, finde zusätzliche Mittel für Deine Projekte und vernetze Dich für gemeinsame Förderanträge.",
+    cta: "Förderungen finden",
+  },
   counter: {
     profiles: "Profile",
     organizations: "Organisationen",
     events: "Veranstaltungen",
     projects: "Projekte",
+  },
+  tools: {
+    headline: "Tools für Deine Arbeit",
+    slider: {
+      previous: "Vorherige Tools anzeigen",
+      next: "Weitere Tools anzeigen",
+    },
+    fundingSearch: {
+      imgAlt: "Ein Sparschwein.",
+      headline: "Fördermittelsuche",
+      content:
+        "Finde passende Förderungen mit unserer Fördermittelsuche. Wir durchsuchen Förderdatenbanken nach relevanten Suchbegriffen und spielen die Ergebnisse gesammelt aus.",
+      action: "Zur Fördermittelsuche",
+    },
+    sharepic: {
+      imgAlt: "Ein Bild eines jungen Mädchens mit VR-Brille.",
+      headline: "MINT-Sharepic-Generator",
+      content:
+        "Erstelle ganz einfach Grafiken für Deine Öffentlichkeitsarbeit und nutze datenschutzkonform Deine eigenen Bilder oder greife auf Bilder und Grafiken der integrierten MINT-Mediendatenbank zurück.",
+      action: "Zum Sharepic-Generator",
+    },
+    mediaDatabase: {
+      imgAlt: "Vier Bilder als Kacheln angeordnet mit MINT-Bezug.",
+      headline: "MINT-Mediendatenbank",
+      content:
+        "Finde in unserer sich stetig erweiternden Datenbank freie MINT-Bilder und Grafiken, um Deine Öffentlichkeitsarbeit ansprechend und zielgruppengerecht zu gestalten.",
+      action: "Zur MINT-Mediendatenbank",
+    },
+    oeb: {
+      imgAlt: "Das Logo von MINT Open Educational Badges.",
+      headline: "MINT Open Educational Badges (OEB)",
+      content:
+        "Erstelle mit Open Educational Badges minutenschnell Badges (digitale Nachweise) für Deine Lernenden und schaffe mehr Sichtbarkeit für die Qualität Deiner Lernangebote.",
+      action: "Zu MINT-OEB",
+    },
+  },
+  community: {
+    headline: "Unsere Community",
+    intro:
+      "Austausch, der Dich weiterbringt – mit frischen Impulsen aus der Community und neuen Perspektiven von außen.",
+    slideshow: {
+      imageAlt: "Foto aus der MINTvernetzt-Community",
+      showImage: "Bild {{number}} von {{total}} anzeigen",
+    },
   },
   login: {
     skip: {
@@ -65,6 +116,46 @@ export const locale = {
     upcomingEvents: {
       headline: "Bevorstehende Events",
       empty: "Zurzeit sind keine bevorstehenden Events geplant.",
+    },
+  },
+  testimonials: {
+    headline: "Stimmen aus der Community",
+    controls: {
+      previous: "Vorherige Stimmen anzeigen",
+      next: "Nächste Stimmen anzeigen",
+    },
+  },
+  communityCta: {
+    headline: "Gestalte die Plattform aktiv mit",
+    intro:
+      "Deine Perspektive hilft, die Plattform weiterzuentwickeln. Bring Deine Ideen ein oder teste neue Funktionen frühzeitig. Erfahre mehr über geplante Features und wie Du Dich einbringen kannst.",
+    getInvolved: "Jetzt mitgestalten",
+  },
+  about: {
+    headline: "Wer hinter der Plattform steht",
+    description:
+      "Die MINTvernetzt Community-Plattform ist ein Projekt von MINTvernetzt. MINTvernetzt ist die zentrale Anlaufstelle für die außerschulische MINT-Bildung in Deutschland. Wir werden finanziert vom Bundesministerium für Bildung, Familie, Senioren, Frauen und Jugend.",
+    moreInformation:
+      "Erfahre mehr über MINTvernetzt und weitere Projekte auf unserer Website.",
+    website: "MINTvernetzt Website",
+    image: {
+      alt: "Das MINTvernetzt-Team steht auf einer Wendeltreppe",
+      credits: "",
+    },
+  },
+  faq: {
+    headline: "Fragen und Antworten",
+    cta: "Gesamter Hilfebereich",
+    qAndAs: {
+      whatIsStem: helpLocale.faq.stemEducation.qAndAs.whatIsStem,
+      whoIsThePlatformFor:
+        helpLocale.faq.generalPlatformInformation.qAndAs.whoIsThePlatformFor,
+      benefitsOfThePlatform:
+        helpLocale.faq.generalPlatformInformation.qAndAs.benefitsOfThePlatform,
+      isItFree: helpLocale.faq.generalPlatformInformation.qAndAs.isItFree,
+      benefitsOfRegistration:
+        helpLocale.faq.registration.qAndAs.benefitsOfRegistration,
+      mintId: helpLocale.faq.registration.qAndAs.mintId,
     },
   },
   form: {

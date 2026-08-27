@@ -16,7 +16,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   };
 };
 
-function getDataForToolsSection() {
+export function getDataForToolsSection() {
   type ResourceKey =
     keyof Route.ComponentProps["loaderData"]["locales"]["sections"]["tools"];
   type ResourceListItem = {
