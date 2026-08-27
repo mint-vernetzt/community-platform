@@ -25,7 +25,12 @@ export async function loader(args: LoaderFunctionArgs) {
     languageModuleMap[language]["event/$slug/detail/participants"];
 
   if (sessionUser === null) {
-    return redirect(`/login?login_redirect=${encodeURIComponent(request.url)}`);
+    const url = new URL(request.url);
+    const pathname = url.pathname;
+    const searchParamsString = url.searchParams.toString();
+    return redirect(
+      `/login?login_redirect=${pathname}${searchParamsString !== "" ? `?${searchParamsString}` : ""}`
+    );
   }
 
   const { slug } = params;
