@@ -44,6 +44,7 @@ import {
   getTakeParam,
 } from "./fundings.server";
 import { FUNDING_SORT_VALUES } from "./fundings.shared";
+import { createHashFromObject } from "~/utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -334,7 +335,7 @@ export async function loader(args: LoaderFunctionArgs) {
     submission,
     count,
     locales,
-    timestamp: Date.now(),
+    submissionHash: createHashFromObject(submission.value),
   };
 }
 
@@ -346,7 +347,7 @@ export default function ExploreFundings() {
   const navigation = useNavigation();
 
   const [form, fields] = useForm<FilterSchemes>({
-    id: `filter-fundings-${loaderData.timestamp}`,
+    id: `filter-fundings-${loaderData.submissionHash}`,
     defaultValue: {
       ...loaderData.submission.value,
       search: [loaderData.submission.value.search.join(" ")],
@@ -359,7 +360,7 @@ export default function ExploreFundings() {
   const fndFilterFieldset = fields.fndFilter.getFieldset();
 
   const [loadMoreForm, loadMoreFields] = useForm<FilterSchemes>({
-    id: `load-more-fundings-${loaderData.timestamp}`,
+    id: `load-more-fundings-${loaderData.submissionHash}`,
     defaultValue: {
       ...loaderData.submission.value,
       fndPage: loaderData.submission.value.fndPage + 1,
@@ -371,7 +372,7 @@ export default function ExploreFundings() {
   });
 
   const [resetForm, resetFields] = useForm<FilterSchemes>({
-    id: `reset-funding-filters-${loaderData.timestamp}`,
+    id: `reset-funding-filters-${loaderData.submissionHash}`,
     defaultValue: {
       ...loaderData.submission.value,
       fndFilter: {
@@ -696,7 +697,7 @@ export default function ExploreFundings() {
                       <ConformForm
                         key={type.slug}
                         useFormOptions={{
-                          id: `delete-filter-${type.slug}-${loaderData.timestamp}`,
+                          id: `delete-filter-${type.slug}-${loaderData.submissionHash}`,
                           defaultValue: {
                             ...loaderData.submission.value,
                             fndFilter: {
@@ -749,7 +750,7 @@ export default function ExploreFundings() {
                       <ConformForm
                         key={area.slug}
                         useFormOptions={{
-                          id: `delete-filter-${area.slug}-${loaderData.timestamp}`,
+                          id: `delete-filter-${area.slug}-${loaderData.submissionHash}`,
                           defaultValue: {
                             ...loaderData.submission.value,
                             fndFilter: {
@@ -802,7 +803,7 @@ export default function ExploreFundings() {
                       <ConformForm
                         key={region.slug}
                         useFormOptions={{
-                          id: `delete-filter-${region.slug}-${loaderData.timestamp}`,
+                          id: `delete-filter-${region.slug}-${loaderData.submissionHash}`,
                           defaultValue: {
                             ...loaderData.submission.value,
                             fndFilter: {
@@ -856,7 +857,7 @@ export default function ExploreFundings() {
                       <ConformForm
                         key={entity.slug}
                         useFormOptions={{
-                          id: `delete-filter-${entity.slug}-${loaderData.timestamp}`,
+                          id: `delete-filter-${entity.slug}-${loaderData.submissionHash}`,
                           defaultValue: {
                             ...loaderData.submission.value,
                             fndFilter: {

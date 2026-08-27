@@ -56,6 +56,7 @@ import {
   getTakeParam,
 } from "./events.server";
 import { EVENT_SORT_VALUES, PERIOD_OF_TIME_VALUES } from "./events.shared";
+import { createHashFromObject } from "~/utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -296,7 +297,7 @@ export async function loader(args: LoaderFunctionArgs) {
     eventsCount,
     locales,
     language,
-    timestamp: Date.now(),
+    submissionHash: createHashFromObject(submission.value),
   };
 }
 
@@ -309,7 +310,7 @@ export default function ExploreEvents() {
   const isHydrated = useHydrated();
 
   const [form, fields] = useForm<FilterSchemes>({
-    id: `filter-events-${loaderData.timestamp}`,
+    id: `filter-events-${loaderData.submissionHash}`,
     defaultValue: {
       ...loaderData.submission.value,
       search: [loaderData.submission.value.search.join(" ")],
@@ -322,7 +323,7 @@ export default function ExploreEvents() {
   const evtFilterFieldset = fields.evtFilter.getFieldset();
 
   const [loadMoreForm, loadMoreFields] = useForm<FilterSchemes>({
-    id: `load-more-events-${loaderData.timestamp}`,
+    id: `load-more-events-${loaderData.submissionHash}`,
     defaultValue: {
       ...loaderData.submission.value,
       evtPage: loaderData.submission.value.evtPage + 1,
@@ -334,7 +335,7 @@ export default function ExploreEvents() {
   });
 
   const [resetForm, resetFields] = useForm<FilterSchemes>({
-    id: `reset-event-filters-${loaderData.timestamp}`,
+    id: `reset-event-filters-${loaderData.submissionHash}`,
     defaultValue: {
       ...loaderData.submission.value,
       evtFilter: {
@@ -794,7 +795,7 @@ export default function ExploreEvents() {
                     <ConformForm
                       key={selectedFocus}
                       useFormOptions={{
-                        id: `delete-filter-${selectedFocus}-${loaderData.timestamp}`,
+                        id: `delete-filter-${selectedFocus}-${loaderData.submissionHash}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           evtFilter: {
@@ -858,7 +859,7 @@ export default function ExploreEvents() {
                     <ConformForm
                       key={selectedTargetGroup}
                       useFormOptions={{
-                        id: `delete-filter-${selectedTargetGroup}-${loaderData.timestamp}`,
+                        id: `delete-filter-${selectedTargetGroup}-${loaderData.submissionHash}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           evtFilter: {
