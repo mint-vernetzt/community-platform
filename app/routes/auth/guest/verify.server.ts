@@ -5,11 +5,7 @@ import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "~/events.shared";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { getDuration } from "~/lib/utils/time";
 import { scheduleMail } from "~/mailer-queue.server";
-import {
-  getCompiledMailTemplate,
-  mailer,
-  mailerOptions,
-} from "~/mailer.server";
+import { getCompiledMailTemplate } from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
 import { generateValidationToken } from "~/utils.server";
 import { getVenueString } from "~/utils.shared";
