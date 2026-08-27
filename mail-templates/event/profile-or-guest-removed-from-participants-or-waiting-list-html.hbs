@@ -47,9 +47,9 @@
                         color: #333333;">
                       Hallo {{profile.firstName}},<br><br>
                       {{#if profile.isOnWaitingList}}
-                      Du wurdest von der Warteliste des Events <b><a href="{{event.url}}">{{event.name}}</a></b> entfernt.<br><br>
+                      Du wurdest von der Warteliste des Events <a href="{{event.url}}" style="text-decoration: underline; font-weight: bold">{{event.name}}</a> entfernt.<br><br>
                       {{else}}
-                      Du wurdest als Teilnehmer:in vom Event <b><a href="{{event.url}}">{{event.name}}</a></b> entfernt.<br><br>
+                      Du wurdest als Teilnehmer:in vom Event <a href="{{event.url}}" style="text-decoration: underline; font-weight: bold">{{event.name}}</a> entfernt.<br><br>
                       {{/if}}
                       Falls Du Fragen dazu hast, melde Dich bitte bei der Ansprechperson des Events oder beim Event-Team.<br><br>
                       Viele Grüße<br>Dein MINTvernetzt-Team
@@ -165,9 +165,9 @@
                         color: #333333;">
                       Hello {{profile.firstName}},<br><br>
                       {{#if profile.isOnWaitingList}}
-                      You have been removed from the waiting list of the event <b><a href="{{event.url}}">{{event.name}}</a></b>.<br><br>
+                      You have been removed from the waiting list of the event <a href="{{event.url}}" style="text-decoration: underline; font-weight: bold">{{event.name}}</a>.<br><br>
                       {{else}}
-                      You have been removed as a participant from the event <b><a href="{{event.url}}">{{event.name}}</a></b>.<br><br>
+                      You have been removed as a participant from the event <a href="{{event.url}}" style="text-decoration: underline; font-weight: bold">{{event.name}}</a>.<br><br>
                       {{/if}}
                       If you have any questions, please contact the event's contact person or the event team.<br><br>
                       Best regards<br>Your MINTvernetzt Team
