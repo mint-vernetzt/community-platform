@@ -45,6 +45,7 @@ import {
 import {
   getEventTeaserOrganizationSlug,
   getProjectTeaserOrganizationSlug,
+  getTestimonials,
   getUpcomingEvents,
 } from "./index.server";
 
@@ -120,6 +121,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     await getProjectTeaserOrganizationSlug();
   const upcomingEvents = await getUpcomingEvents();
   const eventTeaserOrganizationSlug = await getEventTeaserOrganizationSlug();
+  const testimonials = await getTestimonials();
 
   return {
     locales,
@@ -132,6 +134,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     projectTeaserOrganizationSlug,
     upcomingEvents,
     eventTeaserOrganizationSlug,
+    testimonials,
   };
 };
 
@@ -211,6 +214,24 @@ export default function Index() {
     }, 6000);
     return () => clearInterval(interval);
   }, [autoPlay]);
+  const testimonialListRef = useRef<HTMLUListElement>(null);
+
+  const scrollTestimonials = (direction: "previous" | "next") => {
+    const list = testimonialListRef.current;
+    if (list === null) {
+      return;
+    }
+    const firstItem = list.firstElementChild;
+    if (firstItem instanceof HTMLElement === false) {
+      return;
+    }
+    // Card width + gap
+    const scrollAmount = firstItem.offsetWidth + 24;
+    list.scrollBy({
+      left: direction === "next" ? scrollAmount : -scrollAmount,
+      behavior: "smooth",
+    });
+  };
 
   const [loginForm, loginFields] = useForm({
     id: "login-form",
@@ -907,6 +928,110 @@ export default function Index() {
           </div>
         </div>
       </section>
+      {loaderData.testimonials.length > 0 ? (
+        <section className="py-16 relative">
+          <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
+            <h2 className="mb-8 @lg:mb-12 text-center text-primary-600 text-[2rem] leading-9 tracking-[-0.64px] font-bold">
+              {locales.testimonials.headline}
+            </h2>
+            <ul
+              ref={testimonialListRef}
+              className="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-none [&::-webkit-scrollbar]:hidden"
+            >
+              {loaderData.testimonials.map((testimonial) => {
+                const cardContent = (
+                  <>
+                    <img
+                      src={testimonial.image}
+                      alt=""
+                      className="w-18 h-18 rounded-full object-cover"
+                    />
+                    <p className="mt-6 mb-8 text-neutral-800 text-base leading-6">
+                      {testimonial.quote[loaderData.language]}
+                    </p>
+                    <div className="mt-auto">
+                      <p className="text-neutral-800 text-sm leading-5 font-bold group-hover:underline">
+                        {testimonial.name}
+                      </p>
+                      <p className="mt-1 text-neutral-700 text-xs leading-4">
+                        {testimonial.organization}
+                      </p>
+                    </div>
+                  </>
+                );
+                return (
+                  <li
+                    key={testimonial.username}
+                    className="w-full @md:w-[calc((100%-3rem)/3)] @xl:w-[calc((100%-4.5rem)/4)] shrink-0 snap-start flex"
+                  >
+                    {testimonial.profileExists ? (
+                      <Link
+                        to={`/profile/${testimonial.username}`}
+                        prefetch="intent"
+                        className="group w-full flex flex-col p-6 bg-white rounded-lg border border-neutral-200"
+                      >
+                        {cardContent}
+                      </Link>
+                    ) : (
+                      <div className="w-full flex flex-col p-6 bg-white rounded-lg border border-neutral-200">
+                        {cardContent}
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="mt-6 flex justify-center gap-4">
+              <button
+                type="button"
+                onClick={() => scrollTestimonials("previous")}
+                aria-label={locales.testimonials.controls.previous}
+                className="w-10 h-10 flex items-center justify-center rounded-lg border border-neutral-200 text-neutral-700 hover:bg-neutral-100"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M10 4L6 8L10 12"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollTestimonials("next")}
+                aria-label={locales.testimonials.controls.next}
+                className="w-10 h-10 flex items-center justify-center rounded-lg border border-neutral-200 text-neutral-700 hover:bg-neutral-100"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M6 4L10 8L6 12"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </section>
+      ) : null}
     </>
   );
 }

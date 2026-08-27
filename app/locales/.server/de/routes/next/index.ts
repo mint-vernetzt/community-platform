@@ -116,6 +116,13 @@ export const locale = {
       empty: "Zurzeit sind keine bevorstehenden Events geplant.",
     },
   },
+  testimonials: {
+    headline: "Stimmen aus der Community",
+    controls: {
+      previous: "Vorherige Stimmen anzeigen",
+      next: "Nächste Stimmen anzeigen",
+    },
+  },
   form: {
     label: {
       email: "E-Mail",
