@@ -296,6 +296,7 @@ export async function loader(args: LoaderFunctionArgs) {
     eventsCount,
     locales,
     language,
+    timestamp: Date.now(),
   };
 }
 
@@ -308,7 +309,7 @@ export default function ExploreEvents() {
   const isHydrated = useHydrated();
 
   const [form, fields] = useForm<FilterSchemes>({
-    id: "filter-events",
+    id: `filter-events-${loaderData.timestamp}`,
     defaultValue: {
       ...loaderData.submission.value,
       search: [loaderData.submission.value.search.join(" ")],
@@ -321,7 +322,7 @@ export default function ExploreEvents() {
   const evtFilterFieldset = fields.evtFilter.getFieldset();
 
   const [loadMoreForm, loadMoreFields] = useForm<FilterSchemes>({
-    id: "load-more-events",
+    id: `load-more-events-${loaderData.timestamp}`,
     defaultValue: {
       ...loaderData.submission.value,
       evtPage: loaderData.submission.value.evtPage + 1,
@@ -333,7 +334,7 @@ export default function ExploreEvents() {
   });
 
   const [resetForm, resetFields] = useForm<FilterSchemes>({
-    id: "reset-event-filters",
+    id: `reset-event-filters-${loaderData.timestamp}`,
     defaultValue: {
       ...loaderData.submission.value,
       evtFilter: {
@@ -793,7 +794,7 @@ export default function ExploreEvents() {
                     <ConformForm
                       key={selectedFocus}
                       useFormOptions={{
-                        id: `delete-filter-${selectedFocus}`,
+                        id: `delete-filter-${selectedFocus}-${loaderData.timestamp}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           evtFilter: {
@@ -857,7 +858,7 @@ export default function ExploreEvents() {
                     <ConformForm
                       key={selectedTargetGroup}
                       useFormOptions={{
-                        id: `delete-filter-${selectedTargetGroup}`,
+                        id: `delete-filter-${selectedTargetGroup}-${loaderData.timestamp}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           evtFilter: {

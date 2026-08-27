@@ -482,6 +482,7 @@ export async function loader(args: LoaderFunctionArgs) {
     filteredByVisibilityCount,
     projectsCount: projectCount,
     locales,
+    timestamp: Date.now(),
   };
 }
 
@@ -494,7 +495,7 @@ export default function ExploreProjects() {
   const isHydrated = useHydrated();
 
   const [form, fields] = useForm<FilterSchemes>({
-    id: "filter-projects",
+    id: `filter-projects-${loaderData.timestamp}`,
     defaultValue: {
       ...loaderData.submission.value,
       search: [loaderData.submission.value.search.join(" ")],
@@ -507,7 +508,7 @@ export default function ExploreProjects() {
   const prjFilterFieldset = fields.prjFilter.getFieldset();
 
   const [loadMoreForm, loadMoreFields] = useForm<FilterSchemes>({
-    id: "load-more-projects",
+    id: `load-more-projects-${loaderData.timestamp}`,
     defaultValue: {
       ...loaderData.submission.value,
       prjPage: loaderData.submission.value.prjPage + 1,
@@ -519,7 +520,7 @@ export default function ExploreProjects() {
   });
 
   const [resetForm, resetFields] = useForm<FilterSchemes>({
-    id: "reset-projects-filters",
+    id: `reset-projects-filters-${loaderData.timestamp}`,
     defaultValue: {
       ...loaderData.submission.value,
       prjFilter: {
@@ -1472,7 +1473,7 @@ export default function ExploreProjects() {
                     <ConformForm
                       key={selectedDiscipline}
                       useFormOptions={{
-                        id: `delete-filter-${selectedDiscipline}`,
+                        id: `delete-filter-${selectedDiscipline}-${loaderData.timestamp}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           prjFilter: {
@@ -1544,7 +1545,7 @@ export default function ExploreProjects() {
                       <ConformForm
                         key={selectedAdditionalDiscipline}
                         useFormOptions={{
-                          id: `delete-filter-${selectedAdditionalDiscipline}`,
+                          id: `delete-filter-${selectedAdditionalDiscipline}-${loaderData.timestamp}`,
                           defaultValue: {
                             ...loaderData.submission.value,
                             prjFilter: {
@@ -1611,7 +1612,7 @@ export default function ExploreProjects() {
                     <ConformForm
                       key={selectedTargetGroup}
                       useFormOptions={{
-                        id: `delete-filter-${selectedTargetGroup}`,
+                        id: `delete-filter-${selectedTargetGroup}-${loaderData.timestamp}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           prjFilter: {
@@ -1663,7 +1664,7 @@ export default function ExploreProjects() {
                     <ConformForm
                       key={selectedArea.slug}
                       useFormOptions={{
-                        id: `delete-filter-${selectedArea.slug}`,
+                        id: `delete-filter-${selectedArea.slug}-${loaderData.timestamp}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           prjFilter: {
@@ -1723,7 +1724,7 @@ export default function ExploreProjects() {
                     <ConformForm
                       key={selectedFormat}
                       useFormOptions={{
-                        id: `delete-filter-${selectedFormat}`,
+                        id: `delete-filter-${selectedFormat}-${loaderData.timestamp}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           prjFilter: {
@@ -1792,7 +1793,7 @@ export default function ExploreProjects() {
                       <ConformForm
                         key={selectedSpecialTargetGroup}
                         useFormOptions={{
-                          id: `delete-filter-${selectedSpecialTargetGroup}`,
+                          id: `delete-filter-${selectedSpecialTargetGroup}-${loaderData.timestamp}`,
                           defaultValue: {
                             ...loaderData.submission.value,
                             prjFilter: {
@@ -1857,7 +1858,7 @@ export default function ExploreProjects() {
                     <ConformForm
                       key={selectedFinancing}
                       useFormOptions={{
-                        id: `delete-filter-${selectedFinancing}`,
+                        id: `delete-filter-${selectedFinancing}-${loaderData.timestamp}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           prjFilter: {
