@@ -129,6 +129,18 @@ export const locale = {
       "Deine Perspektive hilft, die Plattform weiterzuentwickeln. Bring Deine Ideen ein oder teste neue Funktionen frühzeitig. Erfahre mehr über geplante Features und wie Du Dich einbringen kannst.",
     getInvolved: "Jetzt mitgestalten",
   },
+  about: {
+    headline: "Wer hinter der Plattform steht",
+    description:
+      "Die MINTvernetzt Community-Plattform ist ein Projekt von MINTvernetzt. MINTvernetzt ist die zentrale Anlaufstelle für die außerschulische MINT-Bildung in Deutschland. Wir werden finanziert vom Bundesministerium für Bildung, Familie, Senioren, Frauen und Jugend.",
+    moreInformation:
+      "Erfahre mehr über MINTvernetzt und weitere Projekte auf unserer Website.",
+    website: "MINTvernetzt Website",
+    image: {
+      alt: "Das MINTvernetzt-Team steht auf einer Wendeltreppe",
+      credits: "",
+    },
+  },
   form: {
     label: {
       email: "E-Mail",

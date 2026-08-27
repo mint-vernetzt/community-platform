@@ -1079,6 +1079,73 @@ export default function Index() {
           </div>
         </div>
       </section>
+      <section className="py-16 relative">
+        <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
+          <div className="@md:grid @md:grid-cols-12 @md:gap-6 @lg:gap-8 @md:items-center">
+            <div className="mb-8 @md:mb-0 @md:row-start-1 @md:col-start-7 @md:col-span-6">
+              <div className="relative w-full aspect-6/5 rounded-2xl overflow-hidden [&_img]:object-bottom">
+                <Image
+                  src="/images/mintvernetztteam.jpg"
+                  alt={locales.about.image.alt}
+                >
+                  {locales.about.image.credits !== "" ? (
+                    <Image.Credits credits={locales.about.image.credits} />
+                  ) : null}
+                </Image>
+                {loaderData.eventTeaserOrganizationSlug !== null ? (
+                  <Link
+                    to={`/organization/${loaderData.eventTeaserOrganizationSlug}/detail/about`}
+                    prefetch="intent"
+                    className="absolute top-4 left-4 h-8 flex items-center gap-2.5 py-1 pl-1 pr-2 bg-neutral-800/60 rounded-lg"
+                  >
+                    <img
+                      src="/images/mint-vernetzt_shortlogo.png"
+                      alt=""
+                      className="w-6 h-6 rounded-full"
+                    />
+                    <span className="text-neutral-50 text-xs leading-4 font-semibold">
+                      MINTvernetzt
+                    </span>
+                  </Link>
+                ) : (
+                  <div className="absolute top-4 left-4 h-8 flex items-center gap-2.5 py-1 pl-1 pr-2 bg-neutral-800/60 rounded-lg">
+                    <img
+                      src="/images/mint-vernetzt_shortlogo.png"
+                      alt=""
+                      className="w-6 h-6 rounded-full"
+                    />
+                    <span className="text-neutral-50 text-xs leading-4 font-semibold">
+                      MINTvernetzt
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="@md:row-start-1 @md:col-start-1 @md:col-span-5">
+              <h2 className="mb-6 text-primary-600 text-[2rem] leading-9 tracking-[-0.64px] font-bold">
+                {locales.about.headline}
+              </h2>
+              <p className="mb-6 text-neutral-800 text-lg leading-[1.3] tracking-[0.18px]">
+                {locales.about.description}
+              </p>
+              <p className="mb-8 text-neutral-800 text-lg leading-[1.3] tracking-[0.18px]">
+                {locales.about.moreInformation}
+              </p>
+              <Button
+                as="link"
+                to="https://www.mint-vernetzt.de"
+                target="_blank"
+                rel="noreferrer noopener"
+                variant="outline"
+              >
+                <Icon type="box-arrow-up-right" />
+                {locales.about.website}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
     </>
   );
 }
