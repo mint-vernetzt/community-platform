@@ -234,6 +234,7 @@ export async function getEventBySlug(slug: string) {
       participationUntil: true,
       endTime: true,
       external: true,
+      published: true,
       openForRegistration: true,
       parentParticipationRequired: true,
       parentEvent: {

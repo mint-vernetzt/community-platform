@@ -241,13 +241,15 @@ function getIsAnyoneAbleToParticipateInEvent(event: {
   afterParticipationPeriod: boolean;
   canceled: boolean;
   external: boolean;
+  published: boolean;
 }) {
   if (
     event.inPast === false &&
     event.beforeParticipationPeriod === false &&
     event.afterParticipationPeriod === false &&
     event.canceled === false &&
-    event.external === false
+    event.external === false &&
+    event.published === true
   ) {
     return true;
   }
@@ -270,7 +272,7 @@ export async function deriveModeForEvent(options: {
     parentParticipationRequired: boolean | null;
     hasChildEvents: boolean;
     participationToken?: string | null;
-
+    published: boolean;
     parentEvent: {
       parentParticipationRequired: boolean | null;
       participationToken?: string | null;
@@ -430,6 +432,16 @@ export async function getIsMember(
             },
           },
         },
+        // is potential team member
+        {
+          joinEventInvites: {
+            some: {
+              eventId: event.id,
+              role: "member",
+              status: "pending",
+            },
+          },
+        },
         // is speaker
         {
           contributedEvents: {
@@ -438,11 +450,31 @@ export async function getIsMember(
             },
           },
         },
+        // is potential speaker
+        {
+          joinEventInvites: {
+            some: {
+              eventId: event.id,
+              role: "speaker",
+              status: "pending",
+            },
+          },
+        },
         // is admin
         {
           administeredEvents: {
             some: {
               eventId: event.id,
+            },
+          },
+        },
+        // is potential admin
+        {
+          joinEventInvites: {
+            some: {
+              eventId: event.id,
+              role: "admin",
+              status: "pending",
             },
           },
         },
@@ -464,6 +496,7 @@ export async function getIsMember(
                 receivedParentEventJoinRequests: {
                   some: {
                     childEventId: event.id,
+                    status: "pending",
                   },
                 },
               },
@@ -497,6 +530,7 @@ export async function getIsMember(
                 responsibleForEventInvites: {
                   some: {
                     eventId: event.id,
+                    status: "pending",
                   },
                 },
               },
