@@ -50,14 +50,6 @@ export async function mailer(
     });
 }
 
-// Message configuration
-type StandardMessageContent = {
-  headline: string;
-  message: string;
-  buttonText: string;
-  buttonUrl: string;
-};
-
 type ClaimOrganizationRequestCreatedContent = {
   headline: string;
   claimer: {
