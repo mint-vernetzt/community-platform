@@ -56,6 +56,7 @@ import {
 import { PROFILE_SORT_VALUES } from "./profiles.shared";
 import { getAllAreas, getAreaNameBySlug } from "./utils.server";
 import { useEffect, useState } from "react";
+import { createHashFromObject } from "~/utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -347,7 +348,7 @@ export async function loader(args: LoaderFunctionArgs) {
     filteredByVisibilityCount,
     profilesCount: profileCount,
     locales: routeLocales,
-    timestamp: Date.now(),
+    submissionHash: createHashFromObject(submission.value),
   };
 }
 
@@ -359,7 +360,7 @@ export default function ExploreProfiles() {
   const isHydrated = useHydrated();
 
   const [form, fields] = useForm<FilterSchemes>({
-    id: `filter-profiles-${loaderData.timestamp}`,
+    id: `filter-profiles-${loaderData.submissionHash}`,
     defaultValue: {
       ...loaderData.submission.value,
       search: [loaderData.submission.value.search.join(" ")],
@@ -372,7 +373,7 @@ export default function ExploreProfiles() {
   const prfFilterFieldset = fields.prfFilter.getFieldset();
 
   const [loadMoreForm, loadMoreFields] = useForm<FilterSchemes>({
-    id: `load-more-profiles-${loaderData.timestamp}`,
+    id: `load-more-profiles-${loaderData.submissionHash}`,
     defaultValue: {
       ...loaderData.submission.value,
       prfPage: loaderData.submission.value.prfPage + 1,
@@ -384,7 +385,7 @@ export default function ExploreProfiles() {
   });
 
   const [resetForm, resetFields] = useForm<FilterSchemes>({
-    id: `reset-profile-filters-${loaderData.timestamp}`,
+    id: `reset-profile-filters-${loaderData.submissionHash}`,
     defaultValue: {
       ...loaderData.submission.value,
       prfFilter: {
@@ -832,7 +833,7 @@ export default function ExploreProfiles() {
                     <ConformForm
                       key={selectedOffer}
                       useFormOptions={{
-                        id: `delete-filter-${selectedOffer}-${loaderData.timestamp}`,
+                        id: `delete-filter-${selectedOffer}-${loaderData.submissionHash}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           prfFilter: {
@@ -883,7 +884,7 @@ export default function ExploreProfiles() {
                     <ConformForm
                       key={selectedArea.slug}
                       useFormOptions={{
-                        id: `delete-filter-${selectedArea.slug}-${loaderData.timestamp}`,
+                        id: `delete-filter-${selectedArea.slug}-${loaderData.submissionHash}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           prfFilter: {

@@ -55,6 +55,7 @@ import {
 } from "./organizations.server";
 import { ORGANIZATION_SORT_VALUES } from "./organizations.shared";
 import { getAllAreas, getAreaNameBySlug } from "./utils.server";
+import { createHashFromObject } from "~/utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -333,7 +334,7 @@ export async function loader(args: LoaderFunctionArgs) {
     networks: enhancedNetworks,
     selectedNetworks,
     currentView,
-    timestamp: Date.now(),
+    submissionHash: createHashFromObject(submission.value),
   };
 }
 
@@ -346,7 +347,7 @@ export default function ExploreOrganizations() {
   const isHydrated = useHydrated();
 
   const [form, fields] = useForm<FilterSchemes>({
-    id: `filter-organizations-${loaderData.timestamp}`,
+    id: `filter-organizations-${loaderData.submissionHash}`,
     defaultValue: {
       ...loaderData.submission.value,
       search: [loaderData.submission.value.search.join(" ")],
@@ -359,7 +360,7 @@ export default function ExploreOrganizations() {
   const orgFilterFieldset = fields.orgFilter.getFieldset();
 
   const [resetForm, resetFields] = useForm<FilterSchemes>({
-    id: `reset-organization-filters-${loaderData.timestamp}`,
+    id: `reset-organization-filters-${loaderData.submissionHash}`,
     defaultValue: {
       ...loaderData.submission.value,
       orgFilter: {
@@ -1106,7 +1107,7 @@ export default function ExploreOrganizations() {
                     <ConformForm
                       key={selectedType}
                       useFormOptions={{
-                        id: `delete-filter-${selectedType}-${loaderData.timestamp}`,
+                        id: `delete-filter-${selectedType}-${loaderData.submissionHash}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           orgFilter: {
@@ -1169,7 +1170,7 @@ export default function ExploreOrganizations() {
                     <ConformForm
                       key={selectedNetworkType}
                       useFormOptions={{
-                        id: `delete-filter-${selectedNetworkType}-${loaderData.timestamp}`,
+                        id: `delete-filter-${selectedNetworkType}-${loaderData.submissionHash}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           orgFilter: {
@@ -1232,7 +1233,7 @@ export default function ExploreOrganizations() {
                     <ConformForm
                       key={selectedFocus}
                       useFormOptions={{
-                        id: `delete-filter-${selectedFocus}-${loaderData.timestamp}`,
+                        id: `delete-filter-${selectedFocus}-${loaderData.submissionHash}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           orgFilter: {
@@ -1284,7 +1285,7 @@ export default function ExploreOrganizations() {
                     <ConformForm
                       key={selectedArea.slug}
                       useFormOptions={{
-                        id: `delete-filter-${selectedArea.slug}-${loaderData.timestamp}`,
+                        id: `delete-filter-${selectedArea.slug}-${loaderData.submissionHash}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           orgFilter: {
@@ -1335,7 +1336,7 @@ export default function ExploreOrganizations() {
                     <ConformForm
                       key={selectedNetwork.slug}
                       useFormOptions={{
-                        id: `delete-filter-${selectedNetwork.slug}-${loaderData.timestamp}`,
+                        id: `delete-filter-${selectedNetwork.slug}-${loaderData.submissionHash}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           orgFilter: {

@@ -29,6 +29,7 @@ import { getPublicURL } from "~/storage.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
 import { getAllOrganizations } from "./list.server";
+import { createHashFromObject } from "~/utils.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
@@ -234,7 +235,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       locales,
       isLoggedIn,
       submission,
-      timestamp: Date.now(),
+      submissionHash: createHashFromObject(submission.value),
     },
     {
       headers: viewCookieHeader,
@@ -276,7 +277,7 @@ export default function ExploreOrganizationsList() {
         <div className="w-full flex justify-center mt-4 @lg:mt-6 @xl:mt-8">
           <ConformForm
             useFormOptions={{
-              id: `load-more-organizations-${loaderData.timestamp}`,
+              id: `load-more-organizations-${loaderData.submissionHash}`,
               defaultValue: {
                 ...loaderData.submission.value,
                 orgPage: loaderData.submission.value.orgPage + 1,
