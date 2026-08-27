@@ -656,10 +656,10 @@ export async function removeProfileFromParticipants(options: {
         subject: { de: string; en: string };
       };
       removeFromParticipants: {
-        subject: string;
+        subject: { de: string; en: string };
       };
-      guestRemoved: {
-        subject: string;
+      removeFromWaitingList: {
+        subject: { de: string; en: string };
       };
     };
   };
@@ -819,7 +819,7 @@ export async function removeProfileFromWaitingList(options: {
   locales: {
     mail: {
       removeFromWaitingList: {
-        subject: string;
+        subject: { de: string; en: string };
       };
     };
   };
@@ -844,6 +844,7 @@ export async function removeProfileFromWaitingList(options: {
         event: {
           select: {
             name: true,
+            slug: true,
           },
         },
       },
@@ -867,21 +868,29 @@ export async function removeProfileFromWaitingList(options: {
       }
 
       const recipient = data.profile.email;
-      const subject = insertParametersIntoLocale(
-        locales.mail.removeFromWaitingList.subject,
-        {
-          eventName: data.event.name,
-        }
-      );
 
       const content = {
-        headline: subject,
+        headline: {
+          de: insertParametersIntoLocale(
+            locales.mail.removeFromWaitingList.subject.de,
+            {
+              eventName: data.event.name,
+            }
+          ),
+          en: insertParametersIntoLocale(
+            locales.mail.removeFromWaitingList.subject.en,
+            {
+              eventName: data.event.name,
+            }
+          ),
+        },
         profile: {
           firstName: data.profile.firstName,
           isOnWaitingList: true,
         },
         event: {
           name: data.event.name,
+          url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail`,
         },
       };
 
@@ -899,6 +908,8 @@ export async function removeProfileFromWaitingList(options: {
         content,
         "html"
       );
+
+      const subject = `${content.headline.de} | ${content.headline.en}`;
 
       await scheduleMail({
         eventId,

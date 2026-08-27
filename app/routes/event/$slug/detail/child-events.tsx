@@ -161,13 +161,28 @@ export async function action(args: ActionFunctionArgs) {
           eventId: data.eventId,
           locales: {
             mail: {
-              ...locales.route.mail,
               moveFromWaitingListToParticipants: {
                 subject: {
                   de: languageModuleMap["de"]["event/$slug/detail/child-events"]
                     .route.mail.moveFromWaitingListToParticipants.subject,
                   en: languageModuleMap["en"]["event/$slug/detail/child-events"]
                     .route.mail.moveFromWaitingListToParticipants.subject,
+                },
+              },
+              removeFromParticipants: {
+                subject: {
+                  de: languageModuleMap["de"]["event/$slug/detail/child-events"]
+                    .route.mail.removeFromParticipants.subject,
+                  en: languageModuleMap["en"]["event/$slug/detail/child-events"]
+                    .route.mail.removeFromParticipants.subject,
+                },
+              },
+              removeFromWaitingList: {
+                subject: {
+                  de: languageModuleMap["de"]["event/$slug/detail/child-events"]
+                    .route.mail.removeFromWaitingList.subject,
+                  en: languageModuleMap["en"]["event/$slug/detail/child-events"]
+                    .route.mail.removeFromWaitingList.subject,
                 },
               },
             },
@@ -193,7 +208,16 @@ export async function action(args: ActionFunctionArgs) {
           profileId: sessionUser.id,
           eventId: data.eventId,
           locales: {
-            mail: locales.route.mail,
+            mail: {
+              removeFromWaitingList: {
+                subject: {
+                  de: languageModuleMap["de"]["event/$slug/detail/child-events"]
+                    .route.mail.removeFromWaitingList.subject,
+                  en: languageModuleMap["en"]["event/$slug/detail/child-events"]
+                    .route.mail.removeFromWaitingList.subject,
+                },
+              },
+            },
           },
         });
       }

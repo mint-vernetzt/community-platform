@@ -176,7 +176,16 @@ export async function action(args: ActionFunctionArgs) {
       type: submission.value.participationType,
       locales: {
         mail: {
-          removeFromParticipants: locales.route.mail.removeParticipant,
+          removeFromParticipants: {
+            subject: {
+              de: languageModuleMap["de"][
+                "event/$slug/settings/participants/list"
+              ].route.mail.removeFromParticipants.subject,
+              en: languageModuleMap["en"][
+                "event/$slug/settings/participants/list"
+              ].route.mail.removeFromParticipants.subject,
+            },
+          },
           moveFromWaitingListToParticipants: {
             subject: {
               de: languageModuleMap["de"][
@@ -185,6 +194,16 @@ export async function action(args: ActionFunctionArgs) {
               en: languageModuleMap["en"][
                 "event/$slug/settings/participants/list"
               ].route.mail.moveFromWaitingListToParticipants.subject,
+            },
+          },
+          removeFromWaitingList: {
+            subject: {
+              de: languageModuleMap["de"][
+                "event/$slug/settings/participants/list"
+              ].route.mail.removeFromWaitingList.subject,
+              en: languageModuleMap["en"][
+                "event/$slug/settings/participants/list"
+              ].route.mail.removeFromWaitingList.subject,
             },
           },
         },

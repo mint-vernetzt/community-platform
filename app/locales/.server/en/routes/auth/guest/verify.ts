@@ -34,6 +34,14 @@ export const locale = {
         subject:
           "You have been moved from the waiting list to the participants of the event {{eventName}}",
       },
+      removeFromParticipants: {
+        subject:
+          "You have been removed from the participants of the event {{eventName}}",
+      },
+      removeFromWaitingList: {
+        subject:
+          "You have been removed from the waiting list for the event {{eventName}}",
+      },
     },
   },
 } as const;

@@ -214,9 +214,12 @@ export async function removeFromEvent(options: {
   locales: {
     mail: {
       removeFromParticipants: {
-        subject: string;
+        subject: { de: string; en: string };
       };
       moveFromWaitingListToParticipants: {
+        subject: { de: string; en: string };
+      };
+      removeFromWaitingList: {
         subject: { de: string; en: string };
       };
     };

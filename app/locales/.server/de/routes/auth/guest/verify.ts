@@ -36,6 +36,14 @@ export const locale = {
         subject:
           "Du wurdest von der Warteliste zu den Teilnehmenden des Events {{eventName}} hinzugefügt",
       },
+      removeFromParticipants: {
+        subject:
+          "Du wurdest von den Teilnehmenden des Events {{eventName}} entfernt",
+      },
+      removeFromWaitingList: {
+        subject:
+          "Du wurdest von der Warteliste des Events {{eventName}} entfernt",
+      },
     },
   },
 } as const;

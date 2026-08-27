@@ -286,7 +286,10 @@ export async function removeParticipantFromEvent(options: {
       subject: { de: string; en: string };
     };
     removeFromParticipants: {
-      subject: string;
+      subject: { de: string; en: string };
+    };
+    removeFromWaitingList: {
+      subject: { de: string; en: string };
     };
   };
 }) {
@@ -583,12 +586,7 @@ export async function removeParticipantFromEvent(options: {
         try {
           let recipient;
           let firstName;
-          const subject = insertParametersIntoLocale(
-            locales.removeFromParticipants.subject,
-            {
-              eventName: event.name,
-            }
-          );
+
           if (type === "guest") {
             if (guest === null) {
               // This should never happen, but makes TypeScript happy
@@ -609,25 +607,43 @@ export async function removeParticipantFromEvent(options: {
           const htmlTemplatePath =
             "mail-templates/event/profile-or-guest-removed-from-participants-or-waiting-list-html.hbs";
 
-          const data = {
-            headline: subject,
+          const content = {
+            headline: {
+              de: insertParametersIntoLocale(
+                event.removedFromWaitingList
+                  ? locales.removeFromWaitingList.subject.de
+                  : locales.removeFromParticipants.subject.de,
+                { eventName: event.name }
+              ),
+              en: insertParametersIntoLocale(
+                event.removedFromWaitingList
+                  ? locales.removeFromWaitingList.subject.en
+                  : locales.removeFromParticipants.subject.en,
+                { eventName: event.name }
+              ),
+            },
             profile: {
               firstName,
               isOnWaitingList: event.removedFromWaitingList,
             },
-            event: { name: event.name },
+            event: {
+              name: event.name,
+              url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail`,
+            },
           };
 
           const text = getCompiledMailTemplate<typeof textTemplatePath>(
             textTemplatePath,
-            data,
+            content,
             "text"
           );
           const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
             htmlTemplatePath,
-            data,
+            content,
             "html"
           );
+
+          const subject = `${content.headline.de} | ${content.headline.en}`;
 
           await scheduleMail({
             recipient,
