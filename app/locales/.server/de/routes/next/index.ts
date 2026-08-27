@@ -123,6 +123,12 @@ export const locale = {
       next: "Nächste Stimmen anzeigen",
     },
   },
+  communityCta: {
+    headline: "Gestalte die Plattform aktiv mit",
+    intro:
+      "Deine Perspektive hilft, die Plattform weiterzuentwickeln. Bring Deine Ideen ein oder teste neue Funktionen frühzeitig. Erfahre mehr über geplante Features und wie Du Dich einbringen kannst.",
+    getInvolved: "Jetzt mitgestalten",
+  },
   form: {
     label: {
       email: "E-Mail",
