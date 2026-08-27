@@ -1,5 +1,6 @@
 import { captureException } from "@sentry/node";
 import { utcToZonedTime } from "date-fns-tz";
+import { removeParticipantFromEvent } from "~/events.server";
 import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "~/events.shared";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { getDuration } from "~/lib/utils/time";
@@ -237,56 +238,27 @@ export async function confirmGuest(options: {
 export async function revokeGuest(options: {
   guestId: string;
   eventId: string;
-  locales: { mail: { subject: string } };
+  locales: {
+    mail: {
+      moveFromWaitingListToParticipants: {
+        subject: { de: string; en: string };
+      };
+      removeFromParticipants: {
+        subject: string;
+      };
+    };
+  };
 }) {
   const { guestId, eventId, locales } = options;
 
-  const result = await prismaClient.guest.delete({
-    where: {
-      id: guestId,
-      eventId: eventId,
-    },
-    select: {
-      firstName: true,
-      email: true,
-      event: {
-        select: {
-          name: true,
-        },
-      },
-      onWaitingList: true,
+  const result = await removeParticipantFromEvent({
+    id: guestId,
+    eventId,
+    type: "guest",
+    locales: {
+      ...locales.mail,
     },
   });
-
-  try {
-    const sender = process.env.SYSTEM_MAIL_SENDER;
-    const recipient = result.email;
-    const subject = locales.mail.subject;
-    const textTemplatePath =
-      "mail-templates/general-notification/remove-participant-from-event-text.hbs";
-    const htmlTemplatePath =
-      "mail-templates/general-notification/remove-participant-from-event-html.hbs";
-
-    const data = {
-      firstName: result.firstName,
-      event: { name: result.event.name },
-    };
-
-    const text = getCompiledMailTemplate<typeof textTemplatePath>(
-      textTemplatePath,
-      data,
-      "text"
-    );
-    const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
-      htmlTemplatePath,
-      data,
-      "html"
-    );
-
-    await mailer(mailerOptions, sender, recipient, subject, text, html);
-  } catch (error) {
-    captureException(error);
-  }
 
   return result;
 }

@@ -29,5 +29,11 @@ export const locale = {
       description:
         "No guest could be found with the provided token. It is possible that you have already revoked your registration. Please check your email inbox and, if necessary, also the spam folder. If you did not receive an email, please contact our <0>support</0>.",
     },
+    mail: {
+      moveFromWaitingListToParticipants: {
+        subject:
+          "You have been moved from the waiting list to the participants of the event {{eventName}}",
+      },
+    },
   },
 } as const;

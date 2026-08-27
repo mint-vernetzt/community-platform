@@ -288,9 +288,6 @@ export async function removeParticipantFromEvent(options: {
     removeFromParticipants: {
       subject: string;
     };
-    guestRemoved: {
-      subject: string;
-    };
   };
 }) {
   const { id, eventId, type, locales, recursively = true } = options;
@@ -585,17 +582,19 @@ export async function removeParticipantFromEvent(options: {
       eventsParticipantHasBeenRemovedFrom.map(async (event) => {
         try {
           let recipient;
-          let subject;
           let firstName;
+          const subject = insertParametersIntoLocale(
+            locales.removeFromParticipants.subject,
+            {
+              eventName: event.name,
+            }
+          );
           if (type === "guest") {
             if (guest === null) {
               // This should never happen, but makes TypeScript happy
               return;
             }
             recipient = guest.email;
-            subject = insertParametersIntoLocale(locales.guestRemoved.subject, {
-              eventName: event.name,
-            });
             firstName = guest.firstName;
           } else {
             if (user === null) {
@@ -603,12 +602,6 @@ export async function removeParticipantFromEvent(options: {
               return;
             }
             recipient = user.email;
-            subject = insertParametersIntoLocale(
-              locales.removeFromParticipants.subject,
-              {
-                eventName: event.name,
-              }
-            );
             firstName = user.firstName;
           }
           const textTemplatePath =
