@@ -122,7 +122,25 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     result = await changePassword({
       formData,
       sessionUser,
-      locales,
+      locales: {
+        error: locales.error,
+        validation: locales.validation,
+        section: {
+          changePassword2: {
+            ...locales.section.changePassword2,
+            emailNotice: {
+              subject: {
+                de: languageModuleMap["de"][
+                  "profile/$username/settings/security"
+                ].section.changePassword2.emailNotice.subject,
+                en: languageModuleMap["en"][
+                  "profile/$username/settings/security"
+                ].section.changePassword2.emailNotice.subject,
+              },
+            },
+          },
+        },
+      },
     });
   } else {
     invariantResponse(false, locales.error.wrongIntent, {
