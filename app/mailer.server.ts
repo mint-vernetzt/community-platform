@@ -330,6 +330,17 @@ type ReminderContent = {
   };
 };
 
+type ChangeEmailContent = {
+  headline: {
+    de: string;
+    en: string;
+  };
+  firstName: string;
+  oldEmail: string;
+  newEmail: string;
+  supportMail: string;
+};
+
 export type TemplatePath =
   | "mail-templates/standard-message/html.hbs"
   | "mail-templates/standard-message/text.hbs"
@@ -472,7 +483,9 @@ export type TemplatePath =
   | "mail-templates/event/reminder-one-hour-before-html.hbs"
   | "mail-templates/event/reminder-one-hour-before-text.hbs"
   | "mail-templates/event/reminder-fifteen-minutes-before-html.hbs"
-  | "mail-templates/event/reminder-fifteen-minutes-before-text.hbs";
+  | "mail-templates/event/reminder-fifteen-minutes-before-text.hbs"
+  | "mail-templates/profile/email-changed-html.hbs"
+  | "mail-templates/profile/email-changed-text.hbs";
 
 type TemplateContent<TemplatePath> = TemplatePath extends
   | "mail-templates/standard-message/html.hbs"
@@ -674,7 +687,11 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                                               | "mail-templates/event/reminder-fifteen-minutes-before-html.hbs"
                                                               | "mail-templates/event/reminder-fifteen-minutes-before-text.hbs"
                                                           ? ReminderContent
-                                                          : never;
+                                                          : TemplatePath extends
+                                                                | "mail-templates/profile/email-changed-html.hbs"
+                                                                | "mail-templates/profile/email-changed-text.hbs"
+                                                            ? ChangeEmailContent
+                                                            : never;
 
 export function getCompiledMailTemplate<T extends TemplatePath>(
   templatePath: TemplatePath,

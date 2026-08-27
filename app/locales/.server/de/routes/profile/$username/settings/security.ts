@@ -18,7 +18,7 @@ export const locale = {
     },
   },
   error: {
-    emailsDontMatch: "Deine E-Mails stimmen nicht überein.",
+    emailsDoNotMatch: "Deine E-Mails stimmen nicht überein.",
     passwordMismatch: "Die Passwörter stimmen nicht überein.",
     notPrivileged: "Not privileged",
     notAllowed: "Not allowed.",
@@ -81,9 +81,6 @@ export const locale = {
       },
       emailNotice: {
         subject: "Deine E-Mail-Adresse wurde geändert",
-        headline: "Hallo {{firstName}},",
-        message:
-          "die E-Mail Adresse Deines MINTvernetzt Profils wurde von {{oldEmail}} auf {{newEmail}} geändert. Falls Du das nicht warst, kontaktiere bitte den Support unter:",
       },
     },
   },

@@ -98,7 +98,25 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     result = await changeEmail({
       formData,
       sessionUser,
-      locales,
+      locales: {
+        error: locales.error,
+        validation: locales.validation,
+        section: {
+          changeEmail: {
+            ...locales.section.changeEmail,
+            emailNotice: {
+              subject: {
+                de: languageModuleMap["de"][
+                  "profile/$username/settings/security"
+                ].section.changeEmail.emailNotice.subject,
+                en: languageModuleMap["en"][
+                  "profile/$username/settings/security"
+                ].section.changeEmail.emailNotice.subject,
+              },
+            },
+          },
+        },
+      },
     });
   } else if (intent === "change-password") {
     result = await changePassword({
@@ -186,7 +204,7 @@ export default function Security() {
           if (data.email !== data.confirmEmail) {
             ctx.addIssue({
               code: "custom",
-              message: locales.error.emailsDontMatch,
+              message: locales.error.emailsDoNotMatch,
               path: ["confirmEmail"],
             });
             return z.NEVER;
