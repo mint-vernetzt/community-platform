@@ -835,8 +835,6 @@ function Detail() {
     loaderData.event.parentEvent !== null &&
     tokenHash === loaderData.event.parentEvent.participationToken;
 
-  console.log(loaderData.mode);
-
   return (
     <>
       <BasicStructure>
