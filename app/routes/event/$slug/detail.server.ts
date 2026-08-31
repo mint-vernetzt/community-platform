@@ -314,6 +314,7 @@ export async function deriveModeForEvent(options: {
       // Check if user can participate on child event
       if (
         eventInfo.parentEvent.parentParticipationRequired === false ||
+        eventInfo.parentParticipationRequired === false ||
         eventInfo.parentEvent.external
       ) {
         return "anon" as const;
@@ -321,7 +322,7 @@ export async function deriveModeForEvent(options: {
       // Check if user should first participate on parent event
       // Therefore, user can only participate via participation link from parent event
       if (
-        eventInfo.parentParticipationRequired !== false &&
+        eventInfo.parentEvent.parentParticipationRequired === true &&
         tokenHash !== null &&
         tokenHash === eventInfo.parentEvent.participationToken
       ) {
