@@ -841,7 +841,7 @@ function Detail() {
         {hasContent(loaderData.event.parentEvent) ? (
           <BreadCrump>
             <BreadCrump.Link
-              to={`/event/${loaderData.event.parentEvent.slug}/detail/about`}
+              to={`/event/${loaderData.event.parentEvent.slug}/detail/about${tokenHash ? `?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${tokenHash}` : ""}`}
               prefetch="intent"
             >
               {loaderData.event.parentEvent.name}
