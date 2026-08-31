@@ -728,9 +728,9 @@ export async function action(args: ActionFunctionArgs) {
                 removeFromParticipants: {
                   subject: {
                     de: languageModuleMap["de"]["event/$slug/detail"].route.mail
-                      .removeFromWaitingList.subject,
+                      .removeFromParticipants.subject,
                     en: languageModuleMap["en"]["event/$slug/detail"].route.mail
-                      .removeFromWaitingList.subject,
+                      .removeFromParticipants.subject,
                   },
                 },
                 removeFromWaitingList: {
