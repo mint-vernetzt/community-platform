@@ -798,6 +798,7 @@ function CopyURLToClipboard(props: {
   const handleCopyToClipboard = async () => {
     const searchParams = new URLSearchParams(location.search);
     searchParams.delete(overlayMenuId);
+    searchParams.delete(PARTICIPATION_TOKEN_HASH_SEARCH_PARAM);
     const newSearch = searchParams.toString();
 
     const url = new URL(location.pathname, baseUrl);
