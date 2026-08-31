@@ -628,7 +628,7 @@ export async function removeParticipantFromEvent(options: {
             },
             event: {
               name: event.name,
-              url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail`,
+              url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail/about`,
             },
           };
 
@@ -813,7 +813,7 @@ export async function removeParticipantFromEvent(options: {
           },
           event: {
             name: event.name,
-            url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail`,
+            url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail/about`,
             date,
             location: getVenueString(event),
             conferenceLink: event.conferenceLink,
@@ -822,7 +822,7 @@ export async function removeParticipantFromEvent(options: {
         };
 
         if (result.type === "guest") {
-          const revocationLink = `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?type=revoke&confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?type=revoke&token_hash=${result.revocationToken}&confirmation_redirect=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail`)}`)}`;
+          const revocationLink = `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?type=revoke&confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?type=revoke&token_hash=${result.revocationToken}&confirmation_redirect=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail/about`)}`)}`;
           content.event.revocationLink = revocationLink;
         }
 

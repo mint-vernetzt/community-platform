@@ -255,7 +255,7 @@ async function onTick() {
           profile,
           event: {
             name: event.name,
-            url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail`,
+            url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail/about`,
             startDate: zonedStartTime.toLocaleDateString("de-DE", {
               day: "2-digit",
               month: "2-digit",
@@ -273,7 +273,7 @@ async function onTick() {
         };
 
         if (profile.isGuest && profile.revocationToken !== null) {
-          const revocationLink = `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?type=revoke&confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?type=revoke&token_hash=${profile.revocationToken}&confirmation_redirect=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail`)}`)}`;
+          const revocationLink = `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?type=revoke&confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?type=revoke&token_hash=${profile.revocationToken}&confirmation_redirect=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail/about`)}`)}`;
           content.event.revocationLink = revocationLink;
         }
 

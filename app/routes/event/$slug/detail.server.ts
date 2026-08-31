@@ -642,7 +642,7 @@ export async function addProfileToParticipants(options: {
           },
           event: {
             name: data.event.name,
-            url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${data.event.participationToken}`, // Add participation token to ensure that guests can participate on child events
+            url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail/about`,
             date,
             location: getVenueString(data.event),
             icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/ics-download`,
@@ -809,7 +809,7 @@ export async function addProfileToWaitingList(options: {
           },
           event: {
             name: data.event.name,
-            url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${data.event.participationToken}`, // Add participation token to ensure that guests can participate on child events
+            url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail/about?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${data.event.participationToken}`, // Add participation token to ensure that guests can participate on child events
             date,
             location: getVenueString(data.event),
             icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/ics-download`,
@@ -925,7 +925,7 @@ export async function removeProfileFromWaitingList(options: {
         },
         event: {
           name: data.event.name,
-          url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail`,
+          url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail/about`,
         },
       };
 
@@ -1591,7 +1591,6 @@ export async function addGuestToEvent(options: {
 
       await mailer(mailerOptions, sender, recipient, subject, text, html);
     } catch (error) {
-      console.log(error);
       captureException(error);
     }
     return null;
