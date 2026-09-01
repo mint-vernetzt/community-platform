@@ -163,7 +163,26 @@ export async function action(args: ActionFunctionArgs) {
         eventId: event.id,
         organizationId: submission.value[ORGANIZATION_ID_FIELD],
         userId: sessionUser.id,
-        locales: locales.route,
+        locales: {
+          mail: {
+            buttonText: {
+              de: languageModuleMap.de[
+                "event/$slug/settings/responsible-orgs/add"
+              ].route.mail.buttonText,
+              en: languageModuleMap.en[
+                "event/$slug/settings/responsible-orgs/add"
+              ].route.mail.buttonText,
+            },
+            subject: {
+              de: languageModuleMap.de[
+                "event/$slug/settings/responsible-orgs/add"
+              ].route.mail.subject,
+              en: languageModuleMap.en[
+                "event/$slug/settings/responsible-orgs/add"
+              ].route.mail.subject,
+            },
+          },
+        },
       });
     } catch (error) {
       captureException(error);

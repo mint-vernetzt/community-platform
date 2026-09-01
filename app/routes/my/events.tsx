@@ -335,7 +335,14 @@ export async function action(args: ActionFunctionArgs) {
         organizationId: submission.value[ORGANIZATION_ID],
         eventId: submission.value[EVENT_ID],
         locales: {
-          mail: locales.route.mail.inviteAsResponsibleOrganizationAccepted,
+          mail: {
+            subject: {
+              de: languageModuleMap.de["my/events"].route.mail
+                .inviteAsResponsibleOrganizationAccepted.subject,
+              en: languageModuleMap.en["my/events"].route.mail
+                .inviteAsResponsibleOrganizationAccepted.subject,
+            },
+          },
         },
       });
       toastMessage =
@@ -359,7 +366,14 @@ export async function action(args: ActionFunctionArgs) {
         organizationId: submission.value[ORGANIZATION_ID],
         eventId: submission.value[EVENT_ID],
         locales: {
-          mail: locales.route.mail.inviteAsResponsibleOrganizationRejected,
+          mail: {
+            subject: {
+              de: languageModuleMap.de["my/events"].route.mail
+                .inviteAsResponsibleOrganizationRejected.subject,
+              en: languageModuleMap.en["my/events"].route.mail
+                .inviteAsResponsibleOrganizationRejected.subject,
+            },
+          },
         },
       });
       toastMessage =
