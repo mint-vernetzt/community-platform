@@ -1130,7 +1130,11 @@ function Detail() {
             {loaderData.event._count.participants +
               loaderData.event._count.guests >
               0 &&
-              loaderData.mode !== "anon" && (
+              loaderData.mode !== "anon" &&
+              loaderData.event.external === false &&
+              (loaderData.event.openForRegistration === true ||
+                loaderData.event.isMember ||
+                loaderData.mode === "participating") && (
                 <TabBar.Item active={pathname.endsWith("/participants")}>
                   <Link
                     to={`./participants${tokenHash ? `?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${tokenHash}` : ""}`}
