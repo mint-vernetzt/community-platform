@@ -1,11 +1,11 @@
-{{headline}}
+{{headline.de}}
 
 Hallo {{profile.firstName}},
 
 Das Event {{event.name}} findet bald statt.
 
 Link zum Event: {{event.url}}
-Termin: {{event.startDate}}, {{event.startTime}} Uhr ({{event.timezone}})
+Termin: {{event.date.de}}
 {{#if event.location}}
 Ort: {{event.location}}
 {{/if}}
@@ -17,3 +17,25 @@ Wir freuen uns sehr, dass Du dabei bist!
 
 Bis gleich
 Dein MINTvernetzt-Team
+
+---
+
+{{headline.en}}
+
+Hello {{profile.firstName}},
+
+The event {{event.name}} will take place soon.
+
+Link to the event: {{event.url}}
+Date: {{event.date.en}}
+{{#if event.location}}
+Location: {{event.location}}
+{{/if}}
+{{#if event.conferenceLink}}
+Conference link: {{event.conferenceLink}}
+{{/if}}
+
+We are very happy that you will be there!
+
+See you soon
+Your MINTvernetzt team
