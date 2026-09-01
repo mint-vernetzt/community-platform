@@ -112,13 +112,14 @@ export const locale = {
   event: {
     reminder: {
       oneDayBefore: {
-        subject: "Erinnerung: Das Event {{eventName}} findet morgen statt",
+        subject: "Reminder: The event {{eventName}} is happening tomorrow",
       },
       oneHourBefore: {
-        subject: "Erinnerung: Das Event {{eventName}} findet bald statt",
+        subject: "Reminder: The event {{eventName}} is happening soon",
       },
       fifteenMinutesBefore: {
-        subject: "Erinnerung: Das Event {{eventName}} findet gleich statt",
+        subject:
+          "Reminder: The event {{eventName}} is happening in fifteen minutes",
       },
     },
   },

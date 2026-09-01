@@ -1,11 +1,11 @@
-{{headline}}
+{{headline.de}}
 
 Hallo {{profile.firstName}},
 
 Das Event {{event.name}} findet morgen statt.
 
 Link zum Event: {{event.url}}
-Termin: {{event.startDate}}, {{event.startTime}} Uhr ({{event.timezone}})
+Termin: {{event.date.de}}
 {{#if event.location}}
 Ort: {{event.location}}
 {{/if}}
@@ -16,11 +16,44 @@ Konferenz-Link: {{event.conferenceLink}}
 Wir freuen uns sehr, dass Du dabei bist!
 
 {{#if profile.isGuest}}
-Wenn sich bei Dir etwas ändert und Du doch nicht teilnehmen kannst, dann ziehe bitte Deine Teilnahme über den Abmeldelink zurück, so dass andere nachrücken können.
+Wenn sich bei Dir etwas ändert und Du doch nicht teilnehmen kannst, dann ziehe bitte Deine Teilnahme über den
+Abmeldelink zurück, so dass andere nachrücken können.
 Abmeldelink: {{event.revocationLink}}
 {{else}}
-Wenn sich bei Dir etwas ändert und Du doch nicht teilnehmen kannst, dann ziehe bitte auf der Community-Plattform Deine Teilnahme zurück, so dass andere nachrücken können. 
+Wenn sich bei Dir etwas ändert und Du doch nicht teilnehmen kannst, dann ziehe bitte auf der Community-Plattform Deine
+Teilnahme zurück, so dass andere nachrücken können.
 {{/if}}
 
 Bis bald und herzliche Grüße
 Dein MINTvernetzt-Team
+
+---
+
+{{headline.en}}
+
+Hello {{profile.firstName}},
+
+The event {{event.name}} will take place tomorrow.
+
+Link to the event: {{event.url}}
+Date: {{event.date.en}}
+{{#if event.location}}
+Location: {{event.location}}
+{{/if}}
+{{#if event.conferenceLink}}
+Conference link: {{event.conferenceLink}}
+{{/if}}
+
+We are very happy that you will be there!
+
+{{#if profile.isGuest}}
+If something changes for you and you cannot attend after all, please withdraw your participation via the cancellation
+link so that others can move up.
+Cancellation link: {{event.revocationLink}}
+{{else}}
+If something changes for you and you cannot attend after all, please withdraw your participation on the community
+platform so that others can move up.
+{{/if}}
+
+See you soon and best regards
+Your MINTvernetzt team

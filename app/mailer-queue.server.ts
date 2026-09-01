@@ -13,6 +13,7 @@ import { insertParametersIntoLocale } from "./lib/utils/i18n";
 import { languageModuleMap } from "./locales/.server";
 import { getVenueString } from "./utils.shared";
 import { utcToZonedTime } from "date-fns-tz";
+import { getDuration } from "./lib/utils/time";
 
 declare global {
   var __taskTimer: TaskTimer | undefined;
@@ -46,6 +47,7 @@ async function onTick() {
       slug: true,
       name: true,
       startTime: true,
+      endTime: true,
       venueName: true,
       venueStreet: true,
       venueStreetNumber: true,
@@ -212,21 +214,38 @@ async function onTick() {
         }),
       ];
 
-      const locales = languageModuleMap["de"]["root"];
+      const germanLocales = languageModuleMap["de"]["root"];
+      const englishLocales = languageModuleMap["en"]["root"];
 
-      let subjectSource;
+      let subjectSource = {
+        de: "",
+        en: "",
+      };
       if (event.starts === "tomorrow") {
-        subjectSource = locales.route.event.reminder.oneDayBefore.subject;
+        subjectSource.de =
+          germanLocales.route.event.reminder.oneDayBefore.subject;
+        subjectSource.en =
+          englishLocales.route.event.reminder.oneDayBefore.subject;
       } else if (event.starts === "inOneHour") {
-        subjectSource = locales.route.event.reminder.oneHourBefore.subject;
+        subjectSource.de =
+          germanLocales.route.event.reminder.oneHourBefore.subject;
+        subjectSource.en =
+          englishLocales.route.event.reminder.oneHourBefore.subject;
       } else {
-        subjectSource =
-          locales.route.event.reminder.fifteenMinutesBefore.subject;
+        subjectSource.de =
+          germanLocales.route.event.reminder.fifteenMinutesBefore.subject;
+        subjectSource.en =
+          englishLocales.route.event.reminder.fifteenMinutesBefore.subject;
       }
 
-      const subject = insertParametersIntoLocale(subjectSource, {
-        eventName: event.name,
-      });
+      const subject = {
+        de: insertParametersIntoLocale(subjectSource.de, {
+          eventName: event.name,
+        }),
+        en: insertParametersIntoLocale(subjectSource.en, {
+          eventName: event.name,
+        }),
+      };
 
       let textTemplatePath: TemplatePath;
       let htmlTemplatePath: TemplatePath;
@@ -250,22 +269,19 @@ async function onTick() {
 
       for (const profile of receiver) {
         const zonedStartTime = utcToZonedTime(event.startTime, "Europe/Berlin");
+        const zonedEndTime = utcToZonedTime(event.endTime, "Europe/Berlin");
+
+        const date = {
+          de: getDuration(zonedStartTime, zonedEndTime, "de"),
+          en: getDuration(zonedStartTime, zonedEndTime, "en"),
+        };
         const content = {
           headline: subject,
           profile,
           event: {
             name: event.name,
             url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail/about`,
-            startDate: zonedStartTime.toLocaleDateString("de-DE", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-            }),
-            startTime: zonedStartTime.toLocaleTimeString("de-DE", {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-            timezone: "MEZ",
+            date,
             location: getVenueString(event),
             conferenceLink: event.conferenceLink,
             revocationLink: null as string | null,
@@ -290,7 +306,7 @@ async function onTick() {
         await scheduleMail({
           eventId: event.id,
           recipient: profile.email,
-          subject,
+          subject: `${subject.de} | ${subject.en}`,
           plainText: text,
           html,
           scheduledFor: now, // send immediately
