@@ -296,8 +296,14 @@ export async function inviteProfileToJoinEventAsTeamMember(options: {
   profileId: string;
   locales: {
     mail: {
-      buttonText: string;
-      subject: string;
+      buttonText: {
+        de: string;
+        en: string;
+      };
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -337,7 +343,7 @@ export async function inviteProfileToJoinEventAsTeamMember(options: {
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
   const recipient = result.profile.email;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/invites/profile-to-join-event/as-member-text.hbs";
   const htmlTemplatePath =

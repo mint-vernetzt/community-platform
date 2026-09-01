@@ -118,7 +118,14 @@ export async function action(args: ActionFunctionArgs) {
       eventId: event,
       profileId: submission.value[PROFILE_ID_FIELD],
       locales: {
-        mail: locales.route.mail.cancelledInvitation,
+        mail: {
+          subject: {
+            de: languageModuleMap.de["event/$slug/settings/team/invites"].route
+              .mail.cancelledInvitation.subject,
+            en: languageModuleMap.en["event/$slug/settings/team/invites"].route
+              .mail.cancelledInvitation.subject,
+          },
+        },
       },
     });
   } catch (error) {
