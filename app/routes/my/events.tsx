@@ -283,7 +283,14 @@ export async function action(args: ActionFunctionArgs) {
         userId: sessionUser.id,
         eventId: submission.value[EVENT_ID],
         locales: {
-          mail: locales.route.mail.inviteAsSpeakerAccepted,
+          mail: {
+            subject: {
+              de: languageModuleMap.de["my/events"].route.mail
+                .inviteAsSpeakerAccepted.subject,
+              en: languageModuleMap.en["my/events"].route.mail
+                .inviteAsSpeakerAccepted.subject,
+            },
+          },
         },
       });
       toastMessage = locales.route.success.acceptInviteAsSpeaker;
@@ -302,7 +309,14 @@ export async function action(args: ActionFunctionArgs) {
         userId: sessionUser.id,
         eventId: submission.value[EVENT_ID],
         locales: {
-          mail: locales.route.mail.inviteAsSpeakerRejected,
+          mail: {
+            subject: {
+              de: languageModuleMap.de["my/events"].route.mail
+                .inviteAsSpeakerRejected.subject,
+              en: languageModuleMap.en["my/events"].route.mail
+                .inviteAsSpeakerRejected.subject,
+            },
+          },
         },
       });
       toastMessage = locales.route.success.rejectInviteAsSpeaker;
