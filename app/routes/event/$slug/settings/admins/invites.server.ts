@@ -150,7 +150,10 @@ export async function revokeInviteOfProfileToJoinEventAsAdmin(options: {
   profileId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -199,7 +202,7 @@ export async function revokeInviteOfProfileToJoinEventAsAdmin(options: {
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
   const recipient = result.profile.email;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/invites/profile-to-join-event/as-admin-canceled-text.hbs";
   const htmlTemplatePath =

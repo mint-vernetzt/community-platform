@@ -178,7 +178,14 @@ export async function action(args: ActionFunctionArgs) {
         userId: sessionUser.id,
         eventId: submission.value[EVENT_ID],
         locales: {
-          mail: locales.route.mail.inviteAsAdminAccepted,
+          mail: {
+            subject: {
+              de: languageModuleMap.de["my/events"].route.mail
+                .inviteAsAdminAccepted.subject,
+              en: languageModuleMap.en["my/events"].route.mail
+                .inviteAsAdminAccepted.subject,
+            },
+          },
         },
       });
       toastMessage = locales.route.success.acceptInviteAsAdmin;
@@ -197,7 +204,14 @@ export async function action(args: ActionFunctionArgs) {
         userId: sessionUser.id,
         eventId: submission.value[EVENT_ID],
         locales: {
-          mail: locales.route.mail.inviteAsAdminRejected,
+          mail: {
+            subject: {
+              de: languageModuleMap.de["my/events"].route.mail
+                .inviteAsAdminRejected.subject,
+              en: languageModuleMap.en["my/events"].route.mail
+                .inviteAsAdminRejected.subject,
+            },
+          },
         },
       });
       toastMessage = locales.route.success.rejectInviteAsAdmin;

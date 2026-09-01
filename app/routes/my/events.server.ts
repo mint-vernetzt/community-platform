@@ -704,7 +704,10 @@ export async function acceptInviteAsAdmin(options: {
   eventId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -778,7 +781,7 @@ export async function acceptInviteAsAdmin(options: {
   });
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/invites/profile-to-join-event/as-admin-accepted-text.hbs";
   const htmlTemplatePath =
@@ -831,7 +834,10 @@ export async function rejectInviteAsAdmin(options: {
   eventId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -890,7 +896,7 @@ export async function rejectInviteAsAdmin(options: {
   });
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/invites/profile-to-join-event/as-admin-rejected-text.hbs";
   const htmlTemplatePath =

@@ -98,10 +98,10 @@ export const locale = {
   },
   mail: {
     inviteAsAdminAccepted: {
-      subject: "Die Einladung zum Admin eines Events wurde angenommen",
+      subject: "The invitation as admin for an event has been accepted",
     },
     inviteAsAdminRejected: {
-      subject: "Die Einladung zum Admin eines Events wurde abgelehnt",
+      subject: "The invitation as admin for an event has been rejected",
     },
     inviteAsTeamMemberAccepted: {
       subject: "Die Einladung zum Teammitglied eines Events wurde angenommen",
