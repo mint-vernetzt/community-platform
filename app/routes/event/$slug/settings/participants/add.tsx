@@ -159,7 +159,22 @@ export async function action(args: ActionFunctionArgs) {
     await inviteProfileToParticipateOnEvent({
       eventId: event.id,
       profileId: submission.value[PROFILE_ID],
-      locales: locales.route,
+      locales: {
+        mail: {
+          subject: {
+            de: languageModuleMap.de["event/$slug/settings/participants/add"]
+              .route.mail.subject,
+            en: languageModuleMap.en["event/$slug/settings/participants/add"]
+              .route.mail.subject,
+          },
+          buttonText: {
+            de: languageModuleMap.de["event/$slug/settings/participants/add"]
+              .route.mail.buttonText,
+            en: languageModuleMap.en["event/$slug/settings/participants/add"]
+              .route.mail.buttonText,
+          },
+        },
+      },
     });
   } catch (error) {
     captureException(error);
