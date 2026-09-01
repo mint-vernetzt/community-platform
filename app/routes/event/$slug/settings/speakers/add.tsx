@@ -138,7 +138,22 @@ export async function action(args: ActionFunctionArgs) {
     await inviteProfileToJoinEventAsSpeaker({
       eventId: event.id,
       profileId: submission.value[PROFILE_ID_FIELD],
-      locales: locales.route,
+      locales: {
+        mail: {
+          buttonText: {
+            de: languageModuleMap.de["event/$slug/settings/speakers/add"].route
+              .mail.buttonText,
+            en: languageModuleMap.en["event/$slug/settings/speakers/add"].route
+              .mail.buttonText,
+          },
+          subject: {
+            de: languageModuleMap.de["event/$slug/settings/speakers/add"].route
+              .mail.subject,
+            en: languageModuleMap.en["event/$slug/settings/speakers/add"].route
+              .mail.subject,
+          },
+        },
+      },
     });
   } catch (error) {
     captureException(error);
