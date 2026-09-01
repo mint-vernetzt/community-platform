@@ -137,7 +137,16 @@ export async function action(args: ActionFunctionArgs) {
       eventId: event.id,
       profileId: submission.value[PROFILE_ID],
       locales: {
-        mail: locales.route.mail.revokeInviteToParticipateOnEvent,
+        mail: {
+          subject: {
+            de: languageModuleMap.de[
+              "event/$slug/settings/participants/invites"
+            ].route.mail.revokeInviteToParticipateOnEvent.subject,
+            en: languageModuleMap.en[
+              "event/$slug/settings/participants/invites"
+            ].route.mail.revokeInviteToParticipateOnEvent.subject,
+          },
+        },
       },
     });
   } catch (error) {

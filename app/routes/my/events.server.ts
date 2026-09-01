@@ -1421,7 +1421,10 @@ export async function acceptInviteAsParticipant(options: {
   eventId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -1535,7 +1538,7 @@ export async function acceptInviteAsParticipant(options: {
   );
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/invites/profile-to-join-event/as-participant-accepted-text.hbs";
   const htmlTemplatePath =
@@ -1588,7 +1591,10 @@ export async function rejectInviteAsParticipant(options: {
   eventId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -1647,7 +1653,7 @@ export async function rejectInviteAsParticipant(options: {
   );
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/invites/profile-to-join-event/as-participant-rejected-text.hbs";
   const htmlTemplatePath =

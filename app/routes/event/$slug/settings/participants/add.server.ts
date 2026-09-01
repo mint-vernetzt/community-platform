@@ -185,8 +185,14 @@ export async function inviteProfileToParticipateOnEvent(options: {
   profileId: string;
   locales: {
     mail: {
-      subject: string;
-      buttonText: string;
+      subject: {
+        de: string;
+        en: string;
+      };
+      buttonText: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -226,9 +232,14 @@ export async function inviteProfileToParticipateOnEvent(options: {
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
   const recipient = result.profile.email;
-  const subject = insertParametersIntoLocale(options.locales.mail.subject, {
+  const subject = `${insertParametersIntoLocale(
+    options.locales.mail.subject.de,
+    {
+      eventName: result.event.name,
+    }
+  )} | ${insertParametersIntoLocale(options.locales.mail.subject.en, {
     eventName: result.event.name,
-  });
+  })}`;
   const textTemplatePath =
     "mail-templates/invites/profile-to-join-event/as-participant-text.hbs";
   const htmlTemplatePath =

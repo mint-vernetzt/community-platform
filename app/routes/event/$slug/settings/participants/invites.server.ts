@@ -161,7 +161,10 @@ export async function revokeInviteOfProfileToParticipateOnEvent(options: {
   profileId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -209,7 +212,7 @@ export async function revokeInviteOfProfileToParticipateOnEvent(options: {
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
   const recipient = result.profile.email;
-  const subject = locales.mail.subject;
+  const subject = `${locales.mail.subject.de} | ${locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/invites/profile-to-join-event/as-participant-canceled-text.hbs";
   const htmlTemplatePath =
