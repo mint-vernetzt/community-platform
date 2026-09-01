@@ -156,7 +156,22 @@ export async function action(args: ActionFunctionArgs) {
       await inviteProfileToJoinEventAsAdmin({
         eventId: event.id,
         profileId: submission.value[PROFILE_ID_FIELD],
-        locales: locales.route,
+        locales: {
+          mail: {
+            subject: {
+              de: languageModuleMap.de["event/$slug/settings/admins/add"].route
+                .mail.subject,
+              en: languageModuleMap.en["event/$slug/settings/admins/add"].route
+                .mail.subject,
+            },
+            buttonText: {
+              de: languageModuleMap.de["event/$slug/settings/admins/add"].route
+                .mail.buttonText,
+              en: languageModuleMap.en["event/$slug/settings/admins/add"].route
+                .mail.buttonText,
+            },
+          },
+        },
       });
     } catch (error) {
       captureException(error);
