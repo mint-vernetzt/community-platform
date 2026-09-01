@@ -117,7 +117,7 @@ type InviteContent = {
   firstName: string;
   button: {
     url: string;
-    text: string;
+    text: string | { de: string; en: string };
   };
 } & OneOf<{ organization: { name: string }; event: { name: string } }>;
 

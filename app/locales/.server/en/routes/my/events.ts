@@ -123,11 +123,11 @@ export const locale = {
     },
     inviteAsResponsibleOrganizationAccepted: {
       subject:
-        "Die Einladung als verantwortliche Organisation eines Events wurde angenommen",
+        "The invitation as responsible organization for an event has been accepted.",
     },
     inviteAsResponsibleOrganizationRejected: {
       subject:
-        "Die Einladung als verantwortliche Organisation eines Events wurde abgelehnt",
+        "The invitation as responsible organization for an event has been rejected.",
     },
     requestAsParentEventAccepted: {
       subject:

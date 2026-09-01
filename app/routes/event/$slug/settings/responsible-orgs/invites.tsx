@@ -123,7 +123,16 @@ export async function action(args: ActionFunctionArgs) {
       organizationId: submission.value[ORGANIZATION_ID_FIELD],
       userId: sessionUser.id,
       locales: {
-        mail: locales.route.mail.cancelledInvitation,
+        mail: {
+          subject: {
+            de: languageModuleMap.de[
+              "event/$slug/settings/responsible-orgs/invites"
+            ].route.mail.cancelledInvitation.subject,
+            en: languageModuleMap.en[
+              "event/$slug/settings/responsible-orgs/invites"
+            ].route.mail.cancelledInvitation.subject,
+          },
+        },
       },
     });
   } catch (error) {
