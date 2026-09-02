@@ -23,8 +23,9 @@ export function createExternalRegistrationUrlSchema(options: {
   const schema = z.object({
     externalRegistrationUrl: z
       .string()
+      .optional()
       .transform((value) => {
-        if (value !== "") {
+        if (typeof value === "string" && value !== "") {
           return addProtocolToUrl(value);
         }
         return value;

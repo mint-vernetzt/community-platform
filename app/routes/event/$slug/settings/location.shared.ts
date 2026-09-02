@@ -24,8 +24,9 @@ export function createEventLocationSchema(locales: {
       venueCity: z.string().optional().transform(transformEmptyToNull),
       conferenceLink: z
         .string()
+        .optional()
         .transform((value) => {
-          if (value !== "") {
+          if (typeof value === "string" && value !== "") {
             return addProtocolToUrl(value);
           }
           return value;
