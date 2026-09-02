@@ -43,6 +43,7 @@ type EventCardProps = {
       participants: number;
       guests: number;
       waitingList: number;
+      waitingGuests: number;
       childEvents: number;
     };
     responsibleOrganizations: {
@@ -225,11 +226,11 @@ function EventCard(
               event._count.guests <=
               0 && (
               <span className="text-xs text-neutral-200 font-semibold px-2 py-1 rounded-lg bg-primary">
-                {event._count.waitingList}{" "}
+                {event._count.waitingList + event._count.waitingGuests}{" "}
                 {decideBetweenSingularOrPlural(
                   locales.eventCard.waitingList.places_one,
                   locales.eventCard.waitingList.places_other,
-                  event._count.waitingList
+                  event._count.waitingList + event._count.waitingGuests
                 )}
               </span>
             )}

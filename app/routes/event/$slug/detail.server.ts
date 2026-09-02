@@ -150,16 +150,18 @@ export async function getEventBySlug(
           },
         },
       },
+      guests: {
+        where: {
+          confirmed: true,
+        },
+        select: {
+          onWaitingList: true,
+        },
+      },
       _count: {
         select: {
           participants: true,
           waitingList: true,
-          guests: {
-            where: {
-              confirmed: true,
-              onWaitingList: false,
-            },
-          },
           childEvents: {
             where: {
               OR: [

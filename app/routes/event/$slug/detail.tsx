@@ -257,7 +257,9 @@ export async function loader(args: LoaderFunctionArgs) {
     tokenHash,
     eventInfo: {
       ...event,
-      participantCount: event._count.participants + event._count.guests,
+      participantCount:
+        event._count.participants +
+        event.guests.filter((guest) => guest.onWaitingList === false).length,
       beforeParticipationPeriod,
       afterParticipationPeriod,
       inPast,
@@ -372,6 +374,9 @@ export async function loader(args: LoaderFunctionArgs) {
     conferenceCode,
     _count: {
       ...event._count,
+      guests: event.guests.filter((guest) => guest.onWaitingList === false)
+        .length,
+      waitingGuests: event.guests.filter((guest) => guest.onWaitingList).length,
       fullDepthParticipants:
         event.external ||
         (event.openForRegistration === false &&
@@ -561,7 +566,10 @@ export async function action(args: ActionFunctionArgs) {
     tokenHash,
     eventInfo: {
       ...eventInfo,
-      participantCount: eventInfo._count.participants + eventInfo._count.guests,
+      participantCount:
+        eventInfo._count.participants +
+        eventInfo.guests.filter((guest) => guest.onWaitingList === false)
+          .length,
       beforeParticipationPeriod,
       afterParticipationPeriod,
       inPast,

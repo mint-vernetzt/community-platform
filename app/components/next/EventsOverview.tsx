@@ -1651,6 +1651,7 @@ function WithdrawParticipation(props: {
     afterParticipationPeriod: boolean;
     _count: {
       waitingList: number;
+      waitingGuests: number;
     };
     childEvents: {
       id: string;
@@ -1686,7 +1687,7 @@ function WithdrawParticipation(props: {
   const showConfirmation =
     event.openForRegistration === false ||
     event.afterParticipationPeriod ||
-    event._count.waitingList > 0;
+    event._count.waitingList + event._count.waitingGuests > 0;
 
   const childEventsToBeWithdrawnFrom = [];
   if (event.childEvents.length > 0) {
@@ -1732,7 +1733,7 @@ function WithdrawParticipation(props: {
               ? locales.confirmationModal.description.closedForRegistration
               : event.afterParticipationPeriod
                 ? locales.confirmationModal.description.afterParticipationPeriod
-                : event._count.waitingList > 0
+                : event._count.waitingList + event._count.waitingGuests > 0
                   ? locales.confirmationModal.description.waitingList
                   : ""}
           </Modal.Section>

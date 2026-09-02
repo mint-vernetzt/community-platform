@@ -213,6 +213,14 @@ export async function loader(args: LoaderFunctionArgs) {
       background,
       blurredBackground,
       responsibleOrganizations,
+      _count: {
+        ...enhancedEvent._count,
+        waitingGuests: enhancedEvent.guests.filter(
+          (guest) => guest.onWaitingList
+        ).length,
+        guests: enhancedEvent.guests.filter((guest) => !guest.onWaitingList)
+          .length,
+      },
     };
 
     enhancedEvents.push(imageEnhancedEvent);
@@ -220,6 +228,20 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const enhancedEventsWithParticipationStatus =
     await enhanceEventsWithParticipationStatus(sessionUser, enhancedEvents);
+
+  const enhancedEventsWithGuests = enhancedEventsWithParticipationStatus.map(
+    (event) => {
+      return {
+        ...event,
+        _count: {
+          ...event._count,
+          waitingGuests: event.guests.filter((guest) => guest.onWaitingList)
+            .length,
+          guests: event.guests.filter((guest) => !guest.onWaitingList).length,
+        },
+      };
+    }
+  );
 
   const focuses = await getAllFocuses();
   const focusEventIds =
@@ -286,7 +308,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   return {
     isLoggedIn,
-    events: enhancedEventsWithParticipationStatus,
+    events: enhancedEventsWithGuests,
     focuses: enhancedFocuses,
     selectedFocuses: submission.value.evtFilter.focus,
     targetGroups: enhancedTargetGroups,

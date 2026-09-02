@@ -83,6 +83,7 @@ export async function getWaitingListOfEvent(options: {
       where: {
         eventId,
         onWaitingList: true,
+        confirmed: true,
       },
       select: guestWaitingListSelect,
     });
@@ -110,6 +111,7 @@ export async function getWaitingListOfEvent(options: {
       where: {
         eventId,
         onWaitingList: true,
+        confirmed: true,
         OR: query.map((term) => {
           return {
             OR: [

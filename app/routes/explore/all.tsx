@@ -452,6 +452,12 @@ export async function loader(args: LoaderFunctionArgs) {
       blurredBackground,
       responsibleOrganizations: enhancedResponsibleOrganizations,
       ...otherFields,
+      _count: {
+        ...event._count,
+        waitingGuests: event.guests.filter((guest) => guest.onWaitingList)
+          .length,
+        guests: event.guests.filter((guest) => !guest.onWaitingList).length,
+      },
     };
   });
 
