@@ -104,7 +104,7 @@ export async function action(args: ActionFunctionArgs) {
     );
     invariantResponse(
       parentEvent !== null,
-      "Parent Event not found or not authorized",
+      "main event not found or not authorized",
       {
         status: 404,
       }

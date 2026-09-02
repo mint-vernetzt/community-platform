@@ -7,8 +7,8 @@ export const locale = {
       label: "Closed event",
       subline: "Participation only for invited guests",
     },
-    registrationOnChildEvents: "Registration via child events",
-    parentParticipationRequired: "Please register for the parent event first",
+    registrationOnChildEvents: "Registration via sub-events",
+    parentParticipationRequired: "Please register for the main event first",
     unlimitedSeats: "Unlimited seats",
     seatsFree: "seats free",
     waitingListAvailable: "Seats on waiting list available",
@@ -19,7 +19,7 @@ export const locale = {
     hybrid: "Hybrid Event",
     details: "Event details",
     participants: "Participants",
-    childEvents: "Child events",
+    childEvents: "Sub-events",
     inPast: "Event has already taken place",
     beforeParticipationPeriod:
       "Registration period starts on {{date}} at {{time}} (CET)",
@@ -81,7 +81,7 @@ export const locale = {
           waitingList:
             "People on the waiting list would move up if you withdraw your participation. You can then only join the waiting list.",
           childEvents:
-            "By withdrawing your participation in the parent event, your participation and waiting list spots in the following child events would also be withdrawn:",
+            "By withdrawing your participation in the main event, your participation and waiting list spots in the following sub-events would also be withdrawn:",
         },
         submit: "Withdraw participation",
         abort: "Cancel",

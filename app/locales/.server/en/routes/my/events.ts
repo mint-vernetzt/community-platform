@@ -14,7 +14,7 @@ export const locale = {
   requests: {
     title: "Linking requests for your events",
     description:
-      "By accepting join requests from subordinate events, your event becomes the parent event and the subordinate events are linked. You and other admins of your parent event automatically become admins of the subordinate events.",
+      "By accepting join requests from subordinate events, your event becomes the main event and the subordinate events are linked. You and other admins of your main event automatically become admins of the subordinate events.",
   },
   canceled: {
     title_one: "Canceled Event",
@@ -76,9 +76,9 @@ export const locale = {
     rejectInviteAsResponsibleOrganization:
       "Error rejecting invite as responsible organization for the event.",
     acceptRequestAsParentEvent:
-      "Error accepting link request for your parent event.",
+      "Error accepting link request for your main event.",
     rejectRequestAsParentEvent:
-      "Error rejecting link request for your parent event.",
+      "Error rejecting link request for your main event.",
   },
   success: {
     acceptInviteAsAdmin: "Invite accepted as admin for the event.",
@@ -93,8 +93,8 @@ export const locale = {
       "Invite accepted as responsible organization for the event.",
     rejectInviteAsResponsibleOrganization:
       "Invite rejected as responsible organization for the event.",
-    acceptRequestAsParentEvent: "Link request accepted for your parent event.",
-    rejectRequestAsParentEvent: "Link request rejected for your parent event.",
+    acceptRequestAsParentEvent: "Link request accepted for your main event.",
+    rejectRequestAsParentEvent: "Link request rejected for your main event.",
   },
   mail: {
     inviteAsAdminAccepted: {

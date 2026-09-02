@@ -135,11 +135,7 @@ type EntityTypeOnStructure<T> = T extends "profile"
             | "largest"]
         : T extends "award"
           ? EntityStructure[
-              | "standard"
-              | "smallest"
-              | "largest"
-              | "emptyStrings"
-              | "unicode"]
+              "standard" | "smallest" | "largest" | "emptyStrings" | "unicode"]
           : T extends "document"
             ? EntityStructure[
                 | "standard"
@@ -193,12 +189,7 @@ type EntityTypeOnBucketData<T> = T extends "document"
           : undefined;
 
 type SocialMediaService =
-  | "facebook"
-  | "linkedin"
-  | "twitter"
-  | "instagram"
-  | "xing"
-  | "youtube";
+  "facebook" | "linkedin" | "twitter" | "instagram" | "xing" | "youtube";
 
 type ImageType = "logos" | "backgrounds" | "avatars";
 
@@ -6751,13 +6742,13 @@ function generateEndTime<
   let endTime;
   if (entityType === "event") {
     if (entityStructure === "Depth2") {
-      // 2 day long event (to be able to add the one day seperated child events)
+      // 2 day long event (to be able to add the one day seperated sub-events)
       const timeDelta = {
         days: 2,
       };
       endTime = generateFutureAndPastTimes(index, timeDelta);
     } else if (entityStructure === "Depth3") {
-      // 4 day long event (to be able to add the two day long child events (see Depth2))
+      // 4 day long event (to be able to add the two day long sub-events (see Depth2))
       const timeDelta = {
         days: 4,
       };

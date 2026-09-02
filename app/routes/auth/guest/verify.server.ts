@@ -202,7 +202,7 @@ export async function confirmGuest(options: {
       },
       event: {
         name: result.event.name,
-        url: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/detail/about${result.onWaitingList === false ? `?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${result.event.participationToken}` : ""}`, // Add participation token to ensure that guests can participate on child events
+        url: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/detail/about${result.onWaitingList === false ? `?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${result.event.participationToken}` : ""}`, // Add participation token to ensure that guests can participate on sub-events
         date,
         location: getVenueString(result.event),
         icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/ics-download`,

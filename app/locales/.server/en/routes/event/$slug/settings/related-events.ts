@@ -1,6 +1,6 @@
 export const locale = {
   tabbar: {
-    parentEvent: "Parent Event",
-    childEvents: "Child Events",
+    parentEvent: "Main event",
+    childEvents: "Sub-events",
   },
 } as const;

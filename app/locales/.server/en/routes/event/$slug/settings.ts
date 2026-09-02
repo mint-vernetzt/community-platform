@@ -6,7 +6,7 @@ export const locale = {
   publishHint: "Your event is not publicly visible while in draft mode.",
   publishCta: "Publish event",
   parentEventNotPublishedHint:
-    "Your event is part of a parent event. You must publish the parent event first.",
+    "Your event is part of a main event. You must publish the main event first.",
   menu: {
     admins: "Administrators",
     dangerZone: "Danger Zone",

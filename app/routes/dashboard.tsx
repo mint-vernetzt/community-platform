@@ -1409,7 +1409,7 @@ function Dashboard() {
           </div>
         </section>
       )}
-      {/* Parent Event Requests Section */}
+      {/* main event Requests Section */}
       {loaderData.parentEventRequests.length > 0 && (
         <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-md @lg:max-w-lg @xl:max-w-xl @2xl:max-w-2xl">
           <div className="flex flex-col @lg:flex-row gap-6 p-6 bg-primary-50 rounded-lg items-center">
