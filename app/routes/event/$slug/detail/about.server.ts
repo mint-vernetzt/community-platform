@@ -370,6 +370,12 @@ export async function getEventBySlug(options: {
       _count: {
         select: {
           participants: true,
+          guests: {
+            where: {
+              confirmed: true,
+              onWaitingList: false,
+            },
+          },
           childEvents: true,
         },
       },
@@ -398,7 +404,7 @@ export async function getEventBySlug(options: {
     tokenHash: null, // No need to check participation token here
     eventInfo: {
       ...event,
-      participantCount: event._count.participants,
+      participantCount: event._count.participants + event._count.guests,
       beforeParticipationPeriod,
       afterParticipationPeriod,
       inPast,

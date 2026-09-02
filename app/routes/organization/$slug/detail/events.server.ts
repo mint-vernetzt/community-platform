@@ -43,6 +43,15 @@ export async function getOrganization(slug: string) {
                   external: true,
                   openForRegistration: true,
                   parentParticipationRequired: true,
+                  guests: {
+                    where: {
+                      confirmed: true,
+                    },
+                    select: {
+                      id: true,
+                      onWaitingList: true,
+                    },
+                  },
                   _count: {
                     select: {
                       participants: true,
@@ -123,6 +132,15 @@ export async function getOrganization(slug: string) {
                       waitingList: true,
                     },
                   },
+                  guests: {
+                    where: {
+                      confirmed: true,
+                    },
+                    select: {
+                      id: true,
+                      onWaitingList: true,
+                    },
+                  },
                   stage: {
                     select: {
                       slug: true,
@@ -168,18 +186,81 @@ export async function getOrganization(slug: string) {
       }),
     ]);
 
-  if (futureEventsOrganization === null || pastEventsOrganization === null) {
-    return null;
+  if (futureEventsOrganization === null && pastEventsOrganization !== null) {
+    const enhancedResponsibleForEvents =
+      pastEventsOrganization.responsibleForEvents.map((relation) => ({
+        ...relation,
+        event: {
+          ...relation.event,
+          participatingGuests: relation.event.guests.filter(
+            (guest) => !guest.onWaitingList
+          ),
+          waitingGuests: relation.event.guests.filter(
+            (guest) => guest.onWaitingList
+          ),
+        },
+      }));
+    return {
+      ...pastEventsOrganization,
+      futureEvents: [],
+      pastEvents: enhancedResponsibleForEvents,
+    };
   }
-
-  const { responsibleForEvents: responsibleForFutureEvents, ...rest } =
-    futureEventsOrganization;
-
-  return {
-    ...rest,
-    futureEvents: responsibleForFutureEvents,
-    pastEvents: pastEventsOrganization.responsibleForEvents,
-  };
+  if (pastEventsOrganization === null && futureEventsOrganization !== null) {
+    const enhancedResponsibleForEvents =
+      futureEventsOrganization.responsibleForEvents.map((relation) => ({
+        ...relation,
+        event: {
+          ...relation.event,
+          participatingGuests: relation.event.guests.filter(
+            (guest) => !guest.onWaitingList
+          ),
+          waitingGuests: relation.event.guests.filter(
+            (guest) => guest.onWaitingList
+          ),
+        },
+      }));
+    return {
+      ...futureEventsOrganization,
+      futureEvents: enhancedResponsibleForEvents,
+      pastEvents: [],
+    };
+  }
+  if (futureEventsOrganization !== null && pastEventsOrganization !== null) {
+    const enhancedFutureEvents =
+      futureEventsOrganization.responsibleForEvents.map((relation) => ({
+        ...relation,
+        event: {
+          ...relation.event,
+          participatingGuests: relation.event.guests.filter(
+            (guest) => !guest.onWaitingList
+          ),
+          waitingGuests: relation.event.guests.filter(
+            (guest) => guest.onWaitingList
+          ),
+        },
+      }));
+    const enhancedPastEvents = pastEventsOrganization.responsibleForEvents.map(
+      (relation) => ({
+        ...relation,
+        event: {
+          ...relation.event,
+          participatingGuests: relation.event.guests.filter(
+            (guest) => !guest.onWaitingList
+          ),
+          waitingGuests: relation.event.guests.filter(
+            (guest) => guest.onWaitingList
+          ),
+        },
+      })
+    );
+    return {
+      ...futureEventsOrganization,
+      futureEvents: enhancedFutureEvents,
+      pastEvents: enhancedPastEvents,
+    };
+  }
+  return null;
 }
 
 export function filterOrganization(
@@ -190,18 +271,24 @@ export function filterOrganization(
     filterOrganizationByVisibility<typeof rest>(rest);
 
   const filteredFutureEvents = futureEvents.map((relation) => {
-    const filteredEvent = filterEventByVisibility<typeof relation.event>(
-      relation.event
-    );
+    const filteredEvent = filterEventByVisibility<
+      Omit<
+        typeof relation.event,
+        "participatingGuests" | "guests" | "waitingGuests"
+      >
+    >(relation.event);
     return {
       ...relation,
       event: filteredEvent,
     };
   });
   const filteredPastEvents = pastEvents.map((relation) => {
-    const filteredEvent = filterEventByVisibility<typeof relation.event>(
-      relation.event
-    );
+    const filteredEvent = filterEventByVisibility<
+      Omit<
+        typeof relation.event,
+        "participatingGuests" | "guests" | "waitingGuests"
+      >
+    >(relation.event);
     return {
       ...relation,
       event: filteredEvent,
@@ -212,12 +299,12 @@ export function filterOrganization(
     ...filteredOrganization,
     futureEvents: filteredFutureEvents,
     pastEvents: filteredPastEvents,
-  };
+  } as typeof organization;
 }
 
 export function addImgUrls(
   authClient: SupabaseClient,
-  organization: NonNullable<Awaited<ReturnType<typeof getOrganization>>>
+  organization: NonNullable<Awaited<ReturnType<typeof filterOrganization>>>
 ) {
   const futureEvents = organization.futureEvents.map((relation) => {
     let background =

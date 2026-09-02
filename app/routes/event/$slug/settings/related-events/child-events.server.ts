@@ -56,6 +56,12 @@ export async function getEventBySlug(options: {
           _count: {
             select: {
               participants: true,
+              guests: {
+                where: {
+                  confirmed: true,
+                  onWaitingList: false,
+                },
+              },
             },
           },
         },
@@ -161,6 +167,12 @@ export async function getChildEventsToAdd(options: {
     _count: {
       select: {
         participants: true,
+        guests: {
+          where: {
+            confirmed: true,
+            onWaitingList: false,
+          },
+        },
         childEvents: true,
       },
     },

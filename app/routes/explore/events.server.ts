@@ -666,6 +666,14 @@ export async function getAllEvents(options: {
       canceled: true,
       subline: true,
       description: true,
+      guests: {
+        select: {
+          onWaitingList: true,
+        },
+        where: {
+          confirmed: true,
+        },
+      },
       _count: {
         select: {
           childEvents: true,

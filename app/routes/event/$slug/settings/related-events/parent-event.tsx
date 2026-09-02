@@ -343,7 +343,10 @@ function ParentEvent() {
                   stages: locales.stages,
                   ...loaderData.locales.route.list,
                 }}
-                participantCount={request.parentEvent._count.participants}
+                participantCount={
+                  request.parentEvent._count.participants +
+                  request.parentEvent._count.guests
+                }
                 language={language}
               ></ListItemEvent.Info>
               <ListItemEvent.Headline>
@@ -433,7 +436,10 @@ function ParentEvent() {
               stages: locales.stages,
               ...loaderData.locales.route.list,
             }}
-            participantCount={event.parentEvent._count.participants}
+            participantCount={
+              event.parentEvent._count.participants +
+              event.parentEvent._count.guests
+            }
             language={language}
           ></ListItemEvent.Info>
           <ListItemEvent.Headline>
@@ -584,7 +590,10 @@ function ParentEvent() {
                       stages: locales.stages,
                       ...loaderData.locales.route.list,
                     }}
-                    participantCount={parentEvent._count.participants}
+                    participantCount={
+                      parentEvent._count.participants +
+                      parentEvent._count.guests
+                    }
                     language={language}
                   ></ListItemEvent.Info>
                   <ListItemEvent.Headline>

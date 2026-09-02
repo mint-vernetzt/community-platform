@@ -253,7 +253,9 @@ export default function Create() {
               <ListItemEvent.Info
                 {...parentEvent}
                 stage={parentEvent.stage}
-                participantCount={parentEvent._count.participants}
+                participantCount={
+                  parentEvent._count.participants + parentEvent.guests.length
+                }
                 locales={{
                   stages: locales.stages,
                   ...locales.route.list,
@@ -296,7 +298,10 @@ export default function Create() {
                   <ListItemEvent.Info
                     {...parentEvent}
                     stage={parentEvent.stage}
-                    participantCount={parentEvent._count.participants}
+                    participantCount={
+                      parentEvent._count.participants +
+                      parentEvent.guests.length
+                    }
                     locales={{
                       stages: locales.stages,
                       ...locales.route.list,

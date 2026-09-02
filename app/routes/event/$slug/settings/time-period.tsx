@@ -290,7 +290,10 @@ export default function TimePeriod() {
                     <ListItemEvent.Info
                       {...event.parentEvent}
                       stage={event.parentEvent.stage}
-                      participantCount={event.parentEvent._count.participants}
+                      participantCount={
+                        event.parentEvent._count.participants +
+                        event.parentEvent._count.guests
+                      }
                       locales={{
                         stages: locales.stages,
                         ...locales.route.eventLists,
@@ -329,7 +332,10 @@ export default function TimePeriod() {
                         <ListItemEvent.Info
                           {...childEvent}
                           stage={childEvent.stage}
-                          participantCount={childEvent._count.participants}
+                          participantCount={
+                            childEvent._count.participants +
+                            childEvent._count.guests
+                          }
                           locales={{
                             stages: locales.stages,
                             ...locales.route.eventLists,

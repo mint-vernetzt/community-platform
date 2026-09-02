@@ -307,6 +307,7 @@ type EventWithRelations = Event & {
   waitingList: any;
   eventVisibility: any;
   admins: any;
+  guests: any;
   backgroundImageMetaData: any;
   backgroundImage: any;
   abuseReports: any;
@@ -347,6 +348,7 @@ export function filterEventByVisibility<
         key === "contactPersons" ||
         key === "waitingList" ||
         key === "admins" ||
+        key === "guests" ||
         key === "profileJoinInvites" ||
         key === "abuseReports" ||
         key === "sentParentEventJoinRequests" ||

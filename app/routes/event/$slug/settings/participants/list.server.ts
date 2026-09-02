@@ -71,6 +71,7 @@ export async function getParticipantsOfEvent(options: {
       where: {
         eventId,
         onWaitingList: false,
+        confirmed: true,
       },
       select: guestsSelect,
     });
@@ -198,6 +199,15 @@ export async function getEventBySlug(slug: string) {
           participants: {
             select: {
               profileId: true,
+            },
+          },
+          guests: {
+            select: {
+              email: true,
+            },
+            where: {
+              confirmed: true,
+              onWaitingList: false,
             },
           },
         },

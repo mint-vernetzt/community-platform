@@ -41,7 +41,9 @@ type EventCardProps = {
     stage?: { slug: string } | null;
     _count: {
       participants: number;
+      guests: number;
       waitingList: number;
+      waitingGuests: number;
       childEvents: number;
     };
     responsibleOrganizations: {
@@ -201,10 +203,15 @@ function EventCard(
             )}
           {event._count.childEvents === 0 &&
             typeof event.participantLimit === "number" &&
-            event.participantLimit - event._count.participants > 0 && (
+            event.participantLimit -
+              event._count.participants -
+              event._count.guests >
+              0 && (
               <span className="text-xs text-neutral-200 font-semibold px-2 py-1 rounded-lg bg-primary">
-                {event.participantLimit - event._count.participants} /{" "}
-                {event.participantLimit}{" "}
+                {event.participantLimit -
+                  event._count.participants -
+                  event._count.guests}{" "}
+                / {event.participantLimit}{" "}
                 {decideBetweenSingularOrPlural(
                   locales.eventCard.seats.free_one,
                   locales.eventCard.seats.free_other,
@@ -214,13 +221,16 @@ function EventCard(
             )}
           {event._count.childEvents === 0 &&
             typeof event.participantLimit === "number" &&
-            event.participantLimit - event._count.participants <= 0 && (
+            event.participantLimit -
+              event._count.participants -
+              event._count.guests <=
+              0 && (
               <span className="text-xs text-neutral-200 font-semibold px-2 py-1 rounded-lg bg-primary">
-                {event._count.waitingList}{" "}
+                {event._count.waitingList + event._count.waitingGuests}{" "}
                 {decideBetweenSingularOrPlural(
                   locales.eventCard.waitingList.places_one,
                   locales.eventCard.waitingList.places_other,
-                  event._count.waitingList
+                  event._count.waitingList + event._count.waitingGuests
                 )}
               </span>
             )}
@@ -292,7 +302,10 @@ function EventCard(
           !event.isParticipant &&
           (typeof event.participantLimit !== "number" ||
             (typeof event.participantLimit === "number" &&
-              event.participantLimit - event._count.participants > 0)) &&
+              event.participantLimit -
+                event._count.participants -
+                event._count.guests >
+                0)) &&
           props.participateControl}
         {!props.publicAccess &&
           props.waitingListControl !== undefined &&
@@ -305,7 +318,10 @@ function EventCard(
           !event.isOnWaitingList &&
           !event.isParticipant &&
           typeof event.participantLimit === "number" &&
-          event.participantLimit - event._count.participants <= 0 &&
+          event.participantLimit -
+            event._count.participants -
+            event._count.guests <=
+            0 &&
           props.waitingListControl}
         {!props.publicAccess &&
           event._count.childEvents === 0 &&

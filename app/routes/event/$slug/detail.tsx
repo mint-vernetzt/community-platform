@@ -27,6 +27,7 @@ import ContactPerson from "~/components/next/ContactPerson";
 import EventsOverview from "~/components/next/EventsOverview";
 import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import TabBar from "~/components/next/TabBar";
+import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "~/events.shared";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { checkHoneypot } from "~/honeypot.server";
 import { detectLanguage } from "~/i18n.server";
@@ -55,7 +56,6 @@ import {
   getEventIdBySlug,
   getHasUserReportedEvent,
   getIsMember,
-  getParticipantsCount,
   removeProfileFromParticipants,
   removeProfileFromWaitingList,
   reportEvent,
@@ -76,7 +76,6 @@ import {
 } from "./details.shared";
 import { formatDateTime } from "./index.shared";
 import { filterEventConferenceLink } from "./utils.server";
-import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "~/events.shared";
 
 export function links() {
   return [
@@ -256,7 +255,9 @@ export async function loader(args: LoaderFunctionArgs) {
     tokenHash,
     eventInfo: {
       ...event,
-      participantCount: event._count.participants + event._count.guests,
+      participantCount:
+        event._count.participants +
+        event.guests.filter((guest) => guest.onWaitingList === false).length,
       beforeParticipationPeriod,
       afterParticipationPeriod,
       inPast,
@@ -347,11 +348,6 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const abuseReportReasons = await getAbuseReportReasons();
 
-  const participantsCount = await getParticipantsCount(
-    params.slug,
-    sessionUser
-  );
-
   const { conferenceLink, conferenceCode } = await filterEventConferenceLink({
     event,
     mode,
@@ -369,13 +365,16 @@ export async function loader(args: LoaderFunctionArgs) {
     conferenceCode,
     _count: {
       ...event._count,
+      guests: event.guests.filter((guest) => guest.onWaitingList === false)
+        .length,
+      waitingGuests: event.guests.filter((guest) => guest.onWaitingList).length,
       participants:
         event.external ||
         (event.openForRegistration === false &&
           isMember === false &&
           mode !== "participating")
           ? 0
-          : participantsCount,
+          : event._count.participants,
     },
     isMember,
   };
@@ -558,7 +557,10 @@ export async function action(args: ActionFunctionArgs) {
     tokenHash,
     eventInfo: {
       ...eventInfo,
-      participantCount: eventInfo._count.participants + eventInfo._count.guests,
+      participantCount:
+        eventInfo._count.participants +
+        eventInfo.guests.filter((guest) => guest.onWaitingList === false)
+          .length,
       beforeParticipationPeriod,
       afterParticipationPeriod,
       inPast,

@@ -27,48 +27,19 @@ export async function getParticipantsOfEvent(options: {
   const profileWhere = {
     participatedEvents: {
       some: {
-        OR: [
-          { event: { slug } },
-          {
-            event: {
-              AND: [
-                {
-                  parentEvent: {
-                    slug,
-                    external: false,
-                    openForRegistration: true,
-                  },
-                },
-                {
-                  OR: [
-                    { published: true },
-                    sessionUser !== null
-                      ? {
-                          teamMembers: {
-                            some: { profileId: sessionUser?.id },
-                          },
-                          admins: {
-                            some: { profileId: sessionUser?.id },
-                          },
-                          speakers: {
-                            some: { profileId: sessionUser?.id },
-                          },
-                        }
-                      : {},
-                  ],
-                },
-              ],
-            },
-          },
-        ],
+        event: { slug },
       },
     },
   };
 
   const guestWhere = {
-    event: {
-      slug,
-    },
+    OR: [
+      {
+        event: {
+          slug,
+        },
+      },
+    ],
     confirmed: true,
     onWaitingList: false,
   };
@@ -118,6 +89,7 @@ export async function getParticipantsOfEvent(options: {
       prismaClient.guest.findMany({
         where: guestWhere,
         select: guestSelect,
+        distinct: ["email"],
       }),
     ]);
     profiles = transactionResult[0];
@@ -155,6 +127,7 @@ export async function getParticipantsOfEvent(options: {
           }),
         },
         select: guestSelect,
+        distinct: ["email"],
       }),
     ]);
     profiles = transactionResult[0];
@@ -251,6 +224,12 @@ export async function getEventBySlug(slug: string) {
       _count: {
         select: {
           participants: true,
+          guests: {
+            where: {
+              confirmed: true,
+              onWaitingList: false,
+            },
+          },
           childEvents: true,
         },
       },

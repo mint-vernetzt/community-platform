@@ -59,6 +59,7 @@ export function canUserParticipate(event: {
   _count: {
     participants: number;
   };
+  participatingGuests: { id: string }[];
   isParticipant: boolean;
   isOnWaitingList: boolean;
   isTeamMember: boolean;
@@ -71,7 +72,7 @@ export function canUserParticipate(event: {
     !event.isSpeaker &&
     !reachedParticipateDeadline(event) &&
     !reachedParticipantLimit(
-      event._count.participants,
+      event._count.participants + event.participatingGuests.length,
       event.participantLimit
     ) &&
     event.published &&
@@ -88,6 +89,7 @@ export function canUserBeAddedToWaitingList(event: {
   _count: {
     participants: number;
   };
+  participatingGuests: { id: string }[];
   isParticipant: boolean;
   isOnWaitingList: boolean;
   isTeamMember: boolean;
@@ -100,7 +102,7 @@ export function canUserBeAddedToWaitingList(event: {
     !event.isSpeaker &&
     !reachedParticipateDeadline(event) &&
     reachedParticipantLimit(
-      event._count.participants,
+      event._count.participants + event.participatingGuests.length,
       event.participantLimit
     ) &&
     event.published &&

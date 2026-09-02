@@ -51,6 +51,10 @@ export async function getParticipantsOfEvent(slug: string) {
           email: true,
           organizationName: true,
         },
+        where: {
+          onWaitingList: false,
+          confirmed: true,
+        },
         orderBy: {
           firstName: "asc",
         },
@@ -97,6 +101,10 @@ export async function getParticipantsOfEvent(slug: string) {
               email: true,
               organizationName: true,
             },
+            where: {
+              onWaitingList: false,
+              confirmed: true,
+            },
           },
         },
       },
@@ -112,46 +120,16 @@ export async function getParticipantsOfEvent(slug: string) {
     event: event.name,
   }));
 
-  const guestsOfEvent = event.guests.map((guest) => ({
-    id: `guest:${guest.id}`,
-    firstName: guest.firstName,
-    lastName: guest.lastName,
-    email: guest.email,
-    position: "",
-    memberOf:
-      guest.organizationName !== null
-        ? [{ organization: { name: guest.organizationName } }]
-        : [],
-    areas: [],
-    event: event.name,
-  }));
-
-  const participantsAndGuestsOfChildEvents = event.childEvents.flatMap(
-    (childEvent) => [
-      ...childEvent.participants.map((participant) => ({
-        ...participant.profile,
-        event: childEvent.name,
-      })),
-      ...childEvent.guests.map((guest) => ({
-        id: `guest:${guest.id}`,
-        firstName: guest.firstName,
-        lastName: guest.lastName,
-        email: guest.email,
-        position: "",
-        memberOf:
-          guest.organizationName !== null
-            ? [{ organization: { name: guest.organizationName } }]
-            : [],
-        areas: [],
-        event: childEvent.name,
-      })),
-    ]
-  );
+  const participantsOfChildEvents = event.childEvents.flatMap((childEvent) => [
+    ...childEvent.participants.map((participant) => ({
+      ...participant.profile,
+      event: childEvent.name,
+    })),
+  ]);
 
   const aggregatedParticipants = [
     ...participantsOfEvent,
-    ...guestsOfEvent,
-    ...participantsAndGuestsOfChildEvents,
+    ...participantsOfChildEvents,
   ];
 
   const uniqueParticipants = aggregatedParticipants.filter(
@@ -176,19 +154,72 @@ export async function getParticipantsOfEvent(slug: string) {
     }
   );
 
-  const sortedParticipants = enhancedParticipantsWithListOfEvents.sort(
-    (a, b) => {
-      const nameA = a.firstName.toLowerCase();
-      const nameB = b.firstName.toLowerCase();
-      if (nameA < nameB) {
-        return -1;
-      }
-      if (nameA > nameB) {
-        return 1;
-      }
-      return 0;
+  const guestsOfEvent = event.guests.map((guest) => ({
+    id: `guest:${guest.id}`,
+    firstName: guest.firstName,
+    lastName: guest.lastName,
+    email: guest.email,
+    position: "",
+    memberOf:
+      guest.organizationName !== null
+        ? [{ organization: { name: guest.organizationName } }]
+        : [],
+    areas: [],
+    event: event.name,
+  }));
+
+  const guestsOfChildEvents = event.childEvents.flatMap((childEvent) => [
+    ...childEvent.guests.map((guest) => ({
+      id: `guest:${guest.id}`,
+      firstName: guest.firstName,
+      lastName: guest.lastName,
+      email: guest.email,
+      position: "",
+      memberOf:
+        guest.organizationName !== null
+          ? [{ organization: { name: guest.organizationName } }]
+          : [],
+      areas: [],
+      event: childEvent.name,
+    })),
+  ]);
+
+  const aggregatedGuests = [...guestsOfEvent, ...guestsOfChildEvents];
+
+  const uniqueGuests = aggregatedGuests.filter((guest, index, array) => {
+    const firstIndex = array.findIndex((item) => {
+      return item.email === guest.email;
+    });
+    return index === firstIndex;
+  });
+
+  const enhancedGuestsWithListOfEvents = uniqueGuests.map((guest) => {
+    const eventsOfGuest = aggregatedGuests
+      .filter((item) => {
+        return item.email === guest.email;
+      })
+      .map((item) => {
+        return item.event;
+      });
+    return { ...guest, event: eventsOfGuest.join(", ") };
+  });
+
+  const aggregatedParticipantsAndGuests = [
+    ...enhancedParticipantsWithListOfEvents,
+    ...enhancedGuestsWithListOfEvents,
+  ];
+
+  const sortedParticipants = aggregatedParticipantsAndGuests.sort((a, b) => {
+    const nameA = a.firstName.toLowerCase();
+    const nameB = b.firstName.toLowerCase();
+    if (nameA < nameB) {
+      return -1;
     }
-  );
+    if (nameA > nameB) {
+      return 1;
+    }
+    return 0;
+  });
 
   return sortedParticipants;
 }

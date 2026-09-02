@@ -452,39 +452,6 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
     };
   });
 
-  const waitingForEvents = profile.waitingForEvents.map((relation) => {
-    let background =
-      relation.event.backgroundImageMetaData === null
-        ? null
-        : relation.event.backgroundImageMetaData.path;
-    let blurredBackground;
-    if (background !== null) {
-      const publicURL = getPublicURL(authClient, background);
-      if (publicURL) {
-        background = getImageURL(publicURL, {
-          resize: {
-            type: "fill",
-            ...ImageSizes.Event.ListItem.Background,
-          },
-        });
-        blurredBackground = getImageURL(publicURL, {
-          resize: {
-            type: "fill",
-            ...ImageSizes.Event.ListItem.BlurredBackground,
-          },
-          blur: BlurFactor,
-        });
-      }
-    } else {
-      background = DefaultImages.Event.Background;
-      blurredBackground = DefaultImages.Event.BlurredBackground;
-    }
-    return {
-      ...relation,
-      event: { ...relation.event, background, blurredBackground },
-    };
-  });
-
   return {
     ...profile,
     avatar,
@@ -496,7 +463,6 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
     teamMemberOfEvents,
     contributedEvents,
     participatedEvents,
-    waitingForEvents,
   };
 }
 
@@ -563,15 +529,6 @@ export function filterProfile(profile: ProfileQuery) {
   );
   // Filter events where profile is participant
   enhancedProfile.participatedEvents = enhancedProfile.participatedEvents.map(
-    (relation) => {
-      const filteredEvent = filterEventByVisibility<typeof relation.event>(
-        relation.event
-      );
-      return { ...relation, event: filteredEvent };
-    }
-  );
-  // Filter events where profile is on waiting list
-  enhancedProfile.waitingForEvents = enhancedProfile.waitingForEvents.map(
     (relation) => {
       const filteredEvent = filterEventByVisibility<typeof relation.event>(
         relation.event

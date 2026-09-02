@@ -87,6 +87,15 @@ export async function confirmGuest(options: {
     select: {
       id: true,
       participantLimit: true,
+      guests: {
+        where: {
+          onWaitingList: false,
+          confirmed: true,
+        },
+        select: {
+          id: true,
+        },
+      },
       _count: {
         select: {
           participants: true,
@@ -102,7 +111,7 @@ export async function confirmGuest(options: {
   const now = new Date();
   const isOnWaitingList =
     event.participantLimit !== null &&
-    event._count.participants >= event.participantLimit;
+    event._count.participants + event.guests.length >= event.participantLimit;
 
   const revocationToken = generateValidationToken({
     data: JSON.stringify({
@@ -145,6 +154,7 @@ export async function confirmGuest(options: {
           venueZipCode: true,
           venueCity: true,
           conferenceLink: true,
+          conferenceCode: true,
           participationToken: true,
         },
       },
@@ -192,13 +202,12 @@ export async function confirmGuest(options: {
       },
       event: {
         name: result.event.name,
-        url: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/detail/about?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${result.event.participationToken}`, // Add participation token to ensure that guests can participate on child events
+        url: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/detail/about${result.onWaitingList === false ? `?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${result.event.participationToken}` : ""}`, // Add participation token to ensure that guests can participate on child events
         date,
         location: getVenueString(result.event),
         icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/ics-download`,
-        conferenceLink: result.onWaitingList
-          ? null
-          : result.event.conferenceLink, // If the guest is on the waiting list, we don't provide the conference link yet
+        conferenceLink: result.event.conferenceLink,
+        conferenceCode: result.event.conferenceCode,
         revocationLink,
       },
     };

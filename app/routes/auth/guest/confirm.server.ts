@@ -17,6 +17,15 @@ export async function getEventByToken(options: {
           select: {
             id: true,
             participantLimit: true,
+            guests: {
+              where: {
+                onWaitingList: false,
+                confirmed: true,
+              },
+              select: {
+                id: true,
+              },
+            },
             _count: {
               select: {
                 participants: true,
@@ -36,6 +45,14 @@ export async function getEventByToken(options: {
           select: {
             id: true,
             participantLimit: true,
+            guests: {
+              where: {
+                onWaitingList: true,
+              },
+              select: {
+                id: true,
+              },
+            },
             _count: {
               select: {
                 participants: true,

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { transformEmptyToNull } from "~/lib/utils/schemas";
+import { addProtocolToUrl, transformEmptyToNull } from "~/lib/utils/schemas";
 
 export const Stages = {
   Online: "online",
@@ -10,6 +10,7 @@ export const Stages = {
 export function createEventLocationSchema(locales: {
   stageRequired: string;
   stageInvalid: string;
+  invalidUrl: string;
 }) {
   const schema = z
     .object({
@@ -21,7 +22,16 @@ export function createEventLocationSchema(locales: {
       venueStreet: z.string().optional().transform(transformEmptyToNull),
       venueZipCode: z.string().optional().transform(transformEmptyToNull),
       venueCity: z.string().optional().transform(transformEmptyToNull),
-      conferenceLink: z.string().optional().transform(transformEmptyToNull),
+      conferenceLink: z
+        .string()
+        .transform((value) => {
+          if (value !== "") {
+            return addProtocolToUrl(value);
+          }
+          return value;
+        })
+        .pipe(z.string().url(locales.invalidUrl).optional())
+        .transform(transformEmptyToNull),
       conferenceCode: z.string().optional().transform(transformEmptyToNull),
       accessibilityInformation: z
         .string()

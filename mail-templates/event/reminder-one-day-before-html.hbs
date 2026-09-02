@@ -49,13 +49,16 @@
                       Das Event <a href="{{event.url}}"
                         style="text-decoration: underline; font-weight: bold;">{{event.name}}</a> findet morgen
                       statt.<br><br>
-                      Termin: {{event.date.de}}<br>
+                      <b>Termin:</b> {{event.date.de}}<br>
                       {{#if event.location}}
-                      Ort: {{event.location}}<br>
+                      <b>Ort:</b> {{event.location}}<br>
                       {{/if}}
                       {{#if event.conferenceLink}}
-                      Konferenz-Link: <a href="{{event.conferenceLink}}"
+                      <b>Konferenz-Link:</b> <a href="{{event.conferenceLink}}"
                         style="text-decoration: underline;">{{event.conferenceLink}}</a><br>
+                      {{/if}}
+                      {{#if event.conferenceCode}}
+                      <b>Zugangscode zur Konferenz:</b> {{event.conferenceCode}}<br>
                       {{/if}}
                       <br>
                       Wir freuen uns sehr, dass Du dabei bist!<br><br>
@@ -168,13 +171,16 @@
                       The event <a href="{{event.url}}"
                         style="text-decoration: underline; font-weight: bold;">{{event.name}}</a> will take place
                       tomorrow.<br><br>
-                      Date: {{event.date.en}}<br>
+                      <b>Date:</b> {{event.date.en}}<br>
                       {{#if event.location}}
-                      Location: {{event.location}}<br>
+                      <b>Location:</b> {{event.location}}<br>
                       {{/if}}
                       {{#if event.conferenceLink}}
-                      Conference link: <a href="{{event.conferenceLink}}"
+                      <b>Conference link:</b> <a href="{{event.conferenceLink}}"
                         style="text-decoration: underline;">{{event.conferenceLink}}</a><br>
+                      {{/if}}
+                      {{#if event.conferenceCode}}
+                      <b>Conference code:</b> {{event.conferenceCode}}<br>
                       {{/if}}
                       <br>
                       We are very happy that you will be there!<br><br>

@@ -150,16 +150,18 @@ export async function getEventBySlug(
           },
         },
       },
+      guests: {
+        where: {
+          confirmed: true,
+        },
+        select: {
+          onWaitingList: true,
+        },
+      },
       _count: {
         select: {
           participants: true,
           waitingList: true,
-          guests: {
-            where: {
-              confirmed: true,
-              onWaitingList: false,
-            },
-          },
           childEvents: {
             where: {
               OR: [
@@ -585,6 +587,7 @@ export async function addProfileToParticipants(options: {
             venueZipCode: true,
             venueCity: true,
             conferenceLink: true,
+            conferenceCode: true,
             participationToken: true,
           },
         },
@@ -647,6 +650,7 @@ export async function addProfileToParticipants(options: {
             location: getVenueString(data.event),
             icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/ics-download`,
             conferenceLink: data.event.conferenceLink,
+            conferenceCode: data.event.conferenceCode,
           },
         };
         const textTemplatePath =
@@ -750,6 +754,7 @@ export async function addProfileToWaitingList(options: {
             venueZipCode: true,
             venueCity: true,
             conferenceLink: true,
+            conferenceCode: true,
             participationToken: true,
           },
         },
@@ -809,10 +814,12 @@ export async function addProfileToWaitingList(options: {
           },
           event: {
             name: data.event.name,
-            url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail/about?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${data.event.participationToken}`, // Add participation token to ensure that guests can participate on child events
+            url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail/about`,
             date,
             location: getVenueString(data.event),
             icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/ics-download`,
+            conferenceLink: data.event.conferenceLink,
+            conferenceCode: data.event.conferenceCode,
           },
         };
         const textTemplatePath =
@@ -1390,57 +1397,6 @@ export async function getContactPersonsOfEvent(options: {
   });
 
   return enhancedContactPersons;
-}
-
-export async function getParticipantsCount(
-  slug: string,
-  sessionUser: User | null
-) {
-  const participants = await prismaClient.participantOfEvent.findMany({
-    where: {
-      OR: [
-        {
-          event: {
-            slug,
-          },
-        },
-        {
-          event: {
-            AND: [
-              {
-                parentEvent: {
-                  slug,
-                  external: false,
-                  openForRegistration: true,
-                },
-              },
-              {
-                OR: [
-                  { published: true },
-                  sessionUser !== null
-                    ? {
-                        teamMembers: {
-                          some: { profileId: sessionUser?.id },
-                        },
-                        admins: {
-                          some: { profileId: sessionUser?.id },
-                        },
-                        speakers: {
-                          some: { profileId: sessionUser?.id },
-                        },
-                      }
-                    : {},
-                ],
-              },
-            ],
-          },
-        },
-      ],
-    },
-    distinct: ["profileId"],
-  });
-
-  return participants.length;
 }
 
 export async function addGuestToEvent(options: {

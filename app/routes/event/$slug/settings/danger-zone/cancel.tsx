@@ -198,7 +198,9 @@ function Cancel() {
                 >
                   <ListItemEvent.Info
                     {...childEvent}
-                    participantCount={childEvent._count.participants}
+                    participantCount={
+                      childEvent._count.participants + childEvent._count.guests
+                    }
                     locales={{
                       stages: locales.stages,
                       ...locales.route.childEventsList,

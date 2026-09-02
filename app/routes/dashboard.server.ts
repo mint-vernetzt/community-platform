@@ -303,6 +303,14 @@ export async function getEventsForCards(take: number) {
       canceled: true,
       subline: true,
       description: true,
+      guests: {
+        select: {
+          onWaitingList: true,
+        },
+        where: {
+          confirmed: true,
+        },
+      },
       _count: {
         select: {
           childEvents: true,

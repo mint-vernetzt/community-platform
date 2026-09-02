@@ -248,20 +248,60 @@ export async function loader(args: LoaderFunctionArgs) {
     contributedEvents,
     teamMemberOfEvents,
     participatedEvents,
-    waitingForEvents,
     ...profileWithoutEvents
   } = enhancedProfile;
   // Combine participated and waiting events to show them both in one list in the frontend
 
-  const events = {
-    contributedEvents,
-    teamMemberOfEvents,
-    participatedEvents: mode !== "anon" ? participatedEvents : [],
-  };
+  const enhancedContributedEvents = contributedEvents.map((relation) => {
+    return {
+      ...relation,
+      event: {
+        ...relation.event,
+        participatingGuests: relation.event.guests.filter(
+          (guest) => !guest.onWaitingList
+        ),
+        waitingGuests: relation.event.guests.filter(
+          (guest) => guest.onWaitingList
+        ),
+      },
+    };
+  });
 
-  if (mode === "owner") {
-    events.participatedEvents.concat(waitingForEvents);
-  }
+  const enhancedTeamMemberOfEvents = teamMemberOfEvents.map((relation) => {
+    return {
+      ...relation,
+      event: {
+        ...relation.event,
+        participatingGuests: relation.event.guests.filter(
+          (guest) => !guest.onWaitingList
+        ),
+        waitingGuests: relation.event.guests.filter(
+          (guest) => guest.onWaitingList
+        ),
+      },
+    };
+  });
+
+  const enhancedParticipatedEvents = participatedEvents.map((relation) => {
+    return {
+      ...relation,
+      event: {
+        ...relation.event,
+        participatingGuests: relation.event.guests.filter(
+          (guest) => !guest.onWaitingList
+        ),
+        waitingGuests: relation.event.guests.filter(
+          (guest) => guest.onWaitingList
+        ),
+      },
+    };
+  });
+
+  const events = {
+    contributedEvents: enhancedContributedEvents,
+    teamMemberOfEvents: enhancedTeamMemberOfEvents,
+    participatedEvents: mode !== "anon" ? enhancedParticipatedEvents : [],
+  };
 
   // Split events into future and past (Note: The events are already ordered by startTime: descending from the database)
   type Events = typeof events;
@@ -1113,24 +1153,28 @@ export default function Index() {
                                       ` | ${locales.route.section.event.unlimitedSeats}`}
                                     {hasContent(event.participantLimit) &&
                                       event.participantLimit -
-                                        event._count.participants >
+                                        event._count.participants -
+                                        event.participatingGuests.length >
                                         0 &&
                                       ` | ${
                                         event.participantLimit -
-                                        event._count.participants
+                                        event._count.participants -
+                                        event.participatingGuests.length
                                       } / ${event.participantLimit} ${
                                         locales.route.section.event.seatsFree
                                       }`}
 
                                     {hasContent(event.participantLimit) &&
                                     event.participantLimit -
-                                      event._count.participants <=
+                                      event._count.participants -
+                                      event.participatingGuests.length <=
                                       0 ? (
                                       <>
                                         {" "}
                                         |{" "}
                                         <span>
-                                          {event._count.waitingList}{" "}
+                                          {event._count.waitingList +
+                                            event.waitingGuests.length}{" "}
                                           {
                                             locales.route.section.event
                                               .onWaitingList
@@ -1268,24 +1312,28 @@ export default function Index() {
                                       ` | ${locales.route.section.event.unlimitedSeats}`}
                                     {hasContent(event.participantLimit) &&
                                       event.participantLimit -
-                                        event._count.participants >
+                                        event._count.participants -
+                                        event.participatingGuests.length >
                                         0 &&
                                       ` | ${
                                         event.participantLimit -
-                                        event._count.participants
+                                        (event._count.participants -
+                                          event.participatingGuests.length)
                                       } / ${event.participantLimit} ${
                                         locales.route.section.event.seatsFree
                                       }`}
 
                                     {hasContent(event.participantLimit) &&
                                     event.participantLimit -
-                                      event._count.participants <=
+                                      event._count.participants -
+                                      event.participatingGuests.length <=
                                       0 ? (
                                       <>
                                         {" "}
                                         |{" "}
                                         <span>
-                                          {event._count.waitingList}{" "}
+                                          {event._count.waitingList +
+                                            event.waitingGuests.length}{" "}
                                           {
                                             locales.route.section.event
                                               .onWaitingList
@@ -1417,24 +1465,28 @@ export default function Index() {
                                       ` | ${locales.route.section.event.unlimitedSeats}`}
                                     {hasContent(event.participantLimit) &&
                                       event.participantLimit -
-                                        event._count.participants >
+                                        event._count.participants -
+                                        event.participatingGuests.length >
                                         0 &&
                                       ` | ${
                                         event.participantLimit -
-                                        event._count.participants
+                                        (event._count.participants -
+                                          event.participatingGuests.length)
                                       } / ${event.participantLimit} ${
                                         locales.route.section.event.seatsFree
                                       }`}
 
                                     {hasContent(event.participantLimit) &&
                                     event.participantLimit -
-                                      event._count.participants <=
+                                      event._count.participants -
+                                      event.participatingGuests.length <=
                                       0 ? (
                                       <>
                                         {" "}
                                         |{" "}
                                         <span>
-                                          {event._count.waitingList}{" "}
+                                          {event._count.waitingList +
+                                            event.waitingGuests.length}{" "}
                                           {
                                             locales.route.section.event
                                               .onWaitingList
