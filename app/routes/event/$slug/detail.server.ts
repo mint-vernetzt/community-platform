@@ -1397,7 +1397,7 @@ export async function getContactPersonsOfEvent(options: {
   return enhancedContactPersons;
 }
 
-export async function getParticipantsCount(
+export async function getFullDepthParticipantsCount(
   slug: string,
   sessionUser: User | null
 ) {
@@ -1446,6 +1446,35 @@ export async function getParticipantsCount(
   });
 
   return participants.length;
+}
+
+export async function getFullDepthGuestCount(slug: string) {
+  const guests = await prismaClient.guest.findMany({
+    where: {
+      confirmed: true,
+      onWaitingList: false,
+      OR: [
+        {
+          event: {
+            slug,
+          },
+        },
+        {
+          event: {
+            parentEvent: {
+              slug,
+              external: false,
+              openForRegistration: true,
+            },
+            published: true,
+          },
+        },
+      ],
+    },
+    distinct: ["email"],
+  });
+
+  return guests.length;
 }
 
 export async function addGuestToEvent(options: {

@@ -55,11 +55,12 @@ import {
   getEventIdBySlug,
   getHasUserReportedEvent,
   getIsMember,
-  getParticipantsCount,
+  getFullDepthParticipantsCount,
   removeProfileFromParticipants,
   removeProfileFromWaitingList,
   reportEvent,
   uploadBackgroundImage,
+  getFullDepthGuestCount,
 } from "./detail.server";
 import {
   ABUSE_REPORT_INTENT,
@@ -347,10 +348,12 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const abuseReportReasons = await getAbuseReportReasons();
 
-  const participantsCount = await getParticipantsCount(
+  const fullDepthParticipantsCount = await getFullDepthParticipantsCount(
     params.slug,
     sessionUser
   );
+
+  const fullDepthGuestCount = await getFullDepthGuestCount(params.slug);
 
   const { conferenceLink, conferenceCode } = await filterEventConferenceLink({
     event,
@@ -369,13 +372,13 @@ export async function loader(args: LoaderFunctionArgs) {
     conferenceCode,
     _count: {
       ...event._count,
-      participants:
+      fullDepthParticipants:
         event.external ||
         (event.openForRegistration === false &&
           isMember === false &&
           mode !== "participating")
           ? 0
-          : participantsCount,
+          : fullDepthParticipantsCount + fullDepthGuestCount,
     },
     isMember,
   };
@@ -1127,9 +1130,7 @@ function Detail() {
                 </TabBar.Item.Title>
               </Link>
             </TabBar.Item>
-            {loaderData.event._count.participants +
-              loaderData.event._count.guests >
-              0 &&
+            {loaderData.event._count.fullDepthParticipants > 0 &&
               loaderData.mode !== "anon" &&
               loaderData.event.external === false &&
               (loaderData.event.openForRegistration === true ||
@@ -1147,8 +1148,7 @@ function Detail() {
                       {loaderData.locales.route.content.participants}
                     </TabBar.Item.Title>
                     <TabBar.Item.Counter>
-                      {loaderData.event._count.participants +
-                        loaderData.event._count.guests}
+                      {loaderData.event._count.fullDepthParticipants}
                     </TabBar.Item.Counter>
                   </Link>
                 </TabBar.Item>

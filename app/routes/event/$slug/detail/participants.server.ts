@@ -66,9 +66,23 @@ export async function getParticipantsOfEvent(options: {
   };
 
   const guestWhere = {
-    event: {
-      slug,
-    },
+    OR: [
+      {
+        event: {
+          slug,
+        },
+      },
+      {
+        event: {
+          parentEvent: {
+            slug,
+            external: false,
+            openForRegistration: true,
+          },
+          published: true,
+        },
+      },
+    ],
     confirmed: true,
     onWaitingList: false,
   };
@@ -118,6 +132,7 @@ export async function getParticipantsOfEvent(options: {
       prismaClient.guest.findMany({
         where: guestWhere,
         select: guestSelect,
+        distinct: ["email"],
       }),
     ]);
     profiles = transactionResult[0];
@@ -155,6 +170,7 @@ export async function getParticipantsOfEvent(options: {
           }),
         },
         select: guestSelect,
+        distinct: ["email"],
       }),
     ]);
     profiles = transactionResult[0];

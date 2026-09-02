@@ -213,6 +213,9 @@ export async function getChildEventsRemovalCascadesInto(options: {
               email: true,
               onWaitingList: true,
             },
+            where: {
+              confirmed: true,
+            },
           },
           // For legacy reasons we need to check child events of child events
           childEvents: {
@@ -239,6 +242,9 @@ export async function getChildEventsRemovalCascadesInto(options: {
                 select: {
                   email: true,
                   onWaitingList: true,
+                },
+                where: {
+                  confirmed: true,
                 },
               },
             },

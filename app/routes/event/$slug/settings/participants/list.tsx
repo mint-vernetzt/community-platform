@@ -92,7 +92,9 @@ export async function loader(args: LoaderFunctionArgs) {
   const hasNoParticipants =
     participants.length === 0 &&
     event.childEvents.every((childEvent) => {
-      return childEvent.participants.length === 0;
+      return (
+        childEvent.participants.length === 0 && childEvent.guests.length === 0
+      );
     });
 
   if (hasNoParticipants) {
@@ -103,13 +105,28 @@ export async function loader(args: LoaderFunctionArgs) {
     .flatMap((childEvent) =>
       childEvent.participants.map((relation) => relation.profileId)
     )
-    .concat(participants.map((participant) => participant.id));
+    .concat(
+      participants
+        .filter((participant) => participant.type === "user")
+        .map((participant) => participant.id)
+    );
 
   const uniqueParticipantIds = Array.from(
     new Set(flatAggregatedParticipantIds)
   );
 
-  const fullDepthParticipantsCount = uniqueParticipantIds.length;
+  const flatAggregatedGuestEmails = event.childEvents
+    .flatMap((childEvent) => childEvent.guests.map((guest) => guest.email))
+    .concat(
+      participants
+        .filter((participant) => participant.type === "guest")
+        .map((participant) => participant.email)
+    );
+
+  const uniqueGuestEmails = Array.from(new Set(flatAggregatedGuestEmails));
+
+  const fullDepthParticipantsCount =
+    uniqueParticipantIds.length + uniqueGuestEmails.length;
 
   return {
     locales,
