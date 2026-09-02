@@ -51,6 +51,10 @@ export async function getParticipantsOfEvent(slug: string) {
           email: true,
           organizationName: true,
         },
+        where: {
+          onWaitingList: false,
+          confirmed: true,
+        },
         orderBy: {
           firstName: "asc",
         },
@@ -97,6 +101,10 @@ export async function getParticipantsOfEvent(slug: string) {
               email: true,
               organizationName: true,
             },
+            where: {
+              onWaitingList: false,
+              confirmed: true,
+            },
           },
         },
       },
@@ -129,7 +137,7 @@ export async function getParticipantsOfEvent(slug: string) {
       const firstIndex = array.findIndex((item) => {
         return item.id === participant.id;
       });
-      return index !== firstIndex;
+      return index === firstIndex;
     }
   );
 
@@ -182,7 +190,7 @@ export async function getParticipantsOfEvent(slug: string) {
     const firstIndex = array.findIndex((item) => {
       return item.email === guest.email;
     });
-    return index !== firstIndex;
+    return index === firstIndex;
   });
 
   const enhancedGuestsWithListOfEvents = uniqueGuests.map((guest) => {
