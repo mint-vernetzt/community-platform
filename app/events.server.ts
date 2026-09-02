@@ -101,7 +101,7 @@ function shouldMoveUpToParticipants(options: {
 
 function getNextOnWaitingList(options: {
   usersOnWaitingList: { profileId: string; createdAt: Date }[];
-  guestsOnWaitingList: { id: string; confirmedAt: Date }[];
+  guestsOnWaitingList: { id: string; confirmedAt: Date | null }[];
 }) {
   const { usersOnWaitingList, guestsOnWaitingList } = options;
 
@@ -121,6 +121,9 @@ function getNextOnWaitingList(options: {
       type: "guest" as const,
     })),
   ].sort((a, b) => {
+    // We know they are not null because of the where clause. Just making TS happy.
+    if (a.createdAt === null) return 1;
+    if (b.createdAt === null) return -1;
     return a.createdAt.getTime() - b.createdAt.getTime();
   });
 
@@ -361,6 +364,7 @@ export async function removeParticipantFromEvent(options: {
             guests: {
               some: {
                 email: identifier.email,
+                confirmed: true,
               },
             },
           },
@@ -392,7 +396,12 @@ export async function removeParticipantFromEvent(options: {
           AND: [
             {
               OR: [
-                { parentParticipationRequired: null },
+                {
+                  AND: [
+                    { parentParticipationRequired: null },
+                    { parentEvent: { parentParticipationRequired: true } },
+                  ],
+                },
                 { parentParticipationRequired: true },
               ],
             },
@@ -432,6 +441,9 @@ export async function removeParticipantFromEvent(options: {
               email: true,
               onWaitingList: true,
             },
+            where: {
+              confirmed: true,
+            },
           },
           // For legacy reasons we need to check child events of child events
           childEvents: {
@@ -442,7 +454,12 @@ export async function removeParticipantFromEvent(options: {
                 // participant participates, is on waiting list, or is a guest
                 {
                   OR: [
-                    { parentParticipationRequired: null },
+                    {
+                      AND: [
+                        { parentParticipationRequired: null },
+                        { parentEvent: { parentParticipationRequired: true } },
+                      ],
+                    },
                     { parentParticipationRequired: true },
                   ],
                 },
@@ -479,6 +496,9 @@ export async function removeParticipantFromEvent(options: {
                 select: {
                   email: true,
                   onWaitingList: true,
+                },
+                where: {
+                  confirmed: true,
                 },
               },
             },
@@ -704,7 +724,6 @@ export async function removeParticipantFromEvent(options: {
                 orderBy: {
                   createdAt: "asc",
                 },
-                take: 1,
               },
               guests: {
                 where: {
@@ -718,7 +737,6 @@ export async function removeParticipantFromEvent(options: {
                 orderBy: {
                   confirmedAt: "asc",
                 },
-                take: 1,
               },
             },
           });
@@ -729,8 +747,9 @@ export async function removeParticipantFromEvent(options: {
           const participatingGuestCount = eventData.guests.filter((guest) => {
             return guest.onWaitingList === false;
           }).length;
-          const guestsOnWaitingListCount =
-            eventData.guests.length - participatingGuestCount;
+          const guestsOnWaitingListCount = eventData.guests.filter((guest) => {
+            return guest.onWaitingList;
+          }).length;
 
           if (
             shouldMoveUpToParticipants({
@@ -744,10 +763,9 @@ export async function removeParticipantFromEvent(options: {
           ) {
             const nextOnWaitingList = getNextOnWaitingList({
               usersOnWaitingList: eventData.waitingList,
-              guestsOnWaitingList: eventData.guests as {
-                id: string;
-                confirmedAt: Date;
-              }[], // Type assertion because we know that confirmedAt is not null due to the where clause
+              guestsOnWaitingList: eventData.guests.filter(
+                (guest) => guest.onWaitingList
+              ),
             });
             if (nextOnWaitingList === null) {
               return null;
