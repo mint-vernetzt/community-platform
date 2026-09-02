@@ -126,7 +126,7 @@ export async function getFullDepthProfiles(
   groupBy: "profiles" | "events" = "profiles"
 ) {
   try {
-    // Get event and all child events of arbitrary depth with raw query
+    // Get event and all sub-events of arbitrary depth with raw query
     // Join the result with relevant relation tables
     const select =
       groupBy === "profiles"

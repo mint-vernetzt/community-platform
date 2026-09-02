@@ -190,7 +190,7 @@ export async function getChildEventsRemovalCascadesInto(options: {
       id: eventId,
     },
     select: {
-      // Include child events where parent participation is required
+      // Include sub-events where parent participation is required
       childEvents: {
         where: {
           OR: [
@@ -220,7 +220,7 @@ export async function getChildEventsRemovalCascadesInto(options: {
               confirmed: true,
             },
           },
-          // For legacy reasons we need to check child events of child events
+          // For legacy reasons we need to check sub-events of sub-events
           childEvents: {
             where: {
               OR: [
@@ -390,7 +390,7 @@ export async function removeParticipantFromEvent(options: {
       participationToken: true,
       childEvents: {
         where: {
-          // Include child events where parent participation is required
+          // Include sub-events where parent participation is required
           // AND
           // participant participates, is on waiting list, or is a guest
           AND: [
@@ -435,7 +435,7 @@ export async function removeParticipantFromEvent(options: {
             },
           },
           // Unconfirmed guest registrations are included on purpose - a pending
-          // registration on a child event has to be removed as well
+          // registration on a sub-event has to be removed as well
           guests: {
             select: {
               email: true,
@@ -445,11 +445,11 @@ export async function removeParticipantFromEvent(options: {
               confirmed: true,
             },
           },
-          // For legacy reasons we need to check child events of child events
+          // For legacy reasons we need to check sub-events of sub-events
           childEvents: {
             where: {
               AND: [
-                // Include child events where parent participation is required
+                // Include sub-events where parent participation is required
                 // AND
                 // participant participates, is on waiting list, or is a guest
                 {
@@ -571,7 +571,7 @@ export async function removeParticipantFromEvent(options: {
         ...rest,
       };
     });
-    // For legacy reasons we need to check child events of child events
+    // For legacy reasons we need to check sub-events of sub-events
     for (const childEvent of event.childEvents) {
       if (childEvent.childEvents.length > 0) {
         childEvents.push(...childEvent.childEvents);
@@ -579,7 +579,7 @@ export async function removeParticipantFromEvent(options: {
     }
   }
 
-  // Iterate over child events and remove the participant from them as well
+  // Iterate over sub-events and remove the participant from them as well
   for (const childEvent of childEvents) {
     const isParticipant = isParticipantOnEvent({
       identifier,

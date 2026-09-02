@@ -84,7 +84,7 @@ export async function createEvent(options: {
       },
     });
     if (parentEvent === null) {
-      throw new Error("Parent event not found");
+      throw new Error("main event not found");
     }
   }
 

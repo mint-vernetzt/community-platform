@@ -51,7 +51,7 @@ async function main() {
     process.exit(1);
   }
 
-  // Rollback participants of child events added to parent events
+  // Rollback participants of sub-events added to main events
   for (const participant of data.allParticipantsAddedToParentEvents) {
     await prismaClient.participantOfEvent.delete({
       where: {
@@ -66,7 +66,7 @@ async function main() {
     );
   }
 
-  // Rollback Parent events without parentParticipationRequired set to true
+  // Rollback main events without parentParticipationRequired set to true
   for (const event of data.parentEventsWithoutParentParticipationRequiredSetToTrue) {
     await prismaClient.event.update({
       where: {

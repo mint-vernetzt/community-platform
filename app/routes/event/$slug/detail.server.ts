@@ -294,7 +294,7 @@ export async function deriveModeForEvent(options: {
     if (isAnyoneAbleToParticipate === false) {
       return null;
     }
-    // Check if user should participate on child event
+    // Check if user should participate on sub-event
     if (
       eventInfo.hasChildEvents &&
       eventInfo.parentParticipationRequired === false
@@ -311,9 +311,9 @@ export async function deriveModeForEvent(options: {
       return null;
     }
 
-    // Check if user on child event
+    // Check if user on sub-event
     if (eventInfo.parentEvent !== null) {
-      // Check if user can participate on child event
+      // Check if user can participate on sub-event
       if (
         eventInfo.parentEvent.parentParticipationRequired === false ||
         eventInfo.parentParticipationRequired === false ||
@@ -321,8 +321,8 @@ export async function deriveModeForEvent(options: {
       ) {
         return "anon" as const;
       }
-      // Check if user should first participate on parent event
-      // Therefore, user can only participate via participation link from parent event
+      // Check if user should first participate on main event
+      // Therefore, user can only participate via participation link from main event
       if (
         eventInfo.parentEvent.parentParticipationRequired === true &&
         tokenHash !== null &&
@@ -384,7 +384,7 @@ export async function deriveModeForEvent(options: {
     return null;
   }
 
-  // Check if user is on parent event and should participate on child event
+  // Check if user is on main event and should participate on sub-event
   if (
     eventInfo.parentEvent === null &&
     eventInfo.parentParticipationRequired === false
@@ -392,7 +392,7 @@ export async function deriveModeForEvent(options: {
     return null;
   }
 
-  // Check if user is on child event and should first participate on parent event and isn't already participating on parent event
+  // Check if user is on sub-event and should first participate on main event and isn't already participating on main event
   if (
     eventInfo.parentEvent !== null &&
     eventInfo.parentParticipationRequired !== false &&
@@ -481,7 +481,7 @@ export async function getIsMember(
             },
           },
         },
-        // is admin of the parent event
+        // is admin of the main event
         {
           administeredEvents: {
             some: {
@@ -491,7 +491,7 @@ export async function getIsMember(
             },
           },
         },
-        // is admin of a potential parent event
+        // is admin of a potential main event
         {
           administeredEvents: {
             some: {

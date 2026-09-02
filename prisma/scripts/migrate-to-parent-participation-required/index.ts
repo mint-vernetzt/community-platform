@@ -57,11 +57,11 @@ async function main() {
     });
   if (allParticipantsOnChildEvents.length === 0) {
     console.log(
-      "No participants on child events, skipping participation migration"
+      "No participants on sub-events, skipping participation migration"
     );
   } else {
     console.log(
-      `There are ${allParticipantsOnChildEvents.length} participants on child events, migrating participation to parent events`
+      `There are ${allParticipantsOnChildEvents.length} participants on sub-events, migrating participation to main events`
     );
   }
 
@@ -133,7 +133,7 @@ async function main() {
   }
 
   console.log(
-    `Added ${allParticipantsAddedToParentEvents.length} participants to parent events`
+    `Added ${allParticipantsAddedToParentEvents.length} participants to main events`
   );
 }
 
