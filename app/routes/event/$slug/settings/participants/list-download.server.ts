@@ -1,6 +1,6 @@
 import { prismaClient } from "~/prisma.server";
 
-export async function getParticipantsOfEvent(slug: string) {
+export async function getFullDepthParticipantsOfEvent(slug: string) {
   const event = await prismaClient.event.findUnique({
     where: { slug },
     select: {
@@ -225,7 +225,7 @@ export async function getParticipantsOfEvent(slug: string) {
 }
 
 export function createCsvString(
-  profiles: Awaited<ReturnType<typeof getParticipantsOfEvent>>
+  profiles: Awaited<ReturnType<typeof getFullDepthParticipantsOfEvent>>
 ) {
   let csv =
     "VORNAME,NACHNAME,EMAIL,POSITION,ORGANISATIONEN,AKTIVITÄTSGEBIETE,VERANSTALTUNG\n";

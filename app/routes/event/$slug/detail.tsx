@@ -54,6 +54,7 @@ import {
   getContactPersonsOfEvent,
   getEventBySlug,
   getEventIdBySlug,
+  getFullDepthParticipantsCount,
   getHasUserReportedEvent,
   getIsMember,
   removeProfileFromParticipants,
@@ -355,6 +356,10 @@ export async function loader(args: LoaderFunctionArgs) {
     inPast,
   });
 
+  const fullDepthParticipantsCount = await getFullDepthParticipantsCount(
+    params.slug
+  );
+
   const enhancedEvent = {
     ...event,
     background,
@@ -375,6 +380,7 @@ export async function loader(args: LoaderFunctionArgs) {
           mode !== "participating")
           ? 0
           : event._count.participants,
+      fullDepthParticipants: fullDepthParticipantsCount,
     },
     isMember,
   };
@@ -1129,10 +1135,9 @@ function Detail() {
                 </TabBar.Item.Title>
               </Link>
             </TabBar.Item>
-            {loaderData.event._count.participants +
-              loaderData.event._count.guests >
-              0 &&
+            {loaderData.event._count.fullDepthParticipants > 0 &&
               loaderData.mode !== "anon" &&
+              loaderData.mode !== null &&
               loaderData.event.external === false &&
               (loaderData.event.openForRegistration === true ||
                 loaderData.event.isMember ||
@@ -1149,8 +1154,7 @@ function Detail() {
                       {loaderData.locales.route.content.participants}
                     </TabBar.Item.Title>
                     <TabBar.Item.Counter>
-                      {loaderData.event._count.participants +
-                        loaderData.event._count.guests}
+                      {loaderData.event._count.fullDepthParticipants}
                     </TabBar.Item.Counter>
                   </Link>
                 </TabBar.Item>
