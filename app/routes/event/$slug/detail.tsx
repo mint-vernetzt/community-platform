@@ -27,6 +27,7 @@ import ContactPerson from "~/components/next/ContactPerson";
 import EventsOverview from "~/components/next/EventsOverview";
 import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import TabBar from "~/components/next/TabBar";
+import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "~/events.shared";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { checkHoneypot } from "~/honeypot.server";
 import { detectLanguage } from "~/i18n.server";
@@ -55,12 +56,10 @@ import {
   getEventIdBySlug,
   getHasUserReportedEvent,
   getIsMember,
-  getFullDepthParticipantsCount,
   removeProfileFromParticipants,
   removeProfileFromWaitingList,
   reportEvent,
   uploadBackgroundImage,
-  getFullDepthGuestCount,
 } from "./detail.server";
 import {
   ABUSE_REPORT_INTENT,
@@ -77,7 +76,6 @@ import {
 } from "./details.shared";
 import { formatDateTime } from "./index.shared";
 import { filterEventConferenceLink } from "./utils.server";
-import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "~/events.shared";
 
 export function links() {
   return [
@@ -350,13 +348,6 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const abuseReportReasons = await getAbuseReportReasons();
 
-  const fullDepthParticipantsCount = await getFullDepthParticipantsCount(
-    params.slug,
-    sessionUser
-  );
-
-  const fullDepthGuestCount = await getFullDepthGuestCount(params.slug);
-
   const { conferenceLink, conferenceCode } = await filterEventConferenceLink({
     event,
     mode,
@@ -377,13 +368,13 @@ export async function loader(args: LoaderFunctionArgs) {
       guests: event.guests.filter((guest) => guest.onWaitingList === false)
         .length,
       waitingGuests: event.guests.filter((guest) => guest.onWaitingList).length,
-      fullDepthParticipants:
+      participants:
         event.external ||
         (event.openForRegistration === false &&
           isMember === false &&
           mode !== "participating")
           ? 0
-          : fullDepthParticipantsCount + fullDepthGuestCount,
+          : event._count.participants,
     },
     isMember,
   };
@@ -1138,7 +1129,9 @@ function Detail() {
                 </TabBar.Item.Title>
               </Link>
             </TabBar.Item>
-            {loaderData.event._count.fullDepthParticipants > 0 &&
+            {loaderData.event._count.participants +
+              loaderData.event._count.guests >
+              0 &&
               loaderData.mode !== "anon" &&
               loaderData.event.external === false &&
               (loaderData.event.openForRegistration === true ||
@@ -1156,7 +1149,8 @@ function Detail() {
                       {loaderData.locales.route.content.participants}
                     </TabBar.Item.Title>
                     <TabBar.Item.Counter>
-                      {loaderData.event._count.fullDepthParticipants}
+                      {loaderData.event._count.participants +
+                        loaderData.event._count.guests}
                     </TabBar.Item.Counter>
                   </Link>
                 </TabBar.Item>

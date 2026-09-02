@@ -27,40 +27,7 @@ export async function getParticipantsOfEvent(options: {
   const profileWhere = {
     participatedEvents: {
       some: {
-        OR: [
-          { event: { slug } },
-          {
-            event: {
-              AND: [
-                {
-                  parentEvent: {
-                    slug,
-                    external: false,
-                    openForRegistration: true,
-                  },
-                },
-                {
-                  OR: [
-                    { published: true },
-                    sessionUser !== null
-                      ? {
-                          teamMembers: {
-                            some: { profileId: sessionUser?.id },
-                          },
-                          admins: {
-                            some: { profileId: sessionUser?.id },
-                          },
-                          speakers: {
-                            some: { profileId: sessionUser?.id },
-                          },
-                        }
-                      : {},
-                  ],
-                },
-              ],
-            },
-          },
-        ],
+        event: { slug },
       },
     },
   };
@@ -70,16 +37,6 @@ export async function getParticipantsOfEvent(options: {
       {
         event: {
           slug,
-        },
-      },
-      {
-        event: {
-          parentEvent: {
-            slug,
-            external: false,
-            openForRegistration: true,
-          },
-          published: true,
         },
       },
     ],
