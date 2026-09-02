@@ -27,7 +27,16 @@ export async function getParticipantsOfEvent(options: {
   const profileWhere = {
     participatedEvents: {
       some: {
-        event: { slug },
+        OR: [
+          { event: { slug } },
+          {
+            event: {
+              parentEvent: {
+                slug,
+              },
+            },
+          },
+        ],
       },
     },
   };
@@ -37,6 +46,13 @@ export async function getParticipantsOfEvent(options: {
       {
         event: {
           slug,
+        },
+      },
+      {
+        event: {
+          parentEvent: {
+            slug,
+          },
         },
       },
     ],

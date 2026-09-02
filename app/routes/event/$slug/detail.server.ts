@@ -550,6 +550,112 @@ export async function getIsMember(
   return member !== null;
 }
 
+export async function getFullDepthParticipantsCount(slug: string) {
+  const event = await prismaClient.event.findUnique({
+    where: { slug },
+    select: {
+      participants: {
+        select: {
+          profile: {
+            select: {
+              id: true,
+              email: true,
+            },
+          },
+        },
+      },
+      guests: {
+        select: {
+          id: true,
+          email: true,
+        },
+        where: {
+          onWaitingList: false,
+          confirmed: true,
+        },
+      },
+      childEvents: {
+        select: {
+          participants: {
+            select: {
+              profile: {
+                select: {
+                  id: true,
+                  email: true,
+                },
+              },
+            },
+          },
+          guests: {
+            select: {
+              id: true,
+              email: true,
+            },
+            where: {
+              onWaitingList: false,
+              confirmed: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (event === null) {
+    return 0;
+  }
+
+  const participantsOfEvent = event.participants.map((participant) => ({
+    ...participant.profile,
+  }));
+
+  const participantsOfChildEvents = event.childEvents.flatMap((childEvent) => [
+    ...childEvent.participants.map((participant) => ({
+      ...participant.profile,
+    })),
+  ]);
+
+  const aggregatedParticipants = [
+    ...participantsOfEvent,
+    ...participantsOfChildEvents,
+  ];
+
+  const uniqueParticipants = aggregatedParticipants.filter(
+    (participant, index, array) => {
+      const firstIndex = array.findIndex((item) => {
+        return item.id === participant.id;
+      });
+      return index === firstIndex;
+    }
+  );
+
+  const guestsOfEvent = event.guests.map((guest) => ({
+    ...guest,
+  }));
+
+  const guestsOfChildEvents = event.childEvents.flatMap((childEvent) => [
+    ...childEvent.guests.map((guest) => ({
+      ...guest,
+    })),
+  ]);
+
+  const aggregatedGuests = [...guestsOfEvent, ...guestsOfChildEvents];
+
+  const uniqueGuests = aggregatedGuests.filter((guest, index, array) => {
+    const firstIndex = array.findIndex((item) => {
+      return item.email === guest.email;
+    });
+    return index === firstIndex;
+  });
+
+  const aggregatedParticipantsAndGuests = [
+    ...uniqueParticipants,
+    ...uniqueGuests,
+  ];
+
+  return aggregatedParticipantsAndGuests.length;
+}
+
 export async function addProfileToParticipants(options: {
   profileId: string;
   eventId: string;

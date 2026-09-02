@@ -6,7 +6,7 @@ import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
 import {
   createCsvString,
   getEventNameBySlug,
-  getParticipantsOfEvent,
+  getFullDepthParticipantsOfEvent,
 } from "./list-download.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
 
@@ -33,7 +33,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const eventName = await getEventNameBySlug(params.slug);
   invariantResponse(eventName !== null, "Event not found", { status: 404 });
 
-  const participants = await getParticipantsOfEvent(params.slug);
+  const participants = await getFullDepthParticipantsOfEvent(params.slug);
   const csv = createCsvString(participants);
   const date = new Date().toLocaleDateString("en-EN", {
     year: "numeric",
