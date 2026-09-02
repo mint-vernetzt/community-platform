@@ -112,7 +112,7 @@ export async function action(args: ActionFunctionArgs) {
     tokenHash,
     eventInfo: {
       ...event,
-      participantCount: event._count.participants,
+      participantCount: event._count.participants + event._count.guests,
       beforeParticipationPeriod,
       afterParticipationPeriod,
       inPast,

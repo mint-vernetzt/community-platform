@@ -1,5 +1,6 @@
 import { captureException } from "@sentry/node";
 import { utcToZonedTime } from "date-fns-tz";
+import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "~/events.shared";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { getDuration } from "~/lib/utils/time";
 import { scheduleMail } from "~/mailer-queue.server";
@@ -17,6 +18,15 @@ export async function getEventBySlug(slug: string) {
       external: true,
       openForRegistration: true,
       parentParticipationRequired: true,
+      guests: {
+        where: {
+          confirmed: true,
+          onWaitingList: false,
+        },
+        select: {
+          id: true,
+        },
+      },
       _count: {
         select: {
           participants: true,
@@ -84,10 +94,18 @@ export async function updateEventById(options: {
         venueZipCode: true,
         venueCity: true,
         conferenceLink: true,
+        conferenceCode: true,
         participantLimit: true,
+        participationToken: true,
         _count: {
           select: {
             participants: true,
+            guests: {
+              where: {
+                confirmed: true,
+                onWaitingList: false,
+              },
+            },
             waitingList: true,
           },
         },
@@ -123,8 +141,10 @@ export async function updateEventById(options: {
     }
     const participantsOffset =
       event.participantLimit !== null
-        ? event.participantLimit - event._count.participants
-        : event._count.waitingList;
+        ? event.participantLimit -
+          event._count.participants -
+          event._count.guests
+        : event._count.waitingList + event.guests.length;
 
     if (participantsOffset > 0) {
       const profilesToMoveUp = [
@@ -207,12 +227,11 @@ export async function updateEventById(options: {
       const htmlTemplatePath =
         "mail-templates/event/profile-or-guest-moved-up-to-participants-html.hbs";
 
-      const url = `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail`;
-
       const location = getVenueString(event);
 
       void Promise.all(
         profilesToMoveUp.map(async (profile) => {
+          const url = `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail/about${profile.type === "guest" ? `?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${event.participationToken}` : ""}`;
           try {
             const content = {
               headline: {
@@ -239,6 +258,8 @@ export async function updateEventById(options: {
                 date,
                 location,
                 conferenceLink: event.conferenceLink,
+                conferenceCode: event.conferenceCode,
+                icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/ics-download`,
                 revocationLink: null as string | null,
               },
             };

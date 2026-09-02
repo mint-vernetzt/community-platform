@@ -895,7 +895,10 @@ function MyEvents() {
                     />
                     <ListItemEvent.Info
                       {...event.childEvent}
-                      participantCount={event.childEvent._count.participants}
+                      participantCount={
+                        event.childEvent._count.participants +
+                        event.childEvent._count.guests
+                      }
                       stage={event.childEvent.stage}
                       locales={{
                         stages: loaderData.locales.stages,

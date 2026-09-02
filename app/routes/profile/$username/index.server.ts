@@ -180,6 +180,15 @@ export async function getProfileByUsername(username: string) {
                   waitingList: true,
                 },
               },
+              guests: {
+                where: {
+                  confirmed: true,
+                },
+                select: {
+                  id: true,
+                  onWaitingList: true,
+                },
+              },
               backgroundImageMetaData: {
                 select: {
                   path: true,
@@ -240,6 +249,15 @@ export async function getProfileByUsername(username: string) {
                   childEvents: true,
                   participants: true,
                   waitingList: true,
+                },
+              },
+              guests: {
+                where: {
+                  confirmed: true,
+                },
+                select: {
+                  id: true,
+                  onWaitingList: true,
                 },
               },
               backgroundImageMetaData: {
@@ -304,66 +322,13 @@ export async function getProfileByUsername(username: string) {
                   waitingList: true,
                 },
               },
-              backgroundImageMetaData: {
-                select: {
-                  path: true,
+              guests: {
+                where: {
+                  confirmed: true,
                 },
-              },
-              eventVisibility: {
                 select: {
                   id: true,
-                  name: true,
-                  slug: true,
-                  published: true,
-                  parentEventId: true,
-                  startTime: true,
-                  endTime: true,
-                  participationUntil: true,
-                  participationFrom: true,
-                  participantLimit: true,
-                  stage: true,
-                  canceled: true,
-                  subline: true,
-                  description: true,
-                  backgroundImageMetaData: true,
-                },
-              },
-            },
-          },
-        },
-        where: {
-          event: {
-            published: true,
-          },
-        },
-      },
-      waitingForEvents: {
-        select: {
-          event: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-              published: true,
-              parentEventId: true,
-              startTime: true,
-              endTime: true,
-              participationUntil: true,
-              participationFrom: true,
-              participantLimit: true,
-              stage: {
-                select: {
-                  slug: true,
-                },
-              },
-              canceled: true,
-              subline: true,
-              description: true,
-              _count: {
-                select: {
-                  childEvents: true,
-                  participants: true,
-                  waitingList: true,
+                  onWaitingList: true,
                 },
               },
               backgroundImageMetaData: {
@@ -429,7 +394,6 @@ export async function getProfileByUsername(username: string) {
           memberOf: true,
           teamMemberOfProjects: true,
           teamMemberOfEvents: true,
-          waitingForEvents: true,
           participatedEvents: true,
           contributedEvents: true,
         },

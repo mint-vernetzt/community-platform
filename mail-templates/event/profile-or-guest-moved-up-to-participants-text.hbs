@@ -2,7 +2,15 @@
 
 Hallo {{profile.firstName}},
 
-wir freuen uns Dir mitteilen zu können, dass Du von der Warteliste nachgerückt bist und ab sofort als Teilnehmer:in beim Event {{event.name}} gelistet wirst. Wir wünschen Dir eine spannende und inspirierende Veranstaltung.
+wir freuen uns Dir mitteilen zu können, dass Du von der Warteliste nachgerückt bist und ab sofort als Teilnehmer:in beim
+Event {{event.name}} gelistet wirst. Wir wünschen Dir eine spannende und inspirierende Veranstaltung.
+
+{{#if profile.isGuest}}
+Deine Anmeldung und weitere Veranstaltungen
+Ausschließlich über Deinen persönlichen Link kannst Du Dich für weitere zugehörige Veranstaltungen anmelden. Wenn Du
+Dich für eine weitere Veranstaltung anmeldest, gibst Du Deine Anmeldedaten erneut ein und bestätigst anschließend Deine
+E-Mail-Adresse. So stellen wir sicher, dass die Anmeldung wirklich von Dir kommt.
+{{/if}}
 
 Link zum Event: {{event.url}}
 Termin: {{event.date.de}}
@@ -12,17 +20,35 @@ Ort: {{event.location}}
 {{#if event.conferenceLink}}
 Konferenz-Link: {{event.conferenceLink}}
 {{/if}}
+{{#if event.conferenceCode}}
+Zugangscode zur Konferenz: {{event.conferenceCode}}
+{{/if}}
 
+Du möchtest den Termin direkt in Deinem Kalender speichern?
+{{event.icsLink}}
+
+Du kannst doch nicht teilnehmen?
 {{#if profile.isGuest}}
 {{#if event.revocationLink}}
-Wenn sich bei Dir etwas ändert und Du doch nicht teilnehmen kannst, dann ziehe bitte Deine Teilnahme über den Abmeldelink zurück, so dass andere nachrücken können.
+Falls sich Deine Pläne ändern, melde Dich bitte über den Abmeldelink wieder ab. So kann Dein Platz gegebenenfalls
+an eine andere Person vergeben werden.
 Abmeldelink: {{event.revocationLink}}
 {{/if}}
 {{else}}
-Wenn sich bei Dir etwas ändert und Du doch nicht teilnehmen kannst, dann ziehe bitte auf der Community-Plattform Deine Teilnahme zurück, so dass andere nachrücken können. 
+Falls sich Deine Pläne ändern, dann ziehe bitte auf der Community-Plattform Deine Teilnahme zurück. So kann Dein Platz
+gegebenenfalls an eine andere Person vergeben werden.
 {{/if}}
 
-Wenn Du Fragen dazu hast, melde Dich gern beim Event-Team.
+{{#if profile.isGuest}}
+Alle wichtigen Infos bekommst Du per E-Mail
+Da Du Dich ohne Profil auf der MINTvernetzt Community-Plattform angemeldet hast, schicken wir Dir alle wichtigen
+Informationen zum Event per E-Mail. Bewahre diese E-Mails daher am besten gut auf.
+
+Bitte beachte: Die Links in unseren E-Mails sind persönlich und nur für Dich bestimmt. Bitte teile sie nicht mit anderen
+Personen.
+{{/if}}
+
+Wir freuen uns auf Dich!
 
 Viele Grüße
 Dein MINTvernetzt-Team
@@ -33,7 +59,15 @@ Dein MINTvernetzt-Team
 
 Hello {{profile.firstName}},
 
-we are pleased to inform you that you have moved up from the waiting list and are now listed as a participant for the event {{event.name}}. We wish you an exciting and inspiring event.
+we are pleased to inform you that you have moved up from the waiting list and are now listed as a participant for the
+event {{event.name}}. We wish you an exciting and inspiring event.
+
+{{#if profile.isGuest}}
+Your registration and further events
+Only through your personal link can you register for further related events. When you register for another event, you
+will enter your registration data again and then confirm your e-mail address. This ensures that the registration really
+comes from you.
+{{/if}}
 
 Event link: {{event.url}}
 Date: {{event.date.en}}
@@ -43,17 +77,34 @@ Location: {{event.location}}
 {{#if event.conferenceLink}}
 Conference link: {{event.conferenceLink}}
 {{/if}}
+{{#if event.conferenceCode}}
+Conference access code: {{event.conferenceCode}}
+{{/if}}
 
+Do you want to save the date directly in your calendar?
+{{event.icsLink}}
+
+You can't attend after all?
 {{#if profile.isGuest}}
 {{#if event.revocationLink}}
-If your plans change and you are unable to attend, please withdraw your participation using the revocation link so that others can move up.
+If your plans change, please use the revocation link to cancel your participation. This way, your spot can be given to
+another person if necessary.
 Revocation link: {{event.revocationLink}}
 {{/if}}
 {{else}}
-If your plans change and you are unable to attend, please withdraw your participation on the community platform so that others can move up.
+If your plans change, please withdraw your participation on the Community Platform. This way, your spot can be given to
+another person if necessary.
 {{/if}}
 
-If you have any questions, feel free to contact the event team.
+{{#if profile.isGuest}}
+You will receive all important information by e-mail
+Since you registered on the MINTvernetzt Community Platform without a profile, we will send you all important
+information about the event by e-mail. Therefore, it is best to keep these e-mails safe.
 
-Best regards
-The MINTvernetzt Team
+Please note: The links in our e-mails are personal and intended only for you. Please do not share them with others.
+{{/if}}
+
+We are looking forward to seeing you!
+
+Best regards,
+Your MINTvernetzt team

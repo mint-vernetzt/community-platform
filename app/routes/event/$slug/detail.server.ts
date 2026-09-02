@@ -585,6 +585,7 @@ export async function addProfileToParticipants(options: {
             venueZipCode: true,
             venueCity: true,
             conferenceLink: true,
+            conferenceCode: true,
             participationToken: true,
           },
         },
@@ -647,6 +648,7 @@ export async function addProfileToParticipants(options: {
             location: getVenueString(data.event),
             icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/ics-download`,
             conferenceLink: data.event.conferenceLink,
+            conferenceCode: data.event.conferenceCode,
           },
         };
         const textTemplatePath =
@@ -750,6 +752,7 @@ export async function addProfileToWaitingList(options: {
             venueZipCode: true,
             venueCity: true,
             conferenceLink: true,
+            conferenceCode: true,
             participationToken: true,
           },
         },
@@ -809,10 +812,12 @@ export async function addProfileToWaitingList(options: {
           },
           event: {
             name: data.event.name,
-            url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail/about?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${data.event.participationToken}`, // Add participation token to ensure that guests can participate on child events
+            url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail/about`,
             date,
             location: getVenueString(data.event),
             icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/ics-download`,
+            conferenceLink: data.event.conferenceLink,
+            conferenceCode: data.event.conferenceCode,
           },
         };
         const textTemplatePath =

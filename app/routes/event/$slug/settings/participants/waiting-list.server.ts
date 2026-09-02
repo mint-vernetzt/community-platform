@@ -13,6 +13,7 @@ import {
 } from "./waiting-list.shared";
 import { utcToZonedTime } from "date-fns-tz";
 import { getDuration } from "~/lib/utils/time";
+import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "~/events.shared";
 
 export async function getEventBySlug(slug: string) {
   const event = await prismaClient.event.findUnique({
@@ -210,6 +211,8 @@ export async function moveToParticipants(options: {
             venueZipCode: true,
             venueCity: true,
             conferenceLink: true,
+            conferenceCode: true,
+            participationToken: true,
           },
         },
       },
@@ -244,6 +247,8 @@ export async function moveToParticipants(options: {
               venueZipCode: true,
               venueCity: true,
               conferenceLink: true,
+              conferenceCode: true,
+              participationToken: true,
             },
           },
         },
@@ -292,10 +297,12 @@ export async function moveToParticipants(options: {
     },
     event: {
       name: result.event.name,
-      url: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/detail`,
+      url: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/detail/about${type === "guest" ? `?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${result.event.participationToken}` : ""}`,
       date,
       location: getVenueString(result.event),
       conferenceLink: result.event.conferenceLink,
+      conferenceCode: result.event.conferenceCode,
+      icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/ics-download`,
       revocationLink: null as string | null,
     },
   };

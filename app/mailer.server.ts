@@ -262,6 +262,7 @@ type ProfileOrGuestAddedToParticipantsOrWaitingListContent = {
     };
     location?: string;
     conferenceLink?: string | null;
+    conferenceCode?: string | null;
     icsLink: string;
     revocationLink?: string | null;
   };
@@ -285,6 +286,8 @@ type ProfileOrGuestMovedUpToParticipantsContent = {
     };
     location?: string;
     conferenceLink?: string | null;
+    conferenceCode?: string | null;
+    icsLink: string;
     revocationLink?: string | null;
   };
 };
@@ -305,7 +308,10 @@ type ProfileOrGuestRemovedFromParticipantsOrWaitingListContent = {
 };
 
 type ReminderContent = {
-  headline: string;
+  headline: {
+    de: string;
+    en: string;
+  };
   profile: {
     firstName: string;
     isGuest: boolean;
@@ -313,11 +319,13 @@ type ReminderContent = {
   event: {
     name: string;
     url: string;
-    startDate: string;
-    startTime: string;
-    timezone: string;
+    date: {
+      de: string;
+      en: string;
+    };
     location?: string;
     conferenceLink?: string | null;
+    conferenceCode?: string | null;
     revocationLink?: string | null;
   };
 };

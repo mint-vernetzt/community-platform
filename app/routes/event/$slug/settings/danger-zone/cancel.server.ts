@@ -31,6 +31,12 @@ export async function getEventBySlug(slug: string) {
           _count: {
             select: {
               participants: true,
+              guests: {
+                where: {
+                  confirmed: true,
+                  onWaitingList: false,
+                },
+              },
             },
           },
         },

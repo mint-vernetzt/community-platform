@@ -6,6 +6,7 @@ import { scheduleMail } from "./mailer-queue.server";
 import { getVenueString } from "./utils.shared";
 import { utcToZonedTime } from "date-fns-tz";
 import { getDuration } from "./lib/utils/time";
+import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "./events.shared";
 
 export type ParticipantIdentifier =
   { type: "user"; profileId: string } | { type: "guest"; email: string };
@@ -374,7 +375,9 @@ export async function removeParticipantFromEvent(options: {
       venueZipCode: true,
       venueCity: true,
       conferenceLink: true,
+      conferenceCode: true,
       parentParticipationRequired: true,
+      participationToken: true,
       childEvents: {
         where: {
           // Include child events where parent participation is required
@@ -404,6 +407,8 @@ export async function removeParticipantFromEvent(options: {
           venueZipCode: true,
           venueCity: true,
           conferenceLink: true,
+          conferenceCode: true,
+          participationToken: true,
           participants: {
             select: {
               profileId: true,
@@ -443,6 +448,7 @@ export async function removeParticipantFromEvent(options: {
             select: {
               id: true,
               slug: true,
+              participationToken: true,
               name: true,
               startTime: true,
               endTime: true,
@@ -452,6 +458,7 @@ export async function removeParticipantFromEvent(options: {
               venueZipCode: true,
               venueCity: true,
               conferenceLink: true,
+              conferenceCode: true,
               participants: {
                 select: {
                   profileId: true,
@@ -494,7 +501,9 @@ export async function removeParticipantFromEvent(options: {
       venueZipCode: event.venueZipCode,
       venueCity: event.venueCity,
       conferenceLink: event.conferenceLink,
+      conferenceCode: event.conferenceCode,
       removedFromWaitingList: false,
+      participationToken: event.participationToken,
     },
   ];
 
@@ -515,6 +524,8 @@ export async function removeParticipantFromEvent(options: {
     venueZipCode: string | null;
     venueCity: string | null;
     conferenceLink: string | null;
+    conferenceCode: string | null;
+    participationToken: string | null;
     participants: {
       profileId: string;
     }[];
@@ -813,10 +824,12 @@ export async function removeParticipantFromEvent(options: {
           },
           event: {
             name: event.name,
-            url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail/about`,
+            url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail/about${result.type === "guest" ? `?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${event.participationToken}` : ""}`,
             date,
             location: getVenueString(event),
             conferenceLink: event.conferenceLink,
+            conferenceCode: event.conferenceCode,
+            icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/ics-download`,
             revocationLink: null as string | null,
           },
         };

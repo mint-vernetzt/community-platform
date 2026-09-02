@@ -670,6 +670,12 @@ export async function getAllEvents(options: {
         select: {
           childEvents: true,
           participants: true,
+          guests: {
+            where: {
+              confirmed: true,
+              onWaitingList: false,
+            },
+          },
           responsibleOrganizations: true,
           waitingList: true,
         },

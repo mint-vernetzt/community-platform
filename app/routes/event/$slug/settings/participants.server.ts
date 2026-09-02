@@ -38,6 +38,7 @@ export async function getEventBySlug(slug: string) {
         slug,
       },
       onWaitingList: false,
+      confirmed: true,
     },
   });
   const guestWaitingListCount = await prismaClient.guest.count({
@@ -46,6 +47,7 @@ export async function getEventBySlug(slug: string) {
         slug,
       },
       onWaitingList: true,
+      confirmed: true,
     },
   });
 

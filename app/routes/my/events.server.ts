@@ -52,6 +52,15 @@ export async function getEvents(options: {
         slug: true,
       },
     },
+    guests: {
+      where: {
+        confirmed: true,
+      },
+      select: {
+        id: true,
+        onWaitingList: true,
+      },
+    },
     _count: {
       select: {
         participants: true,
@@ -178,6 +187,8 @@ export async function getEvents(options: {
       ...event,
       background,
       blurredBackground,
+      participatingGuests: event.guests.filter((guest) => !guest.onWaitingList),
+      waitingGuests: event.guests.filter((guest) => guest.onWaitingList),
     };
   });
   const enhancedTeamMemberEvents = teamMemberEvents.map((event) => {
@@ -207,6 +218,8 @@ export async function getEvents(options: {
       ...event,
       background,
       blurredBackground,
+      participatingGuests: event.guests.filter((guest) => !guest.onWaitingList),
+      waitingGuests: event.guests.filter((guest) => guest.onWaitingList),
     };
   });
   const enhancedSpeakerEvents = speakerEvents.map((event) => {
@@ -236,6 +249,8 @@ export async function getEvents(options: {
       ...event,
       background,
       blurredBackground,
+      participatingGuests: event.guests.filter((guest) => !guest.onWaitingList),
+      waitingGuests: event.guests.filter((guest) => guest.onWaitingList),
     };
   });
   const enhancedParticipantEvents = participantEvents.map((event) => {
@@ -265,6 +280,8 @@ export async function getEvents(options: {
       ...event,
       background,
       blurredBackground,
+      participatingGuests: event.guests.filter((guest) => !guest.onWaitingList),
+      waitingGuests: event.guests.filter((guest) => guest.onWaitingList),
     };
   });
   const enhancedWaitingListEvents = waitingListEvents.map((event) => {
@@ -294,6 +311,8 @@ export async function getEvents(options: {
       ...event,
       background,
       blurredBackground,
+      participatingGuests: event.guests.filter((guest) => !guest.onWaitingList),
+      waitingGuests: event.guests.filter((guest) => guest.onWaitingList),
     };
   });
   const enhancedResponsibleOrganizationEvents =
@@ -324,6 +343,10 @@ export async function getEvents(options: {
         ...event,
         background,
         blurredBackground,
+        participatingGuests: event.guests.filter(
+          (guest) => !guest.onWaitingList
+        ),
+        waitingGuests: event.guests.filter((guest) => guest.onWaitingList),
       };
     });
 
@@ -384,6 +407,12 @@ export async function getEventInvites(options: {
             _count: {
               select: {
                 participants: true,
+                guests: {
+                  where: {
+                    confirmed: true,
+                    onWaitingList: false,
+                  },
+                },
                 waitingList: true,
               },
             },
@@ -429,6 +458,12 @@ export async function getEventInvites(options: {
             _count: {
               select: {
                 participants: true,
+                guests: {
+                  where: {
+                    confirmed: true,
+                    onWaitingList: false,
+                  },
+                },
                 waitingList: true,
               },
             },
@@ -479,6 +514,12 @@ export async function getEventInvites(options: {
             _count: {
               select: {
                 participants: true,
+                guests: {
+                  where: {
+                    confirmed: true,
+                    onWaitingList: false,
+                  },
+                },
                 waitingList: true,
               },
             },
@@ -542,7 +583,8 @@ export async function getEventInvites(options: {
       ...invite.event,
       background,
       blurredBackground,
-      participantCount: invite.event._count.participants,
+      participantCount:
+        invite.event._count.participants + invite.event._count.guests,
     };
 
     return {
@@ -620,6 +662,12 @@ export async function getEventsWithPendingRequests(
               _count: {
                 select: {
                   participants: true,
+                  guests: {
+                    where: {
+                      confirmed: true,
+                      onWaitingList: false,
+                    },
+                  },
                 },
               },
             },

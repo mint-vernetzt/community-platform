@@ -24,6 +24,7 @@ export const locale = {
   validation: {
     stageRequired: "Please select an event type.",
     stageInvalid: "Please select a valid event type.",
+    invalidUrl: "Please enter a valid URL.",
   },
   errors: {
     notFound: "The event was not found.",

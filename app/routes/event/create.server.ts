@@ -13,6 +13,15 @@ export async function getParentEventBySlug(slug: string) {
       external: true,
       openForRegistration: true,
       parentParticipationRequired: true,
+      guests: {
+        where: {
+          onWaitingList: false,
+          confirmed: true,
+        },
+        select: {
+          id: true,
+        },
+      },
       _count: {
         select: { participants: true },
       },

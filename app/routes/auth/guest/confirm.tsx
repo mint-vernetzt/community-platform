@@ -86,7 +86,7 @@ export async function loader(args: LoaderFunctionArgs) {
     locales,
     fullyBooked:
       event.participantLimit !== null &&
-      event._count.participants >= event.participantLimit,
+      event._count.participants + event.guests.length >= event.participantLimit,
   };
 }
 

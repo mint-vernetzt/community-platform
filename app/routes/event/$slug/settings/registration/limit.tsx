@@ -312,7 +312,8 @@ function RegistrationLimit() {
       if (
         submission.status === "success" &&
         submission.value.participantLimit !== null &&
-        submission.value.participantLimit < loaderData.event._count.participants
+        submission.value.participantLimit <
+          loaderData.event._count.participants + loaderData.event.guests.length
       ) {
         if (
           searchParams.get(LIMIT_BELOW_CURRENT_PARTICIPANTS_SEARCH_PARAM) !==
@@ -338,7 +339,8 @@ function RegistrationLimit() {
         submission.status === "success" &&
         (submission.value.participantLimit === null ||
           submission.value.participantLimit >
-            loaderData.event._count.participants) &&
+            loaderData.event._count.participants +
+              loaderData.event.guests.length) &&
         loaderData.event._count.waitingList + loaderData.event._count.guests > 0
       ) {
         if (
@@ -464,7 +466,9 @@ function RegistrationLimit() {
                     {
                       participantLimit:
                         participantLimitFields.participantLimit.value,
-                      participantsCount: loaderData.event._count.participants,
+                      participantsCount:
+                        loaderData.event._count.participants +
+                        loaderData.event.guests.length,
                     }
                   ),
                   [<span key="highlight" className="font-semibold" />]
@@ -507,7 +511,9 @@ function RegistrationLimit() {
                           : locales.route.limit.form.modal
                               .fillUpParticipantsAutomaticallyModal
                               .noParticipantLimit,
-                      participantsCount: loaderData.event._count.participants,
+                      participantsCount:
+                        loaderData.event._count.participants +
+                        loaderData.event.guests.length,
                       waitingListCount:
                         loaderData.event._count.waitingList +
                         loaderData.event._count.guests,

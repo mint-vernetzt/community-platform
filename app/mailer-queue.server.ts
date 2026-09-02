@@ -54,6 +54,7 @@ async function onTick() {
       venueZipCode: true,
       venueCity: true,
       conferenceLink: true,
+      conferenceCode: true,
       stage: {
         select: {
           slug: true,
@@ -284,6 +285,7 @@ async function onTick() {
             date,
             location: getVenueString(event),
             conferenceLink: event.conferenceLink,
+            conferenceCode: event.conferenceCode,
             revocationLink: null as string | null,
           },
         };
@@ -293,16 +295,8 @@ async function onTick() {
           content.event.revocationLink = revocationLink;
         }
 
-        const text = await getCompiledMailTemplate(
-          textTemplatePath,
-          content,
-          "text"
-        );
-        const html = await getCompiledMailTemplate(
-          htmlTemplatePath,
-          content,
-          "html"
-        );
+        const text = getCompiledMailTemplate(textTemplatePath, content, "text");
+        const html = getCompiledMailTemplate(htmlTemplatePath, content, "html");
         await scheduleMail({
           eventId: event.id,
           recipient: profile.email,

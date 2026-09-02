@@ -109,6 +109,8 @@ function EventListItemContent(props: {
       participants: number;
       waitingList: number;
     };
+    participatingGuests: { id: string }[];
+    waitingGuests: { id: string }[];
     external: boolean;
     openForRegistration: boolean;
     canceled?: boolean;
@@ -147,18 +149,24 @@ function EventListItemContent(props: {
               {event.participantLimit === null &&
                 ` | ${locales.components.EventListItemContent.unlimitedSeats}`}
               {event.participantLimit !== null &&
-                event.participantLimit - event._count.participants > 0 &&
-                ` | ${event.participantLimit - event._count.participants} / ${
+                event.participantLimit -
+                  event._count.participants -
+                  event.participatingGuests.length >
+                  0 &&
+                ` | ${event.participantLimit - event._count.participants - event.participatingGuests.length} / ${
                   event.participantLimit
                 } ${locales.components.EventListItemContent.seatsFree}`}
 
               {event.participantLimit !== null &&
-              event.participantLimit - event._count.participants <= 0 ? (
+              event.participantLimit -
+                event._count.participants -
+                event.participatingGuests.length <=
+                0 ? (
                 <>
                   {" "}
                   |{" "}
                   <span>
-                    {event._count.waitingList}{" "}
+                    {event._count.waitingList + event.waitingGuests.length}{" "}
                     {locales.components.EventListItemContent.onWaitingList}
                   </span>
                 </>

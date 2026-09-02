@@ -235,7 +235,9 @@ function ChildEvents() {
                       stages: locales.stages,
                       ...loaderData.locales.route.list,
                     }}
-                    participantCount={event._count.participants}
+                    participantCount={
+                      event._count.participants + event._count.guests
+                    }
                     language={language}
                   ></ListItemEvent.Info>
                   <ListItemEvent.Headline>{event.name}</ListItemEvent.Headline>
@@ -418,7 +420,10 @@ function ChildEvents() {
                           stages: locales.stages,
                           ...loaderData.locales.route.list,
                         }}
-                        participantCount={childEvent._count.participants}
+                        participantCount={
+                          childEvent._count.participants +
+                          childEvent._count.guests
+                        }
                         language={language}
                       ></ListItemEvent.Info>
                       <ListItemEvent.Headline>

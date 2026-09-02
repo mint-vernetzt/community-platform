@@ -66,6 +66,12 @@ export async function getChildEventsOfEvent(options: {
     _count: {
       select: {
         participants: true,
+        guests: {
+          where: {
+            confirmed: true,
+            onWaitingList: false,
+          },
+        },
         childEvents: true,
       },
     },
@@ -114,14 +120,14 @@ export async function getChildEventsOfEvent(options: {
       const afterParticipationPeriod = now > event.participationUntil;
       const inPast = now > event.endTime;
 
-      const participantCount = event._count.participants;
+      const participantCount = event._count.participants + event._count.guests;
 
       const mode = await deriveModeForEvent({
         sessionUser,
         tokenHash: options.tokenHash,
         eventInfo: {
           ...event,
-          participantCount: event._count.participants,
+          participantCount: event._count.participants + event._count.guests,
           beforeParticipationPeriod,
           afterParticipationPeriod,
           inPast,
@@ -212,6 +218,12 @@ export async function getEventByIdForAction(id: string) {
       _count: {
         select: {
           participants: true,
+          guests: {
+            where: {
+              confirmed: true,
+              onWaitingList: false,
+            },
+          },
           childEvents: true,
         },
       },
