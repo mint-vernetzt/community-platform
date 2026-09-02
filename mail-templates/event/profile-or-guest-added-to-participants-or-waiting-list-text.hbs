@@ -10,7 +10,9 @@ schön, dass Du dabei bist! Du hast Dich erfolgreich für {{event.name}} angemel
 
 {{#if profile.isGuest}}
 Deine Anmeldung und weitere Veranstaltungen
-Ausschließlich über Deinen persönlichen Link kannst Du Dich für weitere zugehörige Veranstaltungen anmelden. Wenn Du
+{{#unless profile.isOnWaitingList}}
+Ausschließlich über Deinen persönlichen Link kannst Du Dich für weitere zugehörige Veranstaltungen anmelden.
+{{/unless}}Wenn Du
 Dich für eine weitere Veranstaltung anmeldest, gibst Du Deine Anmeldedaten erneut ein und bestätigst anschließend Deine
 E-Mail-Adresse. So stellen wir sicher, dass die Anmeldung wirklich von Dir kommt.
 {{/if}}
@@ -74,7 +76,9 @@ great that you are joining! You have successfully registered for {{event.name}}.
 
 {{#if profile.isGuest}}
 Your registration and further events
-Only through your personal link can you register for further related events. When you register for another event, you
+{{#unless profile.isOnWaitingList}}
+Only through your personal link can you register for further related events. {{/unless}}When you register for another
+event, you
 enter your registration data again and then confirm your email address. This ensures that the registration really comes
 from you.
 {{/if}}
