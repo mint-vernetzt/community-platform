@@ -6,5 +6,6 @@ export const locale = {
     more: "Show {{count}} more",
     less: "Show {{count}} less",
     searchPlaceholder: "Search for participants...",
+    guestBadge: "No Profile",
   },
 } as const;

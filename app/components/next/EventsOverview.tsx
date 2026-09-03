@@ -51,6 +51,7 @@ import ImageCropper, {
 } from "../legacy/ImageCropper/ImageCropper";
 import { RichText } from "../legacy/Richtext/RichText"; // refactor?
 import { OverlayMenu as OverlayMenuComponent } from "./OverlayMenu"; // refactor?
+import { TabBadgeNew } from "./TabBadgeNew";
 
 // Design:
 // Name: Events_Overview
@@ -1345,11 +1346,7 @@ function Login(props: {
                 htmlFor="guest-access"
                 className="flex flex-col gap-1 text-primary-500 font-bold text-2xl leading-6.5 cursor-pointer"
               >
-                <span className="flex justify-center items-center w-fit bg-positive-200 rounded-full py-0.5 px-1.5">
-                  <div className="text-positive-900 text-xs leading-none font-semibold">
-                    {props.modal.locales.guestAccess.new}
-                  </div>
-                </span>
+                <TabBadgeNew>{props.modal.locales.guestAccess.new}</TabBadgeNew>
                 <div className="flex items-center justify-between gap-4">
                   {props.modal.locales.guestAccess.title}
                   <span className="flex items-start justify-center w-8 h-8">
