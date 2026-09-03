@@ -23,6 +23,8 @@ function HiddenFilterInputs(props: {
   const evtFilterTargetGroupFieldList =
     evtFilterFieldset.eventTargetGroup.getFieldList();
   const evtFilterFocusFieldList = evtFilterFieldset.focus.getFieldList();
+  const evtFilterResponsibleOrganizationsFieldList =
+    evtFilterFieldset.responsibleOrganizations.getFieldList();
   const prjFilterFieldset = fields.prjFilter.getFieldset();
   const prjFilterAdditionalDisciplineFieldList =
     prjFilterFieldset.additionalDiscipline.getFieldList();
@@ -151,6 +153,15 @@ function HiddenFilterInputs(props: {
             </ul>
             <ul>
               {evtFilterTargetGroupFieldList.map((usedFields) => {
+                return (
+                  <li key={usedFields.key}>
+                    <input {...getInputProps(usedFields, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {evtFilterResponsibleOrganizationsFieldList.map((usedFields) => {
                 return (
                   <li key={usedFields.key}>
                     <input {...getInputProps(usedFields, { type: "hidden" })} />
