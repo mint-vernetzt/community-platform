@@ -1137,7 +1137,6 @@ function Detail() {
             </TabBar.Item>
             {loaderData.event._count.fullDepthParticipants > 0 &&
               loaderData.mode !== "anon" &&
-              loaderData.mode !== null &&
               loaderData.event.external === false &&
               (loaderData.event.openForRegistration === true ||
                 loaderData.event.isMember ||
