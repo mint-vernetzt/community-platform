@@ -1952,6 +1952,7 @@ function Dashboard() {
                   }}
                   as="h3"
                   prefetch="intent"
+                  showPublishedStatus={false}
                 />
               );
             })}

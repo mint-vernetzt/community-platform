@@ -14,6 +14,7 @@ import {
   SEARCH_PARTICIPANTS_SEARCH_PARAM,
 } from "./participants.shared";
 import { deriveModeForEvent, getIsMember } from "../detail.server";
+import { TabBadgeNew } from "~/components/next/TabBadgeNew";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -137,6 +138,13 @@ function Participants() {
                 <ListItemPersonOrg.Subline>
                   {participant.position}
                 </ListItemPersonOrg.Subline>
+              )}
+              {hasContent(participant.username) === false && (
+                <ListItemPersonOrg.Controls>
+                  <TabBadgeNew state="neutral">
+                    {loaderData.locales.route.content.guestBadge}
+                  </TabBadgeNew>
+                </ListItemPersonOrg.Controls>
               )}
             </ListItemPersonOrg>
           );

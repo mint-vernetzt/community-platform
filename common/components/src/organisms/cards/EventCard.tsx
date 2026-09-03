@@ -60,6 +60,7 @@ type EventCardProps = {
   waitingListControl?: React.ReactElement;
   as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
   prefetch?: LinkProps["prefetch"];
+  showPublishedStatus?: boolean;
 };
 
 function IconOnSite() {
@@ -110,7 +111,14 @@ function IconHybrid() {
 function EventCard(
   props: React.ButtonHTMLAttributes<HTMLDivElement> & EventCardProps
 ) {
-  const { event, locales, currentLanguage, as = "h4", prefetch } = props;
+  const {
+    event,
+    locales,
+    currentLanguage,
+    as = "h4",
+    prefetch,
+    showPublishedStatus = true,
+  } = props;
 
   const now = new Date();
 
@@ -174,12 +182,14 @@ function EventCard(
         {event.endTime.getTime() < now.getTime() && (
           <CardStatus variant="neutral">{locales.eventCard.passed}</CardStatus>
         )}
-        {event.published === false && event.isTeamMember && (
-          <CardStatus variant="primary" inverted>
-            {locales.eventCard.draft}
-          </CardStatus>
-        )}
-        {event.published && event.isTeamMember && (
+        {showPublishedStatus &&
+          event.published === false &&
+          event.isTeamMember && (
+            <CardStatus variant="primary" inverted>
+              {locales.eventCard.draft}
+            </CardStatus>
+          )}
+        {showPublishedStatus && event.published && event.isTeamMember && (
           <CardStatus variant="positive">
             {locales.eventCard.published}
           </CardStatus>
