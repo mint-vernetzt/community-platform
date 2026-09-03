@@ -49,6 +49,7 @@ import {
   getAllEventTargetGroups,
   getAllEvents,
   getAllFocuses,
+  getAllResponsibleOrganizations,
   getAllStages,
   getEventFilterVectorForAttribute,
   getEventIds,
@@ -57,6 +58,9 @@ import {
 } from "./events.server";
 import { EVENT_SORT_VALUES, PERIOD_OF_TIME_VALUES } from "./events.shared";
 import { createHashFromObject } from "~/utils.server";
+import { useEffect, useState } from "react";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -306,6 +310,87 @@ export async function loader(args: LoaderFunctionArgs) {
     return { ...stage };
   });
 
+  const responsibleOrganizations = await getAllResponsibleOrganizations();
+
+  const responsibleOrganizationEventIds =
+    submission.value.search.length > 0
+      ? await getEventIds({
+          filter: {
+            ...submission.value.evtFilter,
+            responsibleOrganizations: [],
+          },
+          search: submission.value.search,
+          isLoggedIn: true,
+          language,
+        })
+      : eventIds;
+
+  const enhancedResponsibleOrganizations = [];
+  const responsibleOrganizationsFilterVector =
+    await getEventFilterVectorForAttribute({
+      attribute: "responsibleOrganizations",
+      filter: { ...submission.value.evtFilter },
+      search: submission.value.search,
+      ids: responsibleOrganizationEventIds,
+    });
+
+  for (const responsibleOrganization of responsibleOrganizations) {
+    const enhancedResponsibleOrganization = { ...responsibleOrganization };
+
+    let logo =
+      enhancedResponsibleOrganization.logoImageMetaData === null
+        ? null
+        : enhancedResponsibleOrganization.logoImageMetaData.path;
+    let blurredLogo;
+    if (logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
+      if (publicURL !== null) {
+        logo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.Filter.Logo.width,
+            height: ImageSizes.Organization.Filter.Logo.height,
+          },
+        });
+        blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.Filter.BlurredLogo.width,
+            height: ImageSizes.Organization.Filter.BlurredLogo.height,
+          },
+          blur: BlurFactor,
+        });
+      }
+    }
+
+    const vectorCount = getFilterCountForSlug(
+      responsibleOrganization.slug,
+      responsibleOrganizationsFilterVector,
+      "responsibleOrganizations"
+    );
+
+    enhancedResponsibleOrganizations.push({
+      ...enhancedResponsibleOrganization,
+      logo,
+      blurredLogo,
+      vectorCount,
+      isVisible: true,
+    });
+  }
+
+  const selectedResponsibleOrganizations: { slug: string; name: string }[] = [];
+  for (const slug of submission.value.evtFilter.responsibleOrganizations) {
+    const responsibleOrganization = enhancedResponsibleOrganizations.find(
+      (responsibleOrganization) => responsibleOrganization.slug === slug
+    );
+    if (responsibleOrganization) {
+      selectedResponsibleOrganizations.push({
+        slug: responsibleOrganization.slug,
+        name: responsibleOrganization.name,
+      });
+    }
+  }
+
   return {
     isLoggedIn,
     events: enhancedEventsWithGuests,
@@ -314,6 +399,8 @@ export async function loader(args: LoaderFunctionArgs) {
     targetGroups: enhancedTargetGroups,
     stages: enhancedStages,
     selectedTargetGroups: submission.value.evtFilter.eventTargetGroup,
+    responsibleOrganizations: enhancedResponsibleOrganizations,
+    selectedResponsibleOrganizations,
     submission,
     filteredByVisibilityCount,
     eventsCount,
@@ -385,6 +472,37 @@ export default function ExploreEvents() {
   } else {
     showMore = loaderData.eventsCount > loaderData.events.length;
   }
+
+  const [visibleResponsibleOrganizations, setVisibleResponsibleOrganizations] =
+    useState<typeof loaderData.responsibleOrganizations>(
+      loaderData.responsibleOrganizations
+    );
+  const handleResponsibleOrganizationSearch = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    event.stopPropagation();
+    const value = event.target.value;
+    if (value.length >= 3) {
+      setVisibleResponsibleOrganizations(
+        loaderData.responsibleOrganizations.map((responsibleOrganization) => {
+          if (
+            !responsibleOrganization.name
+              .toLowerCase()
+              .includes(value.toLowerCase())
+          ) {
+            return { ...responsibleOrganization, isVisible: false };
+          }
+          return { ...responsibleOrganization, isVisible: true };
+        })
+      );
+    } else {
+      setVisibleResponsibleOrganizations(loaderData.responsibleOrganizations);
+    }
+  };
+
+  useEffect(() => {
+    setVisibleResponsibleOrganizations(loaderData.responsibleOrganizations);
+  }, [loaderData.responsibleOrganizations]);
 
   return (
     <>
@@ -716,6 +834,100 @@ export default function ExploreEvents() {
                   })}
                 </Dropdown.List>
               </Dropdown>
+              <Dropdown>
+                <Dropdown.Label>
+                  {locales.route.filter.responsibleOrganizations}
+                  <span className="font-normal @lg:hidden">
+                    <br />
+                    {loaderData.selectedResponsibleOrganizations
+                      .map((responsibleOrganization) => {
+                        return responsibleOrganization.name;
+                      })
+                      .join(", ")}
+                  </span>
+                </Dropdown.Label>
+                <Dropdown.List>
+                  {isHydrated ? (
+                    <div className="mx-4 my-2">
+                      <Input
+                        id="event-responsible-organization-search"
+                        onChange={handleResponsibleOrganizationSearch}
+                        placeholder={
+                          locales.route.filter
+                            .responsibleOrganizationSearchPlaceholder
+                        }
+                      >
+                        <Input.Label
+                          htmlFor="event-responsible-organization-search"
+                          hidden
+                        >
+                          {
+                            locales.route.filter
+                              .responsibleOrganizationSearchPlaceholder
+                          }
+                        </Input.Label>
+                        <Input.HelperText>
+                          {
+                            locales.route.filter
+                              .searchResponsibleOrganizationHelper
+                          }
+                        </Input.HelperText>
+                        <Input.SearchIcon />
+                      </Input>
+                    </div>
+                  ) : null}
+                  {visibleResponsibleOrganizations.length > 0 &&
+                    visibleResponsibleOrganizations.map(
+                      (responsibleOrganization) => {
+                        const isChecked =
+                          evtFilterFieldset.responsibleOrganizations
+                            .initialValue &&
+                          Array.isArray(
+                            evtFilterFieldset.responsibleOrganizations
+                              .initialValue
+                          )
+                            ? evtFilterFieldset.responsibleOrganizations.initialValue.includes(
+                                responsibleOrganization.slug
+                              )
+                            : evtFilterFieldset.responsibleOrganizations
+                                .initialValue === responsibleOrganization.slug;
+                        return (
+                          <FormControl
+                            {...getInputProps(
+                              evtFilterFieldset.responsibleOrganizations,
+                              {
+                                type: "checkbox",
+                                value: responsibleOrganization.slug,
+                              }
+                            )}
+                            key={responsibleOrganization.slug}
+                            defaultChecked={isChecked}
+                            disabled={
+                              responsibleOrganization.vectorCount === 0 &&
+                              !isChecked
+                            }
+                            hidden={!responsibleOrganization.isVisible}
+                          >
+                            <FormControl.Label>
+                              <div className="flex gap-2 items-center">
+                                <Avatar
+                                  size="xs"
+                                  {...responsibleOrganization}
+                                />
+                                <div className="line-clamp-2">
+                                  {responsibleOrganization.name}
+                                </div>
+                              </div>
+                            </FormControl.Label>
+                            <FormControl.Counter>
+                              {responsibleOrganization.vectorCount}
+                            </FormControl.Counter>
+                          </FormControl>
+                        );
+                      }
+                    )}
+                </Dropdown.List>
+              </Dropdown>
             </Filters.Fieldset>
             <Filters.Fieldset {...getFieldsetProps(fields.evtSortBy)}>
               <Dropdown orientation="right">
@@ -794,7 +1006,8 @@ export default function ExploreEvents() {
         </div>
         <section className="w-full mx-auto px-4 xl:px-6 max-w-2xl mb-6">
           {(loaderData.selectedFocuses.length > 0 ||
-            loaderData.selectedTargetGroups.length > 0) && (
+            loaderData.selectedTargetGroups.length > 0 ||
+            loaderData.selectedResponsibleOrganizations.length > 0) && (
             <div className="flex flex-col gap-2">
               <div className="overflow-auto flex flex-nowrap @lg:flex-wrap w-full gap-2 pb-2">
                 {loaderData.selectedFocuses.map((selectedFocus) => {
@@ -923,6 +1136,63 @@ export default function ExploreEvents() {
                     </ConformForm>
                   );
                 })}
+                {loaderData.selectedResponsibleOrganizations.map(
+                  (selectedResponsibleOrganization) => {
+                    const deleteSearchParams = new URLSearchParams(
+                      searchParams
+                    );
+                    deleteSearchParams.delete(
+                      evtFilterFieldset.responsibleOrganizations.name,
+                      selectedResponsibleOrganization.slug
+                    );
+                    return selectedResponsibleOrganization.name !== null ? (
+                      <ConformForm
+                        key={selectedResponsibleOrganization.slug}
+                        useFormOptions={{
+                          id: `delete-filter-${selectedResponsibleOrganization.slug}-${loaderData.submissionHash}`,
+                          defaultValue: {
+                            ...loaderData.submission.value,
+                            evtFilter: {
+                              ...loaderData.submission.value.evtFilter,
+                              responsibleOrganizations:
+                                loaderData.submission.value.evtFilter.responsibleOrganizations.filter(
+                                  (responsibleOrganization) =>
+                                    responsibleOrganization !==
+                                    selectedResponsibleOrganization.slug
+                                ),
+                            },
+                            search: [
+                              loaderData.submission.value.search.join(" "),
+                            ],
+                            showFilters: "",
+                          },
+                          constraint: getZodConstraint(getFilterSchemes),
+                          lastResult:
+                            navigation.state === "idle"
+                              ? loaderData.submission
+                              : null,
+                        }}
+                        formProps={{
+                          method: "get",
+                          preventScrollReset: true,
+                        }}
+                      >
+                        <HiddenFilterInputsInContext />
+                        <Chip size="medium">
+                          {selectedResponsibleOrganization.name}
+                          <Chip.Delete>
+                            <button
+                              type="submit"
+                              disabled={navigation.state === "loading"}
+                            >
+                              X
+                            </button>
+                          </Chip.Delete>
+                        </Chip>
+                      </ConformForm>
+                    ) : null;
+                  }
+                )}
               </div>
               <Form
                 {...getFormProps(resetForm)}

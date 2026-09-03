@@ -12,6 +12,7 @@ import {
   mailerOptions,
 } from "~/mailer.server";
 import { captureException } from "@sentry/node";
+import { updateFilterVectorOfEvent } from "../event/$slug/settings/utils.server";
 
 export type MyEventsLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES
@@ -1801,6 +1802,10 @@ export async function acceptInviteAsResponsibleOrganization(options: {
       eventId,
       organizationId,
     },
+  });
+
+  updateFilterVectorOfEvent(eventId).catch((error) => {
+    captureException(error);
   });
 
   const result =
