@@ -7,162 +7,45 @@ import { RichText } from "~/components/legacy/Richtext/RichText";
 import type { Route } from "./+types/resources";
 import { detectLanguage } from "./../i18n.server";
 import { languageModuleMap } from "./../locales/.server";
+import {
+  getDataForInformationSection,
+  getDataForToolsSection,
+  getDataForLearnSection,
+  getDataForContributeSection,
+} from "./resources.server";
+import { useLoaderData } from "react-router";
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["resources"];
-  return {
-    locales,
-  };
-};
 
-export function getDataForToolsSection() {
-  type ResourceKey =
-    keyof Route.ComponentProps["loaderData"]["locales"]["sections"]["tools"];
-  type ResourceListItem = {
-    [key in ResourceKey]: {
-      link: string;
-      imagePath: string;
-      blurredImagePath: string;
-      external: boolean;
-      beta?: boolean;
-      bgClassName?: string;
-    };
-  };
-  const resourceListItems: Omit<ResourceListItem, "headline"> = {
-    fundingSearch: {
-      link: "/explore/fundings",
-      imagePath: "/images/funding-search.png",
-      blurredImagePath: "/images/funding-search-blurred.png",
-      external: false,
-      beta: false,
-      bgClassName: "bg-neutral-50",
-    },
-    sharepic: {
-      link: "https://sharepic.mint-vernetzt.de/",
-      imagePath: "/images/sharepic-generator.png",
-      blurredImagePath: "/images/sharepic-generator-blurred.png",
-      external: true,
-      beta: true,
-      bgClassName: "bg-neutral-100",
-    },
-    mediaDatabase: {
-      link: "https://mediendatenbank.mint-vernetzt.de",
-      imagePath: "/images/media-database.png",
-      blurredImagePath: "/images/media-database-blurred.png",
-      external: true,
-      beta: false,
-      bgClassName: "bg-neutral-50",
-    },
-    oeb: {
-      link: "https://openbadges.education",
-      imagePath: "/images/oeb.png",
-      blurredImagePath: "/images/oeb-blurred.png",
-      external: true,
-    },
-  };
-  return resourceListItems;
-}
-
-function getDataForInformationSection() {
-  type ResourceKey =
-    keyof Route.ComponentProps["loaderData"]["locales"]["sections"]["information"];
-  type ResourceListItem = {
-    [key in ResourceKey]: {
-      link: string;
-      imagePath: string;
-      blurredImagePath: string;
-      external: boolean;
-      beta?: boolean;
-      bgClassName?: string;
-    };
-  };
-  const resourceListItems: Omit<ResourceListItem, "headline"> = {
-    mintVernetzt: {
-      link: "https://www.mint-vernetzt.de",
-      imagePath: "/images/mint-vernetzt.png",
-      blurredImagePath: "/images/mint-vernetzt-blurred.png",
-      external: true,
-      bgClassName: "bg-[#164194]",
-    },
-    meshMint: {
-      link: "https://www.meshmint.org",
-      imagePath: "/images/mesh-mint.png",
-      blurredImagePath: "/images/mesh-mint-blurred.png",
-      external: true,
-      bgClassName: "bg-[#0C9C85]",
-    },
-    mintDataLab: {
-      link: "https://datalab.mint-vernetzt.de",
-      imagePath: "/images/mint-datalab.png",
-      blurredImagePath: "/images/mint-datalab-blurred.png",
-      external: true,
-      bgClassName: "bg-[#D1A9CC]",
-    },
-  };
-  return resourceListItems;
-}
-
-function getDataForLearnSection() {
-  type ResourceKey =
-    keyof Route.ComponentProps["loaderData"]["locales"]["sections"]["learn"];
-  type ResourceListItem = {
-    [key in ResourceKey]: {
-      link: string;
-      imagePath: string;
-      blurredImagePath?: string;
-      external: boolean;
-      beta?: boolean;
-      bgClassName?: string;
-    };
-  };
-  const resourceListItems: Omit<ResourceListItem, "headline"> = {
-    mintCampus: {
-      link: "https://mintcampus.org",
-      imagePath: "/images/mint-campus.png",
-      blurredImagePath: "/images/mint-campus-mobile.png",
-      external: true,
-    },
-  };
-  return resourceListItems;
-}
-
-function getDataForContributeSection() {
-  type ResourceKey =
-    keyof Route.ComponentProps["loaderData"]["locales"]["sections"]["contribute"];
-  type ResourceListItem = {
-    [key in ResourceKey]: {
-      link: string;
-      imagePath: string;
-      blurredImagePath: string;
-      external: boolean;
-      beta?: boolean;
-      bgClassName?: string;
-    };
-  };
-  const resourceListItems: Omit<ResourceListItem, "headline"> = {
-    github: {
-      link: "https://github.com/mint-vernetzt/community-platform",
-      imagePath: "/images/github.png",
-      blurredImagePath: "/images/github-blurred.png",
-      external: true,
-      bgClassName: "bg-neutral-900",
-    },
-  };
-  return resourceListItems;
-}
-
-export default function Resources({ loaderData }: Route.ComponentProps) {
-  const { locales } = loaderData;
   const toolsSectionData = getDataForToolsSection();
   const informationSectionData = getDataForInformationSection();
   const learnSectionData = getDataForLearnSection();
   const contributeSectionData = getDataForContributeSection();
 
+  return {
+    locales,
+    toolsSectionData,
+    informationSectionData,
+    learnSectionData,
+    contributeSectionData,
+  };
+};
+
+export default function Resources() {
+  const {
+    locales,
+    toolsSectionData,
+    informationSectionData,
+    learnSectionData,
+    contributeSectionData,
+  } = useLoaderData<typeof loader>();
+
   return (
     <div className="flex flex-col items-center gap-8 mt-10 @lg:mt-8 mb-24">
       <div className="w-full max-w-screen-2xl flex flex-col items-center gap-2 px-6 @lg:px-8">
-        <h1 className="text-center text-primary text-5xl @lg:text-7xl font-black leading-9 @lg:leading-[52px] mb-0">
+        <h1 className="text-center text-primary text-5xl @lg:text-7xl font-black leading-9 @lg:leading-13 mb-0">
           {locales.headline}
         </h1>
         <p className="text-center text-neutral-600 text-base @lg:text-lg font-semibold leading-5 @lg:leading-6">
@@ -172,7 +55,7 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
       <div className="w-full max-w-screen-2xl flex flex-col items-center gap-16 @lg:gap-12 px-4 @lg:px-8">
         <ResourceList>
           <ResourceList.Header>
-            <h2 className="mb-0 text-neutral-700 text-2xl font-semibold leading-6 @lg:leading-[26px]">
+            <h2 className="mb-0 text-neutral-700 text-2xl font-semibold leading-6 @lg:leading-6.5">
               {locales.sections.tools.headline}
             </h2>
           </ResourceList.Header>
@@ -236,7 +119,7 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
         </ResourceList>
         <ResourceList>
           <ResourceList.Header>
-            <h2 className="mb-0 text-neutral-700 text-2xl font-semibold leading-6 @lg:leading-[26px]">
+            <h2 className="mb-0 text-neutral-700 text-2xl font-semibold leading-6 @lg:leading-6.5">
               {locales.sections.information.headline}
             </h2>
           </ResourceList.Header>
@@ -298,7 +181,7 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
         </ResourceList>
         <ResourceList>
           <ResourceList.Header>
-            <h2 className="mb-0 text-neutral-700 text-2xl font-semibold leading-6 @lg:leading-[26px]">
+            <h2 className="mb-0 text-neutral-700 text-2xl font-semibold leading-6 @lg:leading-6.5">
               {locales.sections.learn.headline}
             </h2>
           </ResourceList.Header>
@@ -367,7 +250,7 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
         </ResourceList>
         <ResourceList>
           <ResourceList.Header>
-            <h2 className="mb-0 text-neutral-700 text-2xl font-semibold leading-6 @lg:leading-[26px]">
+            <h2 className="mb-0 text-neutral-700 text-2xl font-semibold leading-6 @lg:leading-6.5">
               {locales.sections.contribute.headline}
             </h2>
           </ResourceList.Header>

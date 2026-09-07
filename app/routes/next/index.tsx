@@ -36,7 +36,7 @@ import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { isBotRequest } from "~/utils.server";
 import { login } from "../login/index.server";
 import { createLoginSchema } from "../login/index.shared";
-import { getDataForToolsSection } from "../resources";
+import { getDataForToolsSection } from "../resources.server";
 import {
   getEventCount,
   getOrganizationCount,
@@ -49,49 +49,6 @@ import {
   getTestimonials,
   getUpcomingEvents,
 } from "./index.server";
-
-const communityImages: { src: string; credit?: string }[] = [
-  {
-    src: "/images/landingpage_images/231121_Thinkaton_HF_1425_1.png",
-    credit: "© Andi Weiland",
-  },
-  {
-    src: "/images/landingpage_images/231121_Thinkaton_HF_1689.png",
-    credit: "© Andi Weiland",
-  },
-  {
-    src: "/images/landingpage_images/Designbasedlearning_Bbarth.png",
-    credit: "© Andi Weiland",
-  },
-  {
-    src: "/images/landingpage_images/Designbasedlearning_Bbarth_2.png",
-    credit: "© Andi Weiland",
-  },
-  {
-    src: "/images/landingpage_images/Jahrestagung_2025_Head_NMF.jpg",
-    credit: "© Andi Weiland",
-  },
-  {
-    src: "/images/landingpage_images/Lisa_Ihde.png",
-    credit: "© Andi Weiland",
-  },
-  {
-    src: "/images/landingpage_images/MINTvernetzt_Tag_01_Foto_andi_weiland_01.png",
-    credit: "© Andi Weiland",
-  },
-  {
-    src: "/images/landingpage_images/MINTvernetzt_Tag_01_Foto_andi_weiland_02.png",
-    credit: "© Andi Weiland",
-  },
-  {
-    src: "/images/landingpage_images/MINTVJT11022025.png",
-    credit: "© Andi Weiland",
-  },
-  {
-    src: "/images/landingpage_images/Yosa_Peit.png",
-    credit: "© Andi Weiland",
-  },
-];
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -124,6 +81,51 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const eventTeaserOrganizationSlug = await getEventTeaserOrganizationSlug();
   const testimonials = await getTestimonials();
 
+  const toolsSectionData = getDataForToolsSection();
+
+  const communityImages = [
+    {
+      src: "/images/landingpage_images/231121_Thinkaton_HF_1425_1.png",
+      credit: "© Andi Weiland",
+    },
+    {
+      src: "/images/landingpage_images/231121_Thinkaton_HF_1689.png",
+      credit: "© Andi Weiland",
+    },
+    {
+      src: "/images/landingpage_images/Designbasedlearning_Bbarth.png",
+      credit: "© Andi Weiland",
+    },
+    {
+      src: "/images/landingpage_images/Designbasedlearning_Bbarth_2.png",
+      credit: "© Andi Weiland",
+    },
+    {
+      src: "/images/landingpage_images/Jahrestagung_2025_Head_NMF.jpg",
+      credit: "© Andi Weiland",
+    },
+    {
+      src: "/images/landingpage_images/Lisa_Ihde.png",
+      credit: "© Andi Weiland",
+    },
+    {
+      src: "/images/landingpage_images/MINTvernetzt_Tag_01_Foto_andi_weiland_01.png",
+      credit: "© Andi Weiland",
+    },
+    {
+      src: "/images/landingpage_images/MINTvernetzt_Tag_01_Foto_andi_weiland_02.png",
+      credit: "© Andi Weiland",
+    },
+    {
+      src: "/images/landingpage_images/MINTVJT11022025.png",
+      credit: "© Andi Weiland",
+    },
+    {
+      src: "/images/landingpage_images/Yosa_Peit.png",
+      credit: "© Andi Weiland",
+    },
+  ];
+
   return {
     locales,
     language,
@@ -136,6 +138,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
     upcomingEvents,
     eventTeaserOrganizationSlug,
     testimonials,
+    toolsSectionData,
+    communityImages,
   };
 };
 
@@ -192,7 +196,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
 export default function Index() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const { locales, communityImages, toolsSectionData } = loaderData;
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isHydrated = useHydrated();
@@ -214,7 +218,7 @@ export default function Index() {
       );
     }, 6000);
     return () => clearInterval(interval);
-  }, [autoPlay]);
+  }, [autoPlay, communityImages.length]);
   const testimonialListRef = useRef<HTMLUListElement>(null);
 
   const scrollTestimonials = (direction: "previous" | "next") => {
@@ -262,7 +266,7 @@ export default function Index() {
     "mediaDatabase",
     "oeb",
   ] as const;
-  const toolsSectionData = getDataForToolsSection();
+
   const toolsSliderRef = useRef<HTMLDivElement>(null);
 
   function scrollToolsSlider(direction: "previous" | "next") {
@@ -305,7 +309,7 @@ export default function Index() {
           <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
             <div className="@md:grid @md:grid-cols-12 @md:gap-6 @lg:gap-8 @md:items-center">
               <div className="@md:col-start-1 @md:col-span-6 @xl:col-start-2 @xl:col-span-5">
-                <h1 className="mb-8 text-primary-600 text-5xl leading-tight @lg:text-[3.75rem] @lg:leading-[4.5rem] @lg:tracking-[-2.4px] font-black hyphens-auto @lg:hyphens-none">
+                <h1 className="mb-8 text-primary-600 text-5xl leading-tight @lg:text-[3.75rem] @lg:leading-18 @lg:tracking-[-2.4px] font-black hyphens-auto @lg:hyphens-none">
                   {locales.content.headline}
                 </h1>
                 <p className="mb-8 @md:mb-0 text-neutral-800 text-lg leading-[1.3] tracking-[0.18px] font-semibold">
@@ -491,7 +495,7 @@ export default function Index() {
                 <p className="text-primary-500 text-5xl leading-10 font-bold">
                   {loaderData.profileCount}
                 </p>
-                <p className="text-primary-500 text-lg leading-[22px] font-semibold">
+                <p className="text-primary-500 text-lg leading-5.5 font-semibold">
                   {locales.counter.profiles}
                 </p>
               </div>
@@ -499,7 +503,7 @@ export default function Index() {
                 <p className="text-primary-500 text-5xl leading-10 font-bold">
                   {loaderData.organizationCount}
                 </p>
-                <p className="text-primary-500 text-lg leading-[22px] font-semibold">
+                <p className="text-primary-500 text-lg leading-5.5 font-semibold">
                   {locales.counter.organizations}
                 </p>
               </div>
@@ -507,7 +511,7 @@ export default function Index() {
                 <p className="text-primary-500 text-5xl leading-10 font-bold">
                   {loaderData.eventCount}
                 </p>
-                <p className="text-primary-500 text-lg leading-[22px] font-semibold">
+                <p className="text-primary-500 text-lg leading-5.5 font-semibold">
                   {locales.counter.events}
                 </p>
               </div>
@@ -515,7 +519,7 @@ export default function Index() {
                 <p className="text-primary-500 text-5xl leading-10 font-bold">
                   {loaderData.projectCount}
                 </p>
-                <p className="text-primary-500 text-lg leading-[22px] font-semibold">
+                <p className="text-primary-500 text-lg leading-5.5 font-semibold">
                   {locales.counter.projects}
                 </p>
               </div>
@@ -636,7 +640,7 @@ export default function Index() {
                   return (
                     <li key={event.slug}>
                       <Link
-                        to={`/event/${event.slug}`}
+                        to={`/event/${event.slug}/detail/about`}
                         prefetch="intent"
                         className="group block h-full p-4 bg-white rounded-lg border border-neutral-200"
                       >
@@ -670,7 +674,7 @@ export default function Index() {
             />
 
             <div className="relative @md:w-2/3 @lg:w-1/2">
-              <h2 className="mb-4 text-neutral-50 text-3xl leading-tight @lg:text-4xl @lg:leading-[2.75rem] font-bold hyphens-auto @lg:hyphens-none">
+              <h2 className="mb-4 text-neutral-50 text-3xl leading-tight @lg:text-4xl @lg:leading-11 font-bold hyphens-auto @lg:hyphens-none">
                 {locales.funding.headline}
               </h2>
               <p className="mb-8 text-neutral-50 text-base leading-[1.3] tracking-[0.16px] font-semibold">
