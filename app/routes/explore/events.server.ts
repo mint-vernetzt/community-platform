@@ -898,7 +898,11 @@ export async function getEventFilterVectorForAttribute(options: {
           },
           where: {
             responsibleForEvents: {
-              some: {},
+              some: {
+                event: {
+                  published: true,
+                },
+              },
             },
           },
         });
@@ -1084,7 +1088,11 @@ export async function getAllResponsibleOrganizations() {
   const responsibleOrganizations = await prismaClient.organization.findMany({
     where: {
       responsibleForEvents: {
-        some: {},
+        some: {
+          event: {
+            published: true,
+          },
+        },
       },
     },
     select: {
