@@ -16,7 +16,8 @@ export const locale = {
   },
   content: {
     headline: "Strengthening STEM education together",
-    intro: "Find people, ideas and support for your work in STEM education.",
+    intro:
+      "For more equal opportunities, more enthusiasm for STEM, and more collaboration.",
   },
   funding: {
     headline: "Find 4000+ funding opportunities for your work",

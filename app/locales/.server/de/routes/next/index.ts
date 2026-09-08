@@ -17,7 +17,7 @@ export const locale = {
   content: {
     headline: "Gemeinsam MINT-Bildung stärken",
     intro:
-      "Finde Menschen, Ideen und Unterstützung für Deine Arbeit in der MINT-Bildung.",
+      "Für mehr Chancengerechtigkeit, mehr Begeisterung für MINT und mehr Miteinander.",
   },
   funding: {
     headline: "Finde 4000+ Förderungen für Deine Arbeit",
