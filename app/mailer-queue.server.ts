@@ -141,7 +141,7 @@ async function onTick() {
           { stageId: null },
           { stage: { slug: { in: ["on-site", "hybrid"] } } },
         ],
-        reminderState: "firstScheduled",
+        reminderState: { in: ["open", "firstScheduled"] },
       },
       select,
     });
@@ -172,7 +172,7 @@ async function onTick() {
           { stageId: null },
           { stage: { slug: { in: ["online", "hybrid"] } } },
         ],
-        reminderState: { in: ["firstScheduled", "secondScheduled"] },
+        reminderState: { in: ["open", "firstScheduled", "secondScheduled"] },
       },
       select,
     });
