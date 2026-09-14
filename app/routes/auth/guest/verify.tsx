@@ -195,7 +195,7 @@ function GuestVerify() {
       </div>
     </div>
   ) : (
-    <div>This is a POST endpoint</div>
+    <div>This is a POST endpoint for confirmation link verification</div>
   );
 }
 

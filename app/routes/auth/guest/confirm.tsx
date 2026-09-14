@@ -9,22 +9,12 @@ import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
-import { isBotRequest } from "~/utils.server";
 import { getEventByToken } from "./confirm.server";
 import { HoneypotInputs } from "remix-utils/honeypot/react";
 import { HONEYPOT_CLASSNAME } from "~/honeypot.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
-
-  if (process.env.NODE_ENV !== "test") {
-    const isBot = isBotRequest(request.headers.get("user-agent"));
-    invariantResponse(
-      isBot === false,
-      "Bots are not allowed to access this resource",
-      { status: 403 }
-    );
-  }
 
   const url = new URL(request.url);
 

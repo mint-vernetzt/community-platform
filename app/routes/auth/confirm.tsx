@@ -1,29 +1,13 @@
-import {
-  Form,
-  Link,
-  useLoaderData,
-  useSearchParams,
-  type LoaderFunctionArgs,
-} from "react-router";
+import { Form, useLoaderData, type LoaderFunctionArgs } from "react-router";
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
-import { isBotRequest } from "~/utils.server";
 import { HONEYPOT_CLASSNAME } from "~/honeypot.shared";
 import { HoneypotInputs } from "remix-utils/honeypot/react";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
-
-  if (process.env.NODE_ENV !== "test") {
-    const isBot = isBotRequest(request.headers.get("user-agent"));
-    invariantResponse(
-      isBot === false,
-      "Bots are not allowed to access this resource",
-      { status: 403 }
-    );
-  }
 
   const url = new URL(request.url);
 
@@ -65,9 +49,6 @@ export async function loader(args: LoaderFunctionArgs) {
     "Bad request",
     { status: 400 }
   );
-
-  // Build new URL
-  const sanitizedConfirmationLink = `${process.env.COMMUNITY_BASE_URL}/auth/verify?token_hash=${tokenHash}&type=${type}&login_redirect=${loginRedirect}`;
 
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["auth/confirm"];

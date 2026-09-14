@@ -116,3 +116,9 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 }
+
+function GuestVerify() {
+  return <div>This is a POST endpoint for confirmation link verification</div>;
+}
+
+export default GuestVerify;

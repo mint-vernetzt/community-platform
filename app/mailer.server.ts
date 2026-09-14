@@ -38,7 +38,8 @@ export async function mailer(
           requireTLS: options.port !== 465,
           ...options,
         }
-      : {
+      : // auth.user === "" || undefined. Currently dev only. If ever used in production add TLS configuration here
+        {
           host: options.host,
           port: options.port,
         }
