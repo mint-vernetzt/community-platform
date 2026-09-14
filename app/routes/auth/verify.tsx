@@ -1,15 +1,18 @@
 import { captureException } from "@sentry/node";
 import { type EmailOtpType } from "@supabase/supabase-js";
-import { redirect, type LoaderFunctionArgs } from "react-router";
+import { redirect, type ActionFunctionArgs } from "react-router";
 import { createAuthClient, resetInactivityReminderState } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { isBotRequest } from "~/utils.server";
 import { createProfile, sendWelcomeMail } from "../register/utils.server";
 import { getNumberOfGuestsByEmail } from "./verify.server";
+import { checkHoneypot } from "~/honeypot.server";
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
   if (process.env.NODE_ENV !== "test") {
+    await checkHoneypot(formData);
     const isBot = isBotRequest(request.headers.get("user-agent"));
     invariantResponse(
       isBot === false,
@@ -18,12 +21,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
-  const requestUrl = new URL(request.url);
-  const token_hash = requestUrl.searchParams.get("token_hash");
-  const type = requestUrl.searchParams.get("type") as EmailOtpType | null;
-  invariantResponse(token_hash !== null && type !== null, "Bad request", {
-    status: 400,
-  });
+  const token_hash = formData.get("token_hash");
+  const type = formData.get("type") as EmailOtpType | null;
+  invariantResponse(
+    token_hash !== null && type !== null && typeof token_hash === "string",
+    "Bad request",
+    {
+      status: 400,
+    }
+  );
   invariantResponse(type === "signup" || type === "recovery", "Bad request", {
     status: 400,
   });
@@ -32,11 +38,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     type,
     token_hash,
   });
-  let loginRedirect = requestUrl.searchParams.get("login_redirect");
+  let loginRedirect = formData.get("login_redirect");
   // Supabase defaults the login redirect to "/" if not specified so this will overwrite this behaviour
   if (
     loginRedirect === process.env.COMMUNITY_BASE_URL ||
     (loginRedirect !== null &&
+      typeof loginRedirect === "string" &&
       loginRedirect.startsWith(process.env.COMMUNITY_BASE_URL) === false &&
       loginRedirect.startsWith("/") === false)
   ) {
@@ -81,7 +88,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     });
 
     let loginRedirectUrl;
-    if (loginRedirect !== null) {
+    if (loginRedirect !== null && typeof loginRedirect === "string") {
       loginRedirectUrl = new URL(loginRedirect, request.url);
     } else {
       loginRedirectUrl = new URL(`/profile/${profile.username}`, request.url);
