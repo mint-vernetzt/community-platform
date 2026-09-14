@@ -113,15 +113,7 @@ export async function confirmGuest(options: {
     event.participantLimit !== null &&
     event._count.participants + event.guests.length >= event.participantLimit;
 
-  const revocationToken = generateValidationToken({
-    data: JSON.stringify({
-      guestId,
-      eventId,
-      now: now.getTime(),
-    }),
-    secret: process.env.GUEST_SECRET,
-    salt: process.env.GUEST_SALT,
-  });
+  const revocationToken = generateValidationToken();
 
   const result = await prismaClient.guest.update({
     where: {
