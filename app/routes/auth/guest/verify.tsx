@@ -50,19 +50,24 @@ export async function loader(args: LoaderFunctionArgs) {
     type,
   });
 
-  if (error !== null && error.code === "expired" && type !== "revoke") {
-    const requestConfirmationUrl = new URL(
-      `${process.env.COMMUNITY_BASE_URL}/auth/guest/request-confirmation`
-    );
-    requestConfirmationUrl.searchParams.set("token_hash", tokenHash);
-    requestConfirmationUrl.searchParams.set(
-      "confirmation_redirect",
-      confirmationRedirect
-    );
+  if (error !== null && error.code === "expired") {
+    if (type !== "revoke") {
+      const requestConfirmationUrl = new URL(
+        `${process.env.COMMUNITY_BASE_URL}/auth/guest/request-confirmation`
+      );
+      requestConfirmationUrl.searchParams.set("token_hash", tokenHash);
+      requestConfirmationUrl.searchParams.set(
+        "confirmation_redirect",
+        confirmationRedirect
+      );
 
-    return redirect(
-      `${requestConfirmationUrl.pathname}${requestConfirmationUrl.search}`
-    );
+      return redirect(
+        `${requestConfirmationUrl.pathname}${requestConfirmationUrl.search}`
+      );
+    } else {
+      // TODO: When this is implemented in an action return redirectWithToast and error message
+      return redirect(request.url);
+    }
   }
 
   const language = await detectLanguage(request);

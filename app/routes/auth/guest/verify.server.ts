@@ -26,6 +26,11 @@ export async function verifyConfirmationToken(options: {
         id: true,
         eventId: true,
         confirmationSentAt: true,
+        event: {
+          select: {
+            endTime: true,
+          },
+        },
       },
     });
   } else {
@@ -37,6 +42,11 @@ export async function verifyConfirmationToken(options: {
         id: true,
         eventId: true,
         confirmationSentAt: true,
+        event: {
+          select: {
+            endTime: true,
+          },
+        },
       },
     });
   }
@@ -55,6 +65,16 @@ export async function verifyConfirmationToken(options: {
     return {
       error: {
         message: "Confirmation token expired",
+        code: "expired",
+      } as const,
+      data: null,
+    };
+  }
+
+  if (type === "revoke" && guest.event.endTime < new Date()) {
+    return {
+      error: {
+        message: "Revocation token expired",
         code: "expired",
       } as const,
       data: null,
