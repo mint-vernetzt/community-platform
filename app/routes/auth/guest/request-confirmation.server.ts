@@ -37,17 +37,7 @@ export async function requestConfirmation(options: {
 }) {
   const { email, confirmationRedirect, eventId, oldToken, locales } = options;
 
-  const data = JSON.stringify({
-    eventId,
-    email,
-    now: Date.now(),
-  });
-
-  const token = generateValidationToken({
-    data,
-    secret: process.env.GUEST_SECRET,
-    salt: process.env.GUEST_SALT,
-  });
+  const token = generateValidationToken();
 
   const result = await prismaClient.guest.update({
     where: {

@@ -281,6 +281,23 @@ export async function loader(args: LoaderFunctionArgs) {
     combinedHeaders.set("Cache-Control", "private, max-age=10");
   }
 
+  const url = new URL(request.url);
+  const sanitizedPathname = url.pathname.endsWith("/")
+    ? url.pathname.slice(0, -1)
+    : `${url.pathname}`;
+  const authRoutesNotMeantToIndex = [
+    "/auth/confirm",
+    "/auth/verify",
+    "/auth/guest/confirm",
+    "/auth/guest/verify",
+  ];
+  if (
+    process.env.ALLOW_INDEXING === "false" ||
+    authRoutesNotMeantToIndex.includes(sanitizedPathname)
+  ) {
+    combinedHeaders.set("X-Robots-Tag", "noindex, nofollow");
+  }
+
   return data(
     {
       honeyProps,
@@ -300,6 +317,8 @@ export async function loader(args: LoaderFunctionArgs) {
       tags,
       entities: enhancedEntities,
       preferredExploreOrganizationsView,
+      authRoutesNotMeantToIndex,
+      sanitizedPathname,
     },
     {
       headers: combinedHeaders,
@@ -456,7 +475,12 @@ export const ErrorBoundary = () => {
           <Meta />
           <meta charSet="utf-8" />
           <meta name="viewport" content="width=device-width,initial-scale=1" />
-          {ENV.ALLOW_INDEXING === "false" ? (
+          {ENV.ALLOW_INDEXING === "false" ||
+          (rootLoaderData !== null &&
+            typeof rootLoaderData !== "undefined" &&
+            rootLoaderData.authRoutesNotMeantToIndex.includes(
+              rootLoaderData.sanitizedPathname
+            )) ? (
             <meta name="robots" content="noindex, nofollow" />
           ) : null}
           <Links nonce={nonce} />
@@ -623,6 +647,8 @@ export default function App() {
     mode,
     ENV,
     honeyProps,
+    authRoutesNotMeantToIndex,
+    sanitizedPathname,
   } = useLoaderData<typeof loader>();
   const location = useLocation();
   const nonce = useNonce();
@@ -766,7 +792,8 @@ export default function App() {
           <Meta />
           <meta charSet="utf-8" />
           <meta name="viewport" content="width=device-width,initial-scale=1" />
-          {ENV.ALLOW_INDEXING === "false" ? (
+          {ENV.ALLOW_INDEXING === "false" ||
+          authRoutesNotMeantToIndex.includes(sanitizedPathname) ? (
             <meta name="robots" content="noindex, nofollow" />
           ) : null}
           <Links nonce={nonce} />

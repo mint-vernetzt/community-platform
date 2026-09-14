@@ -1658,17 +1658,7 @@ export async function addGuestToEvent(options: {
     return null;
   }
 
-  const data = JSON.stringify({
-    eventId,
-    email: guest.email,
-    now: Date.now(),
-  });
-
-  const token = generateValidationToken({
-    data,
-    secret: process.env.GUEST_SECRET,
-    salt: process.env.GUEST_SALT,
-  });
+  const token = generateValidationToken();
 
   let result;
   if (existingGuest !== null && existingGuest.confirmed === false) {

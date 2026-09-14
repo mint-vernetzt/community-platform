@@ -1,4 +1,4 @@
-import { redirect, useLoaderData, type LoaderFunctionArgs } from "react-router";
+import { type ActionFunctionArgs, redirect, useActionData } from "react-router";
 import { invariantResponse } from "~/lib/utils/response";
 import { isBotRequest } from "~/utils.server";
 import {
@@ -10,11 +10,14 @@ import { redirectWithToast } from "~/toast.server";
 import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
 import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
+import { checkHoneypot } from "~/honeypot.server";
 
-export async function loader(args: LoaderFunctionArgs) {
+export async function action(args: ActionFunctionArgs) {
   const { request } = args;
 
+  const formData = await request.formData();
   if (process.env.NODE_ENV !== "test") {
+    await checkHoneypot(formData);
     const isBot = isBotRequest(request.headers.get("user-agent"));
     invariantResponse(
       isBot === false,
@@ -23,25 +26,33 @@ export async function loader(args: LoaderFunctionArgs) {
     );
   }
 
-  const url = new URL(request.url);
-  const tokenHash = url.searchParams.get("token_hash");
-  invariantResponse(tokenHash !== null, "Bad request", { status: 400 });
+  const tokenHash = formData.get("token_hash");
+  invariantResponse(
+    tokenHash !== null && typeof tokenHash === "string",
+    "Bad request",
+    { status: 400 }
+  );
   // Check if token is a valid hex string
   const isValidToken = /^[0-9A-Fa-f]+$/g.test(tokenHash);
   invariantResponse(isValidToken, "Invalid token", { status: 400 });
 
-  const confirmationRedirect = url.searchParams.get("confirmation_redirect");
+  const confirmationRedirect = formData.get("confirmation_redirect");
   invariantResponse(
     confirmationRedirect !== null &&
+      typeof confirmationRedirect === "string" &&
       confirmationRedirect.startsWith(process.env.COMMUNITY_BASE_URL),
     "Bad request",
     { status: 400 }
   );
 
-  const type = url.searchParams.get("type");
+  const type = formData.get("type");
+
+  invariantResponse(typeof type === "string" || type === null, "Bad request", {
+    status: 400,
+  });
 
   if (type !== "revoke") {
-    const acceptTerms = url.searchParams.get("accept_terms");
+    const acceptTerms = formData.get("accept_terms");
     invariantResponse(acceptTerms === "true", "Bad Request", { status: 400 });
   }
 
@@ -50,19 +61,24 @@ export async function loader(args: LoaderFunctionArgs) {
     type,
   });
 
-  if (error !== null && error.code === "expired" && type !== "revoke") {
-    const requestConfirmationUrl = new URL(
-      `${process.env.COMMUNITY_BASE_URL}/auth/guest/request-confirmation`
-    );
-    requestConfirmationUrl.searchParams.set("token_hash", tokenHash);
-    requestConfirmationUrl.searchParams.set(
-      "confirmation_redirect",
-      confirmationRedirect
-    );
+  if (error !== null && error.code === "expired") {
+    if (type !== "revoke") {
+      const requestConfirmationUrl = new URL(
+        `${process.env.COMMUNITY_BASE_URL}/auth/guest/request-confirmation`
+      );
+      requestConfirmationUrl.searchParams.set("token_hash", tokenHash);
+      requestConfirmationUrl.searchParams.set(
+        "confirmation_redirect",
+        confirmationRedirect
+      );
 
-    return redirect(
-      `${requestConfirmationUrl.pathname}${requestConfirmationUrl.search}`
-    );
+      return redirect(
+        `${requestConfirmationUrl.pathname}${requestConfirmationUrl.search}`
+      );
+    } else {
+      // TODO: When this is implemented in an action return redirectWithToast and error message
+      return redirect(request.url);
+    }
   }
 
   const language = await detectLanguage(request);
@@ -149,26 +165,26 @@ export async function loader(args: LoaderFunctionArgs) {
 }
 
 function GuestVerify() {
-  const { locales, supportMail, type } = useLoaderData<typeof loader>();
-  return (
+  const actionData = useActionData<typeof action>();
+  return typeof actionData !== "undefined" ? (
     <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
       <div className="flex flex-col w-full items-center">
         <div className="w-full @sm:w-2/3 @md:w-1/2 @2xl:w-1/3">
           <div className="mb-6 mt-12"> </div>
           <h1 className="mb-4">
-            {type === "revoke"
-              ? locales.revocation.notFound.title
-              : locales.confirmation.notFound.title}
+            {actionData.type === "revoke"
+              ? actionData.locales.revocation.notFound.title
+              : actionData.locales.confirmation.notFound.title}
           </h1>
 
           <p className="mb-6">
             {insertComponentsIntoLocale(
-              type === "revoke"
-                ? locales.revocation.notFound.description
-                : locales.confirmation.notFound.description,
+              actionData.type === "revoke"
+                ? actionData.locales.revocation.notFound.description
+                : actionData.locales.confirmation.notFound.description,
               [
                 <a
-                  href={`mailto:${supportMail}`}
+                  href={`mailto:${actionData.supportMail}`}
                   key="support-mail"
                   className="underline hover:no-underline font-semibold"
                 />,
@@ -178,6 +194,8 @@ function GuestVerify() {
         </div>
       </div>
     </div>
+  ) : (
+    <div>This is a POST endpoint for confirmation link verification</div>
   );
 }
 

@@ -1,5 +1,10 @@
 import { type User } from "@supabase/supabase-js";
-import { createHash, createHmac, type BinaryToTextEncoding } from "crypto";
+import {
+  createHash,
+  createHmac,
+  type BinaryToTextEncoding,
+  randomBytes,
+} from "crypto";
 import * as isbotModule from "isbot";
 import sanitizeHtml from "sanitize-html";
 import { z } from "zod";
@@ -388,16 +393,7 @@ export function isBotRequest(userAgent: string | null) {
   return false;
 }
 
-export function generateValidationToken(options: {
-  data: string;
-  secret: string;
-  salt: string;
-}) {
-  const { data, secret, salt } = options;
-
-  const token = createHmac("sha256", secret)
-    .update(data)
-    .update(salt, "hex")
-    .digest("hex");
+export function generateValidationToken() {
+  const token = randomBytes(32).toString("hex");
   return token;
 }

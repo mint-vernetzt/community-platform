@@ -93,11 +93,7 @@ async function main() {
       continue;
     }
 
-    const token = generateValidationToken({
-      data: JSON.stringify({ eventId: event.id, now: Date.now() }),
-      secret: process.env.PARTICIPATION_SECRET,
-      salt: process.env.PARTICIPATION_SALT,
-    });
+    const token = generateValidationToken();
     await prismaClient.event.update({
       where: { id: event.id },
       data: { participationToken: token },

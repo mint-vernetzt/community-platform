@@ -1,29 +1,20 @@
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import {
-  Link,
+  Form,
   redirect,
   useLoaderData,
-  useSearchParams,
   type LoaderFunctionArgs,
 } from "react-router";
 import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
-import { isBotRequest } from "~/utils.server";
 import { getEventByToken } from "./confirm.server";
+import { HoneypotInputs } from "remix-utils/honeypot/react";
+import { HONEYPOT_CLASSNAME } from "~/honeypot.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
-
-  if (process.env.NODE_ENV !== "test") {
-    const isBot = isBotRequest(request.headers.get("user-agent"));
-    invariantResponse(
-      isBot === false,
-      "Bots are not allowed to access this resource",
-      { status: 403 }
-    );
-  }
 
   const url = new URL(request.url);
 
@@ -74,15 +65,14 @@ export async function loader(args: LoaderFunctionArgs) {
 
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
-  if (type !== "revoke") {
-    confirmationLink.searchParams.set("accept_terms", "true");
-  }
-
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["auth/guest/confirm"];
 
   return {
-    confirmationLink: confirmationLink.toString(),
+    tokenHash,
+    confirmationRedirect,
+    type,
+    acceptTerms: type !== "revoke" ? true : undefined,
     locales,
     fullyBooked:
       event.participantLimit !== null &&
@@ -91,12 +81,14 @@ export async function loader(args: LoaderFunctionArgs) {
 }
 
 function GuestConfirm() {
-  const { confirmationLink, locales, fullyBooked } =
-    useLoaderData<typeof loader>();
-
-  const [searchParams] = useSearchParams();
-
-  const type = searchParams.get("type");
+  const {
+    tokenHash,
+    confirmationRedirect,
+    type,
+    acceptTerms,
+    locales,
+    fullyBooked,
+  } = useLoaderData<typeof loader>();
 
   return (
     <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
@@ -107,12 +99,31 @@ function GuestConfirm() {
             <>
               <h1 className="mb-4">{locales.revocation.title}</h1>
               <p className="mb-6">{locales.revocation.description}</p>
-              <Link
-                to={confirmationLink}
-                className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
-              >
-                {locales.revocation.action}
-              </Link>
+              <Form method="post" action="/auth/guest/verify">
+                <HoneypotInputs className={HONEYPOT_CLASSNAME} />
+                <input type="hidden" name="token_hash" value={tokenHash} />
+                <input
+                  type="hidden"
+                  name="confirmation_redirect"
+                  value={confirmationRedirect}
+                />
+                {typeof type === "string" && (
+                  <input type="hidden" name="type" value={type} />
+                )}
+                {typeof acceptTerms === "boolean" && (
+                  <input
+                    type="hidden"
+                    name="accept_terms"
+                    value={acceptTerms.toString()}
+                  />
+                )}
+                <button
+                  type="submit"
+                  className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
+                >
+                  {locales.revocation.action}
+                </button>
+              </Form>
             </>
           ) : (
             <>
@@ -142,12 +153,31 @@ function GuestConfirm() {
                   </span>
                 )}
               </p>
-              <Link
-                to={confirmationLink}
-                className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
-              >
-                {locales.confirmation.action}
-              </Link>
+              <Form method="post" action="/auth/guest/verify">
+                <HoneypotInputs className={HONEYPOT_CLASSNAME} />
+                <input type="hidden" name="token_hash" value={tokenHash} />
+                <input
+                  type="hidden"
+                  name="confirmation_redirect"
+                  value={confirmationRedirect}
+                />
+                {typeof type === "string" && (
+                  <input type="hidden" name="type" value={type} />
+                )}
+                {typeof acceptTerms === "boolean" && (
+                  <input
+                    type="hidden"
+                    name="accept_terms"
+                    value={acceptTerms.toString()}
+                  />
+                )}
+                <button
+                  type="submit"
+                  className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
+                >
+                  {locales.confirmation.action}
+                </button>
+              </Form>
             </>
           )}
         </div>
