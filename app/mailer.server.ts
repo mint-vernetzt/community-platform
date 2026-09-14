@@ -33,8 +33,15 @@ export async function mailer(
 ) {
   const transporter = createTransport(
     options.auth?.user !== ""
-      ? options
-      : { host: options.host, port: options.port }
+      ? {
+          secure: options.port === 465,
+          requireTLS: options.port !== 465,
+          ...options,
+        }
+      : {
+          host: options.host,
+          port: options.port,
+        }
   );
 
   await transporter
@@ -46,6 +53,7 @@ export async function mailer(
       html,
     })
     .catch((error) => {
+      console.log(error);
       throw new Error(error);
     });
 }
