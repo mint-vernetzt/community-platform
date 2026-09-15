@@ -1,4 +1,14 @@
 export const locale = {
+  errors: {
+    updateReminderMail:
+      "Fehler beim Ändern der Erinnerungs-E-Mail Einstellung.",
+  },
+  success: {
+    updateReminderMail: {
+      activated: "Die Erinnerungs-E-Mail wurde aktiviert.",
+      deactivated: "Die Erinnerungs-E-Mail wurde deaktiviert.",
+    },
+  },
   system: {
     title: "Automatische E-Mails",
     description: "Automatische E-Mails sind nicht editierbar.",

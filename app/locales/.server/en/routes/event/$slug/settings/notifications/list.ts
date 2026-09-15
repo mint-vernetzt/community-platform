@@ -1,4 +1,13 @@
 export const locale = {
+  errors: {
+    updateReminderMail: "Error updating the reminder email setting.",
+  },
+  success: {
+    updateReminderMail: {
+      activated: "The reminder email has been activated.",
+      deactivated: "The reminder email has been deactivated.",
+    },
+  },
   system: {
     title: "Automatic Emails",
     description: "Automatic emails are not editable.",
