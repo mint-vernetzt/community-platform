@@ -7,6 +7,7 @@ import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
 import { getEventStage } from "./list.server";
+import { Toggle } from "~/components-next/icons/Toggle";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -42,6 +43,8 @@ function NotificationsList() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales, stage } = loaderData;
 
+  const active = false;
+
   return (
     <div className="flex flex-col gap-8 pt-4">
       <div className="flex flex-col gap-4">
@@ -54,47 +57,99 @@ function NotificationsList() {
           </TitleSection.Subline>
         </TitleSection>
         <ul className="flex flex-col border border-neutral-200 rounded-xl *:border-b *:border-neutral-200 *:last:border-b-0 text-neutral-700 text-sm">
-          <li className="flex flex-col gap-0.5 p-4">
-            <p className="font-semibold">
-              {locales.route.system.list.confirmation.title}
-            </p>
-            <p>{locales.route.system.list.confirmation.description}</p>
+          <li className="flex justify-between items-center gap-4 p-4">
+            <div className="flex flex-col gap-0.5">
+              <p className="font-semibold">
+                {locales.route.system.list.confirmation.title}
+              </p>
+              <p>{locales.route.system.list.confirmation.description}</p>
+            </div>
           </li>
-          <li className="flex flex-col gap-0.5 p-4">
-            <p className="font-semibold">
-              {locales.route.system.list.moveUpToParticipants.title}
-            </p>
-            <p>{locales.route.system.list.moveUpToParticipants.description}</p>
+          <li className="flex justify-between items-center gap-4 p-4">
+            <div className="flex flex-col gap-0.5">
+              <p className="font-semibold">
+                {locales.route.system.list.moveUpToParticipants.title}
+              </p>
+              <p>
+                {locales.route.system.list.moveUpToParticipants.description}
+              </p>
+            </div>
           </li>
-          <li className="flex flex-col gap-0.5 p-4">
-            <p className="font-semibold">
-              {locales.route.system.list.oneDayBefore.title}
-            </p>
-            <p>{locales.route.system.list.oneDayBefore.description}</p>
+          <li className="flex justify-between items-center gap-4 p-4">
+            <div className="flex flex-col gap-0.5">
+              <p className="font-semibold">
+                {locales.route.system.list.oneDayBefore.title}
+              </p>
+              <p>{locales.route.system.list.oneDayBefore.description}</p>
+            </div>
+            <div className="group">
+              <button
+                className="w-8 h-8"
+                aria-label={
+                  active
+                    ? locales.route.system.list.oneDayBefore.toggle.active
+                    : locales.route.system.list.oneDayBefore.toggle.inactive
+                }
+              >
+                <Toggle active={active} />
+              </button>
+            </div>
           </li>
           {(stage === null || stage.slug !== "online") && (
-            <li className="flex flex-col gap-0.5 p-4">
-              <p className="font-semibold">
-                {locales.route.system.list.oneHourBefore.title}
-              </p>
-              <p>{locales.route.system.list.oneHourBefore.description}</p>
+            <li className="flex justify-between items-center gap-4 p-4">
+              <div className="flex flex-col gap-0.5">
+                <p className="font-semibold">
+                  {locales.route.system.list.oneHourBefore.title}
+                </p>
+                <p>{locales.route.system.list.oneHourBefore.description}</p>
+              </div>
+              <div className="group">
+                <button
+                  className="w-8 h-8"
+                  aria-label={
+                    active
+                      ? locales.route.system.list.oneHourBefore.toggle.active
+                      : locales.route.system.list.oneHourBefore.toggle.inactive
+                  }
+                >
+                  <Toggle active={active} />
+                </button>
+              </div>
             </li>
           )}
           {(stage === null || stage.slug !== "on-site") && (
-            <li className="flex flex-col gap-0.5 p-4">
-              <p className="font-semibold">
-                {locales.route.system.list.fifteenMinutesBefore.title}
-              </p>
-              <p>
-                {locales.route.system.list.fifteenMinutesBefore.description}
-              </p>
+            <li className="flex justify-between items-center gap-4 p-4">
+              <div className="flex flex-col gap-0.5">
+                <p className="font-semibold">
+                  {locales.route.system.list.fifteenMinutesBefore.title}
+                </p>
+                <p>
+                  {locales.route.system.list.fifteenMinutesBefore.description}
+                </p>
+              </div>
+              <div className="group">
+                <button
+                  className="w-8 h-8"
+                  aria-label={
+                    active
+                      ? locales.route.system.list.fifteenMinutesBefore.toggle
+                          .active
+                      : locales.route.system.list.fifteenMinutesBefore.toggle
+                          .inactive
+                  }
+                >
+                  <Toggle active={active} />
+                </button>
+              </div>
             </li>
           )}
-          <li className="flex flex-col gap-0.5 p-4">
-            <p className="font-semibold">
-              {locales.route.system.list.cancellation.title}
-            </p>
-            <p>{locales.route.system.list.cancellation.description}</p>
+          <li className="flex justify-between items-center gap-4 p-4">
+            <div className="flex flex-col gap-0.5">
+              <p className="font-semibold">
+                {locales.route.system.list.cancellation.title}
+              </p>
+              <p>{locales.route.system.list.cancellation.description}</p>
+            </div>
           </li>
         </ul>
       </div>
