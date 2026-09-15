@@ -26,6 +26,11 @@ export async function verifyConfirmationToken(options: {
         id: true,
         eventId: true,
         confirmationSentAt: true,
+        event: {
+          select: {
+            endTime: true,
+          },
+        },
       },
     });
   } else {
@@ -37,6 +42,11 @@ export async function verifyConfirmationToken(options: {
         id: true,
         eventId: true,
         confirmationSentAt: true,
+        event: {
+          select: {
+            endTime: true,
+          },
+        },
       },
     });
   }
@@ -55,6 +65,16 @@ export async function verifyConfirmationToken(options: {
     return {
       error: {
         message: "Confirmation token expired",
+        code: "expired",
+      } as const,
+      data: null,
+    };
+  }
+
+  if (type === "revoke" && guest.event.endTime < new Date()) {
+    return {
+      error: {
+        message: "Revocation token expired",
         code: "expired",
       } as const,
       data: null,
@@ -113,15 +133,7 @@ export async function confirmGuest(options: {
     event.participantLimit !== null &&
     event._count.participants + event.guests.length >= event.participantLimit;
 
-  const revocationToken = generateValidationToken({
-    data: JSON.stringify({
-      guestId,
-      eventId,
-      now: now.getTime(),
-    }),
-    secret: process.env.GUEST_SECRET,
-    salt: process.env.GUEST_SALT,
-  });
+  const revocationToken = generateValidationToken();
 
   const result = await prismaClient.guest.update({
     where: {

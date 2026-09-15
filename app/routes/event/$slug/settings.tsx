@@ -551,6 +551,15 @@ export default function Settings() {
             >
               {locales.route.modal.publishEventModal.withIssues.cancel}
             </Button>
+            <Button
+              as="link"
+              to={`/event/${event.slug}/detail/about`}
+              variant="outline"
+              fullSize
+              prefetch="intent"
+            >
+              {locales.route.modal.publishEventModal.withIssues.view}
+            </Button>
             <Form method="post" className="w-full">
               <Button
                 type="submit"
@@ -589,6 +598,15 @@ export default function Settings() {
                 {locales.route.modal.publishEventModal.noIssues.submit}
               </Button>
             </Form>
+            <Button
+              as="link"
+              to={`/event/${event.slug}/detail/about`}
+              variant="outline"
+              fullSize
+              prefetch="intent"
+            >
+              {locales.route.modal.publishEventModal.noIssues.view}
+            </Button>
             <Button
               as="link"
               to={`${location.pathname}?${extendSearchParams(searchParams, { remove: [PUBLISH_EVENT_MODAL_SEARCH_PARAM] })}`}

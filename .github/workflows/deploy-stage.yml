@@ -35,7 +35,6 @@ jobs:
             source ~/.nvm/nvm.sh
             nvm use
             rm -rf node_modules
-            rm package-lock.json
             npm install
             npm run build
             pm2 restart community-platform

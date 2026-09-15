@@ -102,11 +102,7 @@ export async function publishEvent(event: {
       parentEventDoesNotRequireParticipation ||
       canParticipateDirectly)
   ) {
-    token = generateValidationToken({
-      data: JSON.stringify({ eventId: event.id, now: Date.now() }),
-      secret: process.env.PARTICIPATION_SECRET,
-      salt: process.env.PARTICIPATION_SALT,
-    });
+    token = generateValidationToken();
   }
   transactions.push(
     prismaClient.event.update({
