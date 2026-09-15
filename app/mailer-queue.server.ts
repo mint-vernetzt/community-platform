@@ -111,6 +111,7 @@ async function onTick() {
           ),
         },
         reminderState: "open",
+        activeReminderMails: { has: "oneDayBefore" },
       },
       select,
     });
@@ -142,6 +143,7 @@ async function onTick() {
           { stage: { slug: { in: ["on-site", "hybrid"] } } },
         ],
         reminderState: { in: ["open", "firstScheduled"] },
+        activeReminderMails: { has: "oneHourBefore" },
       },
       select,
     });
@@ -173,6 +175,7 @@ async function onTick() {
           { stage: { slug: { in: ["online", "hybrid"] } } },
         ],
         reminderState: { in: ["open", "firstScheduled", "secondScheduled"] },
+        activeReminderMails: { has: "fifteenMinutesBefore" },
       },
       select,
     });
