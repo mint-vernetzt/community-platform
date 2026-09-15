@@ -293,203 +293,208 @@ export default function Index() {
   return (
     <>
       {/* Header & Login section */}
-      <section className="w-full flex flex-col @md:bg-secondary-50 @md:bg-linear-[358deg] @md:from-neutral-50 @md:from-[12.78%] @md:via-neutral-50/40 @md:via-[74.48%] @md:to-neutral-50/40 @md:to-[98.12%]">
-        <div className="flex flex-col gap-8 px-4 pb-4 pt-16">
-          <h1 className="mb-0 w-full text-center text-primary-600 text-5xl font-black leading-9">
+      <section className="relative isolate w-full flex flex-col xl:justify-between md:flex-row md:items-center md:bg-secondary-50 md:bg-linear-[358deg] md:from-neutral-50 md:from-[12.78%] md:via-neutral-50/40 md:via-[74.48%] md:to-neutral-50/40 md:to-[98.12%]">
+        <div className="flex flex-col gap-8 md:gap-6 pl-4 md:pl-10 xl:pl-16 pr-4 pb-4 md:pb-16 pt-16">
+          <h1 className="mb-0 w-full text-center md:text-start text-primary-600 text-5xl md:text-[60px] font-black leading-9 md:leading-18">
             {locales.content.headline}
           </h1>
-          <p className="w-full text-center text-neutral-800 text-lg font-semibold leading-6">
+          <p className="w-full md:max-w-99.5 text-center md:text-start text-neutral-800 text-lg font-semibold leading-6">
             {locales.content.intro}
           </p>
         </div>
 
-        <div className="flex flex-col gap-4 px-4 pb-12 pt-4">
-          <a
-            id="login-start"
-            href="#login-end"
-            className="absolute focus:relative w-0 h-0 opacity-0 focus:w-fit focus:h-fit focus:opacity-100 focus:px-1"
-          >
-            {locales.login.skip.start}
-          </a>
-          <div className="flex flex-col gap-2 items-center">
-            <Button
-              as="link"
-              size="large"
-              to={`/auth/keycloak${
-                loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-              }`}
-              variant="outline"
-              fullSize
-              name={locales.login.withMintId}
+        <div className="md:pr-10 xl:pr-16 md:pb-16 md:pt-16">
+          <div className="flex flex-col gap-4 px-4 md:px-6 pb-12 md:pb-6 pt-4 md:pt-6 md:bg-white md:rounded-2xl md:shadow-[2px_2px_16px_-8px_rgba(177,111,171,0.79)]">
+            <a
+              id="login-start"
+              href="#login-end"
+              className="absolute focus:relative w-0 h-0 opacity-0 focus:w-fit focus:h-fit focus:opacity-100 focus:px-1"
             >
-              {locales.login.withMintId}
-            </Button>
-            <Link
-              to="https://mint-id.org/faq"
-              target="_blank"
-              rel="noreferrer noopener"
-              className="text-primary font-bold underline text-base leading-5"
-            >
-              {locales.login.moreInformation}
-            </Link>
-          </div>
-          <div>
-            <hr />
-            <span className="block -my-3.5 mx-auto w-fit px-4 text-primary bg-white @sm:bg-neutral-50 font-bold">
-              {locales.login.or}
-            </span>
-          </div>
-          {loaderData.isBot === false && (
-            <Form
-              {...getFormProps(loginForm)}
-              method="post"
-              autoComplete="off"
-              className="flex flex-col gap-8"
-            >
-              <HoneypotInputs className={HONEYPOT_CLASSNAME} />
-              {typeof loginForm.errors !== "undefined" &&
-              loginForm.errors.length > 0
-                ? loginForm.errors.map((error, index) => {
-                    return (
-                      <div key={index}>
-                        <RichText id={loginForm.errorId} html={error} />
-                      </div>
-                    );
-                  })
-                : null}
-
-              <div className="flex flex-col gap-4">
-                <Input
-                  {...getInputProps(loginFields.email, {
-                    type: "text",
-                  })}
-                  key="email"
-                >
-                  <Input.Label htmlFor={loginFields.email.id}>
-                    {locales.form.label.email}
-                  </Input.Label>
-                  {typeof loginFields.email.errors !== "undefined" &&
-                  loginFields.email.errors.length > 0
-                    ? loginFields.email.errors.map((error) => (
-                        <Input.Error id={loginFields.email.errorId} key={error}>
-                          {error}
-                        </Input.Error>
-                      ))
-                    : null}
-                </Input>
-                <Input
-                  {...getInputProps(loginFields.password, {
-                    type: showPassword ? "text" : "password",
-                  })}
-                  key="password"
-                >
-                  <Input.Label htmlFor={loginFields.password.id}>
-                    {locales.form.label.password}
-                  </Input.Label>
-                  {typeof loginFields.password.errors !== "undefined" &&
-                  loginFields.password.errors.length > 0
-                    ? loginFields.password.errors.map((error) => (
-                        <Input.Error
-                          id={loginFields.password.errorId}
-                          key={error}
-                        >
-                          {error}
-                        </Input.Error>
-                      ))
-                    : null}
-                  {isHydrated ? (
-                    <Input.Controls>
-                      <div className="h-10 w-10">
-                        <ShowPasswordButton
-                          onClick={() => {
-                            setShowPassword(!showPassword);
-                          }}
-                          aria-label={
-                            showPassword
-                              ? locales.form.label.hidePassword
-                              : locales.form.label.showPassword
-                          }
-                        >
-                          {showPassword ? (
-                            <PublicVisibility aria-hidden="true" />
-                          ) : (
-                            <PrivateVisibility aria-hidden="true" />
-                          )}
-                        </ShowPasswordButton>
-                      </div>
-                    </Input.Controls>
-                  ) : null}
-                </Input>
-              </div>
-
-              <input
-                {...getInputProps(loginFields.loginRedirect, {
-                  type: "hidden",
-                })}
-                key="loginRedirect"
-              />
-              <div className="flex flex-col gap-2 items-center">
-                <Button
-                  type="submit"
-                  fullSize
-                  // Don't disable button when js is disabled
-                  disabled={
-                    isHydrated
-                      ? loginForm.dirty === false ||
-                        loginForm.valid === false ||
-                        isSubmitting
-                      : false
-                  }
-                >
-                  {locales.form.label.submit}
-                </Button>
-                <Link
-                  to={`/reset${
-                    loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-                  }`}
-                  prefetch="intent"
-                  className="text-primary font-bold underline text-base leading-5"
-                >
-                  {locales.login.passwordForgotten}
-                </Link>
-              </div>
-            </Form>
-          )}
-
-          <div className="flex flex-col gap-2 items-center">
-            <p className="text-neutral-800 text-base leading-5 font-normal leading-5">
-              {locales.login.noMember}
-            </p>
-            <div className="flex gap-6">
-              <Link
-                to={`/register${
-                  loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-                }`}
-                prefetch="intent"
-                className="text-primary font-bold underline text-base leading-5"
-              >
-                {locales.login.registerByEmail}
-              </Link>
-              <Link
+              {locales.login.skip.start}
+            </a>
+            <div className="flex flex-col gap-2 items-center">
+              <Button
+                as="link"
+                size="large"
                 to={`/auth/keycloak${
                   loginRedirect ? `?login_redirect=${loginRedirect}` : ""
                 }`}
+                variant="outline"
+                fullSize
+                name={locales.login.withMintId}
+              >
+                {locales.login.withMintId}
+              </Button>
+              <Link
+                to="https://mint-id.org/faq"
+                target="_blank"
+                rel="noreferrer noopener"
                 className="text-primary font-bold underline text-base leading-5"
               >
-                {locales.login.createMintId}
+                {locales.login.moreInformation}
               </Link>
             </div>
+            <div>
+              <hr />
+              <span className="block -my-3.5 mx-auto w-fit px-4 text-primary bg-white @sm:bg-neutral-50 font-bold">
+                {locales.login.or}
+              </span>
+            </div>
+            {loaderData.isBot === false && (
+              <Form
+                {...getFormProps(loginForm)}
+                method="post"
+                autoComplete="off"
+                className="flex flex-col gap-8 md:gap-4"
+              >
+                <HoneypotInputs className={HONEYPOT_CLASSNAME} />
+                {typeof loginForm.errors !== "undefined" &&
+                loginForm.errors.length > 0
+                  ? loginForm.errors.map((error, index) => {
+                      return (
+                        <div key={index}>
+                          <RichText id={loginForm.errorId} html={error} />
+                        </div>
+                      );
+                    })
+                  : null}
+
+                <div className="flex flex-col gap-4">
+                  <Input
+                    {...getInputProps(loginFields.email, {
+                      type: "text",
+                    })}
+                    key="email"
+                  >
+                    <Input.Label htmlFor={loginFields.email.id}>
+                      {locales.form.label.email}
+                    </Input.Label>
+                    {typeof loginFields.email.errors !== "undefined" &&
+                    loginFields.email.errors.length > 0
+                      ? loginFields.email.errors.map((error) => (
+                          <Input.Error
+                            id={loginFields.email.errorId}
+                            key={error}
+                          >
+                            {error}
+                          </Input.Error>
+                        ))
+                      : null}
+                  </Input>
+                  <Input
+                    {...getInputProps(loginFields.password, {
+                      type: showPassword ? "text" : "password",
+                    })}
+                    key="password"
+                  >
+                    <Input.Label htmlFor={loginFields.password.id}>
+                      {locales.form.label.password}
+                    </Input.Label>
+                    {typeof loginFields.password.errors !== "undefined" &&
+                    loginFields.password.errors.length > 0
+                      ? loginFields.password.errors.map((error) => (
+                          <Input.Error
+                            id={loginFields.password.errorId}
+                            key={error}
+                          >
+                            {error}
+                          </Input.Error>
+                        ))
+                      : null}
+                    {isHydrated ? (
+                      <Input.Controls>
+                        <div className="h-10 w-10">
+                          <ShowPasswordButton
+                            onClick={() => {
+                              setShowPassword(!showPassword);
+                            }}
+                            aria-label={
+                              showPassword
+                                ? locales.form.label.hidePassword
+                                : locales.form.label.showPassword
+                            }
+                          >
+                            {showPassword ? (
+                              <PublicVisibility aria-hidden="true" />
+                            ) : (
+                              <PrivateVisibility aria-hidden="true" />
+                            )}
+                          </ShowPasswordButton>
+                        </div>
+                      </Input.Controls>
+                    ) : null}
+                  </Input>
+                </div>
+
+                <input
+                  {...getInputProps(loginFields.loginRedirect, {
+                    type: "hidden",
+                  })}
+                  key="loginRedirect"
+                />
+                <div className="flex flex-col gap-2 items-center">
+                  <Button
+                    type="submit"
+                    fullSize
+                    // Don't disable button when js is disabled
+                    disabled={
+                      isHydrated
+                        ? loginForm.dirty === false ||
+                          loginForm.valid === false ||
+                          isSubmitting
+                        : false
+                    }
+                  >
+                    {locales.form.label.submit}
+                  </Button>
+                  <Link
+                    to={`/reset${
+                      loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                    }`}
+                    prefetch="intent"
+                    className="text-primary font-bold underline text-base leading-5"
+                  >
+                    {locales.login.passwordForgotten}
+                  </Link>
+                </div>
+              </Form>
+            )}
+
+            <div className="flex flex-col gap-2 items-center">
+              <p className="text-neutral-800 text-base leading-5 font-normal">
+                {locales.login.noMember}
+              </p>
+              <div className="flex gap-6">
+                <Link
+                  to={`/register${
+                    loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                  }`}
+                  prefetch="intent"
+                  className="text-primary font-bold underline text-base leading-5 text-nowrap"
+                >
+                  {locales.login.registerByEmail}
+                </Link>
+                <Link
+                  to={`/auth/keycloak${
+                    loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                  }`}
+                  className="text-primary font-bold underline text-base leading-5 text-nowrap"
+                >
+                  {locales.login.createMintId}
+                </Link>
+              </div>
+            </div>
+            <a
+              id="login-end"
+              href="#login-start"
+              className="absolute focus:relative w-0 h-0 opacity-0 focus:w-fit focus:h-fit focus:opacity-100 focus:px-1"
+            >
+              {locales.login.skip.end}
+            </a>
           </div>
-          <a
-            id="login-end"
-            href="#login-start"
-            className="absolute focus:relative w-0 h-0 opacity-0 focus:w-fit focus:h-fit focus:opacity-100 focus:px-1"
-          >
-            {locales.login.skip.end}
-          </a>
         </div>
 
-        <div className="hidden @md:block absolute top-0 right-0">
+        <div className="hidden md:block absolute -top-19 right-0 -z-10">
           <svg
             width="305"
             height="487"
@@ -500,6 +505,21 @@ export default function Index() {
           >
             <path
               d="M507.84 485.26C418.258 494.723 327.564 418.044 311.983 408.908C296.402 399.772 131.861 290.242 48.2913 202.611C-56.1703 93.0727 19.6559 -26.6487 172.251 -287.906C324.847 -549.164 429.765 -491.186 752.776 -260.065C1091.74 -17.5282 752.64 266.727 725.437 302.51C698.234 338.293 597.422 475.797 507.84 485.26Z"
+              fill="#FFCF53"
+            />
+          </svg>
+        </div>
+        <div className="hidden xl:block absolute -top-20 -right-1 -z-10">
+          <svg
+            width="422"
+            height="559"
+            viewBox="0 0 422 559"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M507.84 557.26C418.258 566.723 327.564 490.044 311.983 480.908C296.402 471.772 131.861 362.242 48.2914 274.611C-56.1703 165.073 19.656 45.3513 172.251 -215.906C324.847 -477.164 429.765 -419.186 752.776 -188.065C1091.74 54.4718 752.641 338.727 725.437 374.51C698.234 410.293 597.422 547.797 507.84 557.26Z"
               fill="#FFCF53"
             />
           </svg>
