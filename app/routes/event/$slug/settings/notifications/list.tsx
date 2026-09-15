@@ -6,7 +6,7 @@ import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
-import { getEventStage } from "./list.server";
+import { getEvent } from "./list.server";
 import { Toggle } from "~/components-next/icons/Toggle";
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -34,16 +34,15 @@ export async function loader(args: LoaderFunctionArgs) {
   const locales =
     languageModuleMap[language]["event/$slug/settings/notifications/list"];
 
-  const stage = await getEventStage(slug);
+  const event = await getEvent(slug);
+  invariantResponse(event !== null, "Event not found", { status: 404 });
 
-  return { locales, stage };
+  return { locales, event };
 }
 
 function NotificationsList() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, stage } = loaderData;
-
-  const active = false;
+  const { locales, event } = loaderData;
 
   return (
     <div className="flex flex-col gap-8 pt-4">
@@ -86,16 +85,18 @@ function NotificationsList() {
               <button
                 className="w-8 h-8"
                 aria-label={
-                  active
+                  event.activeReminderMails.includes("oneDayBefore")
                     ? locales.route.system.list.oneDayBefore.toggle.active
                     : locales.route.system.list.oneDayBefore.toggle.inactive
                 }
               >
-                <Toggle active={active} />
+                <Toggle
+                  active={event.activeReminderMails.includes("oneDayBefore")}
+                />
               </button>
             </div>
           </li>
-          {(stage === null || stage.slug !== "online") && (
+          {(event.stage === null || event.stage.slug !== "online") && (
             <li className="flex justify-between items-center gap-4 p-4">
               <div className="flex flex-col gap-0.5">
                 <p className="font-semibold">
@@ -107,17 +108,19 @@ function NotificationsList() {
                 <button
                   className="w-8 h-8"
                   aria-label={
-                    active
+                    event.activeReminderMails.includes("oneHourBefore")
                       ? locales.route.system.list.oneHourBefore.toggle.active
                       : locales.route.system.list.oneHourBefore.toggle.inactive
                   }
                 >
-                  <Toggle active={active} />
+                  <Toggle
+                    active={event.activeReminderMails.includes("oneHourBefore")}
+                  />
                 </button>
               </div>
             </li>
           )}
-          {(stage === null || stage.slug !== "on-site") && (
+          {(event.stage === null || event.stage.slug !== "on-site") && (
             <li className="flex justify-between items-center gap-4 p-4">
               <div className="flex flex-col gap-0.5">
                 <p className="font-semibold">
@@ -131,14 +134,18 @@ function NotificationsList() {
                 <button
                   className="w-8 h-8"
                   aria-label={
-                    active
+                    event.activeReminderMails.includes("fifteenMinutesBefore")
                       ? locales.route.system.list.fifteenMinutesBefore.toggle
                           .active
                       : locales.route.system.list.fifteenMinutesBefore.toggle
                           .inactive
                   }
                 >
-                  <Toggle active={active} />
+                  <Toggle
+                    active={event.activeReminderMails.includes(
+                      "fifteenMinutesBefore"
+                    )}
+                  />
                 </button>
               </div>
             </li>

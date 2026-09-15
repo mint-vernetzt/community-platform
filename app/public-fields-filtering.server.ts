@@ -315,6 +315,9 @@ type EventWithRelations = Event & {
   filterVector: any;
   sentParentEventJoinRequests: any;
   receivedParentEventJoinRequests: any;
+  eventTransactions: any;
+  reminderState: any;
+  activeReminderMails: any;
   _count: any;
 };
 
@@ -352,6 +355,9 @@ export function filterEventByVisibility<
         key === "profileJoinInvites" ||
         key === "abuseReports" ||
         key === "sentParentEventJoinRequests" ||
+        key === "receivedParentEventJoinRequests" ||
+        key === "eventTransactions" ||
+        key === "activeReminderMails" ||
         key === "receivedParentEventJoinRequests"
       ) {
         filteredFields[key] = event.eventVisibility[key] ? event[key] : [];
@@ -369,7 +375,7 @@ export function filterEventByVisibility<
           ? event[key]
           : new Date("1970-01-01T00:00:00.000Z");
       }
-      // Fields in Profile with type Boolean
+      // Fields in Event with type Boolean
       else if (
         key === "published" ||
         key === "canceled" ||
@@ -378,6 +384,10 @@ export function filterEventByVisibility<
         key === "moveUpToParticipants"
       ) {
         filteredFields[key] = event.eventVisibility[key] ? event[key] : true;
+      }
+      // Fields in Event with type String or Enum
+      else if (key === "reminderState") {
+        filteredFields[key] = event.eventVisibility[key] ? event[key] : "";
       }
       // All other fields in Event that are optional (String?, Int?, Relation?, etc...)
       else if (
@@ -406,10 +416,11 @@ export function filterEventByVisibility<
         key === "stageId" ||
         key === "subline" ||
         key === "externalRegistrationUrl" ||
+        key === "parentParticipationRequired" ||
+        key === "participationToken" ||
         key === "experienceLevel" ||
         key === "parentEvent" ||
         key === "stage" ||
-        key === "parentParticipationRequired" ||
         key === "eventVisibility" ||
         key === "filterVector"
       ) {
