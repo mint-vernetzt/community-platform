@@ -306,7 +306,17 @@ async function onTick() {
           subject: `${subject.de} | ${subject.en}`,
           plainText: text,
           html,
-          scheduledFor: now, // send immediately
+          scheduledFor:
+            event.starts === "tomorrow"
+              ? new Date(
+                  now.getFullYear(),
+                  now.getMonth(),
+                  now.getDate(),
+                  event.startTime.getHours(),
+                  event.startTime.getMinutes(),
+                  event.startTime.getSeconds()
+                )
+              : now, // send immediately
         });
       }
 
