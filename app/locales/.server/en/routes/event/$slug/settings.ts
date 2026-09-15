@@ -45,15 +45,17 @@ export const locale = {
         description:
           "Your event can be published, but we recommend adding the following information in the settings beforehand:",
         submit: "Publish anyway",
+        view: "View event",
         cancel: "Back to settings",
       },
       noIssues: {
         headline: "Publish event",
         description: "Great! Your event is complete and ready to be published.",
         submit: "Publish now",
+        view: "View event",
         cancel: "Cancel",
       },
-      hint: "<0>Note</0>: After publishing, your event will be visible to users and cannot be set back to draft. If necessary, you can still cancel and delete the event later.",
+      hint: "<0>Note</0>: After publishing, your event will be visible to users and cannot be set back to draft. If necessary, you can still cancel and delete the event later. After publishing, you can still edit the event. (Except for the type of registration.)",
     },
   },
   issues: {
