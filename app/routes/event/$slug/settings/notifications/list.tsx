@@ -56,6 +56,18 @@ function NotificationsList() {
         <ul className="flex flex-col border border-neutral-200 rounded-xl *:border-b *:border-neutral-200 *:last:border-b-0 text-neutral-700 text-sm">
           <li className="flex flex-col gap-0.5 p-4">
             <p className="font-semibold">
+              {locales.route.system.list.confirmation.title}
+            </p>
+            <p>{locales.route.system.list.confirmation.description}</p>
+          </li>
+          <li className="flex flex-col gap-0.5 p-4">
+            <p className="font-semibold">
+              {locales.route.system.list.moveUpToParticipants.title}
+            </p>
+            <p>{locales.route.system.list.moveUpToParticipants.description}</p>
+          </li>
+          <li className="flex flex-col gap-0.5 p-4">
+            <p className="font-semibold">
               {locales.route.system.list.oneDayBefore.title}
             </p>
             <p>{locales.route.system.list.oneDayBefore.description}</p>
@@ -78,6 +90,12 @@ function NotificationsList() {
               </p>
             </li>
           )}
+          <li className="flex flex-col gap-0.5 p-4">
+            <p className="font-semibold">
+              {locales.route.system.list.cancellation.title}
+            </p>
+            <p>{locales.route.system.list.cancellation.description}</p>
+          </li>
         </ul>
       </div>
     </div>
