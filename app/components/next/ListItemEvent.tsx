@@ -183,10 +183,21 @@ function ListItemInfo(props: {
   openForRegistration: boolean;
   external: boolean;
   language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
+  shownInfos?: {
+    stage: boolean;
+    date: boolean;
+    seats: boolean;
+  };
 }) {
-  const { startTime, endTime, openForRegistration, external } = props;
+  const {
+    startTime,
+    endTime,
+    openForRegistration,
+    external,
+    shownInfos = { stage: true, date: true, seats: true },
+  } = props;
   const strings: string[] = [];
-  if (props.stage !== null) {
+  if (props.stage !== null && shownInfos.stage) {
     if (typeof props.locales.stages[props.stage.slug] === "undefined") {
       strings.push(props.stage.slug);
     } else {
@@ -194,20 +205,24 @@ function ListItemInfo(props: {
     }
   }
 
-  const isSameDay =
-    startTime.getFullYear() === endTime.getFullYear() &&
-    startTime.getMonth() === endTime.getMonth() &&
-    startTime.getDate() === endTime.getDate();
+  if (shownInfos.date) {
+    const isSameDay =
+      startTime.getFullYear() === endTime.getFullYear() &&
+      startTime.getMonth() === endTime.getMonth() &&
+      startTime.getDate() === endTime.getDate();
 
-  const zonedStartTime = utcToZonedTime(startTime, "Europe/Berlin");
-  const zonedEndTime = utcToZonedTime(endTime, "Europe/Berlin");
+    const zonedStartTime = utcToZonedTime(startTime, "Europe/Berlin");
+    const zonedEndTime = utcToZonedTime(endTime, "Europe/Berlin");
 
-  strings.push(getDateDuration(zonedStartTime, zonedEndTime, props.language));
-  if (isSameDay) {
-    strings.push(getTimeDuration(zonedStartTime, zonedEndTime, props.language));
+    strings.push(getDateDuration(zonedStartTime, zonedEndTime, props.language));
+    if (isSameDay) {
+      strings.push(
+        getTimeDuration(zonedStartTime, zonedEndTime, props.language)
+      );
+    }
   }
 
-  if (external === false && openForRegistration) {
+  if (external === false && openForRegistration && shownInfos.seats) {
     if (props.participantLimit !== null) {
       if (props.participantCount >= props.participantLimit) {
         strings.push(props.locales.waitinglist);

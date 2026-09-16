@@ -864,7 +864,10 @@ const de = {
   // landing route
   index: { route: deLanding, faq: deHelp.faq, roadmap: deRoadmap },
   // next landing routes
-  "next/index": deNextLanding,
+  "next/index": {
+    route: deNextLanding,
+    stages: deStages,
+  },
   "next/get-involved": deNextGetInvolved,
   // map route
   map: {
@@ -1363,7 +1366,10 @@ const en = {
   // landing route
   index: { route: enLanding, faq: enHelp.faq, roadmap: enRoadmap },
   // next landing routes
-  "next/index": enNextLanding,
+  "next/index": {
+    route: enNextLanding,
+    stages: enStages,
+  },
   "next/get-involved": enNextGetInvolved,
   // map route
   map: {

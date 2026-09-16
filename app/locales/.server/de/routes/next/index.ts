@@ -111,12 +111,15 @@ export const locale = {
     allEvents: "Alle Events ansehen",
     image: {
       alt: "Zwei Personen auf einer Bühne bei einem MINT-Event",
-      credits: "© Anti Wieland",
+      credits: "© Andi Weiland",
     },
     upcomingEvents: {
       headline: "Bevorstehende Events",
       empty: "Zurzeit sind keine bevorstehenden Events geplant.",
     },
+    waitinglist: "Wartelistenplätze",
+    seatsFree: "Plätzen frei",
+    unlimitedSeats: "Unbegrenzte Plätze",
   },
   testimonials: {
     headline: "Stimmen aus der Community",

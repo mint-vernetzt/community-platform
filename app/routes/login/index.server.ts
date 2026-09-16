@@ -19,7 +19,19 @@ export async function login(options: {
   formData: FormData;
   request: Request;
   authClient: SupabaseClient;
-  locales: LoginLocales | LandingPageLocales["route"] | NextLandingPageLocales;
+  locales: {
+    error: {
+      invalidCredentials: string;
+      notConfirmed: string;
+    };
+    validation: {
+      email: string;
+      password: {
+        required: string;
+        min: string;
+      };
+    };
+  };
 }) {
   const { formData, locales, request, authClient } = options;
   const submission = await parseWithZod(formData, {

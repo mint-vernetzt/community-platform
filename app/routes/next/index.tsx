@@ -1,10 +1,12 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Image } from "@mint-vernetzt/components/src/molecules/Image";
+import {
+  getImageLabelClassName,
+  Image,
+} from "@mint-vernetzt/components/src/molecules/Image";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { utcToZonedTime } from "date-fns-tz";
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Form,
   Link,
@@ -18,22 +20,30 @@ import {
 } from "react-router";
 import { HoneypotInputs } from "remix-utils/honeypot/react";
 import { useHydrated } from "remix-utils/use-hydrated";
+import eventSectionBlurredImage from "~/assets/landing-page/MINTvernetzt_Tag_01_Foto_Andi_Weiland-125-blurred.webp";
+import eventSectionImage from "~/assets/landing-page/MINTvernetzt_Tag_01_Foto_Andi_Weiland-125.jpg";
+import mvLogoBlurred from "~/assets/landing-page/mv-logo-blurred.webp";
+import mvLogo from "~/assets/landing-page/mv-logo.png";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { Accordion } from "~/components-next/Accordion";
 import BetaTag from "~/components-next/BetaTag";
+import { ShowPasswordButton } from "~/components-next/ShowPasswordButton";
 import { External } from "~/components-next/icons/External";
 import { Icon } from "~/components-next/icons/Icon";
-import { Accordion } from "~/components-next/Accordion";
+import { PrivateVisibility } from "~/components-next/icons/PrivateVisibility";
+import { PublicVisibility } from "~/components-next/icons/PublicVisibility";
 import { RichText } from "~/components/legacy/Richtext/RichText";
+import ListItemEvent from "~/components/next/ListItemEvent";
 import { checkHoneypot } from "~/honeypot.server";
 import { HONEYPOT_CLASSNAME } from "~/honeypot.shared";
 import { detectLanguage } from "~/i18n.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import { getDateDuration } from "~/lib/utils/time";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { isBotRequest } from "~/utils.server";
+import { hasContent } from "~/utils.shared";
 import { login } from "../login/index.server";
 import { createLoginSchema } from "../login/index.shared";
 import { getDataForToolsSection } from "../resources.server";
@@ -44,14 +54,10 @@ import {
   getProjectCount,
 } from "../utils.server";
 import {
-  getEventTeaserOrganizationSlug,
   getProjectTeaserOrganizationSlug,
   getTestimonials,
   getUpcomingEvents,
 } from "./index.server";
-import { ShowPasswordButton } from "~/components-next/ShowPasswordButton";
-import { PublicVisibility } from "~/components-next/icons/PublicVisibility";
-import { PrivateVisibility } from "~/components-next/icons/PrivateVisibility";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -81,7 +87,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const projectTeaserOrganizationSlug =
     await getProjectTeaserOrganizationSlug();
   const upcomingEvents = await getUpcomingEvents();
-  const eventTeaserOrganizationSlug = await getEventTeaserOrganizationSlug();
   const testimonials = await getTestimonials();
 
   const toolsSectionData = getDataForToolsSection();
@@ -139,7 +144,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     eventCount,
     projectTeaserOrganizationSlug,
     upcomingEvents,
-    eventTeaserOrganizationSlug,
     testimonials,
     toolsSectionData,
     communityImages,
@@ -170,7 +174,7 @@ export const action = async (args: ActionFunctionArgs) => {
     formData,
     request,
     authClient,
-    locales,
+    locales: locales.route,
   });
 
   if (submission.status !== "success") {
@@ -244,7 +248,7 @@ export default function Index() {
   const [showPassword, setShowPassword] = useState(false);
   const [loginForm, loginFields] = useForm({
     id: "login-form",
-    constraint: getZodConstraint(createLoginSchema(locales)),
+    constraint: getZodConstraint(createLoginSchema(locales.route)),
     defaultValue: {
       email:
         typeof actionData?.initialValue?.email === "string"
@@ -258,7 +262,7 @@ export default function Index() {
     lastResult: navigation.state === "idle" ? actionData : null,
     onValidate({ formData }) {
       const submission = parseWithZod(formData, {
-        schema: createLoginSchema(locales),
+        schema: createLoginSchema(locales.route),
       });
       return submission;
     },
@@ -296,10 +300,10 @@ export default function Index() {
       <section className="relative isolate w-full flex flex-col xl:justify-between md:flex-row md:items-center md:bg-secondary-50 md:bg-linear-[358deg] md:from-neutral-50 md:from-[12.78%] md:via-neutral-50/40 md:via-[74.48%] md:to-neutral-50/40 md:to-[98.12%]">
         <div className="flex flex-col gap-8 md:gap-6 pl-4 md:pl-10 xl:pl-16 pr-4 pb-4 md:pb-16 pt-16">
           <h1 className="mb-0 w-full text-center md:text-start text-primary-600 text-5xl md:text-[60px] font-black leading-9 md:leading-18">
-            {locales.content.headline}
+            {locales.route.content.headline}
           </h1>
           <p className="w-full md:max-w-99.5 text-center md:text-start text-neutral-800 text-lg font-semibold leading-6">
-            {locales.content.intro}
+            {locales.route.content.intro}
           </p>
         </div>
 
@@ -310,7 +314,7 @@ export default function Index() {
               href="#login-end"
               className="absolute focus:relative w-0 h-0 opacity-0 focus:w-fit focus:h-fit focus:opacity-100 focus:px-1"
             >
-              {locales.login.skip.start}
+              {locales.route.login.skip.start}
             </a>
             <div className="flex flex-col gap-2 items-center">
               <Button
@@ -321,9 +325,9 @@ export default function Index() {
                 }`}
                 variant="outline"
                 fullSize
-                name={locales.login.withMintId}
+                name={locales.route.login.withMintId}
               >
-                {locales.login.withMintId}
+                {locales.route.login.withMintId}
               </Button>
               <Link
                 to="https://mint-id.org/faq"
@@ -331,13 +335,13 @@ export default function Index() {
                 rel="noreferrer noopener"
                 className="text-primary font-bold underline text-base leading-5"
               >
-                {locales.login.moreInformation}
+                {locales.route.login.moreInformation}
               </Link>
             </div>
             <div>
               <hr />
               <span className="block -my-3.5 mx-auto w-fit px-4 text-primary bg-white @sm:bg-neutral-50 font-bold">
-                {locales.login.or}
+                {locales.route.login.or}
               </span>
             </div>
             {loaderData.isBot === false && (
@@ -367,7 +371,7 @@ export default function Index() {
                     key="email"
                   >
                     <Input.Label htmlFor={loginFields.email.id}>
-                      {locales.form.label.email}
+                      {locales.route.form.label.email}
                     </Input.Label>
                     {typeof loginFields.email.errors !== "undefined" &&
                     loginFields.email.errors.length > 0
@@ -388,7 +392,7 @@ export default function Index() {
                     key="password"
                   >
                     <Input.Label htmlFor={loginFields.password.id}>
-                      {locales.form.label.password}
+                      {locales.route.form.label.password}
                     </Input.Label>
                     {typeof loginFields.password.errors !== "undefined" &&
                     loginFields.password.errors.length > 0
@@ -410,8 +414,8 @@ export default function Index() {
                             }}
                             aria-label={
                               showPassword
-                                ? locales.form.label.hidePassword
-                                : locales.form.label.showPassword
+                                ? locales.route.form.label.hidePassword
+                                : locales.route.form.label.showPassword
                             }
                           >
                             {showPassword ? (
@@ -445,7 +449,7 @@ export default function Index() {
                         : false
                     }
                   >
-                    {locales.form.label.submit}
+                    {locales.route.form.label.submit}
                   </Button>
                   <Link
                     to={`/reset${
@@ -454,7 +458,7 @@ export default function Index() {
                     prefetch="intent"
                     className="text-primary font-bold underline text-base leading-5"
                   >
-                    {locales.login.passwordForgotten}
+                    {locales.route.login.passwordForgotten}
                   </Link>
                 </div>
               </Form>
@@ -462,7 +466,7 @@ export default function Index() {
 
             <div className="flex flex-col gap-2 items-center">
               <p className="text-neutral-800 text-base leading-5 font-normal">
-                {locales.login.noMember}
+                {locales.route.login.noMember}
               </p>
               <div className="flex gap-6">
                 <Link
@@ -472,7 +476,7 @@ export default function Index() {
                   prefetch="intent"
                   className="text-primary font-bold underline text-base leading-5 text-nowrap"
                 >
-                  {locales.login.registerByEmail}
+                  {locales.route.login.registerByEmail}
                 </Link>
                 <Link
                   to={`/auth/keycloak${
@@ -480,7 +484,7 @@ export default function Index() {
                   }`}
                   className="text-primary font-bold underline text-base leading-5 text-nowrap"
                 >
-                  {locales.login.createMintId}
+                  {locales.route.login.createMintId}
                 </Link>
               </div>
             </div>
@@ -489,7 +493,7 @@ export default function Index() {
               href="#login-start"
               className="absolute focus:relative w-0 h-0 opacity-0 focus:w-fit focus:h-fit focus:opacity-100 focus:px-1"
             >
-              {locales.login.skip.end}
+              {locales.route.login.skip.end}
             </a>
           </div>
         </div>
@@ -535,7 +539,7 @@ export default function Index() {
                 {loaderData.profileCount}
               </p>
               <p className="text-primary text-lg font-semibold leading-5.5">
-                {locales.counter.profiles}
+                {locales.route.counter.profiles}
               </p>
             </div>
             <div className="flex flex-col gap-2 p-4 items-center">
@@ -543,7 +547,7 @@ export default function Index() {
                 {loaderData.organizationCount}
               </p>
               <p className="text-primary text-lg font-semibold leading-5.5">
-                {locales.counter.organizations}
+                {locales.route.counter.organizations}
               </p>
             </div>
           </div>
@@ -553,7 +557,7 @@ export default function Index() {
                 {loaderData.eventCount}
               </p>
               <p className="text-primary text-lg font-semibold leading-5.5">
-                {locales.counter.events}
+                {locales.route.counter.events}
               </p>
             </div>
             <div className="flex flex-col gap-2 p-4 items-center">
@@ -561,7 +565,7 @@ export default function Index() {
                 {loaderData.projectCount}
               </p>
               <p className="text-primary text-lg font-semibold leading-5.5">
-                {locales.counter.projects}
+                {locales.route.counter.projects}
               </p>
             </div>
           </div>
@@ -570,12 +574,37 @@ export default function Index() {
 
       {/* Event teaser section */}
       <section>
-        <h2>{locales.eventTeaser.headline}</h2>
+        <Image
+          src={eventSectionImage}
+          blurredSrc={eventSectionBlurredImage}
+          alt={locales.route.eventTeaser.image.alt}
+        >
+          <Image.Label withoutClassName>
+            <Link
+              to={`/organization/mintvernetzt/detail/about`}
+              prefetch="intent"
+              className={`${getImageLabelClassName()}`}
+            >
+              <div className="w-6 h-6 rounded-full overflow-hidden">
+                <Image
+                  src={mvLogo}
+                  blurredSrc={mvLogoBlurred}
+                  alt="MINTvernetzt"
+                />
+              </div>
+              <span className="text-white text-xs font-semibold leading-normal">
+                MINTvernetzt
+              </span>
+            </Link>
+          </Image.Label>
+          <Image.Credits credits={locales.route.eventTeaser.image.credits} />
+        </Image>
+        <h2>{locales.route.eventTeaser.headline}</h2>
         <ul>
           {[
-            locales.eventTeaser.benefits.formats,
-            locales.eventTeaser.benefits.knowledge,
-            locales.eventTeaser.benefits.ownEvents,
+            locales.route.eventTeaser.benefits.formats,
+            locales.route.eventTeaser.benefits.knowledge,
+            locales.route.eventTeaser.benefits.ownEvents,
           ].map((benefit) => {
             return (
               <li key={benefit}>
@@ -601,77 +630,70 @@ export default function Index() {
             );
           })}
         </ul>
-        <Button
-          as="link"
-          to="/explore/events"
-          variant="outline"
-          prefetch="intent"
-        >
-          {locales.eventTeaser.allEvents}
-        </Button>
 
-        <Image
-          src="/images/MINTvernetzt_tag.jpg"
-          alt={locales.eventTeaser.image.alt}
-        >
-          <Image.Credits credits={locales.eventTeaser.image.credits} />
-        </Image>
-        {loaderData.eventTeaserOrganizationSlug !== null ? (
-          <Link
-            to={`/organization/${loaderData.eventTeaserOrganizationSlug}/detail/about`}
-            prefetch="intent"
-          >
-            <img src="/images/mint-vernetzt_shortlogo.png" alt="" />
-            <span>MINTvernetzt</span>
-          </Link>
-        ) : (
-          <div>
-            <img src="/images/mint-vernetzt_shortlogo.png" alt="" />
-            <span>MINTvernetzt</span>
-          </div>
-        )}
-
-        <h3>{locales.eventTeaser.upcomingEvents.headline}</h3>
+        <h3>{locales.route.eventTeaser.upcomingEvents.headline}</h3>
         {loaderData.upcomingEvents.length === 0 ? (
-          <p>{locales.eventTeaser.upcomingEvents.empty}</p>
+          <p>{locales.route.eventTeaser.upcomingEvents.empty}</p>
         ) : (
           <ul>
-            {loaderData.upcomingEvents.map((event) => {
-              const startTime = utcToZonedTime(
-                event.startTime,
-                "Europe/Berlin"
-              );
-              const endTime = utcToZonedTime(event.endTime, "Europe/Berlin");
+            {loaderData.upcomingEvents.map((event, index) => {
               return (
-                <li key={event.slug}>
-                  <Link
-                    to={`/event/${event.slug}/detail/about`}
-                    prefetch="intent"
-                  >
-                    <p>
-                      {getDateDuration(startTime, endTime, loaderData.language)}
-                    </p>
-                    <p>{event.name}</p>
-                  </Link>
-                </li>
+                <ListItemEvent
+                  key={event.id}
+                  index={index}
+                  to={`/event/${event.slug}/detail/about`}
+                >
+                  <ListItemEvent.Info
+                    {...event}
+                    stage={event.stage}
+                    participantCount={
+                      event._count.participants + event._count.guests
+                    }
+                    locales={{
+                      stages: loaderData.locales.stages,
+                      ...loaderData.locales.route.eventTeaser,
+                    }}
+                    language={loaderData.language}
+                    shownInfos={{ stage: false, date: true, seats: false }}
+                  ></ListItemEvent.Info>
+                  <ListItemEvent.Headline>{event.name}</ListItemEvent.Headline>
+                  {hasContent(event.subline) ||
+                  hasContent(event.description) ? (
+                    <ListItemEvent.Subline>
+                      {hasContent(event.subline) ? (
+                        event.subline
+                      ) : hasContent(event.description) ? (
+                        <RichText html={event.description} />
+                      ) : null}
+                    </ListItemEvent.Subline>
+                  ) : null}
+                </ListItemEvent>
               );
             })}
           </ul>
         )}
+        <Button
+          as="link"
+          variant="outline"
+          to="/explore/events"
+          prefetch="intent"
+        >
+          {locales.route.eventTeaser.allEvents}
+        </Button>
       </section>
 
       {/* Funding section */}
       <section>
         <img src="/images/bubble-grafik-blau.svg" alt="" />
 
-        <h2>{locales.funding.headline}</h2>
-        <p>{locales.funding.info}</p>
+        <h2>{locales.route.funding.headline}</h2>
+        <p>{locales.route.funding.info}</p>
         <Link
           to="/explore/fundings"
 
           prefetch="intent"
         >
-          {locales.funding.cta}
+          {locales.route.funding.cta}
         </Link>
       </section>
 
@@ -679,9 +701,9 @@ export default function Index() {
       <section>
         <Image
           src="/images/jasminmertikat.jpg"
-          alt={locales.projectTeaser.image.alt}
+          alt={locales.route.projectTeaser.image.alt}
         >
-          <Image.Credits credits={locales.projectTeaser.image.credits} />
+          <Image.Credits credits={locales.route.projectTeaser.image.credits} />
         </Image>
         {loaderData.projectTeaserOrganizationSlug !== null ? (
           <Link
@@ -698,13 +720,13 @@ export default function Index() {
           </div>
         )}
 
-        <h2>{locales.projectTeaser.headline}</h2>
+        <h2>{locales.route.projectTeaser.headline}</h2>
         <ul>
           {[
-            locales.projectTeaser.benefits.ideas,
-            locales.projectTeaser.benefits.cooperations,
-            locales.projectTeaser.benefits.ownProjects,
-            locales.projectTeaser.benefits.learn,
+            locales.route.projectTeaser.benefits.ideas,
+            locales.route.projectTeaser.benefits.cooperations,
+            locales.route.projectTeaser.benefits.ownProjects,
+            locales.route.projectTeaser.benefits.learn,
           ].map((benefit) => {
             return (
               <li key={benefit}>
@@ -736,17 +758,17 @@ export default function Index() {
           variant="outline"
           prefetch="intent"
         >
-          {locales.projectTeaser.allProjects}
+          {locales.route.projectTeaser.allProjects}
         </Button>
       </section>
 
       {/* Tools Section */}
       <section>
-        <h2>{locales.tools.headline}</h2>
+        <h2>{locales.route.tools.headline}</h2>
         <div ref={toolsSliderRef}>
           {toolKeys.map((toolKey) => {
             const tool = toolsSectionData[toolKey];
-            const toolLocales = locales.tools[toolKey];
+            const toolLocales = locales.route.tools[toolKey];
 
             return (
               <div key={toolKey}>
@@ -780,7 +802,7 @@ export default function Index() {
         <button
           type="button"
           onClick={() => scrollToolsSlider("previous")}
-          aria-label={locales.tools.slider.previous}
+          aria-label={locales.route.tools.slider.previous}
         >
           <Icon
             type="chevron-right"
@@ -791,7 +813,7 @@ export default function Index() {
         <button
           type="button"
           onClick={() => scrollToolsSlider("next")}
-          aria-label={locales.tools.slider.next}
+          aria-label={locales.route.tools.slider.next}
         >
           <Icon type="chevron-right" aria-hidden="true" />
         </button>
@@ -799,15 +821,15 @@ export default function Index() {
 
       {/* Community Section */}
       <section>
-        <h2>{locales.community.headline}</h2>
-        <p>{locales.community.intro}</p>
+        <h2>{locales.route.community.headline}</h2>
+        <p>{locales.route.community.intro}</p>
         <ul>
           {communityImages.map((image, index) => {
             return (
               <li key={image.src} aria-hidden={index !== activeSlide}>
                 <Image
                   src={image.src}
-                  alt={locales.community.slideshow.imageAlt}
+                  alt={locales.route.community.slideshow.imageAlt}
                   disableFadeIn
                 />
                 {typeof image.credit !== "undefined" && image.credit !== "" ? (
@@ -830,7 +852,7 @@ export default function Index() {
                     setAutoPlay(false);
                   }}
                   aria-label={insertParametersIntoLocale(
-                    locales.community.slideshow.showImage,
+                    locales.route.community.slideshow.showImage,
                     { number: index + 1, total: communityImages.length }
                   )}
                   aria-current={index === activeSlide}
@@ -844,7 +866,7 @@ export default function Index() {
       {/* Testimonials Section */}
       {loaderData.testimonials.length > 0 ? (
         <section>
-          <h2>{locales.testimonials.headline}</h2>
+          <h2>{locales.route.testimonials.headline}</h2>
           <ul ref={testimonialListRef}>
             {loaderData.testimonials.map((testimonial) => {
               const cardContent = (
@@ -874,7 +896,7 @@ export default function Index() {
           <button
             type="button"
             onClick={() => scrollTestimonials("previous")}
-            aria-label={locales.testimonials.controls.previous}
+            aria-label={locales.route.testimonials.controls.previous}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -896,7 +918,7 @@ export default function Index() {
           <button
             type="button"
             onClick={() => scrollTestimonials("next")}
-            aria-label={locales.testimonials.controls.next}
+            aria-label={locales.route.testimonials.controls.next}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -937,8 +959,8 @@ export default function Index() {
             />
           </svg>
         </div>
-        <h2>{locales.communityCta.headline}</h2>
-        <p>{locales.communityCta.intro}</p>
+        <h2>{locales.route.communityCta.headline}</h2>
+        <p>{locales.route.communityCta.intro}</p>
         <Button
           as="link"
           to="/next/get-involved"
@@ -946,7 +968,7 @@ export default function Index() {
           fullSize
           prefetch="intent"
         >
-          {locales.communityCta.getInvolved}
+          {locales.route.communityCta.getInvolved}
         </Button>
       </section>
 
@@ -955,31 +977,34 @@ export default function Index() {
         <div>
           <Image
             src="/images/mintvernetztteam.jpg"
-            alt={locales.about.image.alt}
+            alt={locales.route.about.image.alt}
           >
-            {locales.about.image.credits !== "" ? (
-              <Image.Credits credits={locales.about.image.credits} />
-            ) : null}
+            <Image.Label withoutClassName>
+              <Link
+                to={`/organization/mintvernetzt/detail/about`}
+                prefetch="intent"
+                className={`${getImageLabelClassName()}`}
+              >
+                <div className="w-6 h-6 rounded-full overflow-hidden">
+                  <Image
+                    src={mvLogo}
+                    blurredSrc={mvLogoBlurred}
+                    alt="MINTvernetzt"
+                  />
+                </div>
+                <span className="text-white text-xs font-semibold leading-normal">
+                  MINTvernetzt
+                </span>
+              </Link>
+            </Image.Label>
+            {/* TODO: Credit from design needed. currently empty */}
+            <Image.Credits credits={locales.route.about.image.credits} />
           </Image>
         </div>
-        {loaderData.eventTeaserOrganizationSlug !== null ? (
-          <Link
-            to={`/organization/${loaderData.eventTeaserOrganizationSlug}/detail/about`}
-            prefetch="intent"
-          >
-            <img src="/images/mint-vernetzt_shortlogo.png" alt="" />
-            <span>MINTvernetzt</span>
-          </Link>
-        ) : (
-          <div>
-            <img src="/images/mint-vernetzt_shortlogo.png" alt="" />
-            <span>MINTvernetzt</span>
-          </div>
-        )}
 
-        <h2>{locales.about.headline}</h2>
-        <p>{locales.about.description}</p>
-        <p>{locales.about.moreInformation}</p>
+        <h2>{locales.route.about.headline}</h2>
+        <p>{locales.route.about.description}</p>
+        <p>{locales.route.about.moreInformation}</p>
         <Button
           as="link"
           to="https://www.mint-vernetzt.de"
@@ -988,70 +1013,70 @@ export default function Index() {
           variant="outline"
         >
           <Icon type="box-arrow-up-right" />
-          {locales.about.website}
+          {locales.route.about.website}
         </Button>
       </section>
 
       {/* FAQ section */}
       <section>
-        <h2>{locales.faq.headline}</h2>
+        <h2>{locales.route.faq.headline}</h2>
         <Accordion>
           <Accordion.Item id="whatIsStem" key="whatIsStem">
-            {locales.faq.qAndAs.whatIsStem.question}
+            {locales.route.faq.qAndAs.whatIsStem.question}
             <RichText
               id="faq-content"
-              html={locales.faq.qAndAs.whatIsStem.answer}
+              html={locales.route.faq.qAndAs.whatIsStem.answer}
             />
           </Accordion.Item>
           <Accordion.Item id="whoIsThePlatformFor" key="whoIsThePlatformFor">
-            {locales.faq.qAndAs.whoIsThePlatformFor.question}
+            {locales.route.faq.qAndAs.whoIsThePlatformFor.question}
             <RichText
               id="faq-content"
-              html={locales.faq.qAndAs.whoIsThePlatformFor.answer}
+              html={locales.route.faq.qAndAs.whoIsThePlatformFor.answer}
             />
           </Accordion.Item>
           <Accordion.Item
             id="benefitsOfThePlatform"
             key="benefitsOfThePlatform"
           >
-            {locales.faq.qAndAs.benefitsOfThePlatform.question}
+            {locales.route.faq.qAndAs.benefitsOfThePlatform.question}
             <RichText
               id="faq-content"
-              html={locales.faq.qAndAs.benefitsOfThePlatform.answer}
+              html={locales.route.faq.qAndAs.benefitsOfThePlatform.answer}
             />
           </Accordion.Item>
         </Accordion>
         {/* These two questions are only shown on mobile */}
         <Accordion>
           <Accordion.Item id="isItFree" key="isItFree">
-            {locales.faq.qAndAs.isItFree.question}
+            {locales.route.faq.qAndAs.isItFree.question}
             <RichText
               id="faq-content"
-              html={locales.faq.qAndAs.isItFree.answer}
+              html={locales.route.faq.qAndAs.isItFree.answer}
             />
           </Accordion.Item>
           <Accordion.Item
             id="benefitsOfRegistration"
             key="benefitsOfRegistration"
           >
-            {locales.faq.qAndAs.benefitsOfRegistration.question}
+            {locales.route.faq.qAndAs.benefitsOfRegistration.question}
             <RichText
               id="faq-content"
-              html={locales.faq.qAndAs.benefitsOfRegistration.answer}
+              html={locales.route.faq.qAndAs.benefitsOfRegistration.answer}
             />
           </Accordion.Item>
         </Accordion>
         <Accordion>
           <Accordion.Item id="mintId" key="mintId">
-            {locales.faq.qAndAs.mintId.question}
+            {locales.route.faq.qAndAs.mintId.question}
             <RichText
               id="faq-content"
-              html={locales.faq.qAndAs.mintId.answer}
+              html={locales.route.faq.qAndAs.mintId.answer}
             />
           </Accordion.Item>
         </Accordion>
         <Button as="link" to="/help" variant="outline" prefetch="intent">
-          {locales.faq.cta}
+          {locales.route.faq.cta}
         </Button>
       </section>
     </>

@@ -1,4 +1,12 @@
-import { Children, isValidElement, useEffect, useRef, useState } from "react";
+import {
+  type ButtonHTMLAttributes,
+  Children,
+  isValidElement,
+  type PropsWithChildren,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 export type ImageProps = {
   src?: string;
@@ -8,7 +16,7 @@ export type ImageProps = {
   disableFadeIn?: boolean;
 };
 
-function Image(props: React.PropsWithChildren<ImageProps>) {
+function Image(props: PropsWithChildren<ImageProps>) {
   const { resizeType = "fill", disableFadeIn, children } = props;
   const imageRef = useRef<HTMLImageElement | null>(null);
   const blurredImageRef = useRef<HTMLImageElement | null>(null);
@@ -24,6 +32,10 @@ function Image(props: React.PropsWithChildren<ImageProps>) {
       setBlurredImageLoaded(true);
     }
   }, []);
+
+  const label = Children.toArray(children).find(
+    (child) => isValidElement(child) && child.type === ImageLabel
+  );
 
   const removeButton = Children.toArray(children).find(
     (child) => isValidElement(child) && child.type === ImageRemoveButton
@@ -82,6 +94,9 @@ function Image(props: React.PropsWithChildren<ImageProps>) {
             }`}
           />
         ) : null}
+        {typeof label !== "undefined" ? (
+          <div className="absolute top-4 left-4">{label}</div>
+        ) : null}
         {typeof removeButton !== "undefined" ? (
           <div className="absolute top-2 right-2">{removeButton}</div>
         ) : null}
@@ -97,7 +112,7 @@ function Image(props: React.PropsWithChildren<ImageProps>) {
 
 function ImageRemoveButton(props: {
   label: string;
-  buttonProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;
+  buttonProps?: ButtonHTMLAttributes<HTMLButtonElement>;
 }) {
   const { label, buttonProps } = props;
   return (
@@ -132,7 +147,25 @@ function ImageCredits(props: { credits: string }) {
   );
 }
 
+function ImageLabel(
+  props: PropsWithChildren & {
+    withoutClassName?: boolean;
+  }
+) {
+  const { children, withoutClassName = false } = props;
+  return (
+    <div className={withoutClassName ? "" : getImageLabelClassName()}>
+      {children}
+    </div>
+  );
+}
+
+function getImageLabelClassName() {
+  return "pl-1 pr-2 py-1 flex gap-2.5 items-center rounded-lg bg-[#262D38]/80";
+}
+
+Image.Label = ImageLabel;
 Image.RemoveButton = ImageRemoveButton;
 Image.Credits = ImageCredits;
 
-export { Image };
+export { Image, getImageLabelClassName };

@@ -110,12 +110,15 @@ export const locale = {
     allEvents: "View all events",
     image: {
       alt: "Two people on stage at a STEM event",
-      credits: "© Anti Wieland",
+      credits: "© Andi Weiland",
     },
     upcomingEvents: {
       headline: "Upcoming events",
       empty: "There are no upcoming events at the moment.",
     },
+    waitinglist: "Waiting list places",
+    seatsFree: "Free seats",
+    unlimitedSeats: "Unlimited seats",
   },
   testimonials: {
     headline: "Voices from the community",
