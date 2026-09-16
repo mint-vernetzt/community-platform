@@ -695,6 +695,15 @@ export async function addProfileToParticipants(options: {
             conferenceLink: true,
             conferenceCode: true,
             participationToken: true,
+            _count: {
+              select: {
+                childEvents: {
+                  where: {
+                    published: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -757,6 +766,7 @@ export async function addProfileToParticipants(options: {
             icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/ics-download`,
             conferenceLink: data.event.conferenceLink,
             conferenceCode: data.event.conferenceCode,
+            isParent: data.event._count.childEvents > 0,
           },
         };
         const textTemplatePath =
@@ -862,6 +872,15 @@ export async function addProfileToWaitingList(options: {
             conferenceLink: true,
             conferenceCode: true,
             participationToken: true,
+            _count: {
+              select: {
+                childEvents: {
+                  where: {
+                    published: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -926,6 +945,7 @@ export async function addProfileToWaitingList(options: {
             icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/ics-download`,
             conferenceLink: data.event.conferenceLink,
             conferenceCode: data.event.conferenceCode,
+            isParent: data.event._count.childEvents > 0,
           },
         };
         const textTemplatePath =
