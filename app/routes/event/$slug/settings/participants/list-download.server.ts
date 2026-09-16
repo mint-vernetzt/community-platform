@@ -12,6 +12,7 @@ export async function getFullDepthParticipantsOfEvent(slug: string) {
           profile: {
             select: {
               id: true,
+              academicTitle: true,
               firstName: true,
               lastName: true,
               email: true,
@@ -67,6 +68,7 @@ export async function getFullDepthParticipantsOfEvent(slug: string) {
               profile: {
                 select: {
                   id: true,
+                  academicTitle: true,
                   firstName: true,
                   lastName: true,
                   email: true,
@@ -156,6 +158,7 @@ export async function getFullDepthParticipantsOfEvent(slug: string) {
 
   const guestsOfEvent = event.guests.map((guest) => ({
     id: `guest:${guest.id}`,
+    academicTitle: "",
     firstName: guest.firstName,
     lastName: guest.lastName,
     email: guest.email,
@@ -171,6 +174,7 @@ export async function getFullDepthParticipantsOfEvent(slug: string) {
   const guestsOfChildEvents = event.childEvents.flatMap((childEvent) => [
     ...childEvent.guests.map((guest) => ({
       id: `guest:${guest.id}`,
+      academicTitle: "",
       firstName: guest.firstName,
       lastName: guest.lastName,
       email: guest.email,
@@ -228,10 +232,11 @@ export function createCsvString(
   profiles: Awaited<ReturnType<typeof getFullDepthParticipantsOfEvent>>
 ) {
   let csv =
-    "VORNAME,NACHNAME,EMAIL,POSITION,ORGANISATIONEN,AKTIVITÄTSGEBIETE,VERANSTALTUNG\n";
+    "AKADEMISCHER TITEL,VORNAME,NACHNAME,EMAIL,POSITION,ORGANISATIONEN,AKTIVITÄTSGEBIETE,VERANSTALTUNG\n";
 
   for (const profile of profiles) {
     const data = [];
+    data.push(`"${profile.academicTitle}"`);
     data.push(`"${profile.firstName}"`);
     data.push(`"${profile.lastName}"`);
     data.push(typeof profile.email === "string" ? `"${profile.email}"` : "");
