@@ -545,6 +545,7 @@ export default function ExploreEvents() {
               {...getFieldsetProps(fields.evtFilter)}
               showMore={locales.route.filter.showMore}
               showLess={locales.route.filter.showLess}
+              hideAfter={5}
             >
               <Dropdown>
                 <Dropdown.Label>

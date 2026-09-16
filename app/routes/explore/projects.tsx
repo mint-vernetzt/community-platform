@@ -638,6 +638,7 @@ export default function ExploreProjects() {
               {...getFieldsetProps(fields.prjFilter)}
               showMore={locales.route.filter.showMore}
               showLess={locales.route.filter.showLess}
+              hideAfter={6}
             >
               <Dropdown>
                 <Dropdown.Label>
