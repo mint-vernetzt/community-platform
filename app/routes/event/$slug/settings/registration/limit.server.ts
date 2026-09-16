@@ -107,6 +107,11 @@ export async function updateEventById(options: {
               },
             },
             waitingList: true,
+            childEvents: {
+              where: {
+                published: true,
+              },
+            },
           },
         },
         waitingList: {
@@ -261,6 +266,7 @@ export async function updateEventById(options: {
                 conferenceCode: event.conferenceCode,
                 icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/ics-download`,
                 revocationLink: null as string | null,
+                isParent: event._count.childEvents > 0,
               },
             };
 
