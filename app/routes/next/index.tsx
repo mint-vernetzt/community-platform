@@ -527,22 +527,44 @@ export default function Index() {
       </section>
 
       {/* Counter section */}
-      <section>
-        <div>
-          <p>{loaderData.profileCount}</p>
-          <p>{locales.counter.profiles}</p>
-        </div>
-        <div>
-          <p>{loaderData.organizationCount}</p>
-          <p>{locales.counter.organizations}</p>
-        </div>
-        <div>
-          <p>{loaderData.eventCount}</p>
-          <p>{locales.counter.events}</p>
-        </div>
-        <div>
-          <p>{loaderData.projectCount}</p>
-          <p>{locales.counter.projects}</p>
+      <section className="flex w-full justify-center">
+        <div className="w-full md:w-fit grid grid-cols-1 grid-rows-2 md:grid-cols-2 md:grid-rows-1 gap-4 md:gap-16 pt-11 md:pt-16 px-8 md:px-16.5 pb-6 md:pb-16">
+          <div className="grid grid-cols-2 gap-4 md:gap-16">
+            <div className="flex flex-col gap-2 p-4 items-center">
+              <p className="text-primary text-5xl font-bold leading-10">
+                {loaderData.profileCount}
+              </p>
+              <p className="text-primary text-lg font-semibold leading-5.5">
+                {locales.counter.profiles}
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 p-4 items-center">
+              <p className="text-primary text-5xl font-bold leading-10">
+                {loaderData.organizationCount}
+              </p>
+              <p className="text-primary text-lg font-semibold leading-5.5">
+                {locales.counter.organizations}
+              </p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4 md:gap-16">
+            <div className="flex flex-col gap-2 p-4 items-center">
+              <p className="text-primary text-5xl font-bold leading-10">
+                {loaderData.eventCount}
+              </p>
+              <p className="text-primary text-lg font-semibold leading-5.5">
+                {locales.counter.events}
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 p-4 items-center">
+              <p className="text-primary text-5xl font-bold leading-10">
+                {loaderData.projectCount}
+              </p>
+              <p className="text-primary text-lg font-semibold leading-5.5">
+                {locales.counter.projects}
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
