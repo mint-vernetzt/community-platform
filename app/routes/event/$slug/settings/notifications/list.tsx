@@ -29,6 +29,8 @@ import {
 } from "./list.shared";
 import { captureException } from "@sentry/node";
 import { redirectWithToast } from "~/toast.server";
+import Hint from "~/components/next/Hint";
+import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -183,6 +185,7 @@ function NotificationsList() {
           method="POST"
           preventScrollReset
           replace
+          hidden
         />
         <ul className="flex flex-col border border-neutral-200 rounded-xl *:border-b *:border-neutral-200 *:last:border-b-0 text-neutral-700 text-sm">
           <li className="flex justify-between items-center gap-4 p-4">
@@ -312,6 +315,22 @@ function NotificationsList() {
             </div>
           </li>
         </ul>
+        {event.stage !== null &&
+        ((event.stage.slug === "online" &&
+          event.activeReminderMails.includes("oneDayBefore") === false &&
+          event.activeReminderMails.includes("fifteenMinutesBefore") ===
+            false) ||
+          (event.stage.slug === "hybrid" &&
+            event.activeReminderMails.includes("oneHourBefore") === false &&
+            event.activeReminderMails.includes("fifteenMinutesBefore") ===
+              false)) ? (
+          <Hint>
+            {insertComponentsIntoLocale(
+              locales.route.system.disabledReminderMailsHint,
+              [<span key="bold" className="font-semibold" />]
+            )}
+          </Hint>
+        ) : null}
       </div>
     </div>
   );

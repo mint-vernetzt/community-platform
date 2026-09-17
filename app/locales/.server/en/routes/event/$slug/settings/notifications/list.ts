@@ -50,5 +50,7 @@ export const locale = {
         description: "Sent when the event is cancelled",
       },
     },
+    disabledReminderMailsHint:
+      "<0>Note:</0> If you disable automatic reminders, we recommend sending the conference link for the event in advance via email to the participants yourself. Participants without a community profile cannot access the conference link through the event page.",
   },
 } as const;

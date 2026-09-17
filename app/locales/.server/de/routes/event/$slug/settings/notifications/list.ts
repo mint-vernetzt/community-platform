@@ -51,5 +51,7 @@ export const locale = {
         description: "Wird versendet, wenn die Veranstaltung abgesagt wird",
       },
     },
+    disabledReminderMailsHint:
+      "<0>Hinweis:</0> Wenn Du automatische Erinnerungen deaktivierst, empfehlen wir, den Konferenzlink zum Event vorab selbst per E-Mail an die Teilnehmenden zu versenden. Teilnehmende ohne Community-Profil können den Konferenzlink nicht über die Eventseite aufrufen.",
   },
 } as const;
