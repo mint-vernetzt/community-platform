@@ -57,7 +57,12 @@ import {
   getProfileCount,
   getProjectCount,
 } from "../utils.server";
-import { getTestimonials, getUpcomingEvents } from "./index.server";
+import {
+  getEventTeaserOrganization,
+  getProjectTeaserOrganization,
+  getTestimonials,
+  getUpcomingEvents,
+} from "./index.server";
 import { fundingSectionBobbel, loginSectionBobbel } from "./index.shared";
 
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -85,10 +90,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const projectCount = await getProjectCount();
   const eventCount = await getEventCount();
 
+  const eventTeaserOrganization = await getEventTeaserOrganization();
   const upcomingEvents = await getUpcomingEvents();
-  const testimonials = await getTestimonials();
+
+  const projectTeaserOrganization = await getProjectTeaserOrganization();
 
   const toolsSectionData = getDataForToolsSection();
+
+  const testimonials = await getTestimonials();
 
   const communityImages = [
     {
@@ -144,6 +153,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
     upcomingEvents,
     testimonials,
     toolsSectionData,
+    eventTeaserOrganization,
+    projectTeaserOrganization,
     communityImages,
   };
 };
@@ -552,22 +563,37 @@ export default function Index() {
               alt={locales.route.eventTeaser.image.alt}
             >
               <Image.Label withoutClassName>
-                <Link
-                  to={`/organization/mintvernetzt/detail/about`}
-                  prefetch="intent"
-                  className={`${getImageLabelClassName()}`}
-                >
-                  <div className="w-6 h-6 rounded-full overflow-hidden">
-                    <Image
-                      src={mvLogo}
-                      blurredSrc={mvLogoBlurred}
-                      alt="MINTvernetzt"
-                    />
+                {loaderData.eventTeaserOrganization !== null ? (
+                  <Link
+                    to={`/organization/${loaderData.eventTeaserOrganization.slug}/detail/about`}
+                    prefetch="intent"
+                    className={`${getImageLabelClassName()}`}
+                  >
+                    <div className="w-6 h-6 rounded-full overflow-hidden">
+                      <Image
+                        src={mvLogo}
+                        blurredSrc={mvLogoBlurred}
+                        alt="MINTvernetzt"
+                      />
+                    </div>
+                    <span className="text-white text-xs font-semibold leading-normal">
+                      MINTvernetzt
+                    </span>
+                  </Link>
+                ) : (
+                  <div className={`${getImageLabelClassName()}`}>
+                    <div className="w-6 h-6 rounded-full overflow-hidden">
+                      <Image
+                        src={mvLogo}
+                        blurredSrc={mvLogoBlurred}
+                        alt="MINTvernetzt"
+                      />
+                    </div>
+                    <span className="text-white text-xs font-semibold leading-normal">
+                      MINTvernetzt
+                    </span>
                   </div>
-                  <span className="text-white text-xs font-semibold leading-normal">
-                    MINTvernetzt
-                  </span>
-                </Link>
+                )}
               </Image.Label>
               <Image.Credits
                 credits={locales.route.eventTeaser.image.credits}
@@ -720,22 +746,37 @@ export default function Index() {
               alt={locales.route.projectTeaser.image.alt}
             >
               <Image.Label withoutClassName>
-                <Link
-                  to={`/organization/tinkertankinteractivemediafoundationggmbh-lgoznhy0/detail/about`}
-                  prefetch="intent"
-                  className={`${getImageLabelClassName()}`}
-                >
-                  <div className="w-6 h-6 rounded-full overflow-hidden">
-                    <Image
-                      src={tinkertankLogo}
-                      blurredSrc={tinkertankLogoBlurred}
-                      alt="Tinkertank"
-                    />
+                {loaderData.projectTeaserOrganization ? (
+                  <Link
+                    to={`/organization/${loaderData.projectTeaserOrganization.slug}/detail/about`}
+                    prefetch="intent"
+                    className={`${getImageLabelClassName()}`}
+                  >
+                    <div className="w-6 h-6 rounded-full overflow-hidden">
+                      <Image
+                        src={tinkertankLogo}
+                        blurredSrc={tinkertankLogoBlurred}
+                        alt="Tinkertank"
+                      />
+                    </div>
+                    <span className="text-white text-xs font-semibold leading-normal">
+                      Tinkertank
+                    </span>
+                  </Link>
+                ) : (
+                  <div className={`${getImageLabelClassName()}`}>
+                    <div className="w-6 h-6 rounded-full overflow-hidden">
+                      <Image
+                        src={tinkertankLogo}
+                        blurredSrc={tinkertankLogoBlurred}
+                        alt="Tinkertank"
+                      />
+                    </div>
+                    <span className="text-white text-xs font-semibold leading-normal">
+                      Tinkertank
+                    </span>
                   </div>
-                  <span className="text-white text-xs font-semibold leading-normal">
-                    Tinkertank
-                  </span>
-                </Link>
+                )}
               </Image.Label>
               <Image.Credits
                 credits={locales.route.projectTeaser.image.credits}

@@ -10,6 +10,19 @@ export type NextLandingPageLocales = (typeof languageModuleMap)[ArrayElement<
 
 export const UPCOMING_EVENTS_COUNT = 3;
 
+export async function getEventTeaserOrganization() {
+  const organization = await prismaClient.organization.findFirst({
+    select: {
+      slug: true,
+    },
+    where: {
+      slug: "mintvernetzt",
+    },
+  });
+
+  return organization;
+}
+
 export async function getUpcomingEvents() {
   const events = await prismaClient.event.findMany({
     select: {
@@ -54,6 +67,19 @@ export async function getUpcomingEvents() {
   });
 
   return events;
+}
+
+export async function getProjectTeaserOrganization() {
+  const organization = await prismaClient.organization.findFirst({
+    select: {
+      slug: true,
+    },
+    where: {
+      slug: "tinkertankinteractivemediafoundationggmbh-lgoznhy0",
+    },
+  });
+
+  return organization;
 }
 
 export async function getTestimonials() {
