@@ -31,6 +31,7 @@ import { captureException } from "@sentry/node";
 import { redirectWithToast } from "~/toast.server";
 import Hint from "~/components/next/Hint";
 import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
+import { Deep } from "~/lib/utils/searchParams";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -59,6 +60,10 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const event = await getEvent(slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
+
+  if (event.external) {
+    return redirect(`../../time-period`);
+  }
 
   return { locales, event };
 }

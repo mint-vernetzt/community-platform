@@ -277,6 +277,8 @@ export default function Settings() {
     {
       to: `notifications/list?${Deep}=true`,
       label: locales.route.menu.notifications,
+      disabled: event.external,
+      hint: locales.route.menuHints.externalEvent,
     },
     {
       to: `danger-zone/change-url?${Deep}=true`,
