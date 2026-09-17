@@ -7,7 +7,11 @@ export const locale = {
   venueStreet: "Straße und Hausnummer",
   venueCity: "Stadt",
   venueZipCode: "Postleitzahl",
-  conferenceLink: "Konferenzlink",
+  conferenceLink: {
+    label: "Konferenzlink",
+    helperText:
+      "Empfehlung: Füge den Konferenzlink vor der Veröffentlichung des Events hinzu. So erhalten alle Teilnehmenden den Link direkt in ihrer Anmeldebestätigung.",
+  },
   conferenceCode: "Zugangscode zur Konferenz",
   accessibilityInformation: {
     label: "Informationen zur Barrierefreiheit",

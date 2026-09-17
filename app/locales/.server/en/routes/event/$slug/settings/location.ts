@@ -1,13 +1,17 @@
 export const locale = {
   stageSelection: {
-    headline: "Wie soll das Event stattfinden?",
+    headline: "How should the event take place?",
   },
   stage: "Event type",
   venueName: "Name of the venue",
   venueStreet: "Street and house number",
   venueCity: "City",
   venueZipCode: "Postal code",
-  conferenceLink: "Conference link",
+  conferenceLink: {
+    label: "Conference link",
+    helperText:
+      "Recommendation: Add the conference link before publishing the event. This way, all participants will receive the link directly in their registration confirmation.",
+  },
   conferenceCode: "Access code for the conference",
   accessibilityInformation: {
     label: "Accessibility information",
