@@ -60,6 +60,10 @@ export async function loader(args: LoaderFunctionArgs) {
   const event = await getEvent(slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
+  if (event.external) {
+    return redirect(`../../time-period`);
+  }
+
   return { locales, event };
 }
 

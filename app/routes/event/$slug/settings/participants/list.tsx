@@ -78,8 +78,7 @@ export async function loader(args: LoaderFunctionArgs) {
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   if (event.published === false || event.external) {
-    const deep = searchParams.get(Deep);
-    return redirect(`../../time-period?${Deep}=${deep}`);
+    return redirect(`../../time-period`);
   }
 
   const result = await getParticipantsOfEvent({

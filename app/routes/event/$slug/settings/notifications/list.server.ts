@@ -6,6 +6,7 @@ export async function getEvent(slug: string) {
     where: { slug },
     select: {
       activeReminderMails: true,
+      external: true,
       stage: {
         select: {
           slug: true,
