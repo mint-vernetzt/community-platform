@@ -58,6 +58,7 @@ import {
   getTestimonials,
   getUpcomingEvents,
 } from "./index.server";
+import { fundingSectionBobbel, loginSectionBobbel } from "./index.shared";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -499,37 +500,7 @@ export default function Index() {
             </div>
           </div>
         </div>
-
-        <div className="hidden md:block absolute -top-19 right-0 -z-10">
-          <svg
-            width="305"
-            height="487"
-            viewBox="0 0 305 487"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
-          >
-            <path
-              d="M507.84 485.26C418.258 494.723 327.564 418.044 311.983 408.908C296.402 399.772 131.861 290.242 48.2913 202.611C-56.1703 93.0727 19.6559 -26.6487 172.251 -287.906C324.847 -549.164 429.765 -491.186 752.776 -260.065C1091.74 -17.5282 752.64 266.727 725.437 302.51C698.234 338.293 597.422 475.797 507.84 485.26Z"
-              fill="#FFCF53"
-            />
-          </svg>
-        </div>
-        <div className="hidden xl:block absolute -top-20 -right-11.5 -z-10">
-          <svg
-            width="422"
-            height="559"
-            viewBox="0 0 422 559"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
-          >
-            <path
-              d="M507.84 557.26C418.258 566.723 327.564 490.044 311.983 480.908C296.402 471.772 131.861 362.242 48.2914 274.611C-56.1703 165.073 19.656 45.3513 172.251 -215.906C324.847 -477.164 429.765 -419.186 752.776 -188.065C1091.74 54.4718 752.641 338.727 725.437 374.51C698.234 410.293 597.422 547.797 507.84 557.26Z"
-              fill="#FFCF53"
-            />
-          </svg>
-        </div>
+        {loginSectionBobbel}
       </section>
 
       {/* Counter section */}
@@ -693,7 +664,11 @@ export default function Index() {
                           <RichText html={event.description} />
                         ) : null}
                       </ListItemEvent.Subline>
-                    ) : null}
+                    ) : (
+                      <ListItemEvent.Subline>
+                        <div className="hidden @md:block @md:h-5.25" />
+                      </ListItemEvent.Subline>
+                    )}
                   </ListItemEvent>
                 );
               })}
@@ -713,18 +688,28 @@ export default function Index() {
       </section>
 
       {/* Funding section */}
-      <section>
-        <img src="/images/bubble-grafik-blau.svg" alt="" />
-
-        <h2>{locales.route.funding.headline}</h2>
-        <p>{locales.route.funding.info}</p>
-        <Link
-          to="/explore/fundings"
-
-          prefetch="intent"
-        >
-          {locales.route.funding.cta}
-        </Link>
+      <section className="w-full px-4 md:px-10 xl:px-16 py-12 md:py-16 max-w-2xl mx-auto">
+        <div className="relative rounded-2xl overflow-hidden bg-primary-400 p-6 md:p-10">
+          <div className="flex flex-col gap-10 max-w-112 @2xl:max-w-180">
+            <div className="flex flex-col gap-4">
+              <h2 className="mb-0 text-5xl text-white font-bold leading-9">
+                {locales.route.funding.headline}
+              </h2>
+              <p className="text-neutral-100 text-lg font-semibold leading-6">
+                {locales.route.funding.info}
+              </p>
+            </div>
+            <Button
+              as="link"
+              variant="outline"
+              to="/explore/fundings"
+              prefetch="intent"
+            >
+              {locales.route.funding.cta}
+            </Button>
+          </div>
+          {fundingSectionBobbel}
+        </div>
       </section>
 
       {/* Project teaser section */}
