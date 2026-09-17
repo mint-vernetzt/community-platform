@@ -8,7 +8,6 @@ export type NextLandingPageLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES
 >]["next/index"];
 
-export const PROJECT_TEASER_ORGANIZATION_NAME = "Tinkertank";
 export const UPCOMING_EVENTS_COUNT = 3;
 
 export async function getUpcomingEvents() {
@@ -55,26 +54,6 @@ export async function getUpcomingEvents() {
   });
 
   return events;
-}
-
-export async function getProjectTeaserOrganizationSlug() {
-  const organization = await prismaClient.organization.findFirst({
-    select: {
-      slug: true,
-    },
-    where: {
-      name: {
-        equals: PROJECT_TEASER_ORGANIZATION_NAME,
-        mode: "insensitive",
-      },
-    },
-  });
-
-  if (organization === null) {
-    return null;
-  }
-
-  return organization.slug;
 }
 
 export async function getTestimonials() {

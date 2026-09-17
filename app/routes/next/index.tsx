@@ -24,6 +24,10 @@ import eventSectionBlurredImage from "~/assets/landing-page/MINTvernetzt_Tag_01_
 import eventSectionImage from "~/assets/landing-page/MINTvernetzt_Tag_01_Foto_Andi_Weiland-125.jpg";
 import mvLogoBlurred from "~/assets/landing-page/mv-logo-blurred.webp";
 import mvLogo from "~/assets/landing-page/mv-logo.png";
+import projectTeaserImage from "~/assets/landing-page/Jasmin Mertikat 1.jpg";
+import projectTeaserImageBlurred from "~/assets/landing-page/Jasmin Mertikat 1-blurred.webp";
+import tinkertankLogo from "~/assets/landing-page/tinkertank-logo.jpg";
+import tinkertankLogoBlurred from "~/assets/landing-page/tinkertank-logo-blurred.webp";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Accordion } from "~/components-next/Accordion";
 import BetaTag from "~/components-next/BetaTag";
@@ -53,11 +57,7 @@ import {
   getProfileCount,
   getProjectCount,
 } from "../utils.server";
-import {
-  getProjectTeaserOrganizationSlug,
-  getTestimonials,
-  getUpcomingEvents,
-} from "./index.server";
+import { getTestimonials, getUpcomingEvents } from "./index.server";
 import { fundingSectionBobbel, loginSectionBobbel } from "./index.shared";
 
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -85,8 +85,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const projectCount = await getProjectCount();
   const eventCount = await getEventCount();
 
-  const projectTeaserOrganizationSlug =
-    await getProjectTeaserOrganizationSlug();
   const upcomingEvents = await getUpcomingEvents();
   const testimonials = await getTestimonials();
 
@@ -143,7 +141,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     organizationCount,
     projectCount,
     eventCount,
-    projectTeaserOrganizationSlug,
     upcomingEvents,
     testimonials,
     toolsSectionData,
@@ -596,6 +593,7 @@ export default function Index() {
                         viewBox="0 0 24 24"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
+                        aria-hidden="true"
                       >
                         <circle cx="12" cy="12" r="12" fill="#EDF3FF" />
                         <path
@@ -713,68 +711,84 @@ export default function Index() {
       </section>
 
       {/* Project teaser section */}
-      <section>
-        <Image
-          src="/images/jasminmertikat.jpg"
-          alt={locales.route.projectTeaser.image.alt}
-        >
-          <Image.Credits credits={locales.route.projectTeaser.image.credits} />
-        </Image>
-        {loaderData.projectTeaserOrganizationSlug !== null ? (
-          <Link
-            to={`/organization/${loaderData.projectTeaserOrganizationSlug}/detail/about`}
-            prefetch="intent"
-          >
-            <img src="/images/tinkertank_shortlogo.jpg" alt="" />
-            <span>Tinkertank</span>
-          </Link>
-        ) : (
-          <div>
-            <img src="/images/tinkertank_shortlogo.jpg" alt="" />
-            <span>Tinkertank</span>
-          </div>
-        )}
-
-        <h2>{locales.route.projectTeaser.headline}</h2>
-        <ul>
-          {[
-            locales.route.projectTeaser.benefits.ideas,
-            locales.route.projectTeaser.benefits.cooperations,
-            locales.route.projectTeaser.benefits.ownProjects,
-            locales.route.projectTeaser.benefits.learn,
-          ].map((benefit) => {
-            return (
-              <li key={benefit}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  aria-hidden="true"
+      <section className="w-full flex flex-col gap-10 md:gap-6 px-4 md:px-10 xl:px-16 py-12 md:py-16 max-w-2xl mx-auto">
+        <div className="w-full flex flex-col md:flex-row md:items-center md:justify-between gap-10">
+          <div className="w-full md:h-110 rounded-2xl overflow-hidden">
+            <Image
+              src={projectTeaserImage}
+              blurredSrc={projectTeaserImageBlurred}
+              alt={locales.route.projectTeaser.image.alt}
+            >
+              <Image.Label withoutClassName>
+                <Link
+                  to={`/organization/tinkertankinteractivemediafoundationggmbh-lgoznhy0/detail/about`}
+                  prefetch="intent"
+                  className={`${getImageLabelClassName()}`}
                 >
-                  <circle cx="12" cy="12" r="12" fill="#EDF3FF" />
-                  <path
-                    d="M7.59888 13.1995L10.5989 15.7995L17.1989 7.99951"
-                    stroke="#703D6B"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <span>{benefit}</span>
-              </li>
-            );
-          })}
-        </ul>
-        <Button
-          as="link"
-          to="/explore/projects"
-          variant="outline"
-          prefetch="intent"
-        >
-          {locales.route.projectTeaser.allProjects}
-        </Button>
+                  <div className="w-6 h-6 rounded-full overflow-hidden">
+                    <Image
+                      src={tinkertankLogo}
+                      blurredSrc={tinkertankLogoBlurred}
+                      alt="Tinkertank"
+                    />
+                  </div>
+                  <span className="text-white text-xs font-semibold leading-normal">
+                    Tinkertank
+                  </span>
+                </Link>
+              </Image.Label>
+              <Image.Credits
+                credits={locales.route.projectTeaser.image.credits}
+              />
+            </Image>
+          </div>
+          <div className="w-full md:w-100 md:min-w-100 flex flex-col gap-10">
+            <div className="w-full flex flex-col gap-6">
+              <h2 className="mb-0 text-primary-600 text-5xl font-bold leading-9">
+                {locales.route.projectTeaser.headline}
+              </h2>
+              <ul className="flex flex-col gap-4">
+                {[
+                  locales.route.projectTeaser.benefits.ideas,
+                  locales.route.projectTeaser.benefits.cooperations,
+                  locales.route.projectTeaser.benefits.ownProjects,
+                  locales.route.projectTeaser.benefits.learn,
+                ].map((benefit) => {
+                  return (
+                    <li key={benefit} className="flex items-center gap-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        aria-hidden="true"
+                      >
+                        <circle cx="12" cy="12" r="12" fill="#EDF3FF" />
+                        <path
+                          d="M7.59888 13.1995L10.5989 15.7995L17.1989 7.99951"
+                          stroke="#703D6B"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      <span>{benefit}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+            <Button
+              as="link"
+              to="/explore/projects"
+              variant="outline"
+              prefetch="intent"
+            >
+              {locales.route.projectTeaser.allProjects}
+            </Button>
+          </div>
+        </div>
       </section>
 
       {/* Tools Section */}
