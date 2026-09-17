@@ -297,204 +297,206 @@ export default function Index() {
   return (
     <>
       {/* Header & Login section */}
-      <section className="relative isolate w-full flex flex-col xl:justify-between md:flex-row md:items-center md:bg-secondary-50 md:bg-linear-[358deg] md:from-neutral-50 md:from-[12.78%] md:via-neutral-50/40 md:via-[74.48%] md:to-neutral-50/40 md:to-[98.12%]">
-        <div className="flex flex-col gap-8 md:gap-6 pl-4 md:pl-10 xl:pl-16 pr-4 pb-4 md:pb-16 pt-16">
-          <h1 className="mb-0 w-full text-center md:text-start text-primary-600 text-5xl md:text-[60px] font-black leading-9 md:leading-18">
-            {locales.route.content.headline}
-          </h1>
-          <p className="w-full md:max-w-99.5 text-center md:text-start text-neutral-800 text-lg font-semibold leading-6">
-            {locales.route.content.intro}
-          </p>
-        </div>
+      <section className="relative isolate md:bg-secondary-50 md:bg-linear-[358deg] md:from-neutral-50 md:from-[12.78%] md:via-neutral-50/40 md:via-[74.48%] md:to-neutral-50/40 md:to-[98.12%]">
+        <div className="w-full flex flex-col xl:justify-between md:flex-row md:items-center max-w-2xl mx-auto">
+          <div className="flex flex-col gap-8 md:gap-6 pl-4 md:pl-10 xl:pl-16 pr-4 md:pr-8 pb-4 md:pb-16 pt-16">
+            <h1 className="mb-0 w-full text-center md:text-start text-primary-600 text-5xl md:text-[60px] font-black leading-9 md:leading-18">
+              {locales.route.content.headline}
+            </h1>
+            <p className="w-full md:max-w-99.5 text-center md:text-start text-neutral-800 text-lg font-semibold leading-6">
+              {locales.route.content.intro}
+            </p>
+          </div>
 
-        <div className="md:pr-10 xl:pr-16 md:pb-16 md:pt-16">
-          <div className="flex flex-col gap-4 px-4 md:px-6 pb-12 md:pb-6 pt-4 md:pt-6 md:bg-white md:rounded-2xl md:shadow-[2px_2px_16px_-8px_rgba(177,111,171,0.79)]">
-            <a
-              id="login-start"
-              href="#login-end"
-              className="absolute focus:relative w-0 h-0 opacity-0 focus:w-fit focus:h-fit focus:opacity-100 focus:px-1"
-            >
-              {locales.route.login.skip.start}
-            </a>
-            <div className="flex flex-col gap-2 items-center">
-              <Button
-                as="link"
-                size="large"
-                to={`/auth/keycloak${
-                  loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-                }`}
-                variant="outline"
-                fullSize
-                name={locales.route.login.withMintId}
+          <div className="md:pr-10 xl:pr-16 md:pb-16 md:pt-16">
+            <div className="flex flex-col gap-4 px-4 md:px-6 pb-12 md:pb-6 pt-4 md:pt-6 md:bg-white md:rounded-2xl md:shadow-[2px_2px_16px_-8px_rgba(177,111,171,0.79)]">
+              <a
+                id="login-start"
+                href="#login-end"
+                className="absolute focus:relative w-0 h-0 opacity-0 focus:w-fit focus:h-fit focus:opacity-100 focus:px-1"
               >
-                {locales.route.login.withMintId}
-              </Button>
-              <Link
-                to="https://mint-id.org/faq"
-                target="_blank"
-                rel="noreferrer noopener"
-                className="text-primary font-bold underline text-base leading-5"
-              >
-                {locales.route.login.moreInformation}
-              </Link>
-            </div>
-            <div>
-              <hr />
-              <span className="block -my-3.5 mx-auto w-fit px-4 text-primary bg-white @sm:bg-neutral-50 font-bold">
-                {locales.route.login.or}
-              </span>
-            </div>
-            {loaderData.isBot === false && (
-              <Form
-                {...getFormProps(loginForm)}
-                method="post"
-                autoComplete="off"
-                className="flex flex-col gap-8 md:gap-4"
-              >
-                <HoneypotInputs className={HONEYPOT_CLASSNAME} />
-                {typeof loginForm.errors !== "undefined" &&
-                loginForm.errors.length > 0
-                  ? loginForm.errors.map((error, index) => {
-                      return (
-                        <div key={index}>
-                          <RichText id={loginForm.errorId} html={error} />
-                        </div>
-                      );
-                    })
-                  : null}
-
-                <div className="flex flex-col gap-4">
-                  <Input
-                    {...getInputProps(loginFields.email, {
-                      type: "text",
-                    })}
-                    key="email"
-                  >
-                    <Input.Label htmlFor={loginFields.email.id}>
-                      {locales.route.form.label.email}
-                    </Input.Label>
-                    {typeof loginFields.email.errors !== "undefined" &&
-                    loginFields.email.errors.length > 0
-                      ? loginFields.email.errors.map((error) => (
-                          <Input.Error
-                            id={loginFields.email.errorId}
-                            key={error}
-                          >
-                            {error}
-                          </Input.Error>
-                        ))
-                      : null}
-                  </Input>
-                  <Input
-                    {...getInputProps(loginFields.password, {
-                      type: showPassword ? "text" : "password",
-                    })}
-                    key="password"
-                  >
-                    <Input.Label htmlFor={loginFields.password.id}>
-                      {locales.route.form.label.password}
-                    </Input.Label>
-                    {typeof loginFields.password.errors !== "undefined" &&
-                    loginFields.password.errors.length > 0
-                      ? loginFields.password.errors.map((error) => (
-                          <Input.Error
-                            id={loginFields.password.errorId}
-                            key={error}
-                          >
-                            {error}
-                          </Input.Error>
-                        ))
-                      : null}
-                    {isHydrated ? (
-                      <Input.Controls>
-                        <div className="h-10 w-10">
-                          <ShowPasswordButton
-                            onClick={() => {
-                              setShowPassword(!showPassword);
-                            }}
-                            aria-label={
-                              showPassword
-                                ? locales.route.form.label.hidePassword
-                                : locales.route.form.label.showPassword
-                            }
-                          >
-                            {showPassword ? (
-                              <PublicVisibility aria-hidden="true" />
-                            ) : (
-                              <PrivateVisibility aria-hidden="true" />
-                            )}
-                          </ShowPasswordButton>
-                        </div>
-                      </Input.Controls>
-                    ) : null}
-                  </Input>
-                </div>
-
-                <input
-                  {...getInputProps(loginFields.loginRedirect, {
-                    type: "hidden",
-                  })}
-                  key="loginRedirect"
-                />
-                <div className="flex flex-col gap-2 items-center">
-                  <Button
-                    type="submit"
-                    fullSize
-                    // Don't disable button when js is disabled
-                    disabled={
-                      isHydrated
-                        ? loginForm.dirty === false ||
-                          loginForm.valid === false ||
-                          isSubmitting
-                        : false
-                    }
-                  >
-                    {locales.route.form.label.submit}
-                  </Button>
-                  <Link
-                    to={`/reset${
-                      loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-                    }`}
-                    prefetch="intent"
-                    className="text-primary font-bold underline text-base leading-5"
-                  >
-                    {locales.route.login.passwordForgotten}
-                  </Link>
-                </div>
-              </Form>
-            )}
-
-            <div className="flex flex-col gap-2 items-center">
-              <p className="text-neutral-800 text-base leading-5 font-normal">
-                {locales.route.login.noMember}
-              </p>
-              <div className="flex gap-6">
-                <Link
-                  to={`/register${
-                    loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-                  }`}
-                  prefetch="intent"
-                  className="text-primary font-bold underline text-base leading-5 text-nowrap"
-                >
-                  {locales.route.login.registerByEmail}
-                </Link>
-                <Link
+                {locales.route.login.skip.start}
+              </a>
+              <div className="flex flex-col gap-2 items-center">
+                <Button
+                  as="link"
+                  size="large"
                   to={`/auth/keycloak${
                     loginRedirect ? `?login_redirect=${loginRedirect}` : ""
                   }`}
-                  className="text-primary font-bold underline text-base leading-5 text-nowrap"
+                  variant="outline"
+                  fullSize
+                  name={locales.route.login.withMintId}
                 >
-                  {locales.route.login.createMintId}
+                  {locales.route.login.withMintId}
+                </Button>
+                <Link
+                  to="https://mint-id.org/faq"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="text-primary font-bold underline text-base leading-5"
+                >
+                  {locales.route.login.moreInformation}
                 </Link>
               </div>
+              <div>
+                <hr />
+                <span className="block -my-3.5 mx-auto w-fit px-4 text-primary bg-white @sm:bg-neutral-50 font-bold">
+                  {locales.route.login.or}
+                </span>
+              </div>
+              {loaderData.isBot === false && (
+                <Form
+                  {...getFormProps(loginForm)}
+                  method="post"
+                  autoComplete="off"
+                  className="flex flex-col gap-8 md:gap-4"
+                >
+                  <HoneypotInputs className={HONEYPOT_CLASSNAME} />
+                  {typeof loginForm.errors !== "undefined" &&
+                  loginForm.errors.length > 0
+                    ? loginForm.errors.map((error, index) => {
+                        return (
+                          <div key={index}>
+                            <RichText id={loginForm.errorId} html={error} />
+                          </div>
+                        );
+                      })
+                    : null}
+
+                  <div className="flex flex-col gap-4">
+                    <Input
+                      {...getInputProps(loginFields.email, {
+                        type: "text",
+                      })}
+                      key="email"
+                    >
+                      <Input.Label htmlFor={loginFields.email.id}>
+                        {locales.route.form.label.email}
+                      </Input.Label>
+                      {typeof loginFields.email.errors !== "undefined" &&
+                      loginFields.email.errors.length > 0
+                        ? loginFields.email.errors.map((error) => (
+                            <Input.Error
+                              id={loginFields.email.errorId}
+                              key={error}
+                            >
+                              {error}
+                            </Input.Error>
+                          ))
+                        : null}
+                    </Input>
+                    <Input
+                      {...getInputProps(loginFields.password, {
+                        type: showPassword ? "text" : "password",
+                      })}
+                      key="password"
+                    >
+                      <Input.Label htmlFor={loginFields.password.id}>
+                        {locales.route.form.label.password}
+                      </Input.Label>
+                      {typeof loginFields.password.errors !== "undefined" &&
+                      loginFields.password.errors.length > 0
+                        ? loginFields.password.errors.map((error) => (
+                            <Input.Error
+                              id={loginFields.password.errorId}
+                              key={error}
+                            >
+                              {error}
+                            </Input.Error>
+                          ))
+                        : null}
+                      {isHydrated ? (
+                        <Input.Controls>
+                          <div className="h-10 w-10">
+                            <ShowPasswordButton
+                              onClick={() => {
+                                setShowPassword(!showPassword);
+                              }}
+                              aria-label={
+                                showPassword
+                                  ? locales.route.form.label.hidePassword
+                                  : locales.route.form.label.showPassword
+                              }
+                            >
+                              {showPassword ? (
+                                <PublicVisibility aria-hidden="true" />
+                              ) : (
+                                <PrivateVisibility aria-hidden="true" />
+                              )}
+                            </ShowPasswordButton>
+                          </div>
+                        </Input.Controls>
+                      ) : null}
+                    </Input>
+                  </div>
+
+                  <input
+                    {...getInputProps(loginFields.loginRedirect, {
+                      type: "hidden",
+                    })}
+                    key="loginRedirect"
+                  />
+                  <div className="flex flex-col gap-2 items-center">
+                    <Button
+                      type="submit"
+                      fullSize
+                      // Don't disable button when js is disabled
+                      disabled={
+                        isHydrated
+                          ? loginForm.dirty === false ||
+                            loginForm.valid === false ||
+                            isSubmitting
+                          : false
+                      }
+                    >
+                      {locales.route.form.label.submit}
+                    </Button>
+                    <Link
+                      to={`/reset${
+                        loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                      }`}
+                      prefetch="intent"
+                      className="text-primary font-bold underline text-base leading-5"
+                    >
+                      {locales.route.login.passwordForgotten}
+                    </Link>
+                  </div>
+                </Form>
+              )}
+
+              <div className="flex flex-col gap-2 items-center">
+                <p className="text-neutral-800 text-base leading-5 font-normal">
+                  {locales.route.login.noMember}
+                </p>
+                <div className="flex gap-6">
+                  <Link
+                    to={`/register${
+                      loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                    }`}
+                    prefetch="intent"
+                    className="text-primary font-bold underline text-base leading-5 text-nowrap"
+                  >
+                    {locales.route.login.registerByEmail}
+                  </Link>
+                  <Link
+                    to={`/auth/keycloak${
+                      loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                    }`}
+                    className="text-primary font-bold underline text-base leading-5 text-nowrap"
+                  >
+                    {locales.route.login.createMintId}
+                  </Link>
+                </div>
+              </div>
+              <a
+                id="login-end"
+                href="#login-start"
+                className="absolute focus:relative w-0 h-0 opacity-0 focus:w-fit focus:h-fit focus:opacity-100 focus:px-1"
+              >
+                {locales.route.login.skip.end}
+              </a>
             </div>
-            <a
-              id="login-end"
-              href="#login-start"
-              className="absolute focus:relative w-0 h-0 opacity-0 focus:w-fit focus:h-fit focus:opacity-100 focus:px-1"
-            >
-              {locales.route.login.skip.end}
-            </a>
           </div>
         </div>
 
@@ -513,7 +515,7 @@ export default function Index() {
             />
           </svg>
         </div>
-        <div className="hidden xl:block absolute -top-20 -right-1 -z-10">
+        <div className="hidden xl:block absolute -top-20 -right-11.5 -z-10">
           <svg
             width="422"
             height="559"
@@ -573,113 +575,141 @@ export default function Index() {
       </section>
 
       {/* Event teaser section */}
-      <section>
-        <Image
-          src={eventSectionImage}
-          blurredSrc={eventSectionBlurredImage}
-          alt={locales.route.eventTeaser.image.alt}
-        >
-          <Image.Label withoutClassName>
-            <Link
-              to={`/organization/mintvernetzt/detail/about`}
-              prefetch="intent"
-              className={`${getImageLabelClassName()}`}
+      <section className="w-full flex flex-col gap-10 md:gap-6 px-4 md:px-10 xl:px-16 py-12 md:py-16 max-w-2xl mx-auto">
+        <div className="w-full flex flex-col md:flex-row-reverse md:items-center md:justify-between gap-10">
+          <div className="w-full md:h-110 rounded-2xl overflow-hidden">
+            <Image
+              src={eventSectionImage}
+              blurredSrc={eventSectionBlurredImage}
+              alt={locales.route.eventTeaser.image.alt}
             >
-              <div className="w-6 h-6 rounded-full overflow-hidden">
-                <Image
-                  src={mvLogo}
-                  blurredSrc={mvLogoBlurred}
-                  alt="MINTvernetzt"
-                />
-              </div>
-              <span className="text-white text-xs font-semibold leading-normal">
-                MINTvernetzt
-              </span>
-            </Link>
-          </Image.Label>
-          <Image.Credits credits={locales.route.eventTeaser.image.credits} />
-        </Image>
-        <h2>{locales.route.eventTeaser.headline}</h2>
-        <ul>
-          {[
-            locales.route.eventTeaser.benefits.formats,
-            locales.route.eventTeaser.benefits.knowledge,
-            locales.route.eventTeaser.benefits.ownEvents,
-          ].map((benefit) => {
-            return (
-              <li key={benefit}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  aria-hidden="true"
+              <Image.Label withoutClassName>
+                <Link
+                  to={`/organization/mintvernetzt/detail/about`}
+                  prefetch="intent"
+                  className={`${getImageLabelClassName()}`}
                 >
-                  <circle cx="12" cy="12" r="12" fill="#EDF3FF" />
-                  <path
-                    d="M7.59888 13.1995L10.5989 15.7995L17.1989 7.99951"
-                    stroke="#703D6B"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <span>{benefit}</span>
-              </li>
-            );
-          })}
-        </ul>
-
-        <h3>{locales.route.eventTeaser.upcomingEvents.headline}</h3>
-        {loaderData.upcomingEvents.length === 0 ? (
-          <p>{locales.route.eventTeaser.upcomingEvents.empty}</p>
-        ) : (
-          <ul>
-            {loaderData.upcomingEvents.map((event, index) => {
-              return (
-                <ListItemEvent
-                  key={event.id}
-                  index={index}
-                  to={`/event/${event.slug}/detail/about`}
-                >
-                  <ListItemEvent.Info
-                    {...event}
-                    stage={event.stage}
-                    participantCount={
-                      event._count.participants + event._count.guests
-                    }
-                    locales={{
-                      stages: loaderData.locales.stages,
-                      ...loaderData.locales.route.eventTeaser,
-                    }}
-                    language={loaderData.language}
-                    shownInfos={{ stage: false, date: true, seats: false }}
-                  ></ListItemEvent.Info>
-                  <ListItemEvent.Headline>{event.name}</ListItemEvent.Headline>
-                  {hasContent(event.subline) ||
-                  hasContent(event.description) ? (
-                    <ListItemEvent.Subline>
-                      {hasContent(event.subline) ? (
-                        event.subline
-                      ) : hasContent(event.description) ? (
-                        <RichText html={event.description} />
-                      ) : null}
-                    </ListItemEvent.Subline>
-                  ) : null}
-                </ListItemEvent>
-              );
-            })}
-          </ul>
-        )}
-        <Button
-          as="link"
-          variant="outline"
-          to="/explore/events"
-          prefetch="intent"
-        >
-          {locales.route.eventTeaser.allEvents}
-        </Button>
+                  <div className="w-6 h-6 rounded-full overflow-hidden">
+                    <Image
+                      src={mvLogo}
+                      blurredSrc={mvLogoBlurred}
+                      alt="MINTvernetzt"
+                    />
+                  </div>
+                  <span className="text-white text-xs font-semibold leading-normal">
+                    MINTvernetzt
+                  </span>
+                </Link>
+              </Image.Label>
+              <Image.Credits
+                credits={locales.route.eventTeaser.image.credits}
+              />
+            </Image>
+          </div>
+          <div className="w-full md:w-100 md:min-w-100 flex flex-col gap-10">
+            <div className="w-full flex flex-col gap-6">
+              <h2 className="mb-0 text-primary-600 text-5xl font-bold leading-9">
+                {locales.route.eventTeaser.headline}
+              </h2>
+              <ul className="flex flex-col gap-4">
+                {[
+                  locales.route.eventTeaser.benefits.formats,
+                  locales.route.eventTeaser.benefits.knowledge,
+                  locales.route.eventTeaser.benefits.ownEvents,
+                ].map((benefit) => {
+                  return (
+                    <li key={benefit} className="flex items-center gap-2">
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <circle cx="12" cy="12" r="12" fill="#EDF3FF" />
+                        <path
+                          d="M7.59888 13.1995L10.5989 15.7995L17.1989 7.99951"
+                          stroke="#703D6B"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      <span>{benefit}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+            <div className="hidden md:block">
+              <Button
+                as="link"
+                variant="outline"
+                to="/explore/events"
+                prefetch="intent"
+              >
+                {locales.route.eventTeaser.allEvents}
+              </Button>
+            </div>
+          </div>
+        </div>
+        <div className="w-full flex flex-col gap-4">
+          <h3 className="mb-0 text-primary-600 text-lg font-bold leading-6">
+            {locales.route.eventTeaser.upcomingEvents.headline}
+          </h3>
+          {loaderData.upcomingEvents.length === 0 ? (
+            <p>{locales.route.eventTeaser.upcomingEvents.empty}</p>
+          ) : (
+            <ul className="w-full grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-6">
+              {loaderData.upcomingEvents.map((event, index) => {
+                return (
+                  <ListItemEvent
+                    key={event.id}
+                    index={index}
+                    to={`/event/${event.slug}/detail/about`}
+                  >
+                    <ListItemEvent.Info
+                      {...event}
+                      stage={event.stage}
+                      participantCount={
+                        event._count.participants + event._count.guests
+                      }
+                      locales={{
+                        stages: loaderData.locales.stages,
+                        ...loaderData.locales.route.eventTeaser,
+                      }}
+                      language={loaderData.language}
+                      shownInfos={{ stage: false, date: true, seats: false }}
+                    ></ListItemEvent.Info>
+                    <ListItemEvent.Headline>
+                      {event.name}
+                    </ListItemEvent.Headline>
+                    {hasContent(event.subline) ||
+                    hasContent(event.description) ? (
+                      <ListItemEvent.Subline>
+                        {hasContent(event.subline) ? (
+                          event.subline
+                        ) : hasContent(event.description) ? (
+                          <RichText html={event.description} />
+                        ) : null}
+                      </ListItemEvent.Subline>
+                    ) : null}
+                  </ListItemEvent>
+                );
+              })}
+            </ul>
+          )}
+          <div className="md:hidden">
+            <Button
+              as="link"
+              variant="outline"
+              to="/explore/events"
+              prefetch="intent"
+            >
+              {locales.route.eventTeaser.allEvents}
+            </Button>
+          </div>
+        </div>
       </section>
 
       {/* Funding section */}
