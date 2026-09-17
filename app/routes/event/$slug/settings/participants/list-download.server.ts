@@ -47,6 +47,7 @@ export async function getFullDepthParticipantsOfEvent(slug: string) {
       guests: {
         select: {
           id: true,
+          academicTitle: true,
           firstName: true,
           lastName: true,
           email: true,
@@ -98,6 +99,7 @@ export async function getFullDepthParticipantsOfEvent(slug: string) {
           guests: {
             select: {
               id: true,
+              academicTitle: true,
               firstName: true,
               lastName: true,
               email: true,
@@ -158,11 +160,11 @@ export async function getFullDepthParticipantsOfEvent(slug: string) {
 
   const guestsOfEvent = event.guests.map((guest) => ({
     id: `guest:${guest.id}`,
-    academicTitle: "",
+    academicTitle: guest.academicTitle,
     firstName: guest.firstName,
     lastName: guest.lastName,
     email: guest.email,
-    position: "",
+    position: null,
     memberOf:
       guest.organizationName !== null
         ? [{ organization: { name: guest.organizationName } }]
@@ -174,11 +176,11 @@ export async function getFullDepthParticipantsOfEvent(slug: string) {
   const guestsOfChildEvents = event.childEvents.flatMap((childEvent) => [
     ...childEvent.guests.map((guest) => ({
       id: `guest:${guest.id}`,
-      academicTitle: "",
+      academicTitle: guest.academicTitle,
       firstName: guest.firstName,
       lastName: guest.lastName,
       email: guest.email,
-      position: "",
+      position: null,
       memberOf:
         guest.organizationName !== null
           ? [{ organization: { name: guest.organizationName } }]
@@ -236,11 +238,17 @@ export function createCsvString(
 
   for (const profile of profiles) {
     const data = [];
-    data.push(`"${profile.academicTitle}"`);
+    data.push(
+      typeof profile.academicTitle === "string"
+        ? `"${profile.academicTitle}"`
+        : ""
+    );
     data.push(`"${profile.firstName}"`);
     data.push(`"${profile.lastName}"`);
     data.push(typeof profile.email === "string" ? `"${profile.email}"` : "");
-    data.push(`"${profile.position}"`);
+    data.push(
+      typeof profile.position === "string" ? `"${profile.position}"` : ""
+    );
     data.push(
       Array.isArray(profile.memberOf)
         ? `"${profile.memberOf
