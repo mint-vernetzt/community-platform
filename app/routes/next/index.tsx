@@ -30,7 +30,6 @@ import tinkertankLogo from "~/assets/landing-page/tinkertank-logo.jpg";
 import tinkertankLogoBlurred from "~/assets/landing-page/tinkertank-logo-blurred.webp";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Accordion } from "~/components-next/Accordion";
-import BetaTag from "~/components-next/BetaTag";
 import { ShowPasswordButton } from "~/components-next/ShowPasswordButton";
 import { External } from "~/components-next/icons/External";
 import { Icon } from "~/components-next/icons/Icon";
@@ -50,7 +49,6 @@ import { isBotRequest } from "~/utils.server";
 import { hasContent } from "~/utils.shared";
 import { login } from "../login/index.server";
 import { createLoginSchema } from "../login/index.shared";
-import { getDataForToolsSection } from "../resources.server";
 import {
   getEventCount,
   getOrganizationCount,
@@ -58,12 +56,17 @@ import {
   getProjectCount,
 } from "../utils.server";
 import {
+  getDataForToolsSection,
   getEventTeaserOrganization,
   getProjectTeaserOrganization,
   getTestimonials,
   getUpcomingEvents,
 } from "./index.server";
-import { fundingSectionBobbel, loginSectionBobbel } from "./index.shared";
+import {
+  FundingSectionBobbel,
+  LoginSectionBobbel,
+  PiggyBank,
+} from "./index.shared";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -277,14 +280,38 @@ export default function Index() {
     },
   });
 
-  const toolKeys = [
-    "fundingSearch",
-    "sharepic",
-    "mediaDatabase",
-    "oeb",
-  ] as const;
+  const toolsSliderRef = useRef<HTMLUListElement>(null);
+  const [scrollAmount, setScrollAmount] = useState(0);
+  const [maxScroll, setMaxScroll] = useState(0);
+  useEffect(() => {
+    const slider = toolsSliderRef.current;
+    if (slider === null) {
+      return;
+    }
+    setMaxScroll(slider.scrollWidth - slider.getBoundingClientRect().width);
+    setScrollAmount(slider.scrollLeft);
 
-  const toolsSliderRef = useRef<HTMLDivElement>(null);
+    const handleScroll = () => {
+      if (slider === null) {
+        return;
+      }
+      setScrollAmount(slider.scrollLeft);
+    };
+    slider.addEventListener("scroll", handleScroll);
+
+    const handleResize = () => {
+      if (slider === null) {
+        return;
+      }
+      setMaxScroll(slider.scrollWidth - slider.clientWidth);
+    };
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      slider.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   function scrollToolsSlider(direction: "previous" | "next") {
     const slider = toolsSliderRef.current;
@@ -295,12 +322,13 @@ export default function Index() {
     if (firstCard === null) {
       return;
     }
-    const scrollAmount = firstCard.clientWidth + 24;
+    const newScrollAmount = firstCard.clientWidth + 24;
     if (direction === "previous") {
-      slider.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+      slider.scrollBy({ left: -newScrollAmount, behavior: "smooth" });
     } else {
-      slider.scrollBy({ left: scrollAmount, behavior: "smooth" });
+      slider.scrollBy({ left: newScrollAmount, behavior: "smooth" });
     }
+    setScrollAmount(slider.scrollLeft);
   }
 
   return (
@@ -508,7 +536,7 @@ export default function Index() {
             </div>
           </div>
         </div>
-        {loginSectionBobbel}
+        <LoginSectionBobbel />
       </section>
 
       {/* Counter section */}
@@ -732,7 +760,7 @@ export default function Index() {
               {locales.route.funding.cta}
             </Button>
           </div>
-          {fundingSectionBobbel}
+          <FundingSectionBobbel />
         </div>
       </section>
 
@@ -833,60 +861,93 @@ export default function Index() {
       </section>
 
       {/* Tools Section */}
-      <section>
-        <h2>{locales.route.tools.headline}</h2>
-        <div ref={toolsSliderRef}>
-          {toolKeys.map((toolKey) => {
-            const tool = toolsSectionData[toolKey];
-            const toolLocales = locales.route.tools[toolKey];
+      <section className="w-full flex flex-col gap-6 items-center py-12 md:py-16 max-w-2xl mx-auto">
+        <h2 className="mb-0 text-primary-600 text-5xl font-bold leading-9">
+          {locales.route.tools.headline}
+        </h2>
+        <ul
+          className="w-full flex flex-nowrap items-stretch gap-6 md:gap-8 overflow-y-auto px-4 md:px-10 xl:px-16 py-4"
+          ref={toolsSliderRef}
+        >
+          {toolsSectionData.map((tool) => {
+            const toolLocales = locales.route.tools.items[tool.name];
 
             return (
-              <div key={toolKey}>
-                <Image
-                  src={tool.imagePath}
-                  blurredSrc={tool.blurredImagePath}
-                  alt={toolLocales.imgAlt}
-                />
-                <h3>{toolLocales.headline}</h3>
-                {tool.beta ? <BetaTag /> : null}
-                <p>{toolLocales.content}</p>
-                <Button
-                  as="link"
-                  variant="outline"
-                  to={tool.link}
-                  rel={tool.external ? "noopener noreferrer" : undefined}
-                  target={tool.external ? "_blank" : undefined}
-                  prefetch={tool.external ? "none" : "intent"}
+              <li
+                key={tool.name}
+                className="flex flex-col min-w-83.5 md:min-w-120 w-83.5 md:w-120 rounded-2xl overflow-hidden border border-neutral-200 bg-white"
+              >
+                <div
+                  className={`w-full h-66 ${typeof tool.bgClassName !== "undefined" ? ` ${tool.bgClassName}` : ""}`}
                 >
-                  {tool.external ? (
-                    <span>
-                      <External />
-                    </span>
-                  ) : null}
-                  <span>{toolLocales.action}</span>
-                </Button>
-              </div>
+                  <div
+                    className={`w-full h-full${tool.name === "mediaDatabase" ? " rounded-lg overflow-hidden" : ""}`}
+                  >
+                    {tool.name === "fundings" ? (
+                      <div className="w-full h-66 flex justify-center items-center">
+                        <PiggyBank />
+                      </div>
+                    ) : (
+                      <Image
+                        src={tool.imagePath}
+                        blurredSrc={tool.blurredImagePath}
+                        alt={toolLocales.imgAlt}
+                      />
+                    )}
+                  </div>
+                </div>
+                <div className="w-full h-full flex flex-col gap-4 justify-between p-6">
+                  <div className="flex flex-col gap-4">
+                    <h3 className="mb-0 text-primary-600 text-3xl font-bold leading-8">
+                      {toolLocales.headline}
+                    </h3>
+                    <p className="text-neutral-700 text-base font-normal leading-5">
+                      {toolLocales.content}
+                    </p>
+                  </div>
+                  <Button
+                    as="link"
+                    variant="outline"
+                    to={tool.link}
+                    rel={tool.external ? "noopener noreferrer" : undefined}
+                    target={tool.external ? "_blank" : undefined}
+                    prefetch={tool.external ? "none" : "intent"}
+                  >
+                    {tool.external ? (
+                      <span>
+                        <External />
+                      </span>
+                    ) : null}
+                    <span>{toolLocales.action}</span>
+                  </Button>
+                </div>
+              </li>
             );
           })}
+        </ul>
+        <div className="flex gap-2">
+          {/* TODO: Integrate this variant in SquareButton. Design used detached component. */}
+          <button
+            type="button"
+            onClick={() => scrollToolsSlider("previous")}
+            aria-label={locales.route.tools.slider.previous}
+            className={`appearance-none font-semibold whitespace-nowrap flex items-center justify-center align-middle text-center rounded-lg p-2 h-10 w-10 min-w-10 text-sm leading-5 bg-white border-neutral-300 border ${scrollAmount <= 0 ? "pointer-events-none text-neutral-300" : "text-neutral-600 hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-hidden focus:border-primary-200"}`}
+          >
+            <Icon
+              type="chevron-right"
+              className="rotate-180"
+              aria-hidden="true"
+            />
+          </button>
+          <button
+            type="button"
+            onClick={() => scrollToolsSlider("next")}
+            aria-label={locales.route.tools.slider.next}
+            className={`appearance-none font-semibold whitespace-nowrap flex items-center justify-center align-middle text-center rounded-lg p-2 h-10 w-10 min-w-10 text-sm leading-5 border bg-white border-neutral-300 ${scrollAmount >= maxScroll ? "pointer-events-none text-neutral-300" : "text-neutral-600 hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-hidden focus:border-primary-200"}`}
+          >
+            <Icon type="chevron-right" aria-hidden="true" />
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => scrollToolsSlider("previous")}
-          aria-label={locales.route.tools.slider.previous}
-        >
-          <Icon
-            type="chevron-right"
-            className="rotate-180"
-            aria-hidden="true"
-          />
-        </button>
-        <button
-          type="button"
-          onClick={() => scrollToolsSlider("next")}
-          aria-label={locales.route.tools.slider.next}
-        >
-          <Icon type="chevron-right" aria-hidden="true" />
-        </button>
       </section>
 
       {/* Community Section */}

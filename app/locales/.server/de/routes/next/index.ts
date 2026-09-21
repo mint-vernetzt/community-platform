@@ -36,33 +36,35 @@ export const locale = {
       previous: "Vorherige Tools anzeigen",
       next: "Weitere Tools anzeigen",
     },
-    fundingSearch: {
-      imgAlt: "Ein Sparschwein.",
-      headline: "Fördermittelsuche",
-      content:
-        "Finde passende Förderungen mit unserer Fördermittelsuche. Wir durchsuchen Förderdatenbanken nach relevanten Suchbegriffen und spielen die Ergebnisse gesammelt aus.",
-      action: "Zur Fördermittelsuche",
-    },
-    sharepic: {
-      imgAlt: "Ein Bild eines jungen Mädchens mit VR-Brille.",
-      headline: "MINT-Sharepic-Generator",
-      content:
-        "Erstelle ganz einfach Grafiken für Deine Öffentlichkeitsarbeit und nutze datenschutzkonform Deine eigenen Bilder oder greife auf Bilder und Grafiken der integrierten MINT-Mediendatenbank zurück.",
-      action: "Zum Sharepic-Generator",
-    },
-    mediaDatabase: {
-      imgAlt: "Vier Bilder als Kacheln angeordnet mit MINT-Bezug.",
-      headline: "MINT-Mediendatenbank",
-      content:
-        "Finde in unserer sich stetig erweiternden Datenbank freie MINT-Bilder und Grafiken, um Deine Öffentlichkeitsarbeit ansprechend und zielgruppengerecht zu gestalten.",
-      action: "Zur MINT-Mediendatenbank",
-    },
-    oeb: {
-      imgAlt: "Das Logo von MINT Open Educational Badges.",
-      headline: "MINT Open Educational Badges (OEB)",
-      content:
-        "Erstelle mit Open Educational Badges minutenschnell Badges (digitale Nachweise) für Deine Lernenden und schaffe mehr Sichtbarkeit für die Qualität Deiner Lernangebote.",
-      action: "Zu MINT-OEB",
+    items: {
+      sharepic: {
+        imgAlt: "Screenshot des Sharepic-Generators",
+        headline: "Sharepic-Generator",
+        content:
+          "Erstelle Grafiken für Deine Öffentlichkeits-arbeit und nutze datenschutz­konform Deine eigenen Bilder oder greife auf Bilder und Grafiken der integrierten MINT-Mediendatenbank zurück.",
+        action: "Zum Sharepic-Generator",
+      },
+      map: {
+        imgAlt: "Screenshot der MINT-Community-Karte",
+        headline: "MINT-Community-Karte",
+        content:
+          "Nutze die Karte, um MINT-Organisationen in Deiner Nähe zu finden. Binde die Karte ganz einfach auf Deiner Website ein.",
+        action: "MINT-Community-Karte erkunden",
+      },
+      mediaDatabase: {
+        imgAlt: "Screenshot der MINT-Mediendatenbank",
+        headline: "MINT-Mediendatenbank",
+        content:
+          "Finde MINT-Bilder und Grafiken für Deine MINT-Kommunikation: vielfältig, diversitätssensibel und kostenlos.",
+        action: "Zur MINT-Mediendatenbank",
+      },
+      fundings: {
+        imgAlt: "Ein Sparschwein",
+        headline: "Fördermittelsuche",
+        content:
+          "Gebündelte Fördermittelsuche – entdecke passende Programme und finde neue Finanzierungsmöglichkeiten für Deine Arbeit.",
+        action: "Zur Fördermittelsuche",
+      },
     },
   },
   community: {

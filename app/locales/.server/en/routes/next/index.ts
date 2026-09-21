@@ -35,33 +35,35 @@ export const locale = {
       previous: "Show previous tools",
       next: "Show more tools",
     },
-    fundingSearch: {
-      imgAlt: "A piggy bank.",
-      headline: "Funding search",
-      content:
-        "Find suitable funding with our funding search. We search funding databases for relevant keywords and present the results to you in a collected way.",
-      action: "To the funding search",
-    },
-    sharepic: {
-      imgAlt: "An image of a young girl with VR glasses.",
-      headline: "MINT Sharepic Generator",
-      content:
-        "Create graphics for your public relations work easily and use your own images in compliance with data protection regulations or access images and graphics from the integrated MINT Media Database.",
-      action: "To the MINT Sharepic Generator",
-    },
-    mediaDatabase: {
-      imgAlt: "Four images arranged as tiles with a STEM reference.",
-      headline: "MINT Media Database",
-      content:
-        "Find free STEM images and graphics in our constantly expanding database to make your public relations work appealing and target group-oriented.",
-      action: "To the MINT Media Database",
-    },
-    oeb: {
-      imgAlt: "The logo of MINT Open Educational Badges.",
-      headline: "MINT Open Educational Badges (OEB)",
-      content:
-        "Create badges (digital evidence) for your learners in minutes with Open Educational Badges and create more visibility for the quality of your learning opportunities.",
-      action: "To MINT-OEB",
+    items: {
+      sharepic: {
+        imgAlt: "Screenshot of the Sharepic generator",
+        headline: "Sharepic generator",
+        content:
+          "Create graphics for your public relations work and use your own images in compliance with data protection regulations or access images and graphics from the integrated STEM media database.",
+        action: "To the Sharepic generator",
+      },
+      map: {
+        imgAlt: "Screenshot of the STEM community map",
+        headline: "STEM community map",
+        content:
+          "Use the map to find STEM organizations in your area. Easily embed the map on your website.",
+        action: "Explore the STEM map",
+      },
+      mediaDatabase: {
+        imgAlt: "Screenshot of the STEM media database",
+        headline: "STEM media database",
+        content:
+          "Find STEM images and graphics for your STEM communication: diverse, diversity-sensitive, and free of charge.",
+        action: "To the STEM media database",
+      },
+      fundings: {
+        imgAlt: "A piggy bank",
+        headline: "Funding search",
+        content:
+          "Bundled funding search – discover suitable programs and find new financing opportunities for your work.",
+        action: "To the funding search",
+      },
     },
   },
   community: {

@@ -3,6 +3,12 @@ import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import testimonials from "./testimonials.json";
+import sharepicImage from "~/assets/landing-page/sharepic 1.png";
+import sharepicBlurredImage from "~/assets/landing-page/sharepic 1-blurred.webp";
+import mapImage from "~/assets/landing-page/community-map.png";
+import mapBlurredImage from "~/assets/landing-page/community-map-blurred.webp";
+import mediaDatabaseImage from "~/assets/landing-page/media-database.png";
+import mediaDatabaseBlurredImage from "~/assets/landing-page/media-database-blurred.webp";
 
 export type NextLandingPageLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES
@@ -80,6 +86,52 @@ export async function getProjectTeaserOrganization() {
   });
 
   return organization;
+}
+
+export function getDataForToolsSection() {
+  type ToolKey = keyof (typeof languageModuleMap)[
+    "de" | "en"]["next/index"]["route"]["tools"]["items"];
+  type ToolListItems = Array<{
+    name: ToolKey;
+    link: string;
+    imagePath: string;
+    blurredImagePath: string;
+    external: boolean;
+    bgClassName?: string;
+  }>;
+  const toolListItems: ToolListItems = [
+    {
+      name: "sharepic",
+      link: "https://sharepic.mint-vernetzt.de/",
+      imagePath: sharepicImage,
+      blurredImagePath: sharepicBlurredImage,
+      external: true,
+    },
+    {
+      name: "map",
+      link: "/explore/organizations/map",
+      imagePath: mapImage,
+      blurredImagePath: mapBlurredImage,
+      external: false,
+    },
+    {
+      name: "mediaDatabase",
+      link: "https://mediendatenbank.mint-vernetzt.de",
+      imagePath: mediaDatabaseImage,
+      blurredImagePath: mediaDatabaseBlurredImage,
+      external: true,
+      bgClassName: "bg-[#222831] py-4 px-9",
+    },
+    {
+      name: "fundings",
+      link: "/explore/fundings",
+      imagePath: "",
+      blurredImagePath: "",
+      external: false,
+      bgClassName: "bg-neutral-50",
+    },
+  ];
+  return toolListItems;
 }
 
 export async function getTestimonials() {
