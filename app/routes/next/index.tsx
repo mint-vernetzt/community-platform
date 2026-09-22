@@ -6,7 +6,7 @@ import {
   Image,
 } from "@mint-vernetzt/components/src/molecules/Image";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type TouchEvent } from "react";
 import {
   Form,
   Link,
@@ -56,6 +56,7 @@ import {
   getProjectCount,
 } from "../utils.server";
 import {
+  getDataForCommunityImages,
   getDataForToolsSection,
   getEventTeaserOrganization,
   getProjectTeaserOrganization,
@@ -100,50 +101,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const toolsSectionData = getDataForToolsSection();
 
-  const testimonials = await getTestimonials();
+  const communityImages = getDataForCommunityImages();
 
-  const communityImages = [
-    {
-      src: "/images/landingpage_images/231121_Thinkaton_HF_1425_1.png",
-      credit: "© Andi Weiland",
-    },
-    {
-      src: "/images/landingpage_images/231121_Thinkaton_HF_1689.png",
-      credit: "© Andi Weiland",
-    },
-    {
-      src: "/images/landingpage_images/Designbasedlearning_Bbarth.png",
-      credit: "© Andi Weiland",
-    },
-    {
-      src: "/images/landingpage_images/Designbasedlearning_Bbarth_2.png",
-      credit: "© Andi Weiland",
-    },
-    {
-      src: "/images/landingpage_images/Jahrestagung_2025_Head_NMF.jpg",
-      credit: "© Andi Weiland",
-    },
-    {
-      src: "/images/landingpage_images/Lisa_Ihde.png",
-      credit: "© Andi Weiland",
-    },
-    {
-      src: "/images/landingpage_images/MINTvernetzt_Tag_01_Foto_andi_weiland_01.png",
-      credit: "© Andi Weiland",
-    },
-    {
-      src: "/images/landingpage_images/MINTvernetzt_Tag_01_Foto_andi_weiland_02.png",
-      credit: "© Andi Weiland",
-    },
-    {
-      src: "/images/landingpage_images/MINTVJT11022025.png",
-      credit: "© Andi Weiland",
-    },
-    {
-      src: "/images/landingpage_images/Yosa_Peit.png",
-      credit: "© Andi Weiland",
-    },
-  ];
+  const testimonials = await getTestimonials();
 
   return {
     locales,
@@ -224,39 +184,7 @@ export default function Index() {
 
   const loginRedirect = urlSearchParams.get("login_redirect");
 
-  const [activeSlide, setActiveSlide] = useState(0);
-  const [autoPlay, setAutoPlay] = useState(true);
-
-  useEffect(() => {
-    if (autoPlay === false) {
-      return;
-    }
-    const interval = setInterval(() => {
-      setActiveSlide(
-        (currentSlide) => (currentSlide + 1) % communityImages.length
-      );
-    }, 6000);
-    return () => clearInterval(interval);
-  }, [autoPlay, communityImages.length]);
-  const testimonialListRef = useRef<HTMLUListElement>(null);
-
-  const scrollTestimonials = (direction: "previous" | "next") => {
-    const list = testimonialListRef.current;
-    if (list === null) {
-      return;
-    }
-    const firstItem = list.firstElementChild;
-    if (firstItem instanceof HTMLElement === false) {
-      return;
-    }
-    // Card width + gap
-    const scrollAmount = firstItem.offsetWidth + 24;
-    list.scrollBy({
-      left: direction === "next" ? scrollAmount : -scrollAmount,
-      behavior: "smooth",
-    });
-  };
-
+  // Login Section logic
   const [showPassword, setShowPassword] = useState(false);
   const [loginForm, loginFields] = useForm({
     id: "login-form",
@@ -280,6 +208,7 @@ export default function Index() {
     },
   });
 
+  // Tools Section logic
   const toolsSliderRef = useRef<HTMLUListElement>(null);
   const [scrollAmount, setScrollAmount] = useState(0);
   const [maxScroll, setMaxScroll] = useState(0);
@@ -330,6 +259,78 @@ export default function Index() {
     }
     setScrollAmount(slider.scrollLeft);
   }
+
+  // Community Section logic
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [autoPlay, setAutoPlay] = useState(true);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (autoPlay === false) {
+      return;
+    }
+    const interval = setInterval(() => {
+      setActiveSlide(
+        (currentSlide) => (currentSlide + 1) % communityImages.length
+      );
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [autoPlay, communityImages.length]);
+
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (event: TouchEvent<HTMLUListElement>) => {
+    setTouchEnd(null); // otherwise the swipe is fired even with usual touch events
+    setTouchStart(event.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (event: TouchEvent<HTMLUListElement>) =>
+    setTouchEnd(event.targetTouches[0].clientX);
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    if (isLeftSwipe) {
+      setActiveSlide(
+        (currentSlide) => (currentSlide + 1) % communityImages.length
+      );
+    }
+    if (isRightSwipe) {
+      setActiveSlide(
+        (currentSlide) =>
+          (currentSlide - 1 + communityImages.length) % communityImages.length
+      );
+    }
+    setAutoPlay(false);
+  };
+
+  const onClick = (index: number) => {
+    setActiveSlide(index);
+    setAutoPlay(false);
+  };
+
+  // Testimonials Section logic
+  const testimonialListRef = useRef<HTMLUListElement>(null);
+
+  const scrollTestimonials = (direction: "previous" | "next") => {
+    const list = testimonialListRef.current;
+    if (list === null) {
+      return;
+    }
+    const firstItem = list.firstElementChild;
+    if (firstItem instanceof HTMLElement === false) {
+      return;
+    }
+    // Card width + gap
+    const scrollAmount = firstItem.offsetWidth + 24;
+    list.scrollBy({
+      left: direction === "next" ? scrollAmount : -scrollAmount,
+      behavior: "smooth",
+    });
+  };
 
   return (
     <>
@@ -951,156 +952,169 @@ export default function Index() {
       </section>
 
       {/* Community Section */}
-      <section>
-        <h2>{locales.route.community.headline}</h2>
-        <p>{locales.route.community.intro}</p>
-        <ul>
-          {communityImages.map((image, index) => {
-            return (
-              <li key={image.src} aria-hidden={index !== activeSlide}>
-                <Image
-                  src={image.src}
-                  alt={locales.route.community.slideshow.imageAlt}
-                  disableFadeIn
-                />
-                {typeof image.credit !== "undefined" && image.credit !== "" ? (
-                  <>
-                    <div>{image.credit}</div>
-                    <div>{image.credit}</div>
-                  </>
-                ) : null}
-              </li>
-            );
-          })}
-          <div>
+      <section className="w-full flex flex-col gap-10 md:gap-16 py-12 md:py-16 max-w-2xl mx-auto">
+        <div className="w-full flex flex-col gap-10 px-4 md:px-10 xl:px-16">
+          <div className="flex flex-col gap-6 max-w-166">
+            <h2 className="mb-0 text-primary-600 text-6xl font-bold leading-11">
+              {locales.route.community.headline}
+            </h2>
+            <p className="text-neutral-800 text-lg font-semibold leading-6">
+              {locales.route.community.intro}
+            </p>
+          </div>
+          <ul
+            className="relative w-full rounded-2xl overflow-hidden h-111"
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+          >
             {communityImages.map((image, index) => {
               return (
-                <button
+                <li
                   key={image.src}
-                  type="button"
-                  onClick={() => {
-                    setActiveSlide(index);
-                    setAutoPlay(false);
-                  }}
-                  aria-label={insertParametersIntoLocale(
-                    locales.route.community.slideshow.showImage,
-                    { number: index + 1, total: communityImages.length }
-                  )}
-                  aria-current={index === activeSlide}
-                />
-              );
-            })}
-          </div>
-        </ul>
-      </section>
-
-      {/* Testimonials Section */}
-      {loaderData.testimonials.length > 0 ? (
-        <section>
-          <h2>{locales.route.testimonials.headline}</h2>
-          <ul ref={testimonialListRef}>
-            {loaderData.testimonials.map((testimonial) => {
-              const cardContent = (
-                <>
-                  <img src={testimonial.image} alt="" />
-                  <p>{testimonial.quote[loaderData.language]}</p>
-                  <p>{testimonial.name}</p>
-                  <p>{testimonial.organization}</p>
-                </>
-              );
-              return (
-                <li key={testimonial.username}>
-                  {testimonial.profileExists ? (
-                    <Link
-                      to={`/profile/${testimonial.username}`}
-                      prefetch="intent"
-                    >
-                      {cardContent}
-                    </Link>
-                  ) : (
-                    <div>{cardContent}</div>
-                  )}
+                  aria-hidden={index !== activeSlide}
+                  className={`absolute inset-0 transition-opacity duration-700 ${index === activeSlide ? "opacity-100" : "opacity-0 invisible"}`}
+                >
+                  <Image
+                    src={image.src}
+                    alt={locales.route.community.items[image.name].imgAlt}
+                    gravity={image.gravity}
+                  >
+                    <Image.Credits
+                      credits={locales.route.community.items[image.name].credit}
+                    />
+                  </Image>
                 </li>
               );
             })}
+            <div className="absolute bottom-4 left-4 md:right-4 flex justify-center">
+              <div className="flex gap-2.5 p-1 rounded-lg bg-neutral-800/80">
+                {communityImages.map((image, index) => {
+                  return (
+                    <button
+                      key={image.src}
+                      type="button"
+                      onClick={() => onClick(index)}
+                      aria-label={insertParametersIntoLocale(
+                        locales.route.community.slideshow.showImage,
+                        { number: index + 1, total: communityImages.length }
+                      )}
+                      aria-current={index === activeSlide}
+                      className={`w-2 h-2 rounded-full transition-colors duration-300 ${index === activeSlide ? "bg-primary-300" : "bg-neutral-200"}`}
+                    />
+                  );
+                })}
+              </div>
+            </div>
           </ul>
-          <button
-            type="button"
-            onClick={() => scrollTestimonials("previous")}
-            aria-label={locales.route.testimonials.controls.previous}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M10 4L6 8L10 12"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-          <button
-            type="button"
-            onClick={() => scrollTestimonials("next")}
-            aria-label={locales.route.testimonials.controls.next}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M6 4L10 8L6 12"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-        </section>
-      ) : null}
-
-      {/* Roadmap teaser section */}
-      <section>
-        <div aria-hidden="true">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 511 511"
-            fill="none"
-          >
-            <path
-              fill="#D0A9CD"
-              d="M201.799 57.4368C237.555 48.0792 279.068 73.5963 285.952 76.3423C292.835 79.0883 366.328 113.382 405.626 143.78C454.749 181.778 431.366 235.014 385.562 350.393C339.757 465.772 293.626 448.717 148.36 374.864C-4.08188 297.363 66.3955 217.402 93.5953 169.696C120.795 121.99 166.044 66.7943 201.799 57.4368Z"
-            />
-            <path
-              stroke="#BBD1FC"
-              strokeWidth="2"
-              d="M460.775 278.011C456.13 316.774 414.981 347.696 409.617 353.398C404.254 359.099 342.099 418.054 297.01 444.908C240.648 478.477 197.379 434.887 101.716 345.204C6.05168 255.521 40.6721 216.785 169.492 102.606C304.675 -17.2132 355.977 83.0075 392.334 128.208C428.69 173.408 465.42 239.247 460.775 278.011Z"
-            />
-          </svg>
         </div>
-        <h2>{locales.route.communityCta.headline}</h2>
-        <p>{locales.route.communityCta.intro}</p>
-        <Button
-          as="link"
-          to="/next/get-involved"
-          variant="outline"
-          fullSize
-          prefetch="intent"
-        >
-          {locales.route.communityCta.getInvolved}
-        </Button>
+
+        {loaderData.testimonials.length > 0 ? (
+          <div>
+            <h2>{locales.route.testimonials.headline}</h2>
+            <ul ref={testimonialListRef}>
+              {loaderData.testimonials.map((testimonial) => {
+                const cardContent = (
+                  <>
+                    <img src={testimonial.image} alt="" />
+                    <p>{testimonial.quote[loaderData.language]}</p>
+                    <p>{testimonial.name}</p>
+                    <p>{testimonial.organization}</p>
+                  </>
+                );
+                return (
+                  <li key={testimonial.username}>
+                    {testimonial.profileExists ? (
+                      <Link
+                        to={`/profile/${testimonial.username}`}
+                        prefetch="intent"
+                      >
+                        {cardContent}
+                      </Link>
+                    ) : (
+                      <div>{cardContent}</div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+            <button
+              type="button"
+              onClick={() => scrollTestimonials("previous")}
+              aria-label={locales.route.testimonials.controls.previous}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M10 4L6 8L10 12"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollTestimonials("next")}
+              aria-label={locales.route.testimonials.controls.next}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M6 4L10 8L6 12"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+          </div>
+        ) : null}
+
+        <div>
+          <div aria-hidden="true">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 511 511"
+              fill="none"
+            >
+              <path
+                fill="#D0A9CD"
+                d="M201.799 57.4368C237.555 48.0792 279.068 73.5963 285.952 76.3423C292.835 79.0883 366.328 113.382 405.626 143.78C454.749 181.778 431.366 235.014 385.562 350.393C339.757 465.772 293.626 448.717 148.36 374.864C-4.08188 297.363 66.3955 217.402 93.5953 169.696C120.795 121.99 166.044 66.7943 201.799 57.4368Z"
+              />
+              <path
+                stroke="#BBD1FC"
+                strokeWidth="2"
+                d="M460.775 278.011C456.13 316.774 414.981 347.696 409.617 353.398C404.254 359.099 342.099 418.054 297.01 444.908C240.648 478.477 197.379 434.887 101.716 345.204C6.05168 255.521 40.6721 216.785 169.492 102.606C304.675 -17.2132 355.977 83.0075 392.334 128.208C428.69 173.408 465.42 239.247 460.775 278.011Z"
+              />
+            </svg>
+          </div>
+          <h2>{locales.route.communityCta.headline}</h2>
+          <p>{locales.route.communityCta.intro}</p>
+          <Button
+            as="link"
+            to="/next/get-involved"
+            variant="outline"
+            fullSize
+            prefetch="intent"
+          >
+            {locales.route.communityCta.getInvolved}
+          </Button>
+        </div>
       </section>
 
       {/* About section */}

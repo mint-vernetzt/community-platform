@@ -8,16 +8,46 @@ import {
   useState,
 } from "react";
 
+export type ImageGravity =
+  | "center"
+  | "top"
+  | "bottom"
+  | "left"
+  | "right"
+  | "top-left"
+  | "top-right"
+  | "bottom-left"
+  | "bottom-right";
+
+function gravityClass(gravity: ImageGravity) {
+  if (gravity === "center") return "object-center";
+  if (gravity === "top") return "object-top";
+  if (gravity === "bottom") return "object-bottom";
+  if (gravity === "left") return "object-left";
+  if (gravity === "right") return "object-right";
+  if (gravity === "top-left") return "object-top-left";
+  if (gravity === "top-right") return "object-top-right";
+  if (gravity === "bottom-left") return "object-bottom-left";
+  if (gravity === "bottom-right") return "object-bottom-right";
+  return "object-center";
+}
+
 export type ImageProps = {
   src?: string;
   alt?: string;
   blurredSrc?: string;
   resizeType?: "fit" | "fill";
   disableFadeIn?: boolean;
+  gravity?: ImageGravity;
 };
 
 function Image(props: PropsWithChildren<ImageProps>) {
-  const { resizeType = "fill", disableFadeIn, children } = props;
+  const {
+    resizeType = "fill",
+    disableFadeIn,
+    gravity = "center",
+    children,
+  } = props;
   const imageRef = useRef<HTMLImageElement | null>(null);
   const blurredImageRef = useRef<HTMLImageElement | null>(null);
   const [imageLoaded, setImageLoaded] = useState(disableFadeIn || false);
@@ -57,7 +87,7 @@ function Image(props: PropsWithChildren<ImageProps>) {
               }
               className={`w-full h-full ${
                 resizeType === "fit" ? "object-contain" : "object-cover"
-              }`}
+              } ${gravityClass(gravity)}`}
             />
           </noscript>
         ) : null}
@@ -73,7 +103,7 @@ function Image(props: PropsWithChildren<ImageProps>) {
               blurredImageLoaded
                 ? "opacity-100 transition-opacity duration-200 ease-in"
                 : "opacity-0 invisible"
-            }`}
+            } ${gravityClass(gravity)}`}
             aria-hidden="true"
           />
         ) : null}
@@ -87,7 +117,7 @@ function Image(props: PropsWithChildren<ImageProps>) {
             }}
             className={`relative w-full h-full inset-0 ${
               resizeType === "fit" ? "object-contain" : "object-cover"
-            } ${
+            } ${gravityClass(gravity)} ${
               imageLoaded
                 ? "opacity-100 transition-opacity duration-200 ease-in"
                 : "opacity-0 invisible h-0 w-0"

@@ -72,8 +72,54 @@ export const locale = {
     intro:
       "Austausch, der Dich weiterbringt – mit frischen Impulsen aus der Community und neuen Perspektiven von außen.",
     slideshow: {
-      imageAlt: "Foto aus der MINTvernetzt-Community",
       showImage: "Bild {{number}} von {{total}} anzeigen",
+    },
+    items: {
+      mvAnnualMeeting: {
+        imgAlt:
+          "Das jährliche Treffen der MINTvernetzt-Community - Die MINTvernetzt Jahrestagung",
+        credit: "© Mark Bollhorst",
+      },
+      thinkathon24: {
+        imgAlt:
+          "Der MINTvernetzt Thinkathon 2024 mit der MINTvernetzt-Community",
+        credit: "© Heike Fischer Fotografie",
+      },
+      thinkathon22: {
+        imgAlt:
+          "Der MINTvernetzt Thinkathon 2022 mit der MINTvernetzt-Community",
+        credit: "© Andi Weiland",
+      },
+      thinkathon22_2: {
+        imgAlt:
+          "Der MINTvernetzt Thinkathon 2022 mit der MINTvernetzt-Community - Teil 2",
+        credit: "© Andi Weiland",
+      },
+      designBasedLearning: {
+        imgAlt:
+          "Der MINTvernetzt Design-Based-Learning-Workshop 2025 mit der MINTvernetzt-Community",
+        credit: "© Beatrice Barth",
+      },
+      thinkathon24_2: {
+        imgAlt:
+          "Der MINTvernetzt Thinkathon 2024 mit der MINTvernetzt-Community - Teil 2",
+        credit: "© Heike Fischer Fotografie",
+      },
+      thinkathon22_3: {
+        imgAlt:
+          "Der MINTvernetzt Thinkathon 2022 mit der MINTvernetzt-Community - Teil 3",
+        credit: "© Andi Weiland",
+      },
+      thinkathon22_4: {
+        imgAlt:
+          "Der MINTvernetzt Thinkathon 2022 mit der MINTvernetzt-Community - Teil 4",
+        credit: "© Andi Weiland",
+      },
+      designBasedLearning_2: {
+        imgAlt:
+          "Der MINTvernetzt Design-Based-Learning-Workshop 2025 mit der MINTvernetzt-Community - Teil 2",
+        credit: "© Beatrice Barth",
+      },
     },
   },
   login: {
@@ -145,7 +191,7 @@ export const locale = {
     website: "MINTvernetzt Website",
     image: {
       alt: "Das MINTvernetzt-Team steht auf einer Wendeltreppe",
-      credits: "",
+      credits: "© Mark Bollhorst",
     },
   },
   faq: {

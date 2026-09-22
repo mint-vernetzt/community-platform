@@ -71,8 +71,54 @@ export const locale = {
     intro:
       "Exchange that takes you further – with fresh impulses from the community and new perspectives from outside.",
     slideshow: {
-      imageAlt: "Photo from the MINTvernetzt community",
       showImage: "Show image {{number}} of {{total}}",
+    },
+    items: {
+      mvAnnualMeeting: {
+        imgAlt:
+          "The annual meeting of the MINTvernetzt community - MINTvernetzt Jahrestagung",
+        credit: "© Mark Bollhorst",
+      },
+      thinkathon24: {
+        imgAlt:
+          "The 2024 MINTvernetzt thinkathon event of the MINTvernetzt community",
+        credit: "© Heike Fischer Fotografie",
+      },
+      thinkathon22: {
+        imgAlt:
+          "The 2022 MINTvernetzt thinkathon event of the MINTvernetzt community",
+        credit: "© Andi Weiland",
+      },
+      thinkathon22_2: {
+        imgAlt:
+          "The 2022 MINTvernetzt thinkathon event of the MINTvernetzt community - part 2",
+        credit: "© Andi Weiland",
+      },
+      designBasedLearning: {
+        imgAlt:
+          "The 2025 MINTvernetzt design-based learning workshop for the MINTvernetzt community",
+        credit: "© Beatrice Barth",
+      },
+      thinkathon24_2: {
+        imgAlt:
+          "The 2024 MINTvernetzt thinkathon event of the MINTvernetzt community - part 2",
+        credit: "© Heike Fischer Fotografie",
+      },
+      thinkathon22_3: {
+        imgAlt:
+          "The 2022 MINTvernetzt thinkathon event of the MINTvernetzt community - part 3",
+        credit: "© Andi Weiland",
+      },
+      thinkathon22_4: {
+        imgAlt:
+          "The 2022 MINTvernetzt thinkathon event of the MINTvernetzt community - part 4",
+        credit: "© Andi Weiland",
+      },
+      designBasedLearning_2: {
+        imgAlt:
+          "The 2025 MINTvernetzt design-based learning workshop for the MINTvernetzt community - part 2",
+        credit: "© Beatrice Barth",
+      },
     },
   },
   login: {
@@ -144,7 +190,7 @@ export const locale = {
     website: "MINTvernetzt website",
     image: {
       alt: "The MINTvernetzt team standing on a spiral staircase",
-      credits: "",
+      credits: "© Mark Bollhorst",
     },
   },
   faq: {
