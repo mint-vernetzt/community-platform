@@ -51,6 +51,7 @@ import {
   SEARCH_OWN_ORGANIZATIONS_SEARCH_PARAM,
 } from "./add.shared";
 import TitleSection from "~/components/next/TitleSection";
+import { updateFilterVectorOfEvent } from "../utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -213,6 +214,9 @@ export async function action(args: ActionFunctionArgs) {
       await addOwnOrganizationToEvent({
         eventId: event.id,
         organizationId: submission.value[ORGANIZATION_ID_FIELD],
+      });
+      updateFilterVectorOfEvent(event.id).catch((error) => {
+        captureException(error);
       });
     } catch (error) {
       captureException(error);
