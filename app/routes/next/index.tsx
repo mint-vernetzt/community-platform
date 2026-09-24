@@ -963,7 +963,7 @@ export default function Index() {
             </p>
           </div>
           <ul
-            className="relative w-full rounded-2xl overflow-hidden h-111"
+            className="relative w-full rounded-2xl overflow-hidden h-111 xl:h-120"
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
