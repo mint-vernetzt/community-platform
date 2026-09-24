@@ -76,9 +76,10 @@
                       {{/if}}
                       {{#if profile.isGuest}}
                       <b>Deine Anmeldung und weitere Veranstaltungen</b><br />
-                      {{#unless profile.isOnWaitingList}}Ausschließlich über Deinen <a href="{{event.url}}"
-                        style="text-decoration: underline; font-weight: bold">persönlichen Link</a> kannst Du Dich für
-                      weitere zugehörige Veranstaltungen anmelden. {{/unless}}Wenn Du
+                      {{#unless profile.isOnWaitingList}}{{#if event.isParent}}Ausschließlich über Deinen <a
+                        href="{{event.url}}" style="text-decoration: underline; font-weight: bold">persönlichen Link</a>
+                      kannst Du Dich für
+                      weitere zugehörige Veranstaltungen anmelden. {{/if}}{{/unless}}Wenn Du
                       Dich für eine weitere Veranstaltung anmeldest, gibst Du Deine Anmeldedaten erneut ein und
                       bestätigst anschließend Deine
                       E-Mail-Adresse. So stellen wir sicher, dass die Anmeldung wirklich von Dir kommt.<br /><br />
@@ -257,9 +258,9 @@
                       {{/if}}
                       {{#if profile.isGuest}}
                       <b>Your registration and further events</b><br />
-                      {{#unless profile.isOnWaitingList}}Only through your <a href="{{event.url}}"
+                      {{#unless profile.isOnWaitingList}}{{#if event.isParent}}Only through your <a href="{{event.url}}"
                         style="text-decoration: underline; font-weight: bold">personal link</a> can you register for
-                      further related events. {{/unless}}When you register for another event, you enter your
+                      further related events. {{/if}}{{/unless}}When you register for another event, you enter your
                       registration data
                       again and
                       then confirm your email address. This ensures that the registration really comes from

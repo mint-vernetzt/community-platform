@@ -82,8 +82,8 @@ function ShowMoreButton(props: { showMore: string; showLess: string }) {
         }}
         checked={checked}
       />
-      <span className="peer-[:checked]:hidden">{props.showMore}</span>
-      <span className="hidden peer-[:checked]:inline">{props.showLess}</span>
+      <span className="peer-checked:hidden">{props.showMore}</span>
+      <span className="hidden peer-checked:inline">{props.showLess}</span>
     </label>
   );
 }
@@ -123,7 +123,7 @@ function FiltersFieldset(
     <fieldset {...otherProps} className={classes}>
       {firstChildren}
       <ShowMoreButton showMore={showMore} showLess={showLess} />
-      <div className="@lg:hidden @lg:peer-has-[:checked]:flex gap-4 @lg:w-full">
+      <div className="@lg:hidden @lg:peer-has-checked:flex gap-4 @lg:w-full">
         {restChildren}
       </div>
     </fieldset>
@@ -266,7 +266,7 @@ export function Filters(props: FiltersProps) {
             </svg>
           </Link>
         </div>
-        <div className="flex flex-col-reverse grow @lg:flex-row @lg:justify-between">
+        <div className="flex flex-col-reverse grow @lg:flex-row @lg:justify-between @lg:gap-6">
           {fieldSets}
         </div>
         <div className="p-5 max-h-full flex flex-col @lg:flex-row justify-between gap-2 border-t border-gray @lg:hidden">
@@ -274,9 +274,6 @@ export function Filters(props: FiltersProps) {
           {applyButton}
         </div>
       </div>
-      {/* <noscript>
-          <Button>{t("filter.apply")}</Button>
-        </noscript> */}
     </>
   );
 }

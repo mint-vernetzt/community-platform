@@ -490,6 +490,7 @@ export default function ExploreOrganizations() {
               className="flex flex-wrap @lg:gap-4"
               showMore={locales.route.filter.showMore}
               showLess={locales.route.filter.showLess}
+              hideAfter={5}
             >
               {/* Organization Types Filter */}
               <Dropdown>

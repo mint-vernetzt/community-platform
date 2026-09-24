@@ -388,6 +388,15 @@ export async function removeParticipantFromEvent(options: {
       conferenceCode: true,
       parentParticipationRequired: true,
       participationToken: true,
+      _count: {
+        select: {
+          childEvents: {
+            where: {
+              published: true,
+            },
+          },
+        },
+      },
       childEvents: {
         where: {
           // Include sub-events where parent participation is required
@@ -445,6 +454,15 @@ export async function removeParticipantFromEvent(options: {
               confirmed: true,
             },
           },
+          _count: {
+            select: {
+              childEvents: {
+                where: {
+                  published: true,
+                },
+              },
+            },
+          },
           // For legacy reasons we need to check sub-events of sub-events
           childEvents: {
             where: {
@@ -482,6 +500,15 @@ export async function removeParticipantFromEvent(options: {
               venueCity: true,
               conferenceLink: true,
               conferenceCode: true,
+              _count: {
+                select: {
+                  childEvents: {
+                    where: {
+                      published: true,
+                    },
+                  },
+                },
+              },
               participants: {
                 select: {
                   profileId: true,
@@ -530,6 +557,9 @@ export async function removeParticipantFromEvent(options: {
       conferenceCode: event.conferenceCode,
       removedFromWaitingList: false,
       participationToken: event.participationToken,
+      _count: {
+        childEvents: event._count.childEvents,
+      },
     },
   ];
 
@@ -552,6 +582,9 @@ export async function removeParticipantFromEvent(options: {
     conferenceLink: string | null;
     conferenceCode: string | null;
     participationToken: string | null;
+    _count: {
+      childEvents: number;
+    };
     participants: {
       profileId: string;
     }[];
@@ -855,6 +888,7 @@ export async function removeParticipantFromEvent(options: {
             conferenceCode: event.conferenceCode,
             icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/ics-download`,
             revocationLink: null as string | null,
+            isParent: event._count?.childEvents > 0,
           },
         };
 

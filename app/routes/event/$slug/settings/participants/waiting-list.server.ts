@@ -215,6 +215,15 @@ export async function moveToParticipants(options: {
             conferenceLink: true,
             conferenceCode: true,
             participationToken: true,
+            _count: {
+              select: {
+                childEvents: {
+                  where: {
+                    published: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -251,6 +260,15 @@ export async function moveToParticipants(options: {
               conferenceLink: true,
               conferenceCode: true,
               participationToken: true,
+              _count: {
+                select: {
+                  childEvents: {
+                    where: {
+                      published: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },
@@ -306,6 +324,7 @@ export async function moveToParticipants(options: {
       conferenceCode: result.event.conferenceCode,
       icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/ics-download`,
       revocationLink: null as string | null,
+      isParent: result.event._count.childEvents > 0,
     },
   };
 

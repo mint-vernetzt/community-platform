@@ -168,6 +168,15 @@ export async function confirmGuest(options: {
           conferenceLink: true,
           conferenceCode: true,
           participationToken: true,
+          _count: {
+            select: {
+              childEvents: {
+                where: {
+                  published: true,
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -221,6 +230,7 @@ export async function confirmGuest(options: {
         conferenceLink: result.event.conferenceLink,
         conferenceCode: result.event.conferenceCode,
         revocationLink,
+        isParent: result.event._count.childEvents > 0,
       },
     };
     const textTemplatePath =

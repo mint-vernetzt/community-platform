@@ -274,6 +274,7 @@ type ProfileOrGuestAddedToParticipantsOrWaitingListContent = {
     conferenceCode?: string | null;
     icsLink: string;
     revocationLink?: string | null;
+    isParent: boolean;
   };
 };
 
@@ -298,6 +299,7 @@ type ProfileOrGuestMovedUpToParticipantsContent = {
     conferenceCode?: string | null;
     icsLink: string;
     revocationLink?: string | null;
+    isParent: boolean;
   };
 };
 

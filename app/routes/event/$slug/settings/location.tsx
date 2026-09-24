@@ -507,12 +507,12 @@ export default function Location() {
               </div>
               <div hidden={stage !== Stages.Online && stage !== Stages.Hybrid}>
                 <Input
-                  label={locales.route.conferenceLink}
+                  label={locales.route.conferenceLink.label}
                   {...getInputProps(fields.conferenceLink, { type: "text" })}
                 >
                   <Input.Label>
                     <span className="flex items-center gap-2.5">
-                      {locales.route.conferenceLink}
+                      {locales.route.conferenceLink.label}
                       {issues.some((issue) => {
                         return issue.fields.includes(
                           fields.conferenceLink.name
@@ -523,7 +523,7 @@ export default function Location() {
                     </span>
                   </Input.Label>
                   {Array.isArray(fields.conferenceLink.errors) &&
-                    fields.conferenceLink.errors.length > 0 &&
+                  fields.conferenceLink.errors.length > 0 ? (
                     fields.conferenceLink.errors.map((error) => (
                       <Input.Error
                         id={fields.conferenceLink.errorId}
@@ -531,7 +531,12 @@ export default function Location() {
                       >
                         {error}
                       </Input.Error>
-                    ))}
+                    ))
+                  ) : (
+                    <Input.HelperText>
+                      {locales.route.conferenceLink.helperText}
+                    </Input.HelperText>
+                  )}
                 </Input>
               </div>
               <div hidden={stage !== Stages.Online && stage !== Stages.Hybrid}>
@@ -603,8 +608,7 @@ export default function Location() {
                 onClick={() => {
                   setStage(
                     loaderData.event.stage as
-                      | (typeof Stages)[keyof typeof Stages]
-                      | null
+                      (typeof Stages)[keyof typeof Stages] | null
                   );
                   form.reset();
                 }}

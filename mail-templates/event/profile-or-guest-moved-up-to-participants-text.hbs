@@ -6,8 +6,10 @@ wir freuen uns Dir mitteilen zu können, dass Du von der Warteliste nachgerückt
 Event {{event.name}} gelistet wirst. Wir wünschen Dir eine spannende und inspirierende Veranstaltung.
 
 {{#if profile.isGuest}}
+{{#if event.isParent}}
 Deine Anmeldung und weitere Veranstaltungen
-Ausschließlich über Deinen persönlichen Link kannst Du Dich für weitere zugehörige Veranstaltungen anmelden. Wenn Du
+Ausschließlich über Deinen persönlichen Link kannst Du Dich für weitere zugehörige Veranstaltungen anmelden. {{/if}}Wenn
+Du
 Dich für eine weitere Veranstaltung anmeldest, gibst Du Deine Anmeldedaten erneut ein und bestätigst anschließend Deine
 E-Mail-Adresse. So stellen wir sicher, dass die Anmeldung wirklich von Dir kommt.
 {{/if}}
@@ -63,8 +65,10 @@ we are pleased to inform you that you have moved up from the waiting list and ar
 event {{event.name}}. We wish you an exciting and inspiring event.
 
 {{#if profile.isGuest}}
+{{#if event.isParent}}
 Your registration and further events
-Only through your personal link can you register for further related events. When you register for another event, you
+Only through your personal link can you register for further related events. {{/if}}When you register for another event,
+you
 will enter your registration data again and then confirm your e-mail address. This ensures that the registration really
 comes from you.
 {{/if}}
