@@ -292,8 +292,6 @@ export default function Index() {
     return () => clearInterval(interval);
   }, [autoPlay, communityImages.length]);
 
-  const minSwipeDistance = 50;
-
   const onTouchStart = (event: TouchEvent<HTMLUListElement>) => {
     setTouchEnd(null); // otherwise the swipe is fired even with usual touch events
     setTouchStart(event.targetTouches[0].clientX);
@@ -304,6 +302,7 @@ export default function Index() {
 
   const onTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
+    const minSwipeDistance = 50;
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
