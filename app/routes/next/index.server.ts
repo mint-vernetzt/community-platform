@@ -310,3 +310,16 @@ export async function getDataForTestimonialsSection() {
   ];
   return toolListItems;
 }
+
+export async function getAboutSectionOrganization() {
+  const organization = await prismaClient.organization.findFirst({
+    select: {
+      slug: true,
+    },
+    where: {
+      slug: "mintvernetzt",
+    },
+  });
+
+  return organization;
+}

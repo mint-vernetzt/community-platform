@@ -56,6 +56,7 @@ import {
   getProjectCount,
 } from "../utils.server";
 import {
+  getAboutSectionOrganization,
   getDataForCommunityImages,
   getDataForTestimonialsSection,
   getDataForToolsSection,
@@ -69,6 +70,8 @@ import {
   LoginSectionBobbel,
   PiggyBank,
 } from "./index.shared";
+import aboutSectionBlurredImage from "~/assets/landing-page/mv-team-blurred.webp";
+import aboutSectionImage from "~/assets/landing-page/mv-team.jpg";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -106,6 +109,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const testimonialsSectionData = await getDataForTestimonialsSection();
 
+  const aboutSectionOrganization = await getAboutSectionOrganization();
+
   return {
     locales,
     language,
@@ -114,12 +119,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
     organizationCount,
     projectCount,
     eventCount,
-    upcomingEvents,
-    testimonialsSectionData,
-    toolsSectionData,
     eventTeaserOrganization,
+    upcomingEvents,
     projectTeaserOrganization,
+    toolsSectionData,
     communityImages,
+    testimonialsSectionData,
+    aboutSectionOrganization,
   };
 };
 
@@ -1170,49 +1176,75 @@ export default function Index() {
         <GetInvolvedBobbel />
       </section>
 
-      {/* About section */}
-      <section>
-        <div>
+      <section className="w-full flex flex-col md:flex-row-reverse md:items-start md:justify-between gap-6 md:gap-10 px-4 md:px-10 xl:px-16 py-12 md:py-16 max-w-2xl mx-auto">
+        <div className="relative w-full md:max-h-135 rounded-2xl overflow-hidden">
           <Image
-            src="/images/mintvernetztteam.jpg"
+            src={aboutSectionImage}
+            blurredSrc={aboutSectionBlurredImage}
             alt={locales.route.about.image.alt}
+            gravity="top"
           >
             <Image.Label withoutClassName>
-              <Link
-                to={`/organization/mintvernetzt/detail/about`}
-                prefetch="intent"
-                className={`${getImageLabelClassName()}`}
-              >
-                <div className="w-6 h-6 rounded-full overflow-hidden">
-                  <Image
-                    src={mvLogo}
-                    blurredSrc={mvLogoBlurred}
-                    alt="MINTvernetzt"
-                  />
+              {loaderData.aboutSectionOrganization !== null ? (
+                <Link
+                  to={`/organization/${loaderData.aboutSectionOrganization.slug}/detail/about`}
+                  prefetch="intent"
+                  className={`${getImageLabelClassName()}`}
+                >
+                  <div className="w-6 h-6 rounded-full overflow-hidden">
+                    <Image
+                      src={mvLogo}
+                      blurredSrc={mvLogoBlurred}
+                      alt="MINTvernetzt"
+                    />
+                  </div>
+                  <span className="text-white text-xs font-semibold leading-normal">
+                    MINTvernetzt
+                  </span>
+                </Link>
+              ) : (
+                <div className={`${getImageLabelClassName()}`}>
+                  <div className="w-6 h-6 rounded-full overflow-hidden">
+                    <Image
+                      src={mvLogo}
+                      blurredSrc={mvLogoBlurred}
+                      alt="MINTvernetzt"
+                    />
+                  </div>
+                  <span className="text-white text-xs font-semibold leading-normal">
+                    MINTvernetzt
+                  </span>
                 </div>
-                <span className="text-white text-xs font-semibold leading-normal">
-                  MINTvernetzt
-                </span>
-              </Link>
+              )}
             </Image.Label>
-            {/* TODO: Credit from design needed. currently empty */}
-            <Image.Credits credits={locales.route.about.image.credits} />
           </Image>
+          {/* This is intentional for the edge case where a max height instead of a fixed height is defined. TODO: Could be refactored if it happens more than once in the future. */}
+          <div className="absolute bottom-2 right-2 origin-bottom-right transform-[rotate(-90deg)_translateX(100%)]">
+            <Image.Credits credits={locales.route.about.image.credits} />
+          </div>
         </div>
-
-        <h2>{locales.route.about.headline}</h2>
-        <p>{locales.route.about.description}</p>
-        <p>{locales.route.about.moreInformation}</p>
-        <Button
-          as="link"
-          to="https://www.mint-vernetzt.de"
-          target="_blank"
-          rel="noreferrer noopener"
-          variant="outline"
-        >
-          <Icon type="box-arrow-up-right" />
-          {locales.route.about.website}
-        </Button>
+        <div className="w-full md:w-100 md:min-w-100 flex flex-col gap-10">
+          <div className="w-full flex flex-col gap-6">
+            <h2 className="mb-0 text-primary-600 text-5xl font-bold leading-10 xl:leading-9">
+              {locales.route.about.headline}
+            </h2>
+            <p className="text-neutral-700 text-lg font-semibold leading-6">
+              {locales.route.about.description}
+            </p>
+          </div>
+          <Button
+            as="link"
+            variant="outline"
+            to="https://www.mint-vernetzt.de"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            <span>
+              <External />
+            </span>
+            <span>{locales.route.about.website}</span>
+          </Button>
+        </div>
       </section>
 
       {/* FAQ section */}

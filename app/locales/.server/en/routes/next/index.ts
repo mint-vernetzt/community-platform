@@ -226,9 +226,7 @@ export const locale = {
   about: {
     headline: "Who is behind the platform",
     description:
-      "The MINTvernetzt community platform is a project by MINTvernetzt. MINTvernetzt is the central point of contact for extracurricular STEM education in Germany. We are funded by the Federal Ministry of Education, Family Affairs, Senior Citizens, Women and Youth.",
-    moreInformation:
-      "Learn more about MINTvernetzt and other projects on our website.",
+      "MINTvernetzt is funded by the Federal Ministry of Education, Family Affairs, Senior Citizens, Women and Youth. Behind MINTvernetzt is a consortium consisting of the Körber Foundation, matrix gGmbH, the National MINT Forum e. V., the Stifterverband, and the University of Regensburg. The community platform is developed by matrix gGmbH.",
     website: "MINTvernetzt website",
     image: {
       alt: "The MINTvernetzt team standing on a spiral staircase",
