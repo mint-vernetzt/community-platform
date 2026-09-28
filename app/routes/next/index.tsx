@@ -20,14 +20,14 @@ import {
 } from "react-router";
 import { HoneypotInputs } from "remix-utils/honeypot/react";
 import { useHydrated } from "remix-utils/use-hydrated";
+import projectTeaserImageBlurred from "~/assets/landing-page/Jasmin Mertikat 1-blurred.webp";
+import projectTeaserImage from "~/assets/landing-page/Jasmin Mertikat 1.jpg";
 import eventSectionBlurredImage from "~/assets/landing-page/MINTvernetzt_Tag_01_Foto_Andi_Weiland-125-blurred.webp";
 import eventSectionImage from "~/assets/landing-page/MINTvernetzt_Tag_01_Foto_Andi_Weiland-125.jpg";
 import mvLogoBlurred from "~/assets/landing-page/mv-logo-blurred.webp";
 import mvLogo from "~/assets/landing-page/mv-logo.png";
-import projectTeaserImage from "~/assets/landing-page/Jasmin Mertikat 1.jpg";
-import projectTeaserImageBlurred from "~/assets/landing-page/Jasmin Mertikat 1-blurred.webp";
-import tinkertankLogo from "~/assets/landing-page/tinkertank-logo.jpg";
 import tinkertankLogoBlurred from "~/assets/landing-page/tinkertank-logo-blurred.webp";
+import tinkertankLogo from "~/assets/landing-page/tinkertank-logo.jpg";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Accordion } from "~/components-next/Accordion";
 import { ShowPasswordButton } from "~/components-next/ShowPasswordButton";
@@ -57,10 +57,10 @@ import {
 } from "../utils.server";
 import {
   getDataForCommunityImages,
+  getDataForTestimonialsSection,
   getDataForToolsSection,
   getEventTeaserOrganization,
   getProjectTeaserOrganization,
-  getTestimonials,
   getUpcomingEvents,
 } from "./index.server";
 import {
@@ -103,7 +103,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const communityImages = getDataForCommunityImages();
 
-  const testimonials = await getTestimonials();
+  const testimonialsSectionData = await getDataForTestimonialsSection();
 
   return {
     locales,
@@ -114,7 +114,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     projectCount,
     eventCount,
     upcomingEvents,
-    testimonials,
+    testimonialsSectionData,
     toolsSectionData,
     eventTeaserOrganization,
     projectTeaserOrganization,
@@ -175,7 +175,12 @@ export const action = async (args: ActionFunctionArgs) => {
 
 export default function Index() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, communityImages, toolsSectionData } = loaderData;
+  const {
+    locales,
+    communityImages,
+    toolsSectionData,
+    testimonialsSectionData,
+  } = loaderData;
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isHydrated = useHydrated();
@@ -210,21 +215,23 @@ export default function Index() {
 
   // Tools Section logic
   const toolsSliderRef = useRef<HTMLUListElement>(null);
-  const [scrollAmount, setScrollAmount] = useState(0);
-  const [maxScroll, setMaxScroll] = useState(0);
+  const [toolsSliderScrollAmount, setToolsSliderScrollAmount] = useState(0);
+  const [toolsSliderMaxScroll, setToolsSliderMaxScroll] = useState(0);
   useEffect(() => {
     const slider = toolsSliderRef.current;
     if (slider === null) {
       return;
     }
-    setMaxScroll(slider.scrollWidth - slider.getBoundingClientRect().width);
-    setScrollAmount(slider.scrollLeft);
+    setToolsSliderMaxScroll(
+      slider.scrollWidth - slider.getBoundingClientRect().width
+    );
+    setToolsSliderScrollAmount(slider.scrollLeft);
 
     const handleScroll = () => {
       if (slider === null) {
         return;
       }
-      setScrollAmount(slider.scrollLeft);
+      setToolsSliderScrollAmount(slider.scrollLeft);
     };
     slider.addEventListener("scroll", handleScroll);
 
@@ -232,7 +239,7 @@ export default function Index() {
       if (slider === null) {
         return;
       }
-      setMaxScroll(slider.scrollWidth - slider.clientWidth);
+      setToolsSliderMaxScroll(slider.scrollWidth - slider.clientWidth);
     };
     window.addEventListener("resize", handleResize);
 
@@ -257,7 +264,7 @@ export default function Index() {
     } else {
       slider.scrollBy({ left: newScrollAmount, behavior: "smooth" });
     }
-    setScrollAmount(slider.scrollLeft);
+    setToolsSliderScrollAmount(slider.scrollLeft);
   }
 
   // Community Section logic
@@ -313,24 +320,60 @@ export default function Index() {
   };
 
   // Testimonials Section logic
-  const testimonialListRef = useRef<HTMLUListElement>(null);
+  const testimonialsSliderRef = useRef<HTMLUListElement>(null);
+  const [testimonialsSliderScrollAmount, setTestimonialsSliderScrollAmount] =
+    useState(0);
+  const [testimonialsSliderMaxScroll, setTestimonialsSliderMaxScroll] =
+    useState(0);
+  useEffect(() => {
+    const slider = testimonialsSliderRef.current;
+    if (slider === null) {
+      return;
+    }
+    setTestimonialsSliderMaxScroll(
+      slider.scrollWidth - slider.getBoundingClientRect().width
+    );
+    setTestimonialsSliderScrollAmount(slider.scrollLeft);
 
-  const scrollTestimonials = (direction: "previous" | "next") => {
-    const list = testimonialListRef.current;
-    if (list === null) {
+    const handleScroll = () => {
+      if (slider === null) {
+        return;
+      }
+      setTestimonialsSliderScrollAmount(slider.scrollLeft);
+    };
+    slider.addEventListener("scroll", handleScroll);
+
+    const handleResize = () => {
+      if (slider === null) {
+        return;
+      }
+      setTestimonialsSliderMaxScroll(slider.scrollWidth - slider.clientWidth);
+    };
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      slider.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  function scrollTestimonialsSlider(direction: "previous" | "next") {
+    const slider = testimonialsSliderRef.current;
+    if (slider === null) {
       return;
     }
-    const firstItem = list.firstElementChild;
-    if (firstItem instanceof HTMLElement === false) {
+    const firstCard = slider.firstElementChild;
+    if (firstCard === null) {
       return;
     }
-    // Card width + gap
-    const scrollAmount = firstItem.offsetWidth + 24;
-    list.scrollBy({
-      left: direction === "next" ? scrollAmount : -scrollAmount,
-      behavior: "smooth",
-    });
-  };
+    const newScrollAmount = firstCard.clientWidth + 24;
+    if (direction === "previous") {
+      slider.scrollBy({ left: -newScrollAmount, behavior: "smooth" });
+    } else {
+      slider.scrollBy({ left: newScrollAmount, behavior: "smooth" });
+    }
+    setTestimonialsSliderScrollAmount(slider.scrollLeft);
+  }
 
   return (
     <>
@@ -932,7 +975,7 @@ export default function Index() {
             type="button"
             onClick={() => scrollToolsSlider("previous")}
             aria-label={locales.route.tools.slider.previous}
-            className={`appearance-none font-semibold whitespace-nowrap flex items-center justify-center align-middle text-center rounded-lg p-2 h-10 w-10 min-w-10 text-sm leading-5 bg-white border-neutral-300 border ${scrollAmount <= 0 ? "pointer-events-none text-neutral-300" : "text-neutral-600 hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-hidden focus:border-primary-200"}`}
+            className={`appearance-none font-semibold whitespace-nowrap flex items-center justify-center align-middle text-center rounded-lg p-2 h-10 w-10 min-w-10 text-sm leading-5 bg-white border-neutral-300 border ${toolsSliderScrollAmount <= 0 ? "pointer-events-none text-neutral-300" : "text-neutral-600 hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-hidden focus:border-primary-200"}`}
           >
             <Icon
               type="chevron-right"
@@ -944,7 +987,7 @@ export default function Index() {
             type="button"
             onClick={() => scrollToolsSlider("next")}
             aria-label={locales.route.tools.slider.next}
-            className={`appearance-none font-semibold whitespace-nowrap flex items-center justify-center align-middle text-center rounded-lg p-2 h-10 w-10 min-w-10 text-sm leading-5 border bg-white border-neutral-300 ${scrollAmount >= maxScroll ? "pointer-events-none text-neutral-300" : "text-neutral-600 hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-hidden focus:border-primary-200"}`}
+            className={`appearance-none font-semibold whitespace-nowrap flex items-center justify-center align-middle text-center rounded-lg p-2 h-10 w-10 min-w-10 text-sm leading-5 border bg-white border-neutral-300 ${toolsSliderScrollAmount >= toolsSliderMaxScroll ? "pointer-events-none text-neutral-300" : "text-neutral-600 hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-hidden focus:border-primary-200"}`}
           >
             <Icon type="chevron-right" aria-hidden="true" />
           </button>
@@ -1009,83 +1052,94 @@ export default function Index() {
           </ul>
         </div>
 
-        {loaderData.testimonials.length > 0 ? (
-          <div>
-            <h2>{locales.route.testimonials.headline}</h2>
-            <ul ref={testimonialListRef}>
-              {loaderData.testimonials.map((testimonial) => {
-                const cardContent = (
-                  <>
-                    <img src={testimonial.image} alt="" />
-                    <p>{testimonial.quote[loaderData.language]}</p>
-                    <p>{testimonial.name}</p>
-                    <p>{testimonial.organization}</p>
-                  </>
-                );
-                return (
-                  <li key={testimonial.username}>
-                    {testimonial.profileExists ? (
+        <div className="w-full flex flex-col gap-2 items-center">
+          <h2 className="mb-0 text-primary-600 text-lg font-bold leading-6">
+            {locales.route.testimonials.headline}
+          </h2>
+          <ul
+            className="w-full flex flex-nowrap items-stretch gap-6 md:gap-8 overflow-y-auto px-4 md:px-10 xl:px-16 py-4"
+            ref={testimonialsSliderRef}
+          >
+            {testimonialsSectionData.map((testimonial) => {
+              const testimonialLocales =
+                locales.route.testimonials.items[testimonial.id];
+
+              return (
+                <li
+                  key={testimonial.name}
+                  className="flex flex-col justify-between p-8 min-w-80 w-80 min-h-90 h-90 rounded-2xl overflow-hidden border border-neutral-200 bg-white"
+                >
+                  <div className="w-full flex flex-col gap-4">
+                    {testimonial.username !== null ? (
                       <Link
                         to={`/profile/${testimonial.username}`}
-                        prefetch="intent"
+                        className="w-20 h-20 rounded-full overflow-hidden"
                       >
-                        {cardContent}
+                        <Image
+                          src={testimonial.imagePath}
+                          blurredSrc={testimonial.blurredImagePath}
+                          alt={testimonialLocales.imgAlt}
+                        />
                       </Link>
                     ) : (
-                      <div>{cardContent}</div>
+                      <div className="w-20 h-20 rounded-full overflow-hidden">
+                        <Image
+                          src={testimonial.imagePath}
+                          blurredSrc={testimonial.blurredImagePath}
+                          alt={testimonialLocales.imgAlt}
+                        />
+                      </div>
                     )}
-                  </li>
-                );
-              })}
-            </ul>
+                    <div className="w-full relative">
+                      {testimonialLocales.translationNote !== null ? (
+                        <p className="absolute -bottom-4 left-0 text-neutral-500 text-xxs italic leading-normal">
+                          {testimonialLocales.translationNote}
+                        </p>
+                      ) : null}
+                      <p className="text-neutral-800 text-lg font-semibold leading-5.5">
+                        {testimonialLocales.description}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="w-full flex flex-col gap-1">
+                    <p className="text-neutral-600 text-sm font-bold leading-4.5">
+                      {testimonialLocales.name}
+                    </p>
+                    <p className="text-neutral-800 text-xs font-semibold leading-normal">
+                      {testimonialLocales.organization}
+                    </p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+          <div className="flex gap-2">
+            {/* TODO: Integrate this variant in SquareButton. Design used detached component. */}
             <button
               type="button"
-              onClick={() => scrollTestimonials("previous")}
-              aria-label={locales.route.testimonials.controls.previous}
+              onClick={() => scrollTestimonialsSlider("previous")}
+              aria-label={locales.route.testimonials.slider.previous}
+              className={`appearance-none font-semibold whitespace-nowrap flex items-center justify-center align-middle text-center rounded-lg p-2 h-10 w-10 min-w-10 text-sm leading-5 bg-white border-neutral-300 border ${testimonialsSliderScrollAmount <= 0 ? "pointer-events-none text-neutral-300" : "text-neutral-600 hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-hidden focus:border-primary-200"}`}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
+              <Icon
+                type="chevron-right"
+                className="rotate-180"
                 aria-hidden="true"
-              >
-                <path
-                  d="M10 4L6 8L10 12"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              />
             </button>
             <button
               type="button"
-              onClick={() => scrollTestimonials("next")}
-              aria-label={locales.route.testimonials.controls.next}
+              onClick={() => scrollTestimonialsSlider("next")}
+              aria-label={locales.route.testimonials.slider.next}
+              className={`appearance-none font-semibold whitespace-nowrap flex items-center justify-center align-middle text-center rounded-lg p-2 h-10 w-10 min-w-10 text-sm leading-5 border bg-white border-neutral-300 ${testimonialsSliderScrollAmount >= testimonialsSliderMaxScroll ? "pointer-events-none text-neutral-300" : "text-neutral-600 hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-hidden focus:border-primary-200"}`}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M6 4L10 8L6 12"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <Icon type="chevron-right" aria-hidden="true" />
             </button>
           </div>
-        ) : null}
+        </div>
+      </section>
 
-        <div>
+      {/* <div>
           <div aria-hidden="true">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -1114,8 +1168,7 @@ export default function Index() {
           >
             {locales.route.communityCta.getInvolved}
           </Button>
-        </div>
-      </section>
+        </div> */}
 
       {/* About section */}
       <section>

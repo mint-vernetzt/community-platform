@@ -170,9 +170,51 @@ export const locale = {
   },
   testimonials: {
     headline: "Voices from the community",
-    controls: {
-      previous: "Show previous voices",
-      next: "Show next voices",
+    slider: {
+      previous: "Show previous person",
+      next: "Show next person",
+    },
+    items: {
+      katrinS: {
+        name: "Katrin Schneider-Özbek",
+        imgAlt: "Portrait of Katrin Schneider-Özbek",
+        description:
+          "The community platform connects us STEM actors, makes expertise visible, and lays the foundation for effective collaboration and visibility.",
+        translationNote: "Translation of the original German quote",
+        organization: "Forscherstation",
+      },
+      franziskaS: {
+        name: "Franziska Schwab",
+        imgAlt: "Portrait of Franziska Schwab",
+        description:
+          "I can see who attended the event – and can directly follow up. This brings real knowledge transfer.",
+        translationNote: "Translation of the original German quote",
+        organization: "jumpps*– Fachstelle für geschlechtersensible Pädagogik",
+      },
+      piaC: {
+        name: "Pia Čukić",
+        imgAlt: "Portrait of Pia Čukić",
+        description:
+          "I am currently building my own project and like to be inspired by other ideas and stories.",
+        translationNote: "Translation of the original German quote",
+        organization: "freigeista – MINT Zukunftsberufe im Kindergarten",
+      },
+      neleS: {
+        name: "Nele Steigerwald",
+        imgAlt: "Portrait of Nele Steigerwald",
+        description:
+          "Some organizations are not allowed to use Canva – therefore the MINT Sharepic Generator is a good, data protection-compliant alternative.",
+        translationNote: "Translation of the original German quote",
+        organization: "Code Week Germany / Körber-Stiftung",
+      },
+      irisL: {
+        name: "Iris Lange-Schmalz",
+        imgAlt: "Portrait of Iris Lange-Schmalz",
+        description:
+          "I use the filter functions to specifically search for good practice – for example for new pilot projects in the field of mathematics.",
+        translationNote: "Translation of the original German quote",
+        organization: "MINT-Region Main-Tauber e.V.",
+      },
     },
   },
   communityCta: {

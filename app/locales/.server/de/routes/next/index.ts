@@ -171,9 +171,51 @@ export const locale = {
   },
   testimonials: {
     headline: "Stimmen aus der Community",
-    controls: {
-      previous: "Vorherige Stimmen anzeigen",
-      next: "Nächste Stimmen anzeigen",
+    slider: {
+      previous: "Vorherige Person anzeigen",
+      next: "Weitere Person anzeigen",
+    },
+    items: {
+      katrinS: {
+        name: "Katrin Schneider-Özbek",
+        imgAlt: "Porträt von Katrin Schneider-Özbek",
+        description:
+          "Die Community-Plattform vernetzt uns MINT-Akteur:innen, macht Expertise sichtbar und schafft die Grundlage für wirkungsvolle Zusammenarbeit und gemeinsame Sichtbarkeit.",
+        translationNote: null,
+        organization: "Forscherstation",
+      },
+      franziskaS: {
+        name: "Franziska Schwab",
+        imgAlt: "Porträt von Franziska Schwab",
+        description:
+          "Ich sehe, wer beim Event dabei war – und kann direkt anknüpfen. Das bringt echten Wissenstransfer.",
+        translationNote: null,
+        organization: "jumpps*– Fachstelle für geschlechtersensible Pädagogik",
+      },
+      piaC: {
+        name: "Pia Čukić",
+        imgAlt: "Porträt von Pia Čukić",
+        description:
+          "Ich baue gerade mein eigenes Projekt auf und lasse mich dabei gern von anderen mutigen Ideen und Geschichten inspirieren.",
+        translationNote: null,
+        organization: "freigeista – MINT Zukunftsberufe im Kindergarten",
+      },
+      neleS: {
+        name: "Nele Steigerwald",
+        imgAlt: "Porträt von Nele Steigerwald",
+        description:
+          "Einige Organisationen dürfen Canva nicht nutzen – daher ist der MINT-Sharepic-Generator eine gute, datenschutzkonforme Alternative.",
+        translationNote: null,
+        organization: "Code Week Germany / Körber-Stiftung",
+      },
+      irisL: {
+        name: "Iris Lange-Schmalz",
+        imgAlt: "Porträt von Iris Lange-Schmalz",
+        description:
+          "Ich nutze die Filterfunktionen, um gezielt nach guter Praxis zu suchen – zum Beispiel für neue Pilotprojekte im Bereich Mathematik.",
+        translationNote: null,
+        organization: "MINT-Region Main-Tauber e.V.",
+      },
     },
   },
   communityCta: {

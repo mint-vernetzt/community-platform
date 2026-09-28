@@ -2,7 +2,6 @@ import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
-import testimonials from "./testimonials.json";
 import sharepicImage from "~/assets/landing-page/sharepic 1.png";
 import sharepicBlurredImage from "~/assets/landing-page/sharepic 1-blurred.webp";
 import mapImage from "~/assets/landing-page/community-map.png";
@@ -28,6 +27,16 @@ import thinkathon22_4BlurredImage from "~/assets/landing-page/Yosa Peit 1-blurre
 import designBasedLearning_2Image from "~/assets/landing-page/DesignBasedLearning_BBarth_Avatar_14 1.jpg";
 import designBasedLearning_2BlurredImage from "~/assets/landing-page/DesignBasedLearning_BBarth_Avatar_14 1-blurred.webp";
 import { type ImageGravity } from "@mint-vernetzt/components/src/molecules/Image";
+import katrinSImage from "~/assets/landing-page/testimonials/katrinS.jpg";
+import katrinSBlurredImage from "~/assets/landing-page/testimonials/katrinS-blurred.webp";
+import franziskaSImage from "~/assets/landing-page/testimonials/franziskaS.jpg";
+import franziskaSBlurredImage from "~/assets/landing-page/testimonials/franziskaS-blurred.webp";
+import piaCImage from "~/assets/landing-page/testimonials/piaC.jpg";
+import piaCBlurredImage from "~/assets/landing-page/testimonials/piaC-blurred.webp";
+import irisLImage from "~/assets/landing-page/testimonials/irisL.jpg";
+import irisLBlurredImage from "~/assets/landing-page/testimonials/irisL-blurred.webp";
+import neleSImage from "~/assets/landing-page/testimonials/neleS.jpg";
+import neleSBlurredImage from "~/assets/landing-page/testimonials/neleS-blurred.webp";
 
 export type NextLandingPageLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES
@@ -222,33 +231,82 @@ export function getDataForCommunityImages() {
   return communityImages;
 }
 
-export async function getTestimonials() {
-  const usernames = testimonials.map((testimonial) => {
-    return testimonial.username;
-  });
-
-  const profiles = await prismaClient.profile.findMany({
-    select: {
-      username: true,
+export async function getDataForTestimonialsSection() {
+  type TestimonialKey = keyof (typeof languageModuleMap)[
+    "de" | "en"]["next/index"]["route"]["testimonials"]["items"];
+  type TestimonialListItems = Array<{
+    id: TestimonialKey;
+    name: string;
+    username: string | null;
+    imagePath: string;
+    blurredImagePath: string;
+  }>;
+  const toolListItems: TestimonialListItems = [
+    {
+      id: "katrinS",
+      name: "Katrin Schneider-Özbek",
+      username:
+        (await prismaClient.profile.findUnique({
+          where: { username: "katrinschneideroezbek-lxise6zg" },
+          select: { username: true },
+        })) === null
+          ? null
+          : "katrinschneideroezbek-lxise6zg",
+      imagePath: katrinSImage,
+      blurredImagePath: katrinSBlurredImage,
     },
-    where: {
-      username: {
-        in: usernames,
-      },
+    {
+      id: "franziskaS",
+      name: "Franziska Schwab",
+      username:
+        (await prismaClient.profile.findUnique({
+          where: { username: "franziskaschwab" },
+          select: { username: true },
+        })) === null
+          ? null
+          : "franziskaschwab",
+      imagePath: franziskaSImage,
+      blurredImagePath: franziskaSBlurredImage,
     },
-  });
-
-  const existingUsernames = profiles.map((profile) => {
-    return profile.username;
-  });
-
-  // Does the profile still exist? Link to the profile : don't link to the profile
-  const result = testimonials.map((testimonial) => {
-    return {
-      ...testimonial,
-      profileExists: existingUsernames.includes(testimonial.username),
-    };
-  });
-
-  return result;
+    {
+      id: "piaC",
+      name: "Pia Čukić",
+      username:
+        (await prismaClient.profile.findUnique({
+          where: { username: "piacukic-m4n3x0v1" },
+          select: { username: true },
+        })) === null
+          ? null
+          : "piacukic-m4n3x0v1",
+      imagePath: piaCImage,
+      blurredImagePath: piaCBlurredImage,
+    },
+    {
+      id: "neleS",
+      name: "Nele Steigerwald",
+      username:
+        (await prismaClient.profile.findUnique({
+          where: { username: "nele        steigerwald" },
+          select: { username: true },
+        })) === null
+          ? null
+          : "nele        steigerwald",
+      imagePath: neleSImage,
+      blurredImagePath: neleSBlurredImage,
+    },
+    {
+      id: "irisL",
+      name: "Iris Lange-Schmalz",
+      username:
+        (await prismaClient.profile.findUnique({
+          where: { username: "irislangeschmalz-lda1u6fd" },
+          select: { username: true },
+        })) === null
+          ? null
+          : "irislangeschmalz-lda1u6fd",
+      imagePath: irisLImage,
+      blurredImagePath: irisLBlurredImage,
+    },
+  ];
+  return toolListItems;
 }
