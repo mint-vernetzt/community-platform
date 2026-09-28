@@ -6,4 +6,7 @@ export default {
   allowedActionOrigins: [
     process.env.COMMUNITY_BASE_URL.replace(/^https?:\/\//, ""),
   ],
+  future: {
+    v8_trailingSlashAwareDataRequests: true,
+  },
 } satisfies Config;
