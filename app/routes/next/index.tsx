@@ -65,6 +65,7 @@ import {
 } from "./index.server";
 import {
   FundingSectionBobbel,
+  GetInvolvedBobbel,
   LoginSectionBobbel,
   PiggyBank,
 } from "./index.shared";
@@ -905,12 +906,12 @@ export default function Index() {
       </section>
 
       {/* Tools Section */}
-      <section className="w-full flex flex-col gap-6 items-center py-12 md:py-16 max-w-2xl mx-auto">
+      <section className="w-full flex flex-col gap-6 items-center py-12 md:py-16 @2xl:px-16 max-w-2xl mx-auto">
         <h2 className="mb-0 text-primary-600 text-5xl font-bold leading-9">
           {locales.route.tools.headline}
         </h2>
         <ul
-          className="w-full flex flex-nowrap items-stretch gap-6 md:gap-8 overflow-y-auto px-4 md:px-10 xl:px-16 py-4"
+          className="w-full flex flex-nowrap items-stretch gap-6 md:gap-8 overflow-y-auto px-4 md:px-10 xl:px-16 @2xl:px-0 py-4"
           ref={toolsSliderRef}
         >
           {toolsSectionData.map((tool) => {
@@ -995,180 +996,179 @@ export default function Index() {
       </section>
 
       {/* Community Section */}
-      <section className="w-full flex flex-col gap-10 md:gap-16 py-12 md:py-16 max-w-2xl mx-auto">
-        <div className="w-full flex flex-col gap-10 px-4 md:px-10 xl:px-16">
-          <div className="flex flex-col gap-6 max-w-166">
-            <h2 className="mb-0 text-primary-600 text-6xl font-bold leading-11">
-              {locales.route.community.headline}
-            </h2>
-            <p className="text-neutral-800 text-lg font-semibold leading-6">
-              {locales.route.community.intro}
-            </p>
-          </div>
-          <ul
-            className="relative w-full rounded-2xl overflow-hidden h-111 xl:h-120"
-            onTouchStart={onTouchStart}
-            onTouchMove={onTouchMove}
-            onTouchEnd={onTouchEnd}
-          >
-            {communityImages.map((image, index) => {
-              return (
-                <li
-                  key={image.src}
-                  aria-hidden={index !== activeSlide}
-                  className={`absolute inset-0 transition-opacity duration-700 ${index === activeSlide ? "opacity-100" : "opacity-0 invisible"}`}
-                >
-                  <Image
-                    src={image.src}
-                    alt={locales.route.community.items[image.name].imgAlt}
-                    gravity={image.gravity}
-                  >
-                    <Image.Credits
-                      credits={locales.route.community.items[image.name].credit}
-                    />
-                  </Image>
-                </li>
-              );
-            })}
-            <div className="absolute bottom-4 left-4 md:right-4 flex justify-center">
-              <div className="flex gap-2.5 p-1 rounded-lg bg-neutral-800/80">
-                {communityImages.map((image, index) => {
-                  return (
-                    <button
-                      key={image.src}
-                      type="button"
-                      onClick={() => onClick(index)}
-                      aria-label={insertParametersIntoLocale(
-                        locales.route.community.slideshow.showImage,
-                        { number: index + 1, total: communityImages.length }
-                      )}
-                      aria-current={index === activeSlide}
-                      className={`w-2 h-2 rounded-full transition-colors duration-300 ${index === activeSlide ? "bg-primary-300" : "bg-neutral-200"}`}
-                    />
-                  );
-                })}
-              </div>
+      <section className="relative isolate w-full">
+        <div className="relative isolate w-full flex flex-col gap-10 md:gap-16 py-12 md:py-16 max-w-2xl mx-auto">
+          <div className="w-full flex flex-col gap-10 px-4 md:px-10 xl:px-16">
+            <div className="flex flex-col gap-6 max-w-166">
+              <h2 className="mb-0 text-primary-600 text-6xl font-bold leading-11">
+                {locales.route.community.headline}
+              </h2>
+              <p className="text-neutral-800 text-lg font-semibold leading-6">
+                {locales.route.community.intro}
+              </p>
             </div>
-          </ul>
-        </div>
+            <ul
+              className="relative w-full rounded-2xl overflow-hidden h-111 xl:h-120"
+              onTouchStart={onTouchStart}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
+            >
+              {communityImages.map((image, index) => {
+                return (
+                  <li
+                    key={image.src}
+                    aria-hidden={index !== activeSlide}
+                    className={`absolute inset-0 transition-opacity duration-700 ${index === activeSlide ? "opacity-100" : "opacity-0 invisible"}`}
+                  >
+                    <Image
+                      src={image.src}
+                      alt={locales.route.community.items[image.name].imgAlt}
+                      gravity={image.gravity}
+                    >
+                      <Image.Credits
+                        credits={
+                          locales.route.community.items[image.name].credit
+                        }
+                      />
+                    </Image>
+                  </li>
+                );
+              })}
+              <div className="absolute bottom-4 left-4 md:right-4 flex justify-center">
+                <div className="flex gap-2.5 p-1 rounded-lg bg-neutral-800/80">
+                  {communityImages.map((image, index) => {
+                    return (
+                      <button
+                        key={image.src}
+                        type="button"
+                        onClick={() => onClick(index)}
+                        aria-label={insertParametersIntoLocale(
+                          locales.route.community.slideshow.showImage,
+                          { number: index + 1, total: communityImages.length }
+                        )}
+                        aria-current={index === activeSlide}
+                        className={`w-2 h-2 rounded-full transition-colors duration-300 ${index === activeSlide ? "bg-primary-300" : "bg-neutral-200"}`}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            </ul>
+          </div>
 
-        <div className="w-full flex flex-col gap-2 items-center">
-          <h2 className="mb-0 text-primary-600 text-lg font-bold leading-6">
-            {locales.route.testimonials.headline}
-          </h2>
-          <ul
-            className="w-full flex flex-nowrap items-stretch gap-6 md:gap-8 overflow-y-auto px-4 md:px-10 xl:px-16 py-4"
-            ref={testimonialsSliderRef}
-          >
-            {testimonialsSectionData.map((testimonial) => {
-              const testimonialLocales =
-                locales.route.testimonials.items[testimonial.id];
+          <div className="w-full flex flex-col gap-2 items-center @2xl:px-16">
+            <h2 className="mb-0 text-primary-600 text-lg font-bold leading-6">
+              {locales.route.testimonials.headline}
+            </h2>
+            <ul
+              className="w-full flex flex-nowrap items-stretch gap-6 md:gap-8 overflow-y-auto px-4 md:px-10 xl:px-16 @2xl:px-0 py-4"
+              ref={testimonialsSliderRef}
+            >
+              {testimonialsSectionData.map((testimonial) => {
+                const testimonialLocales =
+                  locales.route.testimonials.items[testimonial.id];
 
-              return (
-                <li
-                  key={testimonial.name}
-                  className="flex flex-col justify-between p-8 min-w-80 w-80 min-h-90 h-90 rounded-2xl overflow-hidden border border-neutral-200 bg-white"
-                >
-                  <div className="w-full flex flex-col gap-4">
-                    {testimonial.username !== null ? (
-                      <Link
-                        to={`/profile/${testimonial.username}`}
-                        className="w-20 h-20 rounded-full overflow-hidden"
-                      >
-                        <Image
-                          src={testimonial.imagePath}
-                          blurredSrc={testimonial.blurredImagePath}
-                          alt={testimonialLocales.imgAlt}
-                        />
-                      </Link>
-                    ) : (
-                      <div className="w-20 h-20 rounded-full overflow-hidden">
-                        <Image
-                          src={testimonial.imagePath}
-                          blurredSrc={testimonial.blurredImagePath}
-                          alt={testimonialLocales.imgAlt}
-                        />
-                      </div>
-                    )}
-                    <div className="w-full relative">
-                      {testimonialLocales.translationNote !== null ? (
-                        <p className="absolute -bottom-4 left-0 text-neutral-500 text-xxs italic leading-normal">
-                          {testimonialLocales.translationNote}
+                return (
+                  <li
+                    key={testimonial.name}
+                    className="flex flex-col justify-between p-8 min-w-80 w-80 min-h-90 h-90 rounded-2xl overflow-hidden border border-neutral-200 bg-white"
+                  >
+                    <div className="w-full flex flex-col gap-4">
+                      {testimonial.username !== null ? (
+                        <Link
+                          to={`/profile/${testimonial.username}`}
+                          className="w-20 h-20 rounded-full overflow-hidden"
+                        >
+                          <Image
+                            src={testimonial.imagePath}
+                            blurredSrc={testimonial.blurredImagePath}
+                            alt={testimonialLocales.imgAlt}
+                          />
+                        </Link>
+                      ) : (
+                        <div className="w-20 h-20 rounded-full overflow-hidden">
+                          <Image
+                            src={testimonial.imagePath}
+                            blurredSrc={testimonial.blurredImagePath}
+                            alt={testimonialLocales.imgAlt}
+                          />
+                        </div>
+                      )}
+                      <div className="w-full relative">
+                        {testimonialLocales.translationNote !== null ? (
+                          <p className="absolute -bottom-4 left-0 text-neutral-500 text-xxs italic leading-normal">
+                            {testimonialLocales.translationNote}
+                          </p>
+                        ) : null}
+                        <p className="text-neutral-800 text-lg font-semibold leading-5.5">
+                          {testimonialLocales.description}
                         </p>
-                      ) : null}
-                      <p className="text-neutral-800 text-lg font-semibold leading-5.5">
-                        {testimonialLocales.description}
+                      </div>
+                    </div>
+                    <div className="w-full flex flex-col gap-1">
+                      <p className="text-neutral-600 text-sm font-bold leading-4.5">
+                        {testimonialLocales.name}
+                      </p>
+                      <p className="text-neutral-800 text-xs font-semibold leading-normal">
+                        {testimonialLocales.organization}
                       </p>
                     </div>
-                  </div>
-                  <div className="w-full flex flex-col gap-1">
-                    <p className="text-neutral-600 text-sm font-bold leading-4.5">
-                      {testimonialLocales.name}
-                    </p>
-                    <p className="text-neutral-800 text-xs font-semibold leading-normal">
-                      {testimonialLocales.organization}
-                    </p>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-          <div className="flex gap-2">
-            {/* TODO: Integrate this variant in SquareButton. Design used detached component. */}
-            <button
-              type="button"
-              onClick={() => scrollTestimonialsSlider("previous")}
-              aria-label={locales.route.testimonials.slider.previous}
-              className={`appearance-none font-semibold whitespace-nowrap flex items-center justify-center align-middle text-center rounded-lg p-2 h-10 w-10 min-w-10 text-sm leading-5 bg-white border-neutral-300 border ${testimonialsSliderScrollAmount <= 0 ? "pointer-events-none text-neutral-300" : "text-neutral-600 hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-hidden focus:border-primary-200"}`}
-            >
-              <Icon
-                type="chevron-right"
-                className="rotate-180"
-                aria-hidden="true"
-              />
-            </button>
-            <button
-              type="button"
-              onClick={() => scrollTestimonialsSlider("next")}
-              aria-label={locales.route.testimonials.slider.next}
-              className={`appearance-none font-semibold whitespace-nowrap flex items-center justify-center align-middle text-center rounded-lg p-2 h-10 w-10 min-w-10 text-sm leading-5 border bg-white border-neutral-300 ${testimonialsSliderScrollAmount >= testimonialsSliderMaxScroll ? "pointer-events-none text-neutral-300" : "text-neutral-600 hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-hidden focus:border-primary-200"}`}
-            >
-              <Icon type="chevron-right" aria-hidden="true" />
-            </button>
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="flex gap-2">
+              {/* TODO: Integrate this variant in SquareButton. Design used detached component. */}
+              <button
+                type="button"
+                onClick={() => scrollTestimonialsSlider("previous")}
+                aria-label={locales.route.testimonials.slider.previous}
+                className={`appearance-none font-semibold whitespace-nowrap flex items-center justify-center align-middle text-center rounded-lg p-2 h-10 w-10 min-w-10 text-sm leading-5 bg-white border-neutral-300 border ${testimonialsSliderScrollAmount <= 0 ? "pointer-events-none text-neutral-300" : "text-neutral-600 hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-hidden focus:border-primary-200"}`}
+              >
+                <Icon
+                  type="chevron-right"
+                  className="rotate-180"
+                  aria-hidden="true"
+                />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollTestimonialsSlider("next")}
+                aria-label={locales.route.testimonials.slider.next}
+                className={`appearance-none font-semibold whitespace-nowrap flex items-center justify-center align-middle text-center rounded-lg p-2 h-10 w-10 min-w-10 text-sm leading-5 border bg-white border-neutral-300 ${testimonialsSliderScrollAmount >= testimonialsSliderMaxScroll ? "pointer-events-none text-neutral-300" : "text-neutral-600 hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-hidden focus:border-primary-200"}`}
+              >
+                <Icon type="chevron-right" aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+          <div className="w-full flex flex-col gap-10 px-4 md:px-10 xl:px-16 py-12 md:py-0">
+            <div className="w-full flex flex-col items-center md:flex-row md:justify-between gap-12 md:gap-10 border border-neutral-200 bg-white rounded-2xl p-6">
+              <div className="w-full flex flex-col gap-6 md:gap-4">
+                <div className="flex items-center h-20 md:h-fit">
+                  <h2 className="mb-0 text-primary-600 text-3xl font-bold leading-7">
+                    {locales.route.communityCta.headline}
+                  </h2>
+                </div>
+                <p className="text-neutral-700 text-lg font-semibold leading-6">
+                  {locales.route.communityCta.intro}
+                </p>
+              </div>
+              <div className="w-full md:w-fit">
+                <Button
+                  as="link"
+                  to="/next/get-involved"
+                  variant="outline"
+                  fullSize
+                  prefetch="intent"
+                >
+                  {locales.route.communityCta.getInvolved}
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
+        <GetInvolvedBobbel />
       </section>
-
-      {/* <div>
-          <div aria-hidden="true">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 511 511"
-              fill="none"
-            >
-              <path
-                fill="#D0A9CD"
-                d="M201.799 57.4368C237.555 48.0792 279.068 73.5963 285.952 76.3423C292.835 79.0883 366.328 113.382 405.626 143.78C454.749 181.778 431.366 235.014 385.562 350.393C339.757 465.772 293.626 448.717 148.36 374.864C-4.08188 297.363 66.3955 217.402 93.5953 169.696C120.795 121.99 166.044 66.7943 201.799 57.4368Z"
-              />
-              <path
-                stroke="#BBD1FC"
-                strokeWidth="2"
-                d="M460.775 278.011C456.13 316.774 414.981 347.696 409.617 353.398C404.254 359.099 342.099 418.054 297.01 444.908C240.648 478.477 197.379 434.887 101.716 345.204C6.05168 255.521 40.6721 216.785 169.492 102.606C304.675 -17.2132 355.977 83.0075 392.334 128.208C428.69 173.408 465.42 239.247 460.775 278.011Z"
-              />
-            </svg>
-          </div>
-          <h2>{locales.route.communityCta.headline}</h2>
-          <p>{locales.route.communityCta.intro}</p>
-          <Button
-            as="link"
-            to="/next/get-involved"
-            variant="outline"
-            fullSize
-            prefetch="intent"
-          >
-            {locales.route.communityCta.getInvolved}
-          </Button>
-        </div> */}
 
       {/* About section */}
       <section>
