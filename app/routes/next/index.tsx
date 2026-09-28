@@ -1027,6 +1027,7 @@ export default function Index() {
                   >
                     <Image
                       src={image.src}
+                      blurredSrc={image.blurredSrc}
                       alt={locales.route.community.items[image.name].imgAlt}
                       gravity={image.gravity}
                     >
