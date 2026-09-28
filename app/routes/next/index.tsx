@@ -1248,35 +1248,38 @@ export default function Index() {
       </section>
 
       {/* FAQ section */}
-      <section>
-        <h2>{locales.route.faq.headline}</h2>
-        <Accordion>
-          <Accordion.Item id="whatIsStem" key="whatIsStem">
-            {locales.route.faq.qAndAs.whatIsStem.question}
-            <RichText
-              id="faq-content"
-              html={locales.route.faq.qAndAs.whatIsStem.answer}
-            />
-          </Accordion.Item>
-          <Accordion.Item id="whoIsThePlatformFor" key="whoIsThePlatformFor">
-            {locales.route.faq.qAndAs.whoIsThePlatformFor.question}
-            <RichText
-              id="faq-content"
-              html={locales.route.faq.qAndAs.whoIsThePlatformFor.answer}
-            />
-          </Accordion.Item>
-          <Accordion.Item
-            id="benefitsOfThePlatform"
-            key="benefitsOfThePlatform"
-          >
-            {locales.route.faq.qAndAs.benefitsOfThePlatform.question}
-            <RichText
-              id="faq-content"
-              html={locales.route.faq.qAndAs.benefitsOfThePlatform.answer}
-            />
-          </Accordion.Item>
-        </Accordion>
-        {/* These two questions are only shown on mobile */}
+      <section className="w-full flex flex-col items-center gap-4 md:gap-6 px-4 md:px-37 py-12 md:py-16 max-w-2xl mx-auto">
+        <h2 className="mb-0 text-primary-600 text-5xl font-bold leading-10">
+          {locales.route.faq.headline}
+        </h2>
+        <div className="w-full">
+          <Accordion>
+            <Accordion.Item id="whatIsStem" key="whatIsStem">
+              {locales.route.faq.qAndAs.whatIsStem.question}
+              <RichText
+                id="faq-content"
+                html={locales.route.faq.qAndAs.whatIsStem.answer}
+              />
+            </Accordion.Item>
+            <Accordion.Item id="whoIsThePlatformFor" key="whoIsThePlatformFor">
+              {locales.route.faq.qAndAs.whoIsThePlatformFor.question}
+              <RichText
+                id="faq-content"
+                html={locales.route.faq.qAndAs.whoIsThePlatformFor.answer}
+              />
+            </Accordion.Item>
+            <Accordion.Item
+              id="benefitsOfThePlatform"
+              key="benefitsOfThePlatform"
+            >
+              {locales.route.faq.qAndAs.benefitsOfThePlatform.question}
+              <RichText
+                id="faq-content"
+                html={locales.route.faq.qAndAs.benefitsOfThePlatform.answer}
+              />
+            </Accordion.Item>
+            {/* These two questions are only shown on mobile */}
+            {/* </Accordion>
         <Accordion>
           <Accordion.Item id="isItFree" key="isItFree">
             {locales.route.faq.qAndAs.isItFree.question}
@@ -1296,18 +1299,21 @@ export default function Index() {
             />
           </Accordion.Item>
         </Accordion>
-        <Accordion>
-          <Accordion.Item id="mintId" key="mintId">
-            {locales.route.faq.qAndAs.mintId.question}
-            <RichText
-              id="faq-content"
-              html={locales.route.faq.qAndAs.mintId.answer}
-            />
-          </Accordion.Item>
-        </Accordion>
-        <Button as="link" to="/help" variant="outline" prefetch="intent">
-          {locales.route.faq.cta}
-        </Button>
+        <Accordion> */}
+            <Accordion.Item id="mintId" key="mintId">
+              {locales.route.faq.qAndAs.mintId.question}
+              <RichText
+                id="faq-content"
+                html={locales.route.faq.qAndAs.mintId.answer}
+              />
+            </Accordion.Item>
+          </Accordion>
+        </div>
+        <div className="w-full flex justify-center pt-6 md:pt-8">
+          <Button as="link" to="/help" variant="outline" prefetch="intent">
+            {locales.route.faq.cta}
+          </Button>
+        </div>
       </section>
     </>
   );
