@@ -726,6 +726,7 @@ export default function App() {
     location.pathname.startsWith(baseRoute)
   );
   const isIndexRoute = location.pathname === "/";
+  const isGetInvolvedRoute = location.pathname === "/get-involved";
   const isMapOnExplore = location.pathname === "/explore/organizations/map";
 
   const matches = useMatches();
@@ -774,7 +775,7 @@ export default function App() {
   const mainMenuIsOpen = searchParams.get(openMainMenuKey);
 
   const bodyClasses = classNames(
-    "font-sans flex min-h-dvh break-words antialiased overflow-x-hidden",
+    "font-sans flex min-h-dvh wrap-break-word antialiased overflow-x-hidden",
     modal && "overflow-y-hidden",
     overlayMenu && "overflow-y-hidden container-lg:overflow-y-visible",
     showFilters !== null &&
@@ -856,14 +857,18 @@ export default function App() {
                       }
                     />
                   </div>
-                  {isIndexRoute === false && isNonAppBaseRoute === false && (
-                    <div className={`${showFilters ? "hidden @lg:block" : ""}`}>
-                      <LoginOrRegisterCTA
-                        isAnon={mode === "anon"}
-                        locales={locales}
-                      />
-                    </div>
-                  )}
+                  {isIndexRoute === false &&
+                    isGetInvolvedRoute === false &&
+                    isNonAppBaseRoute === false && (
+                      <div
+                        className={`${showFilters ? "hidden @lg:block" : ""}`}
+                      >
+                        <LoginOrRegisterCTA
+                          isAnon={mode === "anon"}
+                          locales={locales}
+                        />
+                      </div>
+                    )}
                   <div className="flex flex-nowrap w-full">
                     <main className="w-full @md:bg-neutral-50">
                       <Outlet />
@@ -878,7 +883,7 @@ export default function App() {
                       <ScrollToTopButton locales={locales} />
                     </div>
                   </div>
-                  {isIndexRoute ? (
+                  {isIndexRoute || isGetInvolvedRoute ? (
                     <Footer locales={locales} mode={mode} />
                   ) : null}
                   {alert !== null ? (
