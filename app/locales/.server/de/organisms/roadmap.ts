@@ -1,14 +1,13 @@
 export const locale = {
-  headline: "Fahrplan",
-  subline:
-    "Eure Feature-Wünsche für die Plattformentwicklung in der Roadmap-Ansicht.",
+  headline: "Überblick über die Plattform-Features",
+  subline: "Aktueller Stand und Ausblick",
   controls: {
     showMore: "Mehr anzeigen",
     showLess: "Weniger anzeigen",
-    submitIdeas: "Ideen einreichen",
-    ctaQuestion:
-      "Du hast eine Idee für ein Feature, das Du auf der Plattform benötigst?",
-    cta: "Reiche es bei uns ein!",
+    submitIdeas: {
+      cta: "Idee einreichen",
+      subject: "Meine%20Idee%20für%20die%20Community-Plattform",
+    },
   },
   ideas: {
     title: "Ideen",

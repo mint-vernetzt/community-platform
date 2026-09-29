@@ -1,13 +1,13 @@
 export const locale = {
-  headline: "Roadmap",
-  subline: "Your feature requests for platform development in roadmap view.",
+  headline: "Overview of Platform Features",
+  subline: "Current Status and Outlook",
   controls: {
     showMore: "Show more",
     showLess: "Show less",
-    submitIdeas: "Submit ideas",
-    ctaQuestion:
-      "Do you have an idea for a feature that you need on the platform?",
-    cta: "Submit it to us!",
+    submitIdeas: {
+      cta: "Submit idea",
+      subject: "My%20idea%20for%20the%20community%20platform",
+    },
   },
   ideas: {
     title: "Ideas",

@@ -65,7 +65,7 @@ import {
   getUpcomingEvents,
 } from "./index.server";
 import {
-  FundingSectionBobbel,
+  FundingSectionWobble,
   GetInvolvedBobbel,
   LoginSectionBobbel,
   PiggyBank,
@@ -791,8 +791,8 @@ export default function Index() {
 
       {/* Funding section */}
       <section className="w-full px-4 md:px-10 xl:px-16 py-12 md:py-16 max-w-2xl mx-auto">
-        <div className="relative rounded-2xl overflow-hidden bg-primary-400 p-6 md:p-10">
-          <div className="flex flex-col gap-10 max-w-112 @2xl:max-w-180">
+        <div className="relative isolate rounded-2xl overflow-hidden bg-primary-400 p-6 md:p-10">
+          <div className="flex flex-col gap-10 max-w-150">
             <div className="flex flex-col gap-4">
               <h2 className="mb-0 text-5xl text-white font-bold leading-9">
                 {locales.route.funding.headline}
@@ -810,7 +810,7 @@ export default function Index() {
               {locales.route.funding.cta}
             </Button>
           </div>
-          <FundingSectionBobbel />
+          <FundingSectionWobble />
         </div>
       </section>
 

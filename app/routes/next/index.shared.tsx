@@ -35,125 +35,25 @@ export function LoginSectionBobbel() {
   );
 }
 
-export function FundingSectionBobbel() {
+export function FundingSectionWobble() {
   return (
     <>
       <svg
-        width="430"
-        height="244"
-        viewBox="0 0 430 244"
+        width="786"
+        height="658"
+        viewBox="0 0 786 658"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
-        className="absolute hidden @lg:block @xl:hidden bottom-0 right-0"
+        className="absolute left-139.5 top-18.5 hidden md:block -z-10"
       >
         <path
-          d="M175.778 562.924C-151.419 442.746 45.5064 -23.9409 325.853 2.0444C452.478 13.7812 429.735 67.7856 516.963 124.08C642.416 205.044 912.081 205.043 706.901 510.124C688.602 537.333 623.583 597.468 593.173 615.729C527.442 655.199 447.715 662.805 175.778 562.924Z"
+          d="M175.78 562.924C-151.417 442.746 45.5084 -23.9409 325.855 2.04434C452.48 13.7812 429.737 67.7855 516.965 124.08C642.418 205.044 912.083 205.043 706.903 510.124C688.604 537.333 623.585 597.468 593.175 615.729C527.444 655.199 447.717 662.805 175.78 562.924Z"
           stroke="#FFCF53"
           strokeWidth="2"
         />
         <mask
-          id="mask0_388_4944"
-          maskUnits="userSpaceOnUse"
-          x="0"
-          y="14"
-          width="776"
-          height="645"
-        >
-          <path
-            d="M170.151 577.719C-156.846 457.233 39.9585 -10.6493 320.134 15.4025C446.681 27.1694 423.952 81.3121 511.127 137.751C636.503 218.922 906.003 218.922 700.949 524.784C682.661 552.062 617.682 612.352 587.29 630.659C521.599 670.23 441.921 677.856 170.151 577.719Z"
-            fill="#EFE8E6"
-          />
-        </mask>
-        <g mask="url(#mask0_388_4944)">
-          <rect
-            x="-383.609"
-            y="-375.701"
-            width="1041.23"
-            height="694.239"
-            fill="url(#paint0_linear_388_4944)"
-          />
-        </g>
-        <defs>
-          <linearGradient
-            id="paint0_linear_388_4944"
-            x1="393.024"
-            y1="29.5005"
-            x2="76.5235"
-            y2="244.501"
-            gradientUnits="userSpaceOnUse"
-          >
-            <stop stopColor="#2D6BE1" />
-            <stop offset="1" stopColor="#1B54C0" />
-          </linearGradient>
-        </defs>
-      </svg>
-      <svg
-        width="499"
-        height="244"
-        viewBox="0 0 499 244"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden="true"
-        className="absolute hidden @xl:block @2xl:hidden bottom-0 right-0"
-      >
-        <path
-          d="M175.778 562.924C-151.419 442.746 45.5064 -23.9409 325.853 2.0444C452.478 13.7812 429.735 67.7856 516.963 124.08C642.416 205.044 912.081 205.043 706.901 510.124C688.602 537.333 623.583 597.468 593.173 615.729C527.442 655.199 447.715 662.805 175.778 562.924Z"
-          stroke="#FFCF53"
-          strokeWidth="2"
-        />
-        <mask
-          id="mask0_388_4207"
-          maskUnits="userSpaceOnUse"
-          x="0"
-          y="14"
-          width="776"
-          height="645"
-        >
-          <path
-            d="M170.151 577.719C-156.846 457.233 39.9585 -10.6493 320.134 15.4025C446.681 27.1694 423.952 81.3121 511.127 137.751C636.503 218.922 906.003 218.922 700.949 524.784C682.661 552.062 617.682 612.352 587.29 630.659C521.599 670.23 441.921 677.856 170.151 577.719Z"
-            fill="#EFE8E6"
-          />
-        </mask>
-        <g mask="url(#mask0_388_4207)">
-          <rect
-            x="-383.609"
-            y="-375.701"
-            width="1041.23"
-            height="694.239"
-            fill="url(#paint0_linear_388_4207)"
-          />
-        </g>
-        <defs>
-          <linearGradient
-            id="paint0_linear_388_4207"
-            x1="393.024"
-            y1="29.5005"
-            x2="76.5235"
-            y2="244.501"
-            gradientUnits="userSpaceOnUse"
-          >
-            <stop stopColor="#2D6BE1" />
-            <stop offset="1" stopColor="#1B54C0" />
-          </linearGradient>
-        </defs>
-      </svg>
-      <svg
-        width="642"
-        height="185"
-        viewBox="0 0 642 185"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden="true"
-        className="absolute hidden @2xl:block bottom-0 right-0"
-      >
-        <path
-          d="M175.778 562.924C-151.419 442.746 45.5064 -23.9409 325.853 2.04434C452.478 13.7812 429.735 67.7855 516.963 124.08C642.416 205.044 912.081 205.043 706.901 510.124C688.602 537.333 623.583 597.468 593.173 615.729C527.442 655.199 447.715 662.805 175.778 562.924Z"
-          stroke="#FFCF53"
-          strokeWidth="2"
-        />
-        <mask
-          id="mask0_1046_8459"
+          id="mask0_1200_6168"
           maskUnits="userSpaceOnUse"
           x="0"
           y="14"
@@ -165,22 +65,22 @@ export function FundingSectionBobbel() {
             fill="#EFE8E6"
           />
         </mask>
-        <g mask="url(#mask0_1046_8459)">
+        <g mask="url(#mask0_1200_6168)">
           <rect
-            x="-383.609"
-            y="-375.701"
-            width="1041.23"
-            height="694.239"
-            fill="url(#paint0_linear_1046_8459)"
+            x="-384"
+            y="-376"
+            width="1753"
+            height="1169"
+            fill="url(#paint0_linear_1200_6168)"
           />
         </g>
         <defs>
           <linearGradient
-            id="paint0_linear_1046_8459"
-            x1="393.024"
-            y1="29.5005"
-            x2="76.5235"
-            y2="244.5"
+            id="paint0_linear_1200_6168"
+            x1="404"
+            y1="101"
+            x2="84.472"
+            y2="285.452"
             gradientUnits="userSpaceOnUse"
           >
             <stop stopColor="#2D6BE1" />

@@ -868,7 +868,10 @@ const de = {
     route: deNextLanding,
     stages: deStages,
   },
-  "next/get-involved": deNextGetInvolved,
+  "next/get-involved": {
+    route: deNextGetInvolved,
+    roadmap: deRoadmap,
+  },
   // map route
   map: {
     route: deMap,
@@ -1370,7 +1373,10 @@ const en = {
     route: enNextLanding,
     stages: enStages,
   },
-  "next/get-involved": enNextGetInvolved,
+  "next/get-involved": {
+    route: enNextGetInvolved,
+    roadmap: enRoadmap,
+  },
   // map route
   map: {
     route: enMap,
