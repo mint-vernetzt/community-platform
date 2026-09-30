@@ -67,6 +67,7 @@ import {
   sortEvents,
   splitEventsIntoFutureAndPast,
 } from "./utils.server";
+import defaultProfileBackground from "~/assets/default-profile-background.jpg";
 
 export function links() {
   return [
@@ -110,13 +111,11 @@ export const meta: MetaFunction<typeof loader> = (args) => {
       {
         name: "image",
         property: "og:image",
-        content:
-          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+        content: `${loaderData.meta.baseUrl}${defaultProfileBackground}`,
       },
       {
         property: "og:image:secure_url",
-        content:
-          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+        content: `${loaderData.meta.baseUrl}${defaultProfileBackground}`,
       },
       {
         property: "og:url",
@@ -171,13 +170,11 @@ export const meta: MetaFunction<typeof loader> = (args) => {
       {
         name: "image",
         property: "og:image",
-        content:
-          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+        content: `${loaderData.meta.baseUrl}${defaultProfileBackground}`,
       },
       {
         property: "og:image:secure_url",
-        content:
-          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+        content: `${loaderData.meta.baseUrl}${defaultProfileBackground}`,
       },
       {
         property: "og:url",

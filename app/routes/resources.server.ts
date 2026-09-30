@@ -1,4 +1,22 @@
 import { type languageModuleMap } from "~/locales/.server";
+import mintDataLabImage from "~/assets/resources/mint-datalab.png";
+import mintDataLabImageBlurred from "~/assets/resources/mint-datalab-blurred.png";
+import mintCampusImage from "~/assets/resources/mint-campus.png";
+import mintCampusImageBlurred from "~/assets/resources/mint-campus-mobile.png";
+import fundingSearchImage from "~/assets/resources/funding-search.png";
+import fundingSearchImageBlurred from "~/assets/resources/funding-search-blurred.png";
+import sharepicGeneratorImage from "~/assets/resources/sharepic-generator.png";
+import sharepicGeneratorImageBlurred from "~/assets/resources/sharepic-generator-blurred.png";
+import mediaDatabaseImage from "~/assets/resources/media-database.png";
+import mediaDatabaseImageBlurred from "~/assets/resources/media-database-blurred.png";
+import oebImage from "~/assets/resources/oeb.png";
+import oebImageBlurred from "~/assets/resources/oeb-blurred.png";
+import githubImage from "~/assets/resources/github.png";
+import githubImageBlurred from "~/assets/resources/github-blurred.png";
+import mintVernetztImage from "~/assets/resources/mint-vernetzt.png";
+import mintVernetztImageBlurred from "~/assets/resources/mint-vernetzt-blurred.png";
+import meshMintImage from "~/assets/resources/mesh-mint.png";
+import meshMintImageBlurred from "~/assets/resources/mesh-mint-blurred.png";
 
 export function getDataForToolsSection() {
   type ResourceKey = keyof (typeof languageModuleMap)[
@@ -16,32 +34,32 @@ export function getDataForToolsSection() {
   const resourceListItems: Omit<ResourceListItem, "headline"> = {
     fundingSearch: {
       link: "/explore/fundings",
-      imagePath: "/images/funding-search.png",
-      blurredImagePath: "/images/funding-search-blurred.png",
+      imagePath: fundingSearchImage,
+      blurredImagePath: fundingSearchImageBlurred,
       external: false,
       beta: false,
       bgClassName: "bg-neutral-50",
     },
     sharepic: {
       link: "https://sharepic.mint-vernetzt.de/",
-      imagePath: "/images/sharepic-generator.png",
-      blurredImagePath: "/images/sharepic-generator-blurred.png",
+      imagePath: sharepicGeneratorImage,
+      blurredImagePath: sharepicGeneratorImageBlurred,
       external: true,
       beta: true,
       bgClassName: "bg-neutral-100",
     },
     mediaDatabase: {
       link: "https://mediendatenbank.mint-vernetzt.de",
-      imagePath: "/images/media-database.png",
-      blurredImagePath: "/images/media-database-blurred.png",
+      imagePath: mediaDatabaseImage,
+      blurredImagePath: mediaDatabaseImageBlurred,
       external: true,
       beta: false,
       bgClassName: "bg-neutral-50",
     },
     oeb: {
       link: "https://openbadges.education",
-      imagePath: "/images/oeb.png",
-      blurredImagePath: "/images/oeb-blurred.png",
+      imagePath: oebImage,
+      blurredImagePath: oebImageBlurred,
       external: true,
     },
   };
@@ -64,22 +82,22 @@ export function getDataForInformationSection() {
   const resourceListItems: Omit<ResourceListItem, "headline"> = {
     mintVernetzt: {
       link: "https://www.mint-vernetzt.de",
-      imagePath: "/images/mint-vernetzt.png",
-      blurredImagePath: "/images/mint-vernetzt-blurred.png",
+      imagePath: mintVernetztImage,
+      blurredImagePath: mintVernetztImageBlurred,
       external: true,
       bgClassName: "bg-[#164194]",
     },
     meshMint: {
       link: "https://www.meshmint.org",
-      imagePath: "/images/mesh-mint.png",
-      blurredImagePath: "/images/mesh-mint-blurred.png",
+      imagePath: meshMintImage,
+      blurredImagePath: meshMintImageBlurred,
       external: true,
       bgClassName: "bg-[#0C9C85]",
     },
     mintDataLab: {
       link: "https://datalab.mint-vernetzt.de",
-      imagePath: "/images/mint-datalab.png",
-      blurredImagePath: "/images/mint-datalab-blurred.png",
+      imagePath: mintDataLabImage,
+      blurredImagePath: mintDataLabImageBlurred,
       external: true,
       bgClassName: "bg-[#D1A9CC]",
     },
@@ -103,8 +121,8 @@ export function getDataForLearnSection() {
   const resourceListItems: Omit<ResourceListItem, "headline"> = {
     mintCampus: {
       link: "https://mintcampus.org",
-      imagePath: "/images/mint-campus.png",
-      blurredImagePath: "/images/mint-campus-mobile.png",
+      imagePath: mintCampusImage,
+      blurredImagePath: mintCampusImageBlurred,
       external: true,
     },
   };
@@ -127,8 +145,8 @@ export function getDataForContributeSection() {
   const resourceListItems: Omit<ResourceListItem, "headline"> = {
     github: {
       link: "https://github.com/mint-vernetzt/community-platform",
-      imagePath: "/images/github.png",
-      blurredImagePath: "/images/github-blurred.png",
+      imagePath: githubImage,
+      blurredImagePath: githubImageBlurred,
       external: true,
       bgClassName: "bg-neutral-900",
     },

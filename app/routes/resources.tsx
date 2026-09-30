@@ -14,6 +14,8 @@ import {
   getDataForContributeSection,
 } from "./resources.server";
 import { useLoaderData } from "react-router";
+import mintCampusImage from "~/assets/resources/mint-campus.png";
+import mintCampusImageBlurred from "~/assets/resources/mint-campus-mobile.png";
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const language = await detectLanguage(request);
@@ -198,7 +200,7 @@ export default function Resources() {
                   <img
                     srcSet={
                       typedResourceKey === "mintCampus"
-                        ? "/images/mint-campus.png 715w, /images/mint-campus-mobile.png 288w"
+                        ? `${mintCampusImage} 715w, ${mintCampusImageBlurred} 288w`
                         : undefined
                     }
                     sizes={

@@ -3,6 +3,8 @@ import fs from "fs-extra";
 import Handlebars from "handlebars";
 import { createTransport } from "nodemailer";
 import type { OneOf } from "./lib/utils/types";
+import shortLogoPath from "~/assets/mint-vernetzt_shortlogo.png";
+import logoPath from "~/assets/mint-vernetzt_logo.png";
 
 // Mailer configuration
 type MailerOptions = {
@@ -728,7 +730,7 @@ export function getCompiledMailTemplate<T extends TemplatePath>(
   });
   const layoutTemplate = Handlebars.compile(layoutTemplateSource, {});
   Handlebars.registerPartial("body", body);
-  const compiledHtml = layoutTemplate({ baseUrl });
+  const compiledHtml = layoutTemplate({ baseUrl, shortLogoPath, logoPath });
 
   return compiledHtml;
 }

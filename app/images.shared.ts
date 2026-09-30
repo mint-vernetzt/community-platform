@@ -1,3 +1,12 @@
+import defaultEventBackground from "~/assets/default-event-background.jpg";
+import defaultEventBackgroundBlurred from "~/assets/default-event-background-blurred.jpg";
+import defaultProjectBackground from "~/assets/default-project-background.jpg";
+import defaultProjectBackgroundBlurred from "~/assets/default-project-background-blurred.jpg";
+import defaultOrganizationBackground from "~/assets/default-organization-background.jpg";
+import defaultOrganizationBackgroundBlurred from "~/assets/default-organization-background-blurred.jpg";
+import defaultProfileBackground from "~/assets/default-profile-background.jpg";
+import defaultProfileBackgroundBlurred from "~/assets/default-profile-background-blurred.jpg";
+
 export const MaxImageSizes = {
   Background: {
     width: 1488,
@@ -42,19 +51,19 @@ export const ImageAspectsAsStrings = {
 
 export const DefaultImages = {
   Event: {
-    Background: "/images/default-event-background.jpg",
-    BlurredBackground: "/images/default-event-background-blurred.jpg",
+    Background: defaultEventBackground,
+    BlurredBackground: defaultEventBackgroundBlurred,
   },
   Project: {
-    Background: "/images/default-project-background.jpg",
-    BlurredBackground: "/images/default-project-background-blurred.jpg",
+    Background: defaultProjectBackground,
+    BlurredBackground: defaultProjectBackgroundBlurred,
   },
   Organization: {
-    Background: "/images/default-organization-background.jpg",
-    BlurredBackground: "/images/default-organization-background-blurred.jpg",
+    Background: defaultOrganizationBackground,
+    BlurredBackground: defaultOrganizationBackgroundBlurred,
   },
   Profile: {
-    Background: "/images/default-profile-background.jpg",
-    BlurredBackground: "/images/default-profile-background-blurred.jpg",
+    Background: defaultProfileBackground,
+    BlurredBackground: defaultProfileBackgroundBlurred,
   },
 };

@@ -82,6 +82,7 @@ import {
   SKIP_LINK_GUEST_DATA_INTENT,
 } from "./root.shared";
 import { extendSearchParams } from "./lib/utils/searchParams";
+import defaultEventBackground from "~/assets/default-event-background.jpg";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { loaderData } = args;
@@ -114,11 +115,11 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     {
       name: "image",
       property: "og:image",
-      content: loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+      content: `${loaderData.meta.baseUrl}${defaultEventBackground}`,
     },
     {
       property: "og:image:secure_url",
-      content: loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+      content: `${loaderData.meta.baseUrl}${defaultEventBackground}`,
     },
     {
       property: "og:url",
