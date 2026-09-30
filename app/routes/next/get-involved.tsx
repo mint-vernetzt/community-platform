@@ -26,6 +26,7 @@ export default function GetInvolved() {
 
   return (
     <>
+      {/* Intro Section */}
       <section className="w-full flex flex-col md:flex-row md:items-center md:justify-between gap-12 md:gap-10 pt-12 md:pt-16 md:pb-16 max-w-2xl mx-auto">
         <div className="w-full md:w-100 md:min-w-100 flex flex-col gap-6 px-4 md:px-0 md:pl-10 xl:pl-16">
           <h1 className="mb-0 text-primary-600 text-5xl font-bold leading-9">
@@ -48,6 +49,7 @@ export default function GetInvolved() {
           </div>
         </div>
       </section>
+      {/* Roadmap Section */}
       <section className="w-full py-12 md:py-16 px-4 md:px-10 xl:px-16 max-w-2xl mx-auto">
         <Roadmap locales={locales} />
       </section>

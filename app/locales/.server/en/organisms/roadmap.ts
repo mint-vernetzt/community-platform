@@ -4,6 +4,7 @@ export const locale = {
   controls: {
     showMore: "Show more",
     showLess: "Show less",
+    ariaLabel: "Toggle roadmap column",
     submitIdeas: {
       cta: "Submit idea",
       subject: "My%20idea%20for%20the%20community%20platform",
@@ -39,14 +40,14 @@ export const locale = {
       description:
         "With the integration, we enable the display and awarding of badges as digital evidence to make learning successes and skills acquisition visible.",
     },
+  },
+  done: {
+    title: "Already implemented",
     createOwnEvents: {
       title: "Create your own events",
       description:
         "As a STEM actor, you can create your own events and manage the participants.",
     },
-  },
-  done: {
-    title: "Already implemented",
     map: {
       title: "MINT-Community Map",
       description:

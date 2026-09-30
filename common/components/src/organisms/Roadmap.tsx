@@ -1,4 +1,4 @@
-import { Children } from "react";
+import { Children, isValidElement } from "react";
 import { Button } from "./../molecules/Button";
 
 type RoadmapColumnProps = {
@@ -7,6 +7,7 @@ type RoadmapColumnProps = {
       controls: {
         showMore: string;
         showLess: string;
+        ariaLabel: string;
       };
     };
   };
@@ -17,67 +18,46 @@ type RoadmapColumnProps = {
 
 function RoadmapColumn(props: RoadmapColumnProps) {
   const { locales } = props;
-  const countRoadmapCards = Children.count(props.children);
+  const childrenArray = Children.toArray(props.children);
+  const roadmapCards = childrenArray.filter(
+    (child) => isValidElement(child) && child.type === RoadmapCard
+  );
+  const countRoadmapCards = roadmapCards.length;
   return (
-    <div>
-      <h3 className="text-center mb-4 text-2xl text-primary-600 font-bold leading-6.5">
+    <div className="w-full flex flex-col items-center gap-4">
+      <h3 className="mb-0 text-primary-600 text-2xl font-bold leading-6.5">
         {props.title}
       </h3>
-      <div className="bg-blue-50 rounded-2xl px-4 pt-4 pb-6 md:px-6 md:pt-6 flex flex-col group">
+      <div className="relative group w-full flex flex-col items-center gap-6 px-4 lg:px-6 pt-4 lg:pt-6 pb-6 rounded-2xl bg-primary-50">
         <input
           type="checkbox"
           id={`collapse-col-${props.id}`}
-          className="peer order-2 h-0 w-0 opacity-0"
+          className="absolute w-0 h-0 opacity-0"
           disabled={countRoadmapCards <= 3}
+          aria-label={locales.roadmap.controls.ariaLabel}
         />
-        <div
-          className={`bg-blue-50 rounded-2xl grid overflow-hidden transition-all grid-rows-[repeat(2,1fr)_repeat(99,0fr)] @md:grid-rows-[repeat(3,1fr)_repeat(99,0fr)] peer-checked:auto-rows-fr peer-checked:grid-rows-none order-1`}
-        >
-          {props.children}
+        <div className="w-full flex flex-col items-center gap-6">
+          {roadmapCards.map((card, index) => (
+            <div
+              key={index}
+              className={`${index >= 3 ? "hidden group-has-checked:block" : ""}`}
+            >
+              {card}
+            </div>
+          ))}
         </div>
-        {countRoadmapCards > 3 ? (
+        {countRoadmapCards > 3 && (
           <label
             htmlFor={`collapse-col-${props.id}`}
-            className="order-3 mt-6 relative block text-nowrap text-sm font-semibold h-5 text-primary-500 cursor-pointer leading-5"
+            className="text-primary text-sm font-semibold leading-5 hover:underline focus:outline-none focus:underline underline-offset-4 cursor-pointer"
           >
-            <span className="group-has-checked:hidden block absolute inset-0 text-center hover:underline decoration-inherit decoration-auto group-has-focus:underline underline-offset-4">
+            <span className="group-has-checked:hidden">
               {locales.roadmap.controls.showMore}
             </span>
-            <span className="group-has-checked:block hidden absolute inset-0 text-center hover:underline decoration-inherit decoration-auto group-has-focus:underline underline-offset-4">
+            <span className="hidden group-has-checked:inline">
               {locales.roadmap.controls.showLess}
             </span>
           </label>
-        ) : countRoadmapCards > 2 ? (
-          <>
-            <label
-              htmlFor={`collapse-col-${props.id}`}
-              className="order-3 mt-6 relative block w-full text-sm font-semibold h-5 text-primary-500 cursor-pointer leading-5 @md:hidden underline decoration-inherit decoration-auto"
-            >
-              <span className="group-has-checked:hidden inset-0 text-center absolute group-hover:underline decoration-inherit decoration-auto group-has-focus:underline underline-offset-4">
-                {locales.roadmap.controls.showMore}
-              </span>
-              <span className="group-has-checked:block hidden absolute inset-0 text-center group-hover:underline decoration-inherit decoration-auto group-has-focus:underline underline-offset-4">
-                {locales.roadmap.controls.showLess}
-              </span>
-            </label>
-            <div className="hidden @md:block mt-4 @lg:mt-6 h-5 order-3"></div>
-          </>
-        ) : (
-          <>
-            <label
-              htmlFor={`collapse-col-${props.id}`}
-              className="order-3 absolute w-0 h-0 opacity-0"
-              aria-disabled="true"
-            >
-              <span className="group-has-checked:hidden block absolute inset-0 text-center hover:underline decoration-inherit decoration-auto">
-                {locales.roadmap.controls.showMore}
-              </span>
-              <span className="group-has-checked:block hidden absolute inset-0 text-center hover:underline decoration-inherit decoration-auto">
-                {locales.roadmap.controls.showLess}
-              </span>
-            </label>
-            <div className="hidden @md:block mt-4 @lg:mt-6 h-5 order-3"></div>
-          </>
         )}
       </div>
     </div>
@@ -91,9 +71,13 @@ type RoadmapCardProps = {
 
 function RoadmapCard(props: RoadmapCardProps) {
   return (
-    <div className="card bg-white rounded-lg text-primary w-full px-4 @xl:px-6">
-      <h4 className="font-bold text-lg mb-3">{props.title}</h4>
-      <p>{props.text}</p>
+    <div className="w-full min-h-46.5 flex flex-col gap-2.5 bg-white rounded-lg p-4">
+      <h4 className="mb-0 text-primary text-lg font-bold leading-6">
+        {props.title}
+      </h4>
+      <p className="text-primary text-base font-semibold leading-5">
+        {props.text}
+      </p>
     </div>
   );
 }
@@ -105,6 +89,7 @@ type RoadmapLocales = {
     controls: {
       showMore: string;
       showLess: string;
+      ariaLabel: string;
       submitIdeas: {
         subject: string;
         cta: string;
@@ -135,13 +120,13 @@ type RoadmapLocales = {
         title: string;
         description: string;
       };
+    };
+    done: {
+      title: string;
       createOwnEvents: {
         title: string;
         description: string;
       };
-    };
-    done: {
-      title: string;
       map: {
         title: string;
         description: string;
@@ -220,7 +205,7 @@ function Roadmap(props: { locales: RoadmapLocales }) {
       <p className="text-center mb-10 text-lg font-semibold leading-6 text-neutral-800">
         {locales.roadmap.subline}
       </p>
-      <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-y-10 md:gap-y-0 md:gap-x-8">
+      <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-10 md:gap-y-0 md:gap-x-8">
         <RoadmapColumn
           locales={locales}
           title={locales.roadmap.ideas.title}
@@ -253,10 +238,6 @@ function Roadmap(props: { locales: RoadmapLocales }) {
             title={locales.roadmap.inDevelopment.oeb.title}
             text={locales.roadmap.inDevelopment.oeb.description}
           />
-          <RoadmapCard
-            title={locales.roadmap.inDevelopment.createOwnEvents.title}
-            text={locales.roadmap.inDevelopment.createOwnEvents.description}
-          />
         </RoadmapColumn>
 
         <RoadmapColumn
@@ -264,6 +245,10 @@ function Roadmap(props: { locales: RoadmapLocales }) {
           title={locales.roadmap.done.title}
           id="3"
         >
+          <RoadmapCard
+            title={locales.roadmap.done.createOwnEvents.title}
+            text={locales.roadmap.done.createOwnEvents.description}
+          />
           <RoadmapCard
             title={locales.roadmap.done.map.title}
             text={locales.roadmap.done.map.description}

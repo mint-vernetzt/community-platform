@@ -4,6 +4,7 @@ export const locale = {
   controls: {
     showMore: "Mehr anzeigen",
     showLess: "Weniger anzeigen",
+    ariaLabel: "Roadmap-Spalte umschalten",
     submitIdeas: {
       cta: "Idee einreichen",
       subject: "Meine%20Idee%20für%20die%20Community-Plattform",
@@ -37,16 +38,16 @@ export const locale = {
     oeb: {
       title: "Einbindung Open Educational Badges",
       description:
-        "Mit der Einbindung ermöglichen wird das Anzeigen und Vergeben von Badges als digitale Nachweise, um Lernerfolge und Kompetenzerwerb sichtbar zu machen​.",
+        "Mit der Einbindung ermöglichen wird das Anzeigen und Vergeben von Badges als digitale Nachweise, um Lernerfolge und Kompetenzerwerb sichtbar zu machen.",
     },
+  },
+  done: {
+    title: "Bereits umgesetzt",
     createOwnEvents: {
       title: "Eigene Events anlegen",
       description:
         "Du kannst als MINT-Akteur:in eigene Events anlegen und die Teilnehmenden verwalten.",
     },
-  },
-  done: {
-    title: "Bereits umgesetzt",
     map: {
       title: "MINT-Community Karte",
       description:
