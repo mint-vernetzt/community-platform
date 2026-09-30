@@ -189,8 +189,8 @@ export function Footer(props: { locales?: RootLocales; mode: Mode }) {
                 year: currentYear,
               })
             : DEFAULT_LANGUAGE === "de"
-              ? `© 2021-${currentYear} matrix gGmbH`
-              : `© 2021-${currentYear} matrix gGmbH`}
+              ? `© 2021–${currentYear} matrix gGmbH`
+              : `© 2021–${currentYear} matrix gGmbH`}
         </div>
         {/* SoMe icons */}
         <ul className="flex items-center gap-6">

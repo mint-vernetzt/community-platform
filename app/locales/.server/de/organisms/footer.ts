@@ -4,7 +4,7 @@ export const locale = {
   promoted:
     "Zum Bundesministerium für Bildung, Familie, Senioren, Frauen und Jugend",
   meta: {
-    copyright: "© 2021-{{year}} matrix gGmbH",
+    copyright: "© 2021–{{year}} matrix gGmbH",
   },
   soMe: {
     github: "Zum MINTvernetzt GitHub Repository",
