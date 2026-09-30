@@ -61,6 +61,9 @@ export const locale = {
       resources: {
         label: "Ressourcen",
       },
+      getInvolved: {
+        label: "Mitmachen",
+      },
       explore: {
         label: "Entdecken",
         index: "Alle Inhalte",

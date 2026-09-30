@@ -61,6 +61,9 @@ export const locale = {
       resources: {
         label: "Resources",
       },
+      getInvolved: {
+        label: "Get Involved",
+      },
       explore: {
         index: "All content",
         label: "Explore",
