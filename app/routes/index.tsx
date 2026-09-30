@@ -1,10 +1,12 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import {
+  getImageLabelClassName,
+  Image,
+} from "@mint-vernetzt/components/src/molecules/Image";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
-import { Roadmap } from "@mint-vernetzt/components/src/organisms/Roadmap";
-import { useState } from "react";
+import { useEffect, useRef, useState, type TouchEvent } from "react";
 import {
   Form,
   Link,
@@ -18,21 +20,34 @@ import {
 } from "react-router";
 import { HoneypotInputs } from "remix-utils/honeypot/react";
 import { useHydrated } from "remix-utils/use-hydrated";
+import projectTeaserImageBlurred from "~/assets/landing-page/Jasmin Mertikat 1-blurred.webp";
+import projectTeaserImage from "~/assets/landing-page/Jasmin Mertikat 1.jpg";
+import eventSectionBlurredImage from "~/assets/landing-page/MINTvernetzt_Tag_01_Foto_Andi_Weiland-125-blurred.webp";
+import eventSectionImage from "~/assets/landing-page/MINTvernetzt_Tag_01_Foto_Andi_Weiland-125.jpg";
+import mvLogoBlurred from "~/assets/landing-page/mv-logo-blurred.webp";
+import mvLogo from "~/assets/landing-page/mv-logo.png";
+import aboutSectionBlurredImage from "~/assets/landing-page/mv-team-blurred.webp";
+import aboutSectionImage from "~/assets/landing-page/mv-team.jpg";
+import tinkertankLogoBlurred from "~/assets/landing-page/tinkertank-logo-blurred.webp";
+import tinkertankLogo from "~/assets/landing-page/tinkertank-logo.jpg";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Accordion } from "~/components-next/Accordion";
-import { CountUp } from "~/components-next/CountUp";
 import { ShowPasswordButton } from "~/components-next/ShowPasswordButton";
+import { External } from "~/components-next/icons/External";
+import { Icon } from "~/components-next/icons/Icon";
 import { PrivateVisibility } from "~/components-next/icons/PrivateVisibility";
 import { PublicVisibility } from "~/components-next/icons/PublicVisibility";
-import { H1 } from "~/components/legacy/Heading/Heading";
 import { RichText } from "~/components/legacy/Richtext/RichText";
+import ListItemEvent from "~/components/next/ListItemEvent";
 import { checkHoneypot } from "~/honeypot.server";
+import { HONEYPOT_CLASSNAME } from "~/honeypot.shared";
 import { detectLanguage } from "~/i18n.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { isBotRequest } from "~/utils.server";
+import { hasContent } from "~/utils.shared";
 import { login } from "./login/index.server";
 import { createLoginSchema } from "./login/index.shared";
 import {
@@ -41,20 +56,33 @@ import {
   getProfileCount,
   getProjectCount,
 } from "./utils.server";
-import { HONEYPOT_CLASSNAME } from "~/honeypot.shared";
+import {
+  getAboutSectionOrganization,
+  getDataForCommunityImages,
+  getDataForTestimonialsSection,
+  getDataForToolsSection,
+  getEventTeaserOrganization,
+  getProjectTeaserOrganization,
+  getUpcomingEvents,
+} from "./index.server";
+import {
+  FundingSectionWobble,
+  GetInvolvedBobbel,
+  LoginSectionBobbel,
+  PiggyBank,
+} from "./index.shared";
 
-export async function loader(args: LoaderFunctionArgs) {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
+
+  const { authClient } = createAuthClient(request);
 
   let isBot = false;
   if (process.env.NODE_ENV !== "test") {
     isBot = isBotRequest(request.headers.get("user-agent"));
   }
 
-  const { authClient } = createAuthClient(request);
-
   const sessionUser = await getSessionUser(authClient);
-
   if (sessionUser !== null) {
     // Default redirect on logged in user
     return redirect("/dashboard");
@@ -65,23 +93,47 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const profileCount = await getProfileCount();
   const organizationCount = await getOrganizationCount();
-  const eventCount = await getEventCount();
   const projectCount = await getProjectCount();
+  const eventCount = await getEventCount();
+
+  const eventTeaserOrganization = await getEventTeaserOrganization();
+  const upcomingEvents = await getUpcomingEvents();
+
+  const projectTeaserOrganization = await getProjectTeaserOrganization();
+
+  const toolsSectionData = getDataForToolsSection();
+
+  const communityImages = getDataForCommunityImages();
+
+  const testimonialsSectionData = await getDataForTestimonialsSection();
+
+  const aboutSectionOrganization = await getAboutSectionOrganization();
 
   return {
+    locales,
+    language,
+    isBot,
     profileCount,
     organizationCount,
-    eventCount,
     projectCount,
-    locales,
-    isBot,
+    eventCount,
+    eventTeaserOrganization,
+    upcomingEvents,
+    projectTeaserOrganization,
+    toolsSectionData,
+    communityImages,
+    testimonialsSectionData,
+    aboutSectionOrganization,
   };
-}
+};
 
-export const action = async ({ request }: ActionFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
+  const { request } = args;
+
+  const { authClient } = createAuthClient(request);
+
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["index"];
-  const { authClient } = createAuthClient(request);
 
   // Conform
   const formData = await request.formData();
@@ -126,17 +178,23 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function Index() {
-  const actionData = useActionData<typeof action>();
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const {
+    locales,
+    communityImages,
+    toolsSectionData,
+    testimonialsSectionData,
+  } = loaderData;
+  const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isHydrated = useHydrated();
   const isSubmitting = useIsSubmitting();
   const [urlSearchParams] = useSearchParams();
 
   const loginRedirect = urlSearchParams.get("login_redirect");
-  const [showPassword, setShowPassword] = useState(false);
 
+  // Login Section logic
+  const [showPassword, setShowPassword] = useState(false);
   const [loginForm, loginFields] = useForm({
     id: "login-form",
     constraint: getZodConstraint(createLoginSchema(locales.route)),
@@ -145,10 +203,7 @@ export default function Index() {
         typeof actionData?.initialValue?.email === "string"
           ? actionData?.initialValue?.email
           : "",
-      password:
-        typeof actionData?.initialValue?.password === "string"
-          ? actionData?.initialValue?.password
-          : "",
+      password: "",
       loginRedirect: loginRedirect,
     },
     shouldValidate: "onBlur",
@@ -162,537 +217,1099 @@ export default function Index() {
     },
   });
 
+  // Tools Section logic
+  const toolsSliderRef = useRef<HTMLUListElement>(null);
+  const [toolsSliderScrollAmount, setToolsSliderScrollAmount] = useState(0);
+  const [toolsSliderMaxScroll, setToolsSliderMaxScroll] = useState(0);
+  useEffect(() => {
+    const slider = toolsSliderRef.current;
+    if (slider === null) {
+      return;
+    }
+    setToolsSliderMaxScroll(
+      slider.scrollWidth - slider.getBoundingClientRect().width
+    );
+    setToolsSliderScrollAmount(slider.scrollLeft);
+
+    const handleScroll = () => {
+      if (slider === null) {
+        return;
+      }
+      setToolsSliderScrollAmount(slider.scrollLeft);
+    };
+    slider.addEventListener("scroll", handleScroll);
+
+    const handleResize = () => {
+      if (slider === null) {
+        return;
+      }
+      setToolsSliderMaxScroll(slider.scrollWidth - slider.clientWidth);
+    };
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      slider.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  function scrollToolsSlider(direction: "previous" | "next") {
+    const slider = toolsSliderRef.current;
+    if (slider === null) {
+      return;
+    }
+    const firstCard = slider.firstElementChild;
+    if (firstCard === null) {
+      return;
+    }
+    const newScrollAmount = firstCard.clientWidth + 24;
+    if (direction === "previous") {
+      slider.scrollBy({ left: -newScrollAmount, behavior: "smooth" });
+    } else {
+      slider.scrollBy({ left: newScrollAmount, behavior: "smooth" });
+    }
+    setToolsSliderScrollAmount(slider.scrollLeft);
+  }
+
+  // Community Section logic
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [autoPlay, setAutoPlay] = useState(true);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (autoPlay === false) {
+      return;
+    }
+    const interval = setInterval(() => {
+      setActiveSlide(
+        (currentSlide) => (currentSlide + 1) % communityImages.length
+      );
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [autoPlay, communityImages.length]);
+
+  const onTouchStart = (event: TouchEvent<HTMLUListElement>) => {
+    setTouchEnd(null); // otherwise the swipe is fired even with usual touch events
+    setTouchStart(event.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (event: TouchEvent<HTMLUListElement>) =>
+    setTouchEnd(event.targetTouches[0].clientX);
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const minSwipeDistance = 50;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    if (isLeftSwipe) {
+      setActiveSlide(
+        (currentSlide) => (currentSlide + 1) % communityImages.length
+      );
+    }
+    if (isRightSwipe) {
+      setActiveSlide(
+        (currentSlide) =>
+          (currentSlide - 1 + communityImages.length) % communityImages.length
+      );
+    }
+    setAutoPlay(false);
+  };
+
+  const onClick = (index: number) => {
+    setActiveSlide(index);
+    setAutoPlay(false);
+  };
+
+  // Testimonials Section logic
+  const testimonialsSliderRef = useRef<HTMLUListElement>(null);
+  const [testimonialsSliderScrollAmount, setTestimonialsSliderScrollAmount] =
+    useState(0);
+  const [testimonialsSliderMaxScroll, setTestimonialsSliderMaxScroll] =
+    useState(0);
+  useEffect(() => {
+    const slider = testimonialsSliderRef.current;
+    if (slider === null) {
+      return;
+    }
+    setTestimonialsSliderMaxScroll(
+      slider.scrollWidth - slider.getBoundingClientRect().width
+    );
+    setTestimonialsSliderScrollAmount(slider.scrollLeft);
+
+    const handleScroll = () => {
+      if (slider === null) {
+        return;
+      }
+      setTestimonialsSliderScrollAmount(slider.scrollLeft);
+    };
+    slider.addEventListener("scroll", handleScroll);
+
+    const handleResize = () => {
+      if (slider === null) {
+        return;
+      }
+      setTestimonialsSliderMaxScroll(slider.scrollWidth - slider.clientWidth);
+    };
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      slider.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  function scrollTestimonialsSlider(direction: "previous" | "next") {
+    const slider = testimonialsSliderRef.current;
+    if (slider === null) {
+      return;
+    }
+    const firstCard = slider.firstElementChild;
+    if (firstCard === null) {
+      return;
+    }
+    const newScrollAmount = firstCard.clientWidth + 24;
+    if (direction === "previous") {
+      slider.scrollBy({ left: -newScrollAmount, behavior: "smooth" });
+    } else {
+      slider.scrollBy({ left: newScrollAmount, behavior: "smooth" });
+    }
+    setTestimonialsSliderScrollAmount(slider.scrollLeft);
+  }
+
   return (
     <>
-      <section className="bg-[linear-gradient(358.45deg,#FFFFFF_12.78%,rgba(255,255,255,0.4)_74.48%,rgba(255,255,255,0.4)_98.12%)]">
-        <div className="py-16 @lg:py-20 relative overflow-hidden min-h-[calc(100dvh-76px)] lg:min-h-[calc(100dvh-80px)] @md:flex @md:items-center">
-          <div className="absolute top-[50%] left-0 -ml-62.5 mt-50 hidden @lg:block">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="579"
-              height="544"
-              fill="none"
-            >
-              <path
-                fill="#FFCF53"
-                d="M291.146 532.638S105.447 474.955 40.529 432.061C-24.39 389.168-1.023 154 40.528 54.714 72.893-22.624 225.11-4.286 393.83 32.2c197.157 42.635 202.564 117.989 167.847 345.815C533.904 560.277 393.83 555 291.146 532.638Z"
-              />
-            </svg>
+      {/* Header & Login section */}
+      <section className="relative isolate md:bg-secondary-50 md:bg-linear-[358deg] md:from-neutral-50 md:from-[12.78%] md:via-neutral-50/40 md:via-[74.48%] md:to-neutral-50/40 md:to-[98.12%]">
+        <div className="w-full flex flex-col md:justify-between md:flex-row md:items-center max-w-2xl mx-auto">
+          <div className="max-w-156.5 flex flex-col gap-8 md:gap-6 pl-4 md:pl-10 xl:pl-16 pr-4 md:pr-8 pb-4 md:pb-16 pt-16">
+            <h1 className="mb-0 w-full text-center md:text-start text-primary-600 text-5xl md:text-[60px] font-black leading-9 md:leading-18">
+              {locales.route.content.headline}
+            </h1>
+            <p className="w-full md:max-w-99.5 text-center md:text-start text-neutral-800 text-lg font-semibold leading-6">
+              {locales.route.content.intro}
+            </p>
           </div>
 
-          <div className="absolute -top-20 left-1/2 ml-100 hidden @lg:block">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="945"
-              height="947"
-              fill="none"
-            >
-              <path
-                fill="#FFCF53"
-                d="M508.34 945.443c-89.582 9.463-180.276-67.216-195.857-76.352-15.581-9.136-180.122-118.666-263.692-206.297-104.462-109.538-28.635-229.26 123.96-490.517 152.596-261.258 257.514-203.28 580.525 27.841 338.964 242.537 139.878 409.42 56.878 514.42-83 105-212.232 221.442-301.814 230.905Z"
-              />
-            </svg>
-          </div>
-
-          <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
-            <div className="@md:grid @md:grid-cols-12 @md:gap-6 @lg:gap-8">
-              <div className="@md:col-start-1 @md:col-span-7 @xl:col-start-2 @xl:col-span-5 @md:flex @md:items-center">
-                <div>
-                  <H1 className="text-center @sm:text-left text-primary-600 text-7xl font-black leading-13">
-                    {locales.route.welcome}
-                  </H1>
-                  <p className="mt-8 mb-8 @lg:mb-0 text-primary-600 font-semibold leading-5">
-                    {locales.route.intro}
-                  </p>
-                </div>
+          <div className="md:pr-10 xl:pr-16 md:pb-16 md:pt-16">
+            <div className="flex flex-col gap-4 px-4 md:px-6 pb-12 md:pb-6 pt-4 md:pt-6 md:bg-white md:rounded-2xl md:shadow-[2px_2px_16px_-8px_rgba(177,111,171,0.79)]">
+              <a
+                id="login-start"
+                href="#login-end"
+                className="absolute focus:relative w-0 h-0 opacity-0 focus:w-fit focus:h-fit focus:opacity-100 focus:px-1"
+              >
+                {locales.route.login.skip.start}
+              </a>
+              <div className="flex flex-col gap-2 items-center">
+                <Button
+                  as="link"
+                  size="large"
+                  to={`/auth/keycloak${
+                    loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                  }`}
+                  variant="outline"
+                  fullSize
+                  name={locales.route.login.withMintId}
+                >
+                  {locales.route.login.withMintId}
+                </Button>
+                <Link
+                  to="https://mint-id.org/faq"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="text-primary font-bold underline text-base leading-5"
+                >
+                  {locales.route.login.moreInformation}
+                </Link>
               </div>
+              <div>
+                <hr />
+                <span className="block -my-3.5 mx-auto w-fit px-4 text-primary bg-white @sm:bg-neutral-50 font-bold">
+                  {locales.route.login.or}
+                </span>
+              </div>
+              {loaderData.isBot === false && (
+                <Form
+                  {...getFormProps(loginForm)}
+                  method="post"
+                  autoComplete="off"
+                  className="flex flex-col gap-8 md:gap-4"
+                >
+                  <HoneypotInputs className={HONEYPOT_CLASSNAME} />
+                  {typeof loginForm.errors !== "undefined" &&
+                  loginForm.errors.length > 0
+                    ? loginForm.errors.map((error, index) => {
+                        return (
+                          <div key={index}>
+                            <RichText id={loginForm.errorId} html={error} />
+                          </div>
+                        );
+                      })
+                    : null}
 
-              <div className="@md:col-start-8 @md:col-span-5 @lg:col-start-9 @lg:col-span-4 @xl:col-start-8 @xl:col-span-4">
-                <div className="py-8 bg-transparent @sm:bg-neutral-50 @sm:rounded-3xl @sm:p-8 @sm:shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
-                  <div className="text-center">
-                    <a
-                      id="login-start"
-                      href="#login-end"
-                      className="w-0 h-0 opacity-0 focus:w-fit focus:h-fit focus:opacity-100 focus:px-1"
+                  <div className="flex flex-col gap-4">
+                    <Input
+                      {...getInputProps(loginFields.email, {
+                        type: "text",
+                      })}
+                      key="email"
                     >
-                      {locales.route.login.skip.start}
-                    </a>
+                      <Input.Label htmlFor={loginFields.email.id}>
+                        {locales.route.form.label.email}
+                      </Input.Label>
+                      {typeof loginFields.email.errors !== "undefined" &&
+                      loginFields.email.errors.length > 0
+                        ? loginFields.email.errors.map((error) => (
+                            <Input.Error
+                              id={loginFields.email.errorId}
+                              key={error}
+                            >
+                              {error}
+                            </Input.Error>
+                          ))
+                        : null}
+                    </Input>
+                    <Input
+                      {...getInputProps(loginFields.password, {
+                        type: showPassword ? "text" : "password",
+                      })}
+                      key="password"
+                    >
+                      <Input.Label htmlFor={loginFields.password.id}>
+                        {locales.route.form.label.password}
+                      </Input.Label>
+                      {typeof loginFields.password.errors !== "undefined" &&
+                      loginFields.password.errors.length > 0
+                        ? loginFields.password.errors.map((error) => (
+                            <Input.Error
+                              id={loginFields.password.errorId}
+                              key={error}
+                            >
+                              {error}
+                            </Input.Error>
+                          ))
+                        : null}
+                      {isHydrated ? (
+                        <Input.Controls>
+                          <div className="h-10 w-10">
+                            <ShowPasswordButton
+                              onClick={() => {
+                                setShowPassword(!showPassword);
+                              }}
+                              aria-label={
+                                showPassword
+                                  ? locales.route.form.label.hidePassword
+                                  : locales.route.form.label.showPassword
+                              }
+                            >
+                              {showPassword ? (
+                                <PublicVisibility aria-hidden="true" />
+                              ) : (
+                                <PrivateVisibility aria-hidden="true" />
+                              )}
+                            </ShowPasswordButton>
+                          </div>
+                        </Input.Controls>
+                      ) : null}
+                    </Input>
+                  </div>
+
+                  <input
+                    {...getInputProps(loginFields.loginRedirect, {
+                      type: "hidden",
+                    })}
+                    key="loginRedirect"
+                  />
+                  <div className="flex flex-col gap-2 items-center">
                     <Button
-                      as="link"
-                      size="large"
-                      to={`/auth/keycloak${
-                        loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-                      }`}
-                      variant="outline"
+                      type="submit"
                       fullSize
-                      name={locales.route.login.withMintId}
+                      // Don't disable button when js is disabled
+                      disabled={
+                        isHydrated
+                          ? loginForm.dirty === false ||
+                            loginForm.valid === false ||
+                            isSubmitting
+                          : false
+                      }
                     >
-                      {locales.route.login.withMintId}
+                      {locales.route.form.label.submit}
                     </Button>
                     <Link
-                      to="https://mint-id.org/faq"
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      className="block py-2 text-primary font-semibold underline"
+                      to={`/reset${
+                        loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                      }`}
+                      prefetch="intent"
+                      className="text-primary font-bold underline text-base leading-5"
                     >
-                      {locales.route.login.moreInformation}
+                      {locales.route.login.passwordForgotten}
                     </Link>
-                    <div className="mt-4 mb-8">
-                      <hr className="mx-5" />
-                      <span className="block -my-3 mx-auto w-fit px-4 text-primary bg-white @sm:bg-neutral-50 font-bold">
-                        {locales.route.login.or}
-                      </span>
-                    </div>
                   </div>
-                  {loaderData.isBot === false && (
-                    <Form
-                      {...getFormProps(loginForm)}
-                      method="post"
-                      autoComplete="off"
-                    >
-                      <HoneypotInputs className={HONEYPOT_CLASSNAME} />
-                      {typeof loginForm.errors !== "undefined" &&
-                      loginForm.errors.length > 0 ? (
-                        <div>
-                          {loginForm.errors.map((error, index) => {
-                            return (
-                              <div
-                                key={index}
-                                className="p-3 mb-3 bg-negative-100 text-negative-900 rounded-md"
-                              >
-                                <RichText id={loginForm.errorId} html={error} />
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ) : null}
+                </Form>
+              )}
 
-                      <div className="mb-4">
-                        <Input
-                          {...getInputProps(loginFields.email, {
-                            type: "text",
-                          })}
-                          key="email"
-                        >
-                          <Input.Label htmlFor={loginFields.email.id}>
-                            {locales.route.form.label.email}
-                          </Input.Label>
-                          {typeof loginFields.email.errors !== "undefined" &&
-                          loginFields.email.errors.length > 0
-                            ? loginFields.email.errors.map((error) => (
-                                <Input.Error
-                                  id={loginFields.email.errorId}
-                                  key={error}
-                                >
-                                  {error}
-                                </Input.Error>
-                              ))
-                            : null}
-                        </Input>
-                      </div>
-                      <Input
-                        {...getInputProps(loginFields.password, {
-                          type: showPassword ? "text" : "password",
-                        })}
-                        key="password"
-                      >
-                        <Input.Label htmlFor={loginFields.password.id}>
-                          {locales.route.form.label.password}
-                        </Input.Label>
-                        {typeof loginFields.password.errors !== "undefined" &&
-                        loginFields.password.errors.length > 0
-                          ? loginFields.password.errors.map((error) => (
-                              <Input.Error
-                                id={loginFields.password.errorId}
-                                key={error}
-                              >
-                                {error}
-                              </Input.Error>
-                            ))
-                          : null}
-                        {isHydrated ? (
-                          <Input.Controls>
-                            <div className="h-10 w-10">
-                              <ShowPasswordButton
-                                onClick={() => {
-                                  setShowPassword(!showPassword);
-                                }}
-                                aria-label={
-                                  showPassword
-                                    ? locales.route.form.label.hidePassword
-                                    : locales.route.form.label.showPassword
-                                }
-                              >
-                                {showPassword ? (
-                                  <PublicVisibility aria-hidden="true" />
-                                ) : (
-                                  <PrivateVisibility aria-hidden="true" />
-                                )}
-                              </ShowPasswordButton>
-                            </div>
-                          </Input.Controls>
-                        ) : null}
-                      </Input>
-
-                      <input
-                        {...getInputProps(loginFields.loginRedirect, {
-                          type: "hidden",
-                        })}
-                        key="loginRedirect"
-                      />
-                      <div className="mt-4 mb-2">
-                        <Button
-                          type="submit"
-                          fullSize
-                          // Don't disable button when js is disabled
-                          disabled={
-                            isHydrated
-                              ? loginForm.dirty === false ||
-                                loginForm.valid === false ||
-                                isSubmitting
-                              : false
-                          }
-                        >
-                          {locales.route.form.label.submit}
-                        </Button>
-                      </div>
-                    </Form>
-                  )}
-                  <>
-                    <div className="mb-6 text-center">
-                      <Link
-                        to={`/reset${
-                          loginRedirect
-                            ? `?login_redirect=${loginRedirect}`
-                            : ""
-                        }`}
-                        className="text-primary font-bold underline"
-                        prefetch="intent"
-                      >
-                        {locales.route.login.passwordForgotten}
-                      </Link>
-                    </div>
-                    <div className="text-center">
-                      {locales.route.login.noMember}
-                    </div>
-                    <div className="flex justify-center gap-6">
-                      <Link
-                        to={`/register${
-                          loginRedirect
-                            ? `?login_redirect=${loginRedirect}`
-                            : ""
-                        }`}
-                        className="text-primary font-semibold underline"
-                        prefetch="intent"
-                      >
-                        {locales.route.login.registerByEmail}
-                      </Link>
-                      <Link
-                        to={`/auth/keycloak${
-                          loginRedirect
-                            ? `?login_redirect=${loginRedirect}`
-                            : ""
-                        }`}
-                        className="text-primary font-semibold underline"
-                      >
-                        {locales.route.login.createMintId}
-                      </Link>
-                    </div>
-                  </>
-                  <div className="w-full flex justify-center">
-                    <a
-                      id="login-end"
-                      href="#login-start"
-                      className="w-0 h-0 opacity-0 focus:w-fit focus:h-fit focus:opacity-100 focus:px-1"
-                    >
-                      {locales.route.login.skip.end}
-                    </a>
-                  </div>
-                </div>
-
-                <div className="text-center p-4 pb-0 text-primary text-sm">
-                  <RichText html={locales.route.opportunities} />
+              <div className="flex flex-col gap-2 items-center">
+                <p className="text-neutral-800 text-base leading-5 font-normal">
+                  {locales.route.login.noMember}
+                </p>
+                <div className="flex gap-6">
+                  <Link
+                    to={`/register${
+                      loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                    }`}
+                    prefetch="intent"
+                    className="text-primary font-bold underline text-base leading-5 text-nowrap"
+                  >
+                    {locales.route.login.registerByEmail}
+                  </Link>
+                  <Link
+                    to={`/auth/keycloak${
+                      loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                    }`}
+                    className="text-primary font-bold underline text-base leading-5 text-nowrap"
+                  >
+                    {locales.route.login.createMintId}
+                  </Link>
                 </div>
               </div>
+              <a
+                id="login-end"
+                href="#login-start"
+                className="absolute focus:relative w-0 h-0 opacity-0 focus:w-fit focus:h-fit focus:opacity-100 focus:px-1"
+              >
+                {locales.route.login.skip.end}
+              </a>
             </div>
           </div>
+        </div>
+        <LoginSectionBobbel />
+      </section>
 
-          <div className="absolute left-1/2 bottom-8 hidden @md:block animate-bounce">
-            <Link to="#intro" aria-label={locales.route.content.intro}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="55"
-                height="37"
-                className="drop-shadow-[0px_5px_4px_0px_#FFEFFF]"
-                aria-hidden="true"
-              >
-                <g>
-                  <path
-                    fill="#154194"
-                    fillRule="evenodd"
-                    d="M4.531.587c.168-.186.367-.334.587-.434a1.658 1.658 0 0 1 1.385 0c.22.1.42.248.587.434L27.5 23.17 47.91.587a1.81 1.81 0 0 1 .588-.434 1.66 1.66 0 0 1 1.385 0c.22.101.419.249.587.434.168.186.301.407.392.65a2.187 2.187 0 0 1 0 1.532c-.09.243-.224.464-.392.65L28.78 27.413a1.808 1.808 0 0 1-.587.434 1.658 1.658 0 0 1-1.385 0c-.22-.1-.42-.248-.587-.434L4.53 3.419a2.025 2.025 0 0 1-.393-.65 2.185 2.185 0 0 1 0-1.532c.091-.243.225-.464.393-.65Z"
-                    clipRule="evenodd"
-                  />
-                </g>
-              </svg>
-            </Link>
+      {/* Counter section */}
+      <section className="flex w-full justify-center">
+        <div className="w-full md:w-fit grid grid-cols-1 grid-rows-2 md:grid-cols-2 md:grid-rows-1 gap-4 md:gap-16 pt-11 md:pt-16 px-8 md:px-16.5 pb-6 md:pb-16">
+          <div className="grid grid-cols-2 gap-4 md:gap-16">
+            <div className="flex flex-col gap-2 p-4 items-center">
+              <p className="text-primary text-5xl font-bold leading-10">
+                {loaderData.profileCount}
+              </p>
+              <p className="text-primary text-lg font-semibold leading-5.5">
+                {locales.route.counter.profiles}
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 p-4 items-center">
+              <p className="text-primary text-5xl font-bold leading-10">
+                {loaderData.organizationCount}
+              </p>
+              <p className="text-primary text-lg font-semibold leading-5.5">
+                {locales.route.counter.organizations}
+              </p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4 md:gap-16">
+            <div className="flex flex-col gap-2 p-4 items-center">
+              <p className="text-primary text-5xl font-bold leading-10">
+                {loaderData.eventCount}
+              </p>
+              <p className="text-primary text-lg font-semibold leading-5.5">
+                {locales.route.counter.events}
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 p-4 items-center">
+              <p className="text-primary text-5xl font-bold leading-10">
+                {loaderData.projectCount}
+              </p>
+              <p className="text-primary text-lg font-semibold leading-5.5">
+                {locales.route.counter.projects}
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="py-16 @lg:py-24 relative bg-accent-100">
-        <div id="intro" className="absolute -top-19 xl:-top-20" />
-        <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
-          <div className="@md:grid @md:grid-cols-12 @md:gap-6 @lg:gap-8">
-            <div className="@md:col-start-2 @md:col-span-10 @xl:col-start-3 @xl:col-span-8">
-              <h2 className="text-center font-semibold subpixel-antialiased mb-12 text-primary-600 text-4xl leading-9 uppercase">
-                {locales.route.content.education.headline}
-              </h2>
-              <p className="text-primary-600 text-3xl font-semibold leading-8 mb-12 hyphens-auto">
-                {insertComponentsIntoLocale(
-                  locales.route.content.education.content,
-                  [
-                    <span
-                      key="highlighted-education-content"
-                      className="bg-secondary-200"
-                    />,
-                    <span
-                      key="hyphens-manual-education-content"
-                      className="hyphens-manual"
-                    />,
-                  ]
+      {/* Event teaser section */}
+      <section className="w-full flex flex-col gap-10 md:gap-6 px-4 md:px-10 xl:px-16 py-12 md:py-16 max-w-2xl mx-auto">
+        <div className="w-full flex flex-col md:flex-row-reverse md:items-center md:justify-between gap-10">
+          <div className="w-full md:h-110 rounded-2xl overflow-hidden">
+            <Image
+              src={eventSectionImage}
+              blurredSrc={eventSectionBlurredImage}
+              alt={locales.route.eventTeaser.image.alt}
+            >
+              <Image.Label withoutClassName>
+                {loaderData.eventTeaserOrganization !== null ? (
+                  <Link
+                    to={`/organization/${loaderData.eventTeaserOrganization.slug}/detail/about`}
+                    prefetch="intent"
+                    className={`${getImageLabelClassName()}`}
+                  >
+                    <div className="w-6 h-6 rounded-full overflow-hidden">
+                      <Image
+                        src={mvLogo}
+                        blurredSrc={mvLogoBlurred}
+                        alt="MINTvernetzt"
+                      />
+                    </div>
+                    <span className="text-white text-xs font-semibold leading-normal">
+                      MINTvernetzt
+                    </span>
+                  </Link>
+                ) : (
+                  <div className={`${getImageLabelClassName()}`}>
+                    <div className="w-6 h-6 rounded-full overflow-hidden">
+                      <Image
+                        src={mvLogo}
+                        blurredSrc={mvLogoBlurred}
+                        alt="MINTvernetzt"
+                      />
+                    </div>
+                    <span className="text-white text-xs font-semibold leading-normal">
+                      MINTvernetzt
+                    </span>
+                  </div>
                 )}
+              </Image.Label>
+              <Image.Credits
+                credits={locales.route.eventTeaser.image.credits}
+              />
+            </Image>
+          </div>
+          <div className="w-full md:w-100 md:min-w-100 flex flex-col gap-10">
+            <div className="w-full flex flex-col gap-6">
+              <h2 className="mb-0 text-primary-600 text-5xl font-bold leading-9">
+                {locales.route.eventTeaser.headline}
+              </h2>
+              <ul className="flex flex-col gap-4">
+                {[
+                  locales.route.eventTeaser.benefits.formats,
+                  locales.route.eventTeaser.benefits.knowledge,
+                  locales.route.eventTeaser.benefits.ownEvents,
+                ].map((benefit) => {
+                  return (
+                    <li key={benefit} className="flex items-center gap-2">
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        aria-hidden="true"
+                      >
+                        <circle cx="12" cy="12" r="12" fill="#EDF3FF" />
+                        <path
+                          d="M7.59888 13.1995L10.5989 15.7995L17.1989 7.99951"
+                          stroke="#703D6B"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      <span>{benefit}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+            <div className="hidden md:block">
+              <Button
+                as="link"
+                variant="outline"
+                to="/explore/events"
+                prefetch="intent"
+              >
+                {locales.route.eventTeaser.allEvents}
+              </Button>
+            </div>
+          </div>
+        </div>
+        <div className="w-full flex flex-col gap-4">
+          <h3 className="mb-0 text-primary-600 text-lg font-bold leading-6">
+            {locales.route.eventTeaser.upcomingEvents.headline}
+          </h3>
+          {loaderData.upcomingEvents.length === 0 ? (
+            <p>{locales.route.eventTeaser.upcomingEvents.empty}</p>
+          ) : (
+            <ul className="w-full grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-6">
+              {loaderData.upcomingEvents.map((event, index) => {
+                return (
+                  <ListItemEvent
+                    key={event.id}
+                    index={index}
+                    to={`/event/${event.slug}/detail/about`}
+                  >
+                    <ListItemEvent.Info
+                      {...event}
+                      stage={event.stage}
+                      participantCount={
+                        event._count.participants + event._count.guests
+                      }
+                      locales={{
+                        stages: loaderData.locales.stages,
+                        ...loaderData.locales.route.eventTeaser,
+                      }}
+                      language={loaderData.language}
+                      shownInfos={{ stage: false, date: true, seats: false }}
+                    ></ListItemEvent.Info>
+                    <ListItemEvent.Headline>
+                      {event.name}
+                    </ListItemEvent.Headline>
+                    {hasContent(event.subline) ||
+                    hasContent(event.description) ? (
+                      <ListItemEvent.Subline>
+                        {hasContent(event.subline) ? (
+                          event.subline
+                        ) : hasContent(event.description) ? (
+                          <RichText html={event.description} />
+                        ) : null}
+                      </ListItemEvent.Subline>
+                    ) : (
+                      <ListItemEvent.Subline>
+                        <div className="hidden @md:block @md:h-5.25" />
+                      </ListItemEvent.Subline>
+                    )}
+                  </ListItemEvent>
+                );
+              })}
+            </ul>
+          )}
+          <div className="md:hidden">
+            <Button
+              as="link"
+              variant="outline"
+              to="/explore/events"
+              prefetch="intent"
+            >
+              {locales.route.eventTeaser.allEvents}
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Funding section */}
+      <section className="w-full px-4 md:px-10 xl:px-16 py-12 md:py-16 max-w-2xl mx-auto">
+        <div className="relative isolate rounded-2xl overflow-hidden bg-primary-400 p-6 md:p-10">
+          <div className="flex flex-col gap-10 max-w-148">
+            <div className="flex flex-col gap-4">
+              <h2 className="mb-0 text-5xl text-white font-bold leading-9">
+                {locales.route.funding.headline}
+              </h2>
+              <p className="text-neutral-100 text-lg font-semibold leading-6">
+                {locales.route.funding.info}
               </p>
-              <div className="flex justify-center">
+            </div>
+            <Button
+              as="link"
+              variant="outline"
+              to="/explore/fundings"
+              prefetch="intent"
+            >
+              {locales.route.funding.cta}
+            </Button>
+          </div>
+          <FundingSectionWobble />
+        </div>
+      </section>
+
+      {/* Project teaser section */}
+      <section className="w-full flex flex-col gap-10 md:gap-6 px-4 md:px-10 xl:px-16 py-12 md:py-16 max-w-2xl mx-auto">
+        <div className="w-full flex flex-col md:flex-row md:items-center md:justify-between gap-10">
+          <div className="w-full md:h-110 rounded-2xl overflow-hidden">
+            <Image
+              src={projectTeaserImage}
+              blurredSrc={projectTeaserImageBlurred}
+              alt={locales.route.projectTeaser.image.alt}
+            >
+              <Image.Label withoutClassName>
+                {loaderData.projectTeaserOrganization ? (
+                  <Link
+                    to={`/organization/${loaderData.projectTeaserOrganization.slug}/detail/about`}
+                    prefetch="intent"
+                    className={`${getImageLabelClassName()}`}
+                  >
+                    <div className="w-6 h-6 rounded-full overflow-hidden">
+                      <Image
+                        src={tinkertankLogo}
+                        blurredSrc={tinkertankLogoBlurred}
+                        alt="Tinkertank"
+                      />
+                    </div>
+                    <span className="text-white text-xs font-semibold leading-normal">
+                      Tinkertank
+                    </span>
+                  </Link>
+                ) : (
+                  <div className={`${getImageLabelClassName()}`}>
+                    <div className="w-6 h-6 rounded-full overflow-hidden">
+                      <Image
+                        src={tinkertankLogo}
+                        blurredSrc={tinkertankLogoBlurred}
+                        alt="Tinkertank"
+                      />
+                    </div>
+                    <span className="text-white text-xs font-semibold leading-normal">
+                      Tinkertank
+                    </span>
+                  </div>
+                )}
+              </Image.Label>
+              <Image.Credits
+                credits={locales.route.projectTeaser.image.credits}
+              />
+            </Image>
+          </div>
+          <div className="w-full md:w-100 md:min-w-100 flex flex-col gap-10">
+            <div className="w-full flex flex-col gap-6">
+              <h2 className="mb-0 text-primary-600 text-5xl font-bold leading-9">
+                {locales.route.projectTeaser.headline}
+              </h2>
+              <ul className="flex flex-col gap-4">
+                {[
+                  locales.route.projectTeaser.benefits.ideas,
+                  locales.route.projectTeaser.benefits.cooperations,
+                  locales.route.projectTeaser.benefits.ownProjects,
+                  locales.route.projectTeaser.benefits.learn,
+                ].map((benefit) => {
+                  return (
+                    <li key={benefit} className="flex items-center gap-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        aria-hidden="true"
+                      >
+                        <circle cx="12" cy="12" r="12" fill="#EDF3FF" />
+                        <path
+                          d="M7.59888 13.1995L10.5989 15.7995L17.1989 7.99951"
+                          stroke="#703D6B"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      <span>{benefit}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+            <Button
+              as="link"
+              to="/explore/projects"
+              variant="outline"
+              prefetch="intent"
+            >
+              {locales.route.projectTeaser.allProjects}
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Tools Section */}
+      <section className="w-full flex flex-col gap-6 items-center py-12 md:py-16 @2xl:px-16 max-w-2xl mx-auto">
+        <h2 className="mb-0 text-primary-600 text-5xl font-bold leading-9">
+          {locales.route.tools.headline}
+        </h2>
+        <ul
+          className="w-full flex flex-nowrap items-stretch gap-6 md:gap-8 overflow-y-auto px-4 md:px-10 xl:px-16 @2xl:px-0 py-4"
+          ref={toolsSliderRef}
+        >
+          {toolsSectionData.map((tool) => {
+            const toolLocales = locales.route.tools.items[tool.name];
+
+            return (
+              <li
+                key={tool.name}
+                className="flex flex-col min-w-83.5 md:min-w-120 w-83.5 md:w-120 rounded-2xl overflow-hidden border border-neutral-200 bg-white"
+              >
+                <div
+                  className={`w-full h-66 ${typeof tool.bgClassName !== "undefined" ? ` ${tool.bgClassName}` : ""}`}
+                >
+                  <div
+                    className={`w-full h-full${tool.name === "mediaDatabase" ? " rounded-lg overflow-hidden" : ""}`}
+                  >
+                    {tool.name === "fundings" ? (
+                      <div className="w-full h-66 flex justify-center items-center">
+                        <PiggyBank />
+                      </div>
+                    ) : (
+                      <Image
+                        src={tool.imagePath}
+                        blurredSrc={tool.blurredImagePath}
+                        alt={toolLocales.imgAlt}
+                      />
+                    )}
+                  </div>
+                </div>
+                <div className="w-full h-full flex flex-col gap-4 justify-between p-6">
+                  <div className="flex flex-col gap-4">
+                    <h3 className="mb-0 text-primary-600 text-3xl font-bold leading-8">
+                      {toolLocales.headline}
+                    </h3>
+                    <p className="text-neutral-700 text-base font-normal leading-5">
+                      {toolLocales.content}
+                    </p>
+                  </div>
+                  <Button
+                    as="link"
+                    variant="outline"
+                    to={tool.link}
+                    rel={tool.external ? "noopener noreferrer" : undefined}
+                    target={tool.external ? "_blank" : undefined}
+                    prefetch={tool.external ? "none" : "intent"}
+                  >
+                    {tool.external ? (
+                      <span>
+                        <External />
+                      </span>
+                    ) : null}
+                    <span>{toolLocales.action}</span>
+                  </Button>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+        <div className="flex gap-2">
+          {/* TODO: Integrate this variant in SquareButton. Design used detached component. */}
+          <button
+            type="button"
+            onClick={() => scrollToolsSlider("previous")}
+            aria-label={locales.route.tools.slider.previous}
+            className={`appearance-none font-semibold whitespace-nowrap flex items-center justify-center align-middle text-center rounded-lg p-2 h-10 w-10 min-w-10 text-sm leading-5 bg-white border-neutral-300 border ${toolsSliderScrollAmount <= 0 ? "pointer-events-none text-neutral-300" : "text-neutral-600 hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-hidden focus:border-primary-200"}`}
+          >
+            <Icon
+              type="chevron-right"
+              className="rotate-180"
+              aria-hidden="true"
+            />
+          </button>
+          <button
+            type="button"
+            onClick={() => scrollToolsSlider("next")}
+            aria-label={locales.route.tools.slider.next}
+            className={`appearance-none font-semibold whitespace-nowrap flex items-center justify-center align-middle text-center rounded-lg p-2 h-10 w-10 min-w-10 text-sm leading-5 border bg-white border-neutral-300 ${toolsSliderScrollAmount >= toolsSliderMaxScroll ? "pointer-events-none text-neutral-300" : "text-neutral-600 hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-hidden focus:border-primary-200"}`}
+          >
+            <Icon type="chevron-right" aria-hidden="true" />
+          </button>
+        </div>
+      </section>
+
+      {/* Community Section */}
+      <section className="relative isolate w-full">
+        <div className="relative isolate w-full flex flex-col gap-10 md:gap-16 py-12 md:py-16 max-w-2xl mx-auto">
+          <div className="w-full flex flex-col gap-10 px-4 md:px-10 xl:px-16">
+            <div className="flex flex-col gap-6 max-w-166">
+              <h2 className="mb-0 text-primary-600 text-6xl font-bold leading-11">
+                {locales.route.community.headline}
+              </h2>
+              <p className="text-neutral-800 text-lg font-semibold leading-6">
+                {locales.route.community.intro}
+              </p>
+            </div>
+            <ul
+              className="relative w-full rounded-2xl overflow-hidden h-111 xl:h-120"
+              onTouchStart={onTouchStart}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
+            >
+              {communityImages.map((image, index) => {
+                return (
+                  <li
+                    key={image.src}
+                    aria-hidden={index !== activeSlide}
+                    className={`absolute inset-0 transition-opacity duration-700 ${index === activeSlide ? "opacity-100" : "opacity-0 invisible"}`}
+                  >
+                    <Image
+                      src={image.src}
+                      blurredSrc={image.blurredSrc}
+                      alt={locales.route.community.items[image.name].imgAlt}
+                      gravity={image.gravity}
+                    >
+                      <Image.Credits
+                        credits={
+                          locales.route.community.items[image.name].credit
+                        }
+                      />
+                    </Image>
+                  </li>
+                );
+              })}
+              <div className="absolute bottom-4 left-4 md:right-4 flex justify-center">
+                <div className="flex gap-2.5 p-1 rounded-lg bg-neutral-800/80">
+                  {communityImages.map((image, index) => {
+                    return (
+                      <button
+                        key={image.src}
+                        type="button"
+                        onClick={() => onClick(index)}
+                        aria-label={insertParametersIntoLocale(
+                          locales.route.community.slideshow.showImage,
+                          { number: index + 1, total: communityImages.length }
+                        )}
+                        aria-current={index === activeSlide}
+                        className={`w-2 h-2 rounded-full transition-colors duration-300 ${index === activeSlide ? "bg-primary-300" : "bg-neutral-200"}`}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            </ul>
+          </div>
+
+          <div className="w-full flex flex-col gap-2 items-center @2xl:px-16">
+            <h2 className="mb-0 text-primary-600 text-lg font-bold leading-6">
+              {locales.route.testimonials.headline}
+            </h2>
+            <ul
+              className="w-full flex flex-nowrap items-stretch gap-6 md:gap-8 overflow-y-auto px-4 md:px-10 xl:px-16 @2xl:px-0 py-4"
+              ref={testimonialsSliderRef}
+            >
+              {testimonialsSectionData.map((testimonial) => {
+                const testimonialLocales =
+                  locales.route.testimonials.items[testimonial.id];
+
+                return (
+                  <li
+                    key={testimonial.name}
+                    className="flex flex-col justify-between p-8 min-w-80 w-80 min-h-90 h-90 rounded-2xl overflow-hidden border border-neutral-200 bg-white"
+                  >
+                    <div className="w-full flex flex-col gap-4">
+                      {testimonial.username !== null ? (
+                        <Link
+                          to={`/profile/${testimonial.username}`}
+                          className="w-20 h-20 rounded-full overflow-hidden"
+                        >
+                          <Image
+                            src={testimonial.imagePath}
+                            blurredSrc={testimonial.blurredImagePath}
+                            alt={testimonialLocales.imgAlt}
+                          />
+                        </Link>
+                      ) : (
+                        <div className="w-20 h-20 rounded-full overflow-hidden">
+                          <Image
+                            src={testimonial.imagePath}
+                            blurredSrc={testimonial.blurredImagePath}
+                            alt={testimonialLocales.imgAlt}
+                          />
+                        </div>
+                      )}
+                      <div className="w-full relative">
+                        {testimonialLocales.translationNote !== null ? (
+                          <p className="absolute -bottom-4 left-0 text-neutral-500 text-xxs italic leading-normal">
+                            {testimonialLocales.translationNote}
+                          </p>
+                        ) : null}
+                        <p className="text-neutral-800 text-lg font-semibold leading-5.5">
+                          {testimonialLocales.description}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="w-full flex flex-col gap-1">
+                      <p className="text-neutral-600 text-sm font-bold leading-4.5">
+                        {testimonialLocales.name}
+                      </p>
+                      <p className="text-neutral-800 text-xs font-semibold leading-normal">
+                        {testimonialLocales.organization}
+                      </p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="flex gap-2">
+              {/* TODO: Integrate this variant in SquareButton. Design used detached component. */}
+              <button
+                type="button"
+                onClick={() => scrollTestimonialsSlider("previous")}
+                aria-label={locales.route.testimonials.slider.previous}
+                className={`appearance-none font-semibold whitespace-nowrap flex items-center justify-center align-middle text-center rounded-lg p-2 h-10 w-10 min-w-10 text-sm leading-5 bg-white border-neutral-300 border ${testimonialsSliderScrollAmount <= 0 ? "pointer-events-none text-neutral-300" : "text-neutral-600 hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-hidden focus:border-primary-200"}`}
+              >
+                <Icon
+                  type="chevron-right"
+                  className="rotate-180"
+                  aria-hidden="true"
+                />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollTestimonialsSlider("next")}
+                aria-label={locales.route.testimonials.slider.next}
+                className={`appearance-none font-semibold whitespace-nowrap flex items-center justify-center align-middle text-center rounded-lg p-2 h-10 w-10 min-w-10 text-sm leading-5 border bg-white border-neutral-300 ${testimonialsSliderScrollAmount >= testimonialsSliderMaxScroll ? "pointer-events-none text-neutral-300" : "text-neutral-600 hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-hidden focus:border-primary-200"}`}
+              >
+                <Icon type="chevron-right" aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+          <div className="w-full flex flex-col gap-10 px-4 md:px-10 xl:px-16 py-12 md:py-0">
+            <div className="w-full flex flex-col items-center md:flex-row md:justify-between gap-12 md:gap-10 border border-neutral-200 bg-white rounded-2xl p-6">
+              <div className="w-full flex flex-col gap-6 md:gap-4">
+                <div className="flex items-center h-20 md:h-fit">
+                  <h2 className="mb-0 text-primary-600 text-3xl font-bold leading-7">
+                    {locales.route.communityCta.headline}
+                  </h2>
+                </div>
+                <p className="text-neutral-700 text-lg font-semibold leading-6">
+                  {locales.route.communityCta.intro}
+                </p>
+              </div>
+              <div className="w-full md:w-fit">
                 <Button
                   as="link"
-                  to={`/register${
-                    loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-                  }`}
+                  to="/get-involved"
+                  variant="outline"
+                  fullSize
                   prefetch="intent"
                 >
-                  {locales.route.content.education.action}
+                  {locales.route.communityCta.getInvolved}
                 </Button>
               </div>
             </div>
           </div>
         </div>
+        <GetInvolvedBobbel />
       </section>
 
-      <section className="pt-16 pb-10 @md:pt-20 @md:pb-12.5 @lg:pt-24 @lg:pb-15 relative bg-primary-600">
-        <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
-          <div className="w-full flex flex-col items-center gap-12">
-            <h2 className="text-center mb-0 text-4xl font-semibold leading-9 text-neutral-50 subpixel-antialiased uppercase">
-              {locales.route.content.growth.headline}
-            </h2>
-            <div className="flex flex-col @md:flex-row gap-8 @lg:gap-24 @xl:gap-44">
-              <div className="text-center flex flex-col gap-6 items-center">
-                <p className="text-neutral-50 text-[54px] font-bold leading-13">
-                  <CountUp end={loaderData.profileCount} />
-                </p>
-                <p className="text-neutral-50 text-2xl font-bold leading-6.5">
-                  {locales.route.content.growth.profiles}
-                </p>
-              </div>
-              <div className="text-center flex flex-col gap-6 items-center">
-                <p className="text-neutral-50 text-[54px] font-bold leading-13">
-                  <CountUp end={loaderData.organizationCount} />
-                </p>
-                <p className="text-neutral-50 text-2xl font-bold leading-6.5">
-                  {locales.route.content.growth.organizations}
-                </p>
-              </div>
-              <div className="text-center flex flex-col gap-6 items-center">
-                <p className="text-neutral-50 text-[54px] font-bold leading-13">
-                  <CountUp end={loaderData.eventCount} />
-                </p>
-                <p className="text-neutral-50 text-2xl font-bold leading-6.5">
-                  {locales.route.content.growth.events}
-                </p>
-              </div>
-              <div className="text-center flex flex-col gap-6 items-center">
-                <p className="text-neutral-50 text-[54px] font-bold leading-13">
-                  <CountUp end={loaderData.projectCount} />
-                </p>
-                <p className="text-neutral-50 text-2xl font-bold leading-6.5">
-                  {locales.route.content.growth.projects}
-                </p>
-              </div>
-            </div>
-            <p className="text-center text-neutral-50 text-3xl font-semibold leading-8">
-              {locales.route.content.growth.join}
-            </p>
+      <section className="w-full flex flex-col md:flex-row-reverse md:items-start md:justify-between gap-6 md:gap-10 px-4 md:px-10 xl:px-16 py-12 md:py-16 max-w-2xl mx-auto">
+        <div className="relative w-full md:max-h-135 rounded-2xl overflow-hidden">
+          <Image
+            src={aboutSectionImage}
+            blurredSrc={aboutSectionBlurredImage}
+            alt={locales.route.about.image.alt}
+            gravity="top"
+          >
+            <Image.Label withoutClassName>
+              {loaderData.aboutSectionOrganization !== null ? (
+                <Link
+                  to={`/organization/${loaderData.aboutSectionOrganization.slug}/detail/about`}
+                  prefetch="intent"
+                  className={`${getImageLabelClassName()}`}
+                >
+                  <div className="w-6 h-6 rounded-full overflow-hidden">
+                    <Image
+                      src={mvLogo}
+                      blurredSrc={mvLogoBlurred}
+                      alt="MINTvernetzt"
+                    />
+                  </div>
+                  <span className="text-white text-xs font-semibold leading-normal">
+                    MINTvernetzt
+                  </span>
+                </Link>
+              ) : (
+                <div className={`${getImageLabelClassName()}`}>
+                  <div className="w-6 h-6 rounded-full overflow-hidden">
+                    <Image
+                      src={mvLogo}
+                      blurredSrc={mvLogoBlurred}
+                      alt="MINTvernetzt"
+                    />
+                  </div>
+                  <span className="text-white text-xs font-semibold leading-normal">
+                    MINTvernetzt
+                  </span>
+                </div>
+              )}
+            </Image.Label>
+          </Image>
+          {/* This is intentional for the edge case where a max height instead of a fixed height is defined. TODO: Could be refactored if it happens more than once in the future. */}
+          <div className="absolute bottom-2 right-2 origin-bottom-right transform-[rotate(-90deg)_translateX(100%)]">
+            <Image.Credits credits={locales.route.about.image.credits} />
           </div>
         </div>
+        <div className="w-full md:w-100 md:min-w-100 flex flex-col gap-10">
+          <div className="w-full flex flex-col gap-6">
+            <h2 className="mb-0 text-primary-600 text-5xl font-bold leading-10 xl:leading-9">
+              {locales.route.about.headline}
+            </h2>
+            <p className="text-neutral-700 text-lg font-semibold leading-6">
+              {locales.route.about.description}
+            </p>
+          </div>
+          <Button
+            as="link"
+            variant="outline"
+            to="https://www.mint-vernetzt.de"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            <span>
+              <External />
+            </span>
+            <span>{locales.route.about.website}</span>
+          </Button>
+        </div>
       </section>
 
-      <Roadmap locales={locales} />
-
-      <section className="flex flex-col items-center gap-12 w-full py-16 @md:py-24 @xl:py-32 px-4 @md:px-20 @xl:px-36 bg-accent-100">
-        <div className="max-w-213">
-          <h2 className="mb-12 text-center subpixel-antialiased text-primary-600 text-4xl font-semibold leading-9 uppercase">
-            {locales.route.content.more.headline}
-          </h2>
-          <p className="hyphens-auto text-primary-600 text-3xl font-semibold leading-8">
-            {insertComponentsIntoLocale(locales.route.content.more.content, [
-              <span
-                key="highlighted-more-content"
-                className="bg-secondary-200"
-              />,
-            ])}
-          </p>
-        </div>
-        <Button
-          as="link"
-          variant="outline"
-          to="https://mint-vernetzt.de/"
-          target="_blank"
-          rel="noreferrer noopener"
-        >
-          <span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              className="w-4 h-4"
-              aria-hidden="true"
-            >
-              <path
-                fill="currentColor"
-                fillRule="evenodd"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeWidth=".3"
-                d="M7.477 3.625a.375.375 0 0 0-.375-.375H2.125C1.504 3.25 1 3.754 1 4.375v7.5C1 12.496 1.504 13 2.125 13h7.5c.621 0 1.125-.504 1.125-1.125V6.898a.375.375 0 0 0-.75 0v4.977a.375.375 0 0 1-.375.375h-7.5a.375.375 0 0 1-.375-.375v-7.5c0-.207.168-.375.375-.375h4.977a.375.375 0 0 0 .375-.375Z"
-                clipRule="evenodd"
-              />
-              <path
-                fill="currentColor"
-                fillRule="evenodd"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth=".3"
-                d="M13 1.375A.375.375 0 0 0 12.625 1h-3.75a.375.375 0 1 0 0 .75h2.845L5.61 7.86a.375.375 0 0 0 .53.53l6.11-6.11v2.845a.375.375 0 0 0 .75 0v-3.75Z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </span>
-          <span>{locales.route.content.more.action}</span>
-        </Button>
-      </section>
-      <section className="w-full flex flex-col items-center bg-neutral-50 py-16 px-4 @md:px-10 @xl:px-16 relative">
-        <div className="absolute -top-105 right-0 hidden @xl:block">
-          <svg
-            width="174"
-            height="665"
-            viewBox="0 0 174 665"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M260.794 4.4861C323.496 -11.9233 396.294 32.8236 408.364 37.639C420.435 42.4545 549.313 102.592 618.226 155.899C704.368 222.533 663.364 315.887 583.041 518.216C502.718 720.545 421.822 690.638 167.082 561.128C-100.241 425.222 23.349 285.002 71.0468 201.345C118.745 117.687 198.093 20.8955 260.794 4.4861Z"
-              fill="#BE88BA"
-            />
-          </svg>
-        </div>
-        <div className="absolute -top-109 right-0 hidden @xl:block">
-          <svg
-            width="186"
-            height="722"
-            viewBox="0 0 186 722"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M726.765 408.295C718.619 476.271 646.46 530.496 637.054 540.494C627.649 550.493 518.653 653.876 439.584 700.968C340.748 759.834 264.872 683.395 97.1149 526.126C-70.642 368.858 -9.93142 300.93 215.968 100.704C453.026 -109.412 542.991 66.3363 606.746 145.6C670.501 224.864 734.911 340.319 726.765 408.295Z"
-              stroke="#1B54C0"
-              strokeWidth="2"
-            />
-          </svg>
-        </div>
-        <h2 className="mb-10.5 subpixel-antialiased text-primary-600 text-4xl font-semibold leading-9 uppercase">
-          {locales.route.content.faq.headline}
+      {/* FAQ section */}
+      <section className="w-full flex flex-col items-center gap-4 md:gap-6 px-4 md:px-37 py-12 md:py-16 max-w-2xl mx-auto">
+        <h2 className="mb-0 text-primary-600 text-5xl font-bold leading-10">
+          {locales.route.faq.headline}
         </h2>
-        <div className="w-full mb-8 @md:mb-14 @xl:mb-22">
+        <div className="w-full">
           <Accordion>
             <Accordion.Item id="whatIsStem" key="whatIsStem">
-              {locales.faq.stemEducation.qAndAs.whatIsStem.question}
+              {locales.route.faq.qAndAs.whatIsStem.question}
               <RichText
                 id="faq-content"
-                html={locales.faq.stemEducation.qAndAs.whatIsStem.answer}
+                html={locales.route.faq.qAndAs.whatIsStem.answer}
               />
             </Accordion.Item>
             <Accordion.Item id="whoIsThePlatformFor" key="whoIsThePlatformFor">
-              {
-                locales.faq.generalPlatformInformation.qAndAs
-                  .whoIsThePlatformFor.question
-              }
+              {locales.route.faq.qAndAs.whoIsThePlatformFor.question}
               <RichText
                 id="faq-content"
-                html={
-                  locales.faq.generalPlatformInformation.qAndAs
-                    .whoIsThePlatformFor.answer
-                }
+                html={locales.route.faq.qAndAs.whoIsThePlatformFor.answer}
               />
             </Accordion.Item>
             <Accordion.Item
               id="benefitsOfThePlatform"
               key="benefitsOfThePlatform"
             >
-              {
-                locales.faq.generalPlatformInformation.qAndAs
-                  .benefitsOfThePlatform.question
-              }
+              {locales.route.faq.qAndAs.benefitsOfThePlatform.question}
               <RichText
                 id="faq-content"
-                html={
-                  locales.faq.generalPlatformInformation.qAndAs
-                    .benefitsOfThePlatform.answer
-                }
+                html={locales.route.faq.qAndAs.benefitsOfThePlatform.answer}
               />
             </Accordion.Item>
-            <Accordion.Item id="isItFree" key="isItFree">
-              {locales.faq.generalPlatformInformation.qAndAs.isItFree.question}
-              <RichText
-                id="faq-content"
-                html={
-                  locales.faq.generalPlatformInformation.qAndAs.isItFree.answer
-                }
-              />
-            </Accordion.Item>
-            <Accordion.Item
-              id="benefitsOfRegistration"
-              key="benefitsOfRegistration"
-            >
-              {locales.faq.registration.qAndAs.benefitsOfRegistration.question}
-              <RichText
-                id="faq-content"
-                html={
-                  locales.faq.registration.qAndAs.benefitsOfRegistration.answer
-                }
-              />
-            </Accordion.Item>
+            {/* These two questions are only shown on mobile */}
+            {/* </Accordion>
+        <Accordion>
+          <Accordion.Item id="isItFree" key="isItFree">
+            {locales.route.faq.qAndAs.isItFree.question}
+            <RichText
+              id="faq-content"
+              html={locales.route.faq.qAndAs.isItFree.answer}
+            />
+          </Accordion.Item>
+          <Accordion.Item
+            id="benefitsOfRegistration"
+            key="benefitsOfRegistration"
+          >
+            {locales.route.faq.qAndAs.benefitsOfRegistration.question}
+            <RichText
+              id="faq-content"
+              html={locales.route.faq.qAndAs.benefitsOfRegistration.answer}
+            />
+          </Accordion.Item>
+        </Accordion>
+        <Accordion> */}
             <Accordion.Item id="mintId" key="mintId">
-              {locales.faq.registration.qAndAs.mintId.question}
+              {locales.route.faq.qAndAs.mintId.question}
               <RichText
                 id="faq-content"
-                html={locales.faq.registration.qAndAs.mintId.answer}
+                html={locales.route.faq.qAndAs.mintId.answer}
               />
             </Accordion.Item>
           </Accordion>
         </div>
-        <Button as="link" to="/help" variant="outline" prefetch="intent">
-          {locales.route.content.faq.cta}
-        </Button>
-        <div className="flex flex-col items-center text-center text-primary-600 font-semibold leading-5 mt-10">
-          <p>{locales.route.content.faq.supportQuestion}</p>
-          <p>{locales.route.content.faq.supportCta}</p>
-          <TextButton
-            as="link"
-            to={`mailto:${locales.route.content.faq.supportEmail}`}
-          >
-            {locales.route.content.faq.supportEmail}
-          </TextButton>
+        <div className="w-full flex justify-center pt-6 md:pt-8">
+          <Button as="link" to="/help" variant="outline" prefetch="intent">
+            {locales.route.faq.cta}
+          </Button>
         </div>
       </section>
     </>

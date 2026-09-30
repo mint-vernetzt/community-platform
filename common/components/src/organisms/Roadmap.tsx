@@ -29,13 +29,6 @@ function RoadmapColumn(props: RoadmapColumnProps) {
         {props.title}
       </h3>
       <div className="relative group w-full flex flex-col items-center gap-6 px-4 lg:px-6 pt-4 lg:pt-6 pb-6 rounded-2xl bg-primary-50">
-        <input
-          type="checkbox"
-          id={`collapse-col-${props.id}`}
-          className="absolute w-0 h-0 opacity-0"
-          disabled={countRoadmapCards <= 3}
-          aria-label={locales.roadmap.controls.ariaLabel}
-        />
         <div className="w-full flex flex-col items-center gap-6">
           {roadmapCards.map((card, index) => (
             <div
@@ -47,17 +40,26 @@ function RoadmapColumn(props: RoadmapColumnProps) {
           ))}
         </div>
         {countRoadmapCards > 3 && (
-          <label
-            htmlFor={`collapse-col-${props.id}`}
-            className="text-primary text-sm font-semibold leading-5 hover:underline focus:outline-none focus:underline underline-offset-4 cursor-pointer"
-          >
-            <span className="group-has-checked:hidden">
-              {locales.roadmap.controls.showMore}
-            </span>
-            <span className="hidden group-has-checked:inline">
-              {locales.roadmap.controls.showLess}
-            </span>
-          </label>
+          <>
+            <label
+              htmlFor={`collapse-col-${props.id}`}
+              className="text-primary text-sm font-semibold leading-5 hover:underline group-has-focus:underline underline-offset-4 cursor-pointer"
+            >
+              <span className="group-has-checked:hidden">
+                {locales.roadmap.controls.showMore}
+              </span>
+              <span className="hidden group-has-checked:inline">
+                {locales.roadmap.controls.showLess}
+              </span>
+            </label>
+            <input
+              type="checkbox"
+              id={`collapse-col-${props.id}`}
+              className="absolute bottom-0 checked:top-160 w-0 h-0 opacity-0 focus:outline-none"
+              disabled={countRoadmapCards <= 3}
+              aria-label={locales.roadmap.controls.ariaLabel}
+            />
+          </>
         )}
       </div>
     </div>

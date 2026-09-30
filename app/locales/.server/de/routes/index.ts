@@ -1,3 +1,5 @@
+import { locale as helpLocale } from "../help";
+
 export const locale = {
   validation: {
     email: "Bitte gib eine gültige E-Mail-Adresse ein.",
@@ -12,11 +14,114 @@ export const locale = {
     notConfirmed:
       'Deine E-Mail-Adresse wurde noch nicht bestätigt. Deshalb haben wir Dir einen neuen Bestätigungslink gesendet. Bitte überprüfe Dein Postfach und klicke auf den Bestätigungslink. Wenn Du keine E-Mail erhalten hast, überprüfe bitte Deinen Spam-Ordner oder melde Dich beim <a href="mailto:{{supportMail}}" className="text-primary font-bold hover:underline">Support</a>.',
   },
-  welcome: "Willkommen in Deiner MINT-Community",
-  intro:
-    "Entdecke auf der MINTvernetzt Community-Plattform andere MINT-Akteur:innen, Organisationen und MINT-Veranstaltungen und lass Dich für Deine Arbeit inspirieren.",
-  opportunities:
-    "<strong>Erstelle Profilseiten</strong> für Dich, für Deine <strong>Organisation</strong> und lege <strong>Projekte</strong> oder <strong>Veranstaltungen</strong> an.",
+  content: {
+    headline: "Gemeinsam MINT-Bildung stärken",
+    intro:
+      "Finde Menschen, Ideen und Unterstützung für Deine Arbeit in der MINT-Bildung.",
+  },
+  funding: {
+    headline: "Finde 4000+ Förderungen für Deine Arbeit",
+    info: "Entdecke Fördermöglichkeiten aus vier Datenbanken, finde zusätzliche Mittel für Deine Projekte und vernetze Dich für gemeinsame Förderanträge.",
+    cta: "Förderungen finden",
+  },
+  counter: {
+    profiles: "Profile",
+    organizations: "Organisationen",
+    events: "Veranstaltungen",
+    projects: "Projekte",
+  },
+  tools: {
+    headline: "Tools für Deine Arbeit",
+    slider: {
+      previous: "Vorherige Tools anzeigen",
+      next: "Weitere Tools anzeigen",
+    },
+    items: {
+      sharepic: {
+        imgAlt: "Screenshot des Sharepic-Generators",
+        headline: "Sharepic-Generator",
+        content:
+          "Erstelle Grafiken für Deine Öffentlichkeits-arbeit und nutze datenschutz­konform Deine eigenen Bilder oder greife auf Bilder und Grafiken der integrierten MINT-Mediendatenbank zurück.",
+        action: "Zum Sharepic-Generator",
+      },
+      map: {
+        imgAlt: "Screenshot der MINT-Community-Karte",
+        headline: "MINT-Community-Karte",
+        content:
+          "Nutze die Karte, um MINT-Organisationen in Deiner Nähe zu finden. Binde die Karte ganz einfach auf Deiner Website ein.",
+        action: "MINT-Community-Karte erkunden",
+      },
+      mediaDatabase: {
+        imgAlt: "Screenshot der MINT-Mediendatenbank",
+        headline: "MINT-Mediendatenbank",
+        content:
+          "Finde MINT-Bilder und Grafiken für Deine MINT-Kommunikation: vielfältig, diversitätssensibel und kostenlos.",
+        action: "Zur MINT-Mediendatenbank",
+      },
+      fundings: {
+        imgAlt: "Ein Sparschwein",
+        headline: "Fördermittelsuche",
+        content:
+          "Gebündelte Fördermittelsuche – entdecke passende Programme und finde neue Finanzierungsmöglichkeiten für Deine Arbeit.",
+        action: "Zur Fördermittelsuche",
+      },
+    },
+  },
+  community: {
+    headline: "Unsere Community",
+    intro:
+      "Austausch, der Dich weiterbringt – mit frischen Impulsen aus der Community und neuen Perspektiven von außen.",
+    slideshow: {
+      showImage: "Bild {{number}} von {{total}} anzeigen",
+    },
+    items: {
+      mvAnnualMeeting: {
+        imgAlt:
+          "Das jährliche Treffen der MINTvernetzt-Community - Die MINTvernetzt Jahrestagung",
+        credit: "© Mark Bollhorst",
+      },
+      thinkathon24: {
+        imgAlt:
+          "Der MINTvernetzt Thinkathon 2024 mit der MINTvernetzt-Community",
+        credit: "© Heike Fischer Fotografie",
+      },
+      thinkathon22: {
+        imgAlt:
+          "Der MINTvernetzt Thinkathon 2022 mit der MINTvernetzt-Community",
+        credit: "© Andi Weiland",
+      },
+      thinkathon22_2: {
+        imgAlt:
+          "Der MINTvernetzt Thinkathon 2022 mit der MINTvernetzt-Community - Teil 2",
+        credit: "© Andi Weiland",
+      },
+      designBasedLearning: {
+        imgAlt:
+          "Der MINTvernetzt Design-Based-Learning-Workshop 2025 mit der MINTvernetzt-Community",
+        credit: "© Beatrice Barth",
+      },
+      thinkathon24_2: {
+        imgAlt:
+          "Der MINTvernetzt Thinkathon 2024 mit der MINTvernetzt-Community - Teil 2",
+        credit: "© Heike Fischer Fotografie",
+      },
+      thinkathon22_3: {
+        imgAlt:
+          "Der MINTvernetzt Thinkathon 2022 mit der MINTvernetzt-Community - Teil 3",
+        credit: "© Andi Weiland",
+      },
+      thinkathon22_4: {
+        imgAlt:
+          "Der MINTvernetzt Thinkathon 2022 mit der MINTvernetzt-Community - Teil 4",
+        credit: "© Andi Weiland",
+      },
+      designBasedLearning_2: {
+        imgAlt:
+          "Der MINTvernetzt Design-Based-Learning-Workshop 2025 mit der MINTvernetzt-Community - Teil 2",
+        credit: "© Beatrice Barth",
+      },
+    },
+  },
   login: {
     skip: {
       start: "Anmeldebereich überspringen",
@@ -25,48 +130,132 @@ export const locale = {
     withMintId: "Anmelden mit MINT-ID",
     moreInformation: "Mehr Informationen",
     or: "oder",
-    passwordForgotten: "Passwort vergessen?",
+    passwordForgotten: "Passwort vergessen",
     noMember: "Noch kein Mitglied?",
     registerByEmail: "Registrieren mit E-Mail",
     createMintId: "MINT-ID erstellen",
   },
+  projectTeaser: {
+    headline: "Lass Dich von anderen MINT-Projekten inspirieren",
+    benefits: {
+      ideas: "Ideen und gute Praxis aus der Community",
+      cooperations: "Anknüpfungspunkte für Kooperationen finden",
+      ownProjects: "Eigene Projekte sichtbar machen",
+      learn: "Von Erfahrungen anderer lernen",
+    },
+    allProjects: "Alle Projekte ansehen",
+    image: {
+      alt: "Personen an einem Messestand des Projekts Tinkertank",
+      credits: "© Andi Weiland",
+    },
+  },
+  eventTeaser: {
+    headline: "Entdecke MINT-Events",
+    benefits: {
+      formats: "Online-, Vor-Ort- oder Hybrid-Events",
+      knowledge: "Neues lernen und Wissen weitergeben",
+      ownEvents: "Eigene Events erstellen und verwalten",
+    },
+    allEvents: "Alle Events ansehen",
+    image: {
+      alt: "Zwei Personen auf einer Bühne bei einem MINT-Event",
+      credits: "© Andi Weiland",
+    },
+    upcomingEvents: {
+      headline: "Bevorstehende Events",
+      empty: "Zurzeit sind keine bevorstehenden Events geplant.",
+    },
+    waitinglist: "Wartelistenplätze",
+    seatsFree: "Plätzen frei",
+    unlimitedSeats: "Unbegrenzte Plätze",
+  },
+  testimonials: {
+    headline: "Stimmen aus der Community",
+    slider: {
+      previous: "Vorherige Person anzeigen",
+      next: "Weitere Person anzeigen",
+    },
+    items: {
+      katrinS: {
+        name: "Katrin Schneider-Özbek",
+        imgAlt: "Porträt von Katrin Schneider-Özbek",
+        description:
+          "Die Community-Plattform vernetzt uns MINT-Akteur:innen, macht Expertise sichtbar und schafft die Grundlage für wirkungsvolle Zusammenarbeit und gemeinsame Sichtbarkeit.",
+        translationNote: null,
+        organization: "Forscherstation",
+      },
+      franziskaS: {
+        name: "Franziska Schwab",
+        imgAlt: "Porträt von Franziska Schwab",
+        description:
+          "Ich sehe, wer beim Event dabei war – und kann direkt anknüpfen. Das bringt echten Wissenstransfer.",
+        translationNote: null,
+        organization: "jumpps*– Fachstelle für geschlechtersensible Pädagogik",
+      },
+      piaC: {
+        name: "Pia Čukić",
+        imgAlt: "Porträt von Pia Čukić",
+        description:
+          "Ich baue gerade mein eigenes Projekt auf und lasse mich dabei gern von anderen mutigen Ideen und Geschichten inspirieren.",
+        translationNote: null,
+        organization: "freigeista – MINT Zukunftsberufe im Kindergarten",
+      },
+      neleS: {
+        name: "Nele Steigerwald",
+        imgAlt: "Porträt von Nele Steigerwald",
+        description:
+          "Einige Organisationen dürfen Canva nicht nutzen – daher ist der MINT-Sharepic-Generator eine gute, datenschutzkonforme Alternative.",
+        translationNote: null,
+        organization: "Code Week Germany / Körber-Stiftung",
+      },
+      irisL: {
+        name: "Iris Lange-Schmalz",
+        imgAlt: "Porträt von Iris Lange-Schmalz",
+        description:
+          "Ich nutze die Filterfunktionen, um gezielt nach guter Praxis zu suchen – zum Beispiel für neue Pilotprojekte im Bereich Mathematik.",
+        translationNote: null,
+        organization: "MINT-Region Main-Tauber e.V.",
+      },
+    },
+  },
+  communityCta: {
+    headline: "Gestalte die Plattform aktiv mit",
+    intro:
+      "Deine Perspektive hilft, die Plattform weiterzuentwickeln. Bring Deine Ideen ein oder teste neue Funktionen frühzeitig. Erfahre mehr über geplante Features und wie Du Dich einbringen kannst.",
+    getInvolved: "Jetzt mitgestalten",
+  },
+  about: {
+    headline: "Wer hinter der Plattform steht",
+    description:
+      "MINTvernetzt wird vom Bundesministerium für Bildung, Familie, Senioren, Frauen und Jugend gefördert. Hinter MINTvernetzt steht ein Verbund aus der Körber-Stiftung, der matrix gGmbH, dem Nationalen MINT Forum e. V., dem Stifterverband und der Universität Regensburg. Die Community-Plattform wird von der matrix gGmbH entwickelt.",
+    website: "MINTvernetzt Website",
+    image: {
+      alt: "Das MINTvernetzt-Team steht auf einer Wendeltreppe",
+      credits: "© Mark Bollhorst",
+    },
+  },
+  faq: {
+    headline: "Fragen und Antworten",
+    cta: "Gesamter Hilfebereich",
+    qAndAs: {
+      whatIsStem: helpLocale.faq.stemEducation.qAndAs.whatIsStem,
+      whoIsThePlatformFor:
+        helpLocale.faq.generalPlatformInformation.qAndAs.whoIsThePlatformFor,
+      benefitsOfThePlatform:
+        helpLocale.faq.generalPlatformInformation.qAndAs.benefitsOfThePlatform,
+      isItFree: helpLocale.faq.generalPlatformInformation.qAndAs.isItFree,
+      benefitsOfRegistration:
+        helpLocale.faq.registration.qAndAs.benefitsOfRegistration,
+      mintId: helpLocale.faq.registration.qAndAs.mintId,
+    },
+  },
   form: {
     label: {
-      email: "E-Mail *",
-      password: "Passwort *",
+      email: "E-Mail",
+      password: "Passwort",
       showPassword: "Passwort anzeigen",
       hidePassword: "Passwort ausblenden",
       submit: "Anmelden",
-    },
-  },
-  content: {
-    intro: "Zur Beschreibung der MINTvernetzt Community-Plattform",
-    education: {
-      headline: "Miteinander Bildung gestalten",
-      content:
-        "Die bundesweite MINT-Community lebt davon, <0>sich auszutauschen, Wissen zu teilen, von- und miteinander zu lernen</0>. Auf der Community-Plattform könnt Ihr Euch <0>untereinander und mit Organisationen vernetzen und Inspiration oder <1>Expert:innen</1></0> zu konkreten Themen in Eurer Umgebung <0>finden</0>.",
-      action: "Jetzt registrieren",
-    },
-    growth: {
-      headline: "Wie unsere Community wächst",
-      profiles: "Personen",
-      organizations: "Organisationen",
-      events: "Veranstaltungen",
-      projects: "Projekte",
-      join: "Werde auch Du Teil unserer ständig wachsenden MINT-Community.",
-    },
-    more: {
-      headline: "Mehr erfahren",
-      content:
-        "Die MINTvernetzt Community-Plattform ist ein Projekt von MINTvernetzt, das 2021 gestartet ist, um die <0>MINT-Community deutschlandweit nachhaltig zu stärken</0>. Erfahre mehr über die Projekte von <0>MINTvernetzt, der Service- und Anlaufstelle für MINT-Akteur:innen</0> auf der MINTvernetzt-Website.",
-      action: "MINTvernetzt-Website besuchen",
-    },
-    faq: {
-      headline: "Fragen und Antworten",
-      cta: "Gesamter Hilfebereich",
-      supportQuestion: "Findest Du keine Antwort auf Deine Frage?",
-      supportCta: "Schreibe uns gerne eine E-Mail an:",
-      supportEmail: "support@mint-vernetzt.de",
     },
   },
 } as const;

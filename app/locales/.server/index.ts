@@ -163,9 +163,8 @@ import { locale as deGoodbye } from "./de/routes/goodbye";
 import { locale as deImprint } from "./de/routes/imprint";
 // landing route
 import { locale as deLanding } from "./de/routes/index";
-// next landing routes
-import { locale as deNextLanding } from "./de/routes/next/index";
-import { locale as deNextGetInvolved } from "./de/routes/next/get-involved";
+// get-involved route
+import { locale as deGetInvolved } from "./de/routes/get-involved";
 // map route
 import { locale as deMap } from "./de/routes/map";
 // privacy-policy route
@@ -355,9 +354,8 @@ import { locale as enGoodbye } from "./en/routes/goodbye";
 import { locale as enImprint } from "./en/routes/imprint";
 // landing route
 import { locale as enLanding } from "./en/routes/index";
-// next landing routes
-import { locale as enNextLanding } from "./en/routes/next/index";
-import { locale as enNextGetInvolved } from "./en/routes/next/get-involved";
+// get-involved route
+import { locale as enGetInvolved } from "./en/routes/get-involved";
 // map route
 import { locale as enMap } from "./en/routes/map";
 // privacy-policy route
@@ -861,15 +859,14 @@ const de = {
   help: deHelp,
   // imprint route
   imprint: deImprint,
-  // landing route
-  index: { route: deLanding, faq: deHelp.faq, roadmap: deRoadmap },
-  // next landing routes
-  "next/index": {
-    route: deNextLanding,
+  // landing routes
+  index: {
+    route: deLanding,
     stages: deStages,
   },
-  "next/get-involved": {
-    route: deNextGetInvolved,
+  // get-involved route
+  "get-involved": {
+    route: deGetInvolved,
     roadmap: deRoadmap,
   },
   // map route
@@ -1367,14 +1364,13 @@ const en = {
   // imprint route
   imprint: enImprint,
   // landing route
-  index: { route: enLanding, faq: enHelp.faq, roadmap: enRoadmap },
-  // next landing routes
-  "next/index": {
-    route: enNextLanding,
+  index: {
+    route: enLanding,
     stages: enStages,
   },
-  "next/get-involved": {
-    route: enNextGetInvolved,
+  // get-involved route
+  "get-involved": {
+    route: enGetInvolved,
     roadmap: enRoadmap,
   },
   // map route

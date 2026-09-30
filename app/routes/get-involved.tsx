@@ -20,11 +20,8 @@ import { External } from "~/components-next/icons/External";
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
 
-  const { authClient } = createAuthClient(request);
-  await checkFeatureAbilitiesOrThrow(authClient, ["next_landingpage"]);
-
   const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["next/get-involved"];
+  const locales = languageModuleMap[language]["get-involved"];
 
   const dataForSurveyAndResearchCta = getDataForSurveyAndResearchCta();
 
