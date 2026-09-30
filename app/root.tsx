@@ -622,6 +622,7 @@ export const ErrorBoundary = () => {
           </PreviousLocationContext>
           <script
             nonce={nonce}
+            suppressHydrationWarning
             dangerouslySetInnerHTML={{
               __html: `window.ENV = ${JSON.stringify(ENV)}`,
             }}
@@ -797,7 +798,8 @@ export default function App() {
           authRoutesNotMeantToIndex.includes(sanitizedPathname) ? (
             <meta name="robots" content="noindex, nofollow" />
           ) : null}
-          <Links nonce={nonce} />
+          {/* This fixes a hydration error on dev introduced by react 19.3.0. React Router does not yet provide a suppressHydrationWarning attribute on <Links/> */}
+          <Links nonce={ENV.MODE === "production" ? nonce : ""} />
         </head>
 
         <body id="top" className={bodyClasses}>
@@ -946,6 +948,7 @@ export default function App() {
           </PreviousLocationContext>
           <script
             nonce={nonce}
+            suppressHydrationWarning
             dangerouslySetInnerHTML={{
               __html: `window.ENV = ${JSON.stringify(ENV)}`,
             }}

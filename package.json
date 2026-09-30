@@ -61,7 +61,6 @@
     "pica": "^10.0.1",
     "rc-slider": "^11.1.9",
     "react": "^19.2.7",
-    "react-countup": "^6.5.3",
     "react-dom": "^19.2.7",
     "react-easy-crop": "^5.5.7",
     "react-hook-form": "^7.49.2",
