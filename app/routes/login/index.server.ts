@@ -7,8 +7,6 @@ import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
-import { type LandingPageLocales } from "../index.server";
-import { type NextLandingPageLocales } from "../next/index.server";
 import { createLoginSchema } from "./index.shared";
 
 export type LoginLocales = (typeof languageModuleMap)[ArrayElement<
@@ -19,7 +17,19 @@ export async function login(options: {
   formData: FormData;
   request: Request;
   authClient: SupabaseClient;
-  locales: LoginLocales | LandingPageLocales["route"] | NextLandingPageLocales;
+  locales: {
+    error: {
+      invalidCredentials: string;
+      notConfirmed: string;
+    };
+    validation: {
+      email: string;
+      password: {
+        required: string;
+        min: string;
+      };
+    };
+  };
 }) {
   const { formData, locales, request, authClient } = options;
   const submission = await parseWithZod(formData, {

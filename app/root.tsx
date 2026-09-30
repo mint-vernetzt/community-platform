@@ -82,6 +82,7 @@ import {
   SKIP_LINK_GUEST_DATA_INTENT,
 } from "./root.shared";
 import { extendSearchParams } from "./lib/utils/searchParams";
+import defaultEventBackground from "~/assets/default-event-background.jpg";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { loaderData } = args;
@@ -114,11 +115,11 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     {
       name: "image",
       property: "og:image",
-      content: loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+      content: `${loaderData.meta.baseUrl}${defaultEventBackground}`,
     },
     {
       property: "og:image:secure_url",
-      content: loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+      content: `${loaderData.meta.baseUrl}${defaultEventBackground}`,
     },
     {
       property: "og:url",
@@ -622,6 +623,7 @@ export const ErrorBoundary = () => {
           </PreviousLocationContext>
           <script
             nonce={nonce}
+            suppressHydrationWarning
             dangerouslySetInnerHTML={{
               __html: `window.ENV = ${JSON.stringify(ENV)}`,
             }}
@@ -726,6 +728,7 @@ export default function App() {
     location.pathname.startsWith(baseRoute)
   );
   const isIndexRoute = location.pathname === "/";
+  const isGetInvolvedRoute = location.pathname === "/get-involved";
   const isMapOnExplore = location.pathname === "/explore/organizations/map";
 
   const matches = useMatches();
@@ -774,7 +777,7 @@ export default function App() {
   const mainMenuIsOpen = searchParams.get(openMainMenuKey);
 
   const bodyClasses = classNames(
-    "font-sans flex min-h-dvh break-words antialiased overflow-x-hidden",
+    "font-sans flex min-h-dvh wrap-break-word antialiased overflow-x-hidden",
     modal && "overflow-y-hidden",
     overlayMenu && "overflow-y-hidden container-lg:overflow-y-visible",
     showFilters !== null &&
@@ -796,7 +799,8 @@ export default function App() {
           authRoutesNotMeantToIndex.includes(sanitizedPathname) ? (
             <meta name="robots" content="noindex, nofollow" />
           ) : null}
-          <Links nonce={nonce} />
+          {/* This fixes a hydration error on dev introduced by react 19.3.0. React Router does not yet provide a suppressHydrationWarning attribute on <Links/> */}
+          <Links nonce={ENV.MODE === "production" ? nonce : ""} />
         </head>
 
         <body id="top" className={bodyClasses}>
@@ -856,14 +860,18 @@ export default function App() {
                       }
                     />
                   </div>
-                  {isIndexRoute === false && isNonAppBaseRoute === false && (
-                    <div className={`${showFilters ? "hidden @lg:block" : ""}`}>
-                      <LoginOrRegisterCTA
-                        isAnon={mode === "anon"}
-                        locales={locales}
-                      />
-                    </div>
-                  )}
+                  {isIndexRoute === false &&
+                    isGetInvolvedRoute === false &&
+                    isNonAppBaseRoute === false && (
+                      <div
+                        className={`${showFilters ? "hidden @lg:block" : ""}`}
+                      >
+                        <LoginOrRegisterCTA
+                          isAnon={mode === "anon"}
+                          locales={locales}
+                        />
+                      </div>
+                    )}
                   <div className="flex flex-nowrap w-full">
                     <main className="w-full @md:bg-neutral-50">
                       <Outlet />
@@ -878,7 +886,7 @@ export default function App() {
                       <ScrollToTopButton locales={locales} />
                     </div>
                   </div>
-                  {isIndexRoute ? (
+                  {isIndexRoute || isGetInvolvedRoute ? (
                     <Footer locales={locales} mode={mode} />
                   ) : null}
                   {alert !== null ? (
@@ -941,6 +949,7 @@ export default function App() {
           </PreviousLocationContext>
           <script
             nonce={nonce}
+            suppressHydrationWarning
             dangerouslySetInnerHTML={{
               __html: `window.ENV = ${JSON.stringify(ENV)}`,
             }}

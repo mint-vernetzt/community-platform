@@ -156,19 +156,19 @@ export function combineHeaders(
 }
 
 export function generateUsername(firstName: string, lastName: string) {
-  return generateValidSlug(`${firstName}${lastName}`);
+  return generateValidSlug(`${firstName.trim()}${lastName.trim()}`);
 }
 
 export function generateOrganizationSlug(name: string) {
-  return generateValidSlug(name);
+  return generateValidSlug(name.trim());
 }
 
 export function generateEventSlug(name: string) {
-  return generateValidSlug(name);
+  return generateValidSlug(name.trim());
 }
 
 export function generateProjectSlug(name: string) {
-  return generateValidSlug(name);
+  return generateValidSlug(name.trim());
 }
 
 // TODO: Use libraray (Don't know the name anymore) to convert all Unicode in a valid slug
@@ -199,7 +199,8 @@ export function generateValidSlug(
     .replace(/[úùû]/, "u")
     .replace(/[ü]/, "ue")
     .replace(/[^\w ]/g, "")
-    .replace(/[\s]/g, "");
+    .replace(/[\s]/g, "")
+    .trim();
 
   return hashFunction(slug);
 }

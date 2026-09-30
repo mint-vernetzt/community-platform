@@ -62,6 +62,7 @@ import {
   hasTeamData,
 } from "./detail.shared";
 import ShadowOrganizationHint from "~/components/next/ShadowOrganizationHint";
+import defaultOrganizationBackground from "~/assets/default-organization-background.jpg";
 
 export function links() {
   return [
@@ -101,13 +102,11 @@ export const meta: MetaFunction<typeof loader> = (args) => {
       {
         name: "image",
         property: "og:image",
-        content:
-          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+        content: `${loaderData.meta.baseUrl}${defaultOrganizationBackground}`,
       },
       {
         property: "og:image:secure_url",
-        content:
-          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+        content: `${loaderData.meta.baseUrl}${defaultOrganizationBackground}`,
       },
       {
         property: "og:url",
@@ -154,13 +153,11 @@ export const meta: MetaFunction<typeof loader> = (args) => {
       {
         name: "image",
         property: "og:image",
-        content:
-          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+        content: `${loaderData.meta.baseUrl}${defaultOrganizationBackground}`,
       },
       {
         property: "og:image:secure_url",
-        content:
-          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+        content: `${loaderData.meta.baseUrl}${defaultOrganizationBackground}`,
       },
       {
         property: "og:url",

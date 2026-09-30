@@ -203,34 +203,6 @@
   }
 }
 
-#roadmap {
-  input ~ div div {
-    @apply transition-all min-h-0 p-0 invisible mt-0;
-  }
-
-  input ~ div div p {
-    min-height: 150px;
-  }
-
-  input ~ div div:nth-child(-n + 2) {
-    @apply min-h-fit p-6 visible mt-4 xl:mt-6;
-  }
-
-  @media (min-width: 768px) {
-    input ~ div div:nth-child(-n + 3) {
-      @apply min-h-fit p-6 visible mt-4 xl:mt-6;
-    }
-  }
-
-  input:checked ~ div div {
-    @apply min-h-fit p-6 visible mt-4 xl:mt-6;
-  }
-
-  input ~ div div:first-child {
-    @apply mt-0;
-  }
-}
-
 #faq-content {
   @apply leading-5.5;
   ul {

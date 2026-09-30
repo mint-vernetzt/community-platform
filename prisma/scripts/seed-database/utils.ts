@@ -330,7 +330,7 @@ export async function uploadImageBucketData(
     }
     try {
       const data = await fs.readFile(
-        "./public/images/default-event-background.jpg"
+        "./app/assets/default-event-background.jpg"
       );
       const fileTypeResult = await fileTypeFromBuffer(data);
       if (fileTypeResult === undefined) {

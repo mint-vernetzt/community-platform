@@ -77,6 +77,7 @@ import {
 } from "./details.shared";
 import { formatDateTime } from "./index.shared";
 import { filterEventConferenceLink } from "./utils.server";
+import defaultEventBackground from "~/assets/default-event-background.jpg";
 
 export function links() {
   return [
@@ -132,13 +133,11 @@ export function meta(
       {
         name: "image",
         property: "og:image",
-        content:
-          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+        content: `${loaderData.meta.baseUrl}${defaultEventBackground}`,
       },
       {
         property: "og:image:secure_url",
-        content:
-          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+        content: `${loaderData.meta.baseUrl}${defaultEventBackground}`,
       },
       {
         property: "og:url",
@@ -185,13 +184,11 @@ export function meta(
       {
         name: "image",
         property: "og:image",
-        content:
-          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+        content: `${loaderData.meta.baseUrl}${defaultEventBackground}`,
       },
       {
         property: "og:image:secure_url",
-        content:
-          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+        content: `${loaderData.meta.baseUrl}${defaultEventBackground}`,
       },
       {
         property: "og:url",

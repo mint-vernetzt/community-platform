@@ -6,7 +6,6 @@ import { render, screen } from "@testing-library/react";
 import { expect, test, vi } from "vitest";
 import { createServerClient } from "~/__mocks__/auth.server";
 import { prismaClient } from "~/__mocks__/prisma.server";
-import { consoleError } from "./../../tests/setup-test-env";
 import { default as LandingPageRoute, loader } from "./index";
 import { AuthError } from "@supabase/supabase-js";
 
@@ -59,22 +58,30 @@ const IntersectionObserverMock = vi.fn(
 vi.stubGlobal("IntersectionObserver", IntersectionObserverMock);
 
 test("Landing page is rendered without errors", async () => {
-  consoleError.mockImplementationOnce(() => {
-    return;
-  });
-  consoleError.mockImplementationOnce(() => {
-    return;
-  });
   createServerClient.auth.getUser.mockResolvedValue({
     data: {
       user: null,
     },
     error: new AuthError("No session or session user found"),
   });
+  // community counter section mocks
   prismaClient.profile.count.mockResolvedValue(20);
   prismaClient.organization.count.mockResolvedValue(20);
   prismaClient.event.count.mockResolvedValue(20);
   prismaClient.project.count.mockResolvedValue(20);
+  // event teaser section mocks
+  prismaClient.organization.findFirst.mockResolvedValue(null);
+  prismaClient.event.findMany.mockResolvedValue([]);
+  // project teaser section mocks
+  prismaClient.project.findFirst.mockResolvedValue(null);
+  // testimonial section mocks
+  prismaClient.profile.findUnique.mockResolvedValue(null);
+  prismaClient.profile.findUnique.mockResolvedValue(null);
+  prismaClient.profile.findUnique.mockResolvedValue(null);
+  prismaClient.profile.findUnique.mockResolvedValue(null);
+  prismaClient.profile.findUnique.mockResolvedValue(null);
+  // about section mocks
+  prismaClient.organization.findFirst.mockResolvedValue(null);
 
   const LandingPage = createRoutesStub([
     {
@@ -90,5 +97,5 @@ test("Landing page is rendered without errors", async () => {
   const heading = await screen.findByRole("heading", {
     level: 1,
   });
-  expect(heading.innerHTML).toBe("Willkommen in Deiner MINT-Community");
+  expect(heading.innerHTML).toBe("Gemeinsam MINT-Bildung stärken");
 });
