@@ -46,7 +46,7 @@ export default function Resources() {
 
   return (
     <div className="flex flex-col items-center gap-8 mt-10 @lg:mt-8 mb-24">
-      <div className="w-full max-w-screen-2xl flex flex-col items-center gap-2 px-6 @lg:px-8">
+      <div className="w-full max-w-2xl flex flex-col items-center gap-2 px-6 @lg:px-8">
         <h1 className="text-center text-primary text-5xl @lg:text-7xl font-black leading-9 @lg:leading-13 mb-0">
           {locales.headline}
         </h1>
@@ -54,7 +54,7 @@ export default function Resources() {
           {locales.subline}
         </p>
       </div>
-      <div className="w-full max-w-screen-2xl flex flex-col items-center gap-16 @lg:gap-12 px-4 @lg:px-8">
+      <div className="w-full max-w-2xl flex flex-col items-center gap-16 @lg:gap-12 px-4 @lg:px-8">
         <ResourceList>
           <ResourceList.Header>
             <h2 className="mb-0 text-neutral-700 text-2xl font-semibold leading-6 @lg:leading-6.5">

@@ -12,6 +12,7 @@ export const locale = {
       errorDetails: {
         headline: "Error Details",
       },
+      networkErrors: "You have network issues. Please try again later.",
     },
     toLandingPage: "To the landing page",
     toDashboard: "To the dashboard",

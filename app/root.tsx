@@ -7,14 +7,17 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import { captureException } from "@sentry/react";
 import classNames from "classnames";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   type ActionFunctionArgs,
   data,
   Form,
+  type HeadersArgs,
   isRouteErrorResponse,
   Links,
+  type LoaderFunctionArgs,
   Meta,
+  type MetaFunction,
   Outlet,
   redirect,
   Scripts,
@@ -25,10 +28,10 @@ import {
   useRouteError,
   useRouteLoaderData,
   useSearchParams,
-  type HeadersArgs,
-  type LoaderFunctionArgs,
-  type MetaFunction,
+  useSubmit,
 } from "react-router";
+import { HoneypotProvider } from "remix-utils/honeypot/react";
+import defaultEventBackground from "~/assets/default-event-background.jpg";
 import { Footer } from "~/components-next/Footer";
 import { NavBar } from "~/components-next/NavBar";
 import { getAlert } from "./alert.server";
@@ -41,12 +44,15 @@ import {
 } from "./auth.server";
 import { LoginOrRegisterCTA } from "./components-next/LoginOrRegisterCTA";
 import { MainMenu } from "./components-next/MainMenu";
+import { Modal } from "./components-next/Modal";
 import { ModalRoot } from "./components-next/ModalRoot";
 import { ScrollToTopButton } from "./components-next/ScrollToTopButton";
 import { ToastContainer } from "./components-next/ToastContainer";
 import { RichText } from "./components/legacy/Richtext/RichText";
 import { PreviousLocationContext } from "./components/next/PreviousLocationContext";
 import { getEnv } from "./env.server";
+import { INTENT_FIELD_NAME } from "./form-helpers";
+import { honeypot } from "./honeypot.server";
 import { detectLanguage, localeCookie } from "./i18n.server";
 import { DEFAULT_LANGUAGE } from "./i18n.shared";
 import { BlurFactor, getImageURL, ImageSizes } from "./images.server";
@@ -55,6 +61,7 @@ import {
   insertParametersIntoLocale,
 } from "./lib/utils/i18n";
 import { invariantResponse } from "./lib/utils/response";
+import { extendSearchParams } from "./lib/utils/searchParams";
 import { languageModuleMap } from "./locales/.server";
 import { useNonce } from "./nonce-provider";
 import {
@@ -66,23 +73,17 @@ import {
   removeGuestData,
 } from "./root.server";
 import {
+  CURRENT_LOCATION,
+  LINK_GUEST_DATA_INTENT,
+  SKIP_LINK_GUEST_DATA_INTENT,
+} from "./root.shared";
+import {
   viewCookie,
   viewCookieSchema,
 } from "./routes/explore/organizations.server";
 import { getPublicURL } from "./storage.server";
 import { getToast, redirectWithToast } from "./toast.server";
 import { combineHeaders, deriveMode } from "./utils.server";
-import { honeypot } from "./honeypot.server";
-import { HoneypotProvider } from "remix-utils/honeypot/react";
-import { Modal } from "./components-next/Modal";
-import { INTENT_FIELD_NAME } from "./form-helpers";
-import {
-  CURRENT_LOCATION,
-  LINK_GUEST_DATA_INTENT,
-  SKIP_LINK_GUEST_DATA_INTENT,
-} from "./root.shared";
-import { extendSearchParams } from "./lib/utils/searchParams";
-import defaultEventBackground from "~/assets/default-event-background.jpg";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { loaderData } = args;
@@ -407,6 +408,10 @@ export const ErrorBoundary = () => {
   const isResponse = isRouteErrorResponse(error);
   const nonce = useNonce();
   const location = useLocation();
+  const submit = useSubmit();
+  const [searchParams] = useSearchParams();
+  const currentRetry = searchParams.get("retry");
+  const [hasNetworkIssues, setHasNetworkIssues] = useState(false);
 
   if (typeof document !== "undefined") {
     console.error(error);
@@ -419,9 +424,11 @@ export const ErrorBoundary = () => {
     //   return;
     // }
     try {
-      // When client side error occurs and sentry is not working, we send the error to the server
-      captureException(error);
+      if (currentRetry === null) {
+        captureException(error);
+      }
     } catch (error) {
+      // When client side error occurs and sentry is not working, we send the error to the server
       console.warn("Sentry Sentry.captureException failed");
       const formData = new FormData();
       formData.append(
@@ -433,13 +440,12 @@ export const ErrorBoundary = () => {
         body: formData,
       });
     }
-  }, [error, isResponse]);
+  }, [error, isResponse, currentRetry]);
 
   const rootLoaderData = useRouteLoaderData<typeof loader | null>("root");
   const hasRootLoaderData =
     typeof rootLoaderData !== "undefined" && rootLoaderData !== null;
 
-  const [searchParams] = useSearchParams();
   const openMainMenuKey = "mainMenu";
   const mainMenuIsOpen = searchParams.get(openMainMenuKey);
 
@@ -451,7 +457,7 @@ export const ErrorBoundary = () => {
   );
 
   let errorTitle;
-  let errorText;
+  let errorText: string | undefined;
   let errorData;
 
   if (isResponse) {
@@ -465,6 +471,40 @@ export const ErrorBoundary = () => {
   } else {
     errorTitle = "Unknown error";
   }
+
+  useEffect(() => {
+    const browserNetworkErrors = [
+      "Load failed",
+      "Failed to fetch",
+      "NetworkError when attempting to fetch resource",
+      "Unable to decode turbo-stream response",
+    ];
+    if (
+      browserNetworkErrors.some(
+        (e) => typeof errorText !== "undefined" && errorText.includes(e)
+      )
+    ) {
+      if (currentRetry === null) {
+        void submit(
+          {
+            retry: 1,
+          },
+          { method: "GET", replace: true }
+        );
+      } else if (parseInt(currentRetry) < 5) {
+        void submit(
+          {
+            retry: parseInt(currentRetry) + 1,
+          },
+          { method: "GET", replace: true }
+        );
+      }
+      if (currentRetry === "5") {
+        setHasNetworkIssues(true);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <HoneypotProvider {...rootLoaderData?.honeyProps}>
@@ -608,13 +648,26 @@ export const ErrorBoundary = () => {
                             ? "Details zur Fehlermeldung"
                             : "Error Details"}
                       </h2>
-                      <p>{errorTitle}</p>
-                      {typeof errorText !== "undefined" && errorText !== "" ? (
-                        <p>{errorText}</p>
-                      ) : null}
-                      {typeof errorData !== "undefined" && errorData !== "" ? (
-                        <p>{errorData}</p>
-                      ) : null}
+                      {hasNetworkIssues === false ? (
+                        <>
+                          <p>{errorTitle}</p>
+                          {typeof errorText !== "undefined" &&
+                          errorText !== "" ? (
+                            <p>{errorText}</p>
+                          ) : null}
+                          {typeof errorData !== "undefined" &&
+                          errorData !== "" ? (
+                            <p>{errorData}</p>
+                          ) : null}
+                        </>
+                      ) : (
+                        <p>
+                          {hasRootLoaderData
+                            ? rootLoaderData.locales.route.root.errorBoundary
+                                .networkErrors
+                            : "You have network issues. Please try again later."}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </section>
