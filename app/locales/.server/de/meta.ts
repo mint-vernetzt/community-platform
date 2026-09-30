@@ -12,6 +12,8 @@ export const locale = {
       errorDetails: {
         headline: "Details zur Fehlermeldung",
       },
+      networkErrors:
+        "Du hast Netzwerkprobleme. Bitte versuche es später erneut.",
     },
     toLandingPage: "Zur Startseite",
     toDashboard: "Zum Dashboard",
