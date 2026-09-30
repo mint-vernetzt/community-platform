@@ -385,8 +385,8 @@ export default function Index() {
     <>
       {/* Header & Login section */}
       <section className="relative isolate md:bg-secondary-50 md:bg-linear-[358deg] md:from-neutral-50 md:from-[12.78%] md:via-neutral-50/40 md:via-[74.48%] md:to-neutral-50/40 md:to-[98.12%]">
-        <div className="w-full flex flex-col xl:justify-between md:flex-row md:items-center max-w-2xl mx-auto">
-          <div className="flex flex-col gap-8 md:gap-6 pl-4 md:pl-10 xl:pl-16 pr-4 md:pr-8 pb-4 md:pb-16 pt-16">
+        <div className="w-full flex flex-col md:justify-between md:flex-row md:items-center max-w-2xl mx-auto">
+          <div className="max-w-156.5 flex flex-col gap-8 md:gap-6 pl-4 md:pl-10 xl:pl-16 pr-4 md:pr-8 pb-4 md:pb-16 pt-16">
             <h1 className="mb-0 w-full text-center md:text-start text-primary-600 text-5xl md:text-[60px] font-black leading-9 md:leading-18">
               {locales.route.content.headline}
             </h1>
@@ -792,7 +792,7 @@ export default function Index() {
       {/* Funding section */}
       <section className="w-full px-4 md:px-10 xl:px-16 py-12 md:py-16 max-w-2xl mx-auto">
         <div className="relative isolate rounded-2xl overflow-hidden bg-primary-400 p-6 md:p-10">
-          <div className="flex flex-col gap-10 max-w-150">
+          <div className="flex flex-col gap-10 max-w-148">
             <div className="flex flex-col gap-4">
               <h2 className="mb-0 text-5xl text-white font-bold leading-9">
                 {locales.route.funding.headline}

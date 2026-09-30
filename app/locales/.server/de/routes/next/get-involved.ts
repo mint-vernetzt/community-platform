@@ -15,4 +15,11 @@ export const locale = {
       credit: "© Mark Bollhorst",
     },
   },
+  // typesafe disable via (false as boolean) && { ... }
+  // typesafe enable via (true as boolean) && { ... }
+  surveyAndResearchCta: (false as boolean) && {
+    headline: "Nimm an Umfragen und Forschungsprojekten teil",
+    info: "Hilf uns, die Plattform zu verbessern, indem Du an Umfragen und Forschungsprojekten teilnimmst.",
+    cta: "Mitmachen",
+  },
 } as const;

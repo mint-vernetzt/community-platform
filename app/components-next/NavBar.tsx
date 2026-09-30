@@ -35,7 +35,7 @@ export function NavBar(props: NavBarProps) {
   const navBarMenuIsOpen = searchParams.get(props.openMainMenuKey);
 
   const classes = classNames(
-    "w-full h-[76px] xl:h-20 bg-white",
+    "w-full h-19 xl:h-20 bg-white",
     "flex items-center",
     navBarMenuIsOpen !== null &&
       navBarMenuIsOpen !== "false" &&
@@ -74,7 +74,7 @@ export function NavBar(props: NavBarProps) {
 
   return (
     <header id="header" className={classes}>
-      <div className="w-0 h-0 focus-within:w-fit focus-within:h-[76px] focus-within:xl:h-20 focus-within:px-2 overflow-hidden flex items-center">
+      <div className="w-0 h-0 focus-within:w-fit focus-within:h-19 focus-within:xl:h-20 focus-within:px-2 overflow-hidden flex items-center">
         <a
           id="nav-bar-start"
           href="#nav-bar-end"
@@ -248,7 +248,7 @@ export function NavBar(props: NavBarProps) {
           )}
         </div>
       </div>
-      <div className="w-0 h-0 focus-within:w-fit focus-within:h-[76px] focus-within:xl:h-20 focus-within:px-2 overflow-hidden flex items-center">
+      <div className="w-0 h-0 focus-within:w-fit focus-within:h-19 focus-within:xl:h-20 focus-within:px-2 overflow-hidden flex items-center">
         <a
           id="nav-bar-end"
           href="#nav-bar-start"

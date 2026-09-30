@@ -9,6 +9,9 @@ import introImageBlurred from "~/assets/get-involved/MINT-V-JT-11022025-LOW-258 
 import { Roadmap } from "@mint-vernetzt/components/src/organisms/Roadmap";
 import secondFundingPhaseImage from "~/assets/get-involved/MINT-V-JT-12022025-LOW-283 2.jpg";
 import secondFundingPhaseImageBlurred from "~/assets/get-involved/MINT-V-JT-12022025-LOW-283 2-blurred.webp";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { SurveyAndResearchCtaWobble } from "./get-involved.shared";
+import { getDataForSurveyAndResearchCta } from "./get-involved.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -19,12 +22,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["next/get-involved"];
 
-  return { locales };
+  const dataForSurveyAndResearchCta = getDataForSurveyAndResearchCta();
+
+  return { locales, dataForSurveyAndResearchCta };
 };
 
 export default function GetInvolved() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const { locales, dataForSurveyAndResearchCta } = loaderData;
 
   return (
     <>
@@ -80,6 +85,42 @@ export default function GetInvolved() {
           </p>
         </div>
       </section>
+      {/* Survey and research cta section */}
+      {locales.route.surveyAndResearchCta !== false ? (
+        <section className="w-full pb-12 px-4 md:px-10 md:pb-10 xl:px-16 xl:pb-16 max-w-2xl mx-auto">
+          <div className="relative isolate w-full flex flex-col gap-10 p-6 md:p-10 bg-secondary-600 rounded-2xl overflow-hidden">
+            <div className="max-w-148 flex flex-col gap-6">
+              <h2 className="mb-0 text-white text-5xl font-bold leading-9">
+                {locales.route.surveyAndResearchCta.headline}
+              </h2>
+              <p className="text-neutral-50 text-lg font-semibold leading-6">
+                {locales.route.surveyAndResearchCta.info}
+              </p>
+            </div>
+            <Button
+              as="link"
+              variant="outline"
+              to={dataForSurveyAndResearchCta.to}
+              prefetch={
+                dataForSurveyAndResearchCta.external === false
+                  ? "intent"
+                  : undefined
+              }
+              target={
+                dataForSurveyAndResearchCta.external ? "_blank" : undefined
+              }
+              rel={
+                dataForSurveyAndResearchCta.external
+                  ? "noopener noreferrer"
+                  : undefined
+              }
+            >
+              {locales.route.surveyAndResearchCta.cta}
+            </Button>
+            <SurveyAndResearchCtaWobble />
+          </div>
+        </section>
+      ) : null}
     </>
   );
 }

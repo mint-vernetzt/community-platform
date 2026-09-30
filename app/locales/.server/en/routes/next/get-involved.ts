@@ -15,4 +15,11 @@ export const locale = {
       credit: "© Mark Bollhorst",
     },
   },
+  // typesafe disable via (false as boolean) && { ... }
+  // typesafe enable via (true as boolean) && { ... }
+  surveyAndResearchCta: (false as boolean) && {
+    headline: "Participate in surveys and research projects",
+    info: "Help us improve the platform by participating in surveys and research projects.",
+    cta: "Participate",
+  },
 } as const;
