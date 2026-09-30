@@ -7,7 +7,7 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import { captureException } from "@sentry/react";
 import classNames from "classnames";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   type ActionFunctionArgs,
   data,
@@ -410,8 +410,6 @@ export const ErrorBoundary = () => {
   const location = useLocation();
   const submit = useSubmit();
   const [searchParams] = useSearchParams();
-  const currentRetry = searchParams.get("retry");
-  const [hasNetworkIssues, setHasNetworkIssues] = useState(false);
 
   if (typeof document !== "undefined") {
     console.error(error);
@@ -424,9 +422,7 @@ export const ErrorBoundary = () => {
     //   return;
     // }
     try {
-      if (currentRetry === null) {
-        captureException(error);
-      }
+      captureException(error);
     } catch (error) {
       // When client side error occurs and sentry is not working, we send the error to the server
       console.warn("Sentry Sentry.captureException failed");
@@ -440,7 +436,7 @@ export const ErrorBoundary = () => {
         body: formData,
       });
     }
-  }, [error, isResponse, currentRetry]);
+  }, [error, isResponse]);
 
   const rootLoaderData = useRouteLoaderData<typeof loader | null>("root");
   const hasRootLoaderData =
@@ -472,39 +468,27 @@ export const ErrorBoundary = () => {
     errorTitle = "Unknown error";
   }
 
+  const browserNetworkErrors = [
+    "Load failed",
+    "Failed to fetch",
+    "NetworkError when attempting to fetch resource",
+    "Unable to decode turbo-stream response",
+  ];
+
+  const hasNetworkIssues = browserNetworkErrors.some(
+    (e) => typeof errorText !== "undefined" && errorText.includes(e)
+  );
+  const currentRetry = searchParams.get("retry");
   useEffect(() => {
-    const browserNetworkErrors = [
-      "Load failed",
-      "Failed to fetch",
-      "NetworkError when attempting to fetch resource",
-      "Unable to decode turbo-stream response",
-    ];
-    if (
-      browserNetworkErrors.some(
-        (e) => typeof errorText !== "undefined" && errorText.includes(e)
-      )
-    ) {
-      if (currentRetry === null) {
-        void submit(
-          {
-            retry: 1,
-          },
-          { method: "GET", replace: true }
-        );
-      } else if (parseInt(currentRetry) < 5) {
-        void submit(
-          {
-            retry: parseInt(currentRetry) + 1,
-          },
-          { method: "GET", replace: true }
-        );
-      }
-      if (currentRetry === "5") {
-        setHasNetworkIssues(true);
-      }
+    if (hasNetworkIssues && currentRetry === null) {
+      submit(
+        {
+          retry: 1,
+        },
+        { method: "GET", replace: true }
+      ).catch(() => {});
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [hasNetworkIssues, currentRetry, submit]);
 
   return (
     <HoneypotProvider {...rootLoaderData?.honeyProps}>
