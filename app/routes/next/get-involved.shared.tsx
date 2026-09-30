@@ -55,3 +55,40 @@ export function SurveyAndResearchCtaWobble() {
     </>
   );
 }
+
+export function GetInvolvedWobble() {
+  return (
+    <svg
+      width="1035"
+      height="1007"
+      viewBox="0 0 1035 1007"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      className="absolute left-133.5 -top-48 hidden md:block -z-10"
+    >
+      <path
+        d="M862.103 507.283C988.382 832.173 508.11 993.153 342.172 765.701C267.223 662.968 322.769 644.306 307.296 541.649C285.043 394.006 106.681 191.754 471.207 143.855C503.717 139.583 591.824 148.574 625.634 159.304C698.713 182.497 757.151 237.263 862.103 507.283Z"
+        stroke="#2D6BE1"
+        strokeWidth="2"
+      />
+      <path
+        d="M697.06 246.746C786.536 296.945 802.145 335.556 828.013 388.209C853.881 440.862 838.759 506.9 827.313 539.936C811.667 585.092 743.391 680.314 719.634 717.153C677.066 783.16 537.292 932.667 344.595 852.705C60.569 734.846 105.256 452.911 154.73 389.395C214.276 312.949 254.453 340.009 313.306 306.648C375.71 271.273 403.384 206.447 456.178 187.664C527.072 162.441 607.585 196.547 697.06 246.746Z"
+        fill="url(#paint0_linear_1200_6221)"
+      />
+      <defs>
+        <linearGradient
+          id="paint0_linear_1200_6221"
+          x1="628"
+          y1="179"
+          x2="147.5"
+          y2="400.5"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#BFC6D3" />
+          <stop offset="1" stopColor="#F4F5F6" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}

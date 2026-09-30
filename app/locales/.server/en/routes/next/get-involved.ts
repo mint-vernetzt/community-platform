@@ -22,4 +22,15 @@ export const locale = {
     info: "Help us improve the platform by participating in surveys and research projects.",
     cta: "Participate",
   },
+  getInvolved: {
+    headline: "Shape and develop with us",
+    info: "Become part of the open-source development. Contribute as a designer or programmer and work with us on features that create real value.",
+    email: {
+      subject: "Contributing%20as%20a%20designer%20%2F%20programmer",
+      cta: "Contribute",
+    },
+    github: {
+      cta: "To Github",
+    },
+  },
 } as const;

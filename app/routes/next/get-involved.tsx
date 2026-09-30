@@ -10,8 +10,12 @@ import { Roadmap } from "@mint-vernetzt/components/src/organisms/Roadmap";
 import secondFundingPhaseImage from "~/assets/get-involved/MINT-V-JT-12022025-LOW-283 2.jpg";
 import secondFundingPhaseImageBlurred from "~/assets/get-involved/MINT-V-JT-12022025-LOW-283 2-blurred.webp";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { SurveyAndResearchCtaWobble } from "./get-involved.shared";
+import {
+  GetInvolvedWobble,
+  SurveyAndResearchCtaWobble,
+} from "./get-involved.shared";
 import { getDataForSurveyAndResearchCta } from "./get-involved.server";
+import { External } from "~/components-next/icons/External";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -121,6 +125,39 @@ export default function GetInvolved() {
           </div>
         </section>
       ) : null}
+      {/* Get involved section */}
+      <section className="w-full pb-12 px-4 md:px-10 md:pb-16 md:pt-16 max-w-2xl mx-auto">
+        <div className="relative isolate w-full flex flex-col gap-10 p-6 md:p-10 bg-white md:bg-neutral-100 rounded-2xl overflow-hidden border border-neutral-200">
+          <div className="max-w-148 flex flex-col gap-6">
+            <h2 className="mb-0 text-primary-600 text-5xl font-bold leading-10">
+              {locales.route.getInvolved.headline}
+            </h2>
+            <p className="text-neutral-700 text-lg font-normal md:font-semibold leading-5 md:leading-6">
+              {locales.route.getInvolved.info}
+            </p>
+          </div>
+          <div className="flex gap-4">
+            <Button
+              as="link"
+              variant="outline"
+              to={`mailto:${ENV.SUPPORT_MAIL}?subject=${locales.route.getInvolved.email.subject}`}
+            >
+              {locales.route.getInvolved.email.cta}
+            </Button>
+            <Button
+              as="link"
+              variant="outline"
+              to={`https://github.com/mint-vernetzt/community-platform`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <External />
+              <span>{locales.route.getInvolved.github.cta}</span>
+            </Button>
+          </div>
+          <GetInvolvedWobble />
+        </div>
+      </section>
     </>
   );
 }
