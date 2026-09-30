@@ -1,8 +1,6 @@
 import { useLoaderData, type LoaderFunctionArgs } from "react-router";
-import { createAuthClient } from "~/auth.server";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import introImage from "~/assets/get-involved/MINT-V-JT-11022025-LOW-258 2.jpg";
 import introImageBlurred from "~/assets/get-involved/MINT-V-JT-11022025-LOW-258 2-blurred.webp";
