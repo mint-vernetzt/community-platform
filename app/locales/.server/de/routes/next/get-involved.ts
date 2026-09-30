@@ -8,6 +8,8 @@ export const locale = {
     },
   },
   secondFundingPhase: {
+    headline: "Was passiert in der zweiten Förderphase von MINTvernetzt?",
+    info: "Unsere zweite Förderphase ist im Januar 2026 gestartet – mit einem klaren Fokus auf Zusammenarbeit. Die Plattform soll Dich noch besser dabei unterstützen, passende Kollaborationspartner:innen zu finden und Wissen sowie Ressourcen zu teilen. Beson-ders wichtig ist uns dabei die Stärkung der Vernetzung zwischen schulischen und außer-schulischen Akteur:innen in der MINT-Bildung.",
     image: {
       alt: "Ein Bild des Förderworkshops auf einer MINTvernetzt Tagung.",
       credit: "© Mark Bollhorst",

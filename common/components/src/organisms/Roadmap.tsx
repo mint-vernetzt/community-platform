@@ -205,7 +205,7 @@ function Roadmap(props: { locales: RoadmapLocales }) {
       <p className="text-center mb-10 text-lg font-semibold leading-6 text-neutral-800">
         {locales.roadmap.subline}
       </p>
-      <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-10 md:gap-y-0 md:gap-x-8">
+      <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-10 lg:gap-y-0 sm:gap-x-8">
         <RoadmapColumn
           locales={locales}
           title={locales.roadmap.ideas.title}
