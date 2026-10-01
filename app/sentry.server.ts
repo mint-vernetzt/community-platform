@@ -13,7 +13,7 @@ export function initSentry() {
     dsn: process.env.SENTRY_DSN,
     environment: process.env.COMMUNITY_BASE_URL.replace(/https?:\/\//, ""),
     integrations: [nodeProfilingIntegration()],
-    tracesSampleRate: 0.5,
-    profilesSampleRate: 0.5,
+    tracesSampleRate: 1,
+    profilesSampleRate: 1,
   });
 }

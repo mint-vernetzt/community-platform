@@ -32,7 +32,9 @@ if (ENV.MODE === "production" && typeof ENV.SENTRY_DSN !== "undefined") {
         return event;
       },
       integrations: [
-        replayIntegration(),
+        replayIntegration({
+          useCompression: false,
+        }),
         reactRouterV7BrowserTracingIntegration({
           useEffect,
           useLocation,
@@ -45,11 +47,11 @@ if (ENV.MODE === "production" && typeof ENV.SENTRY_DSN !== "undefined") {
       // Set tracesSampleRate to 1.0 to capture 100%
       // of transactions for performance monitoring.
       // We recommend adjusting this value in production
-      tracesSampleRate: 0.5,
+      tracesSampleRate: 1,
 
-      // Capture Replay for 10% of all sessions,
-      // plus for 100% of sessions with an error
-      replaysSessionSampleRate: 0.1,
+      // Capture no session replays,
+      // Capture 100% of sessions with an error
+      replaysSessionSampleRate: 0,
       replaysOnErrorSampleRate: 1.0,
     });
   } catch (error) {

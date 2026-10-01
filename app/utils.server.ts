@@ -355,6 +355,7 @@ type CSPHeaderOptions =
   | "img-src"
   | "worker-src"
   | "frame-src"
+  | "object-src"
   | "base-uri"
   | "frame-ancestors"
   | "report-uri"

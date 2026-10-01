@@ -48,14 +48,6 @@ import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { isBotRequest } from "~/utils.server";
 import { hasContent } from "~/utils.shared";
-import { login } from "./login/index.server";
-import { createLoginSchema } from "./login/index.shared";
-import {
-  getEventCount,
-  getOrganizationCount,
-  getProfileCount,
-  getProjectCount,
-} from "./utils.server";
 import {
   getAboutSectionOrganization,
   getDataForCommunityImages,
@@ -71,6 +63,14 @@ import {
   LoginSectionBobbel,
   PiggyBank,
 } from "./index.shared";
+import { login } from "./login/index.server";
+import { createLoginSchema } from "./login/index.shared";
+import {
+  getEventCount,
+  getOrganizationCount,
+  getProfileCount,
+  getProjectCount,
+} from "./utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
