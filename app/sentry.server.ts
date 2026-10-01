@@ -14,6 +14,5 @@ export function initSentry() {
     environment: process.env.COMMUNITY_BASE_URL.replace(/https?:\/\//, ""),
     integrations: [nodeProfilingIntegration()],
     tracesSampleRate: 1,
-    profilesSampleRate: 1,
   });
 }

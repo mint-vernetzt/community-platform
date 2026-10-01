@@ -8,7 +8,7 @@ import {
 import {
   init as initSentry,
   replayIntegration,
-  reactRouterV7BrowserTracingIntegration,
+  reactRouterBrowserTracingIntegration,
 } from "@sentry/react";
 import { StrictMode, startTransition, useEffect } from "react";
 import { hydrateRoot } from "react-dom/client";
@@ -35,7 +35,7 @@ if (ENV.MODE === "production" && typeof ENV.SENTRY_DSN !== "undefined") {
         replayIntegration({
           useCompression: false,
         }),
-        reactRouterV7BrowserTracingIntegration({
+        reactRouterBrowserTracingIntegration({
           useEffect,
           useLocation,
           useNavigationType,
