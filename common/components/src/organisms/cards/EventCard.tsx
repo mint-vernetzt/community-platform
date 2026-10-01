@@ -258,7 +258,7 @@ function EventCard(
       </CardHeader>
       <CardBody>
         {
-          <div className="min-h-[80px]">
+          <div className="min-h-20">
             {/* TODO: */}
             {/* Issue with combination of line clamp with ellipsis (truncate) */}
             {/* Maybe find a better solution */}

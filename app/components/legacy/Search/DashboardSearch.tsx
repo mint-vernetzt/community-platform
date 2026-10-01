@@ -34,11 +34,11 @@ function DashboardSearchPlaceholderRotation(props: {
     const newClasses = classNames(
       defaultClasses,
       count === 0 && "mt-0",
-      count === 1 && "mt-[-2.25rem]",
-      count === 2 && "mt-[-4.5rem]",
-      count === 3 && "mt-[-6.75rem]",
-      count === 4 && "mt-[-9rem]",
-      count === 5 && "mt-[-11.25rem]",
+      count === 1 && "-mt-9",
+      count === 2 && "-mt-18",
+      count === 3 && "-mt-27",
+      count === 4 && "-mt-36",
+      count === 5 && "-mt-45",
       count <= 5 && count > 0 && "transition-margin duration-1000"
     );
     setClasses(newClasses);
@@ -103,7 +103,7 @@ export function DashboardSearch(props: {
                   <div className="xl:hidden mt-3 text-neutral-700 font-normal">
                     {props.locales.placeholder.default}
                   </div>
-                  <div className="hidden xl:flex gap-1 mt-[0.75rem]">
+                  <div className="hidden xl:flex gap-1 mt-3">
                     <div className="text-neutral-700 font-normal">
                       {props.locales.placeholder.xl}
                     </div>

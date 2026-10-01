@@ -59,7 +59,7 @@ export function ListContainer(
             htmlFor={`show-more-${listKey}`}
             className="flex gap-2 cursor-pointer w-fit"
           >
-            <div className="group-has-[:checked]:hidden">
+            <div className="group-has-checked:hidden">
               {insertParametersIntoLocale(
                 locales.components.ListContainer.more,
                 {
@@ -67,7 +67,7 @@ export function ListContainer(
                 }
               )}
             </div>
-            <div className="hidden group-has-[:checked]:block">
+            <div className="hidden group-has-checked:block">
               {insertParametersIntoLocale(
                 locales.components.ListContainer.less,
                 {
@@ -75,7 +75,7 @@ export function ListContainer(
                 }
               )}
             </div>
-            <div className="rotate-90 group-has-[:checked]:-rotate-90">
+            <div className="rotate-90 group-has-checked:-rotate-90">
               <Icon type="chevron-right" />
             </div>
           </label>

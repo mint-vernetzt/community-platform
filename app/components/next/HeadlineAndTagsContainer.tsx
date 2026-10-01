@@ -5,9 +5,7 @@
 function HeadlineAndTagsContainer(props: { children: React.ReactNode }) {
   const { children } = props;
 
-  return (
-    <div className="w-full max-w-[800px] flex flex-col gap-2">{children}</div>
-  );
+  return <div className="w-full max-w-200 flex flex-col gap-2">{children}</div>;
 }
 
 export default HeadlineAndTagsContainer;

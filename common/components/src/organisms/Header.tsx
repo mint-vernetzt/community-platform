@@ -37,14 +37,14 @@ function Header(props: HeaderProps) {
 
   return (
     <div className="relative w-full border border-neutral-200 rounded-2xl overflow-hidden bg-white">
-      <div className="relative w-full aspect-[3/2] @md:aspect-[2/1] @lg:aspect-[31/10] bg-attention-400">
+      <div className="relative w-full aspect-3/2 @md:aspect-2/1 @lg:aspect-31/10 bg-attention-400">
         {image || null}
         {status !== undefined && (
           <div className="absolute top-0 inset-x-0">{status}</div>
         )}
         {avatar !== undefined && (
-          <div className="absolute inset-x-0 -bottom-20 @md:-bottom-[124px] flex flex-col items-center">
-            <div className="w-40 @md:w-[248px] aspect-[1]">{avatar}</div>
+          <div className="absolute inset-x-0 -bottom-20 @md:-bottom-31 flex flex-col items-center">
+            <div className="w-40 @md:w-62 aspect-1">{avatar}</div>
           </div>
         )}
         {controls !== undefined && (
@@ -54,7 +54,7 @@ function Header(props: HeaderProps) {
       {body !== undefined && (
         <div
           className={`${
-            avatar !== undefined ? "mt-24 @md:mt-[140px]" : "mt-2 @md:mt-4"
+            avatar !== undefined ? "mt-24 @md:mt-35" : "mt-2 @md:mt-4"
           } mb-2 @md:mb-4`}
         >
           {body}

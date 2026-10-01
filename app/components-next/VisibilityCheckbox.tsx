@@ -24,18 +24,18 @@ export function VisibilityCheckbox(
       />
       <label
         htmlFor={inputProps.id}
-        className="grid grid-cols-1 grid-rows-1 place-items-center py-2 px-[10px] rounded-lg border border-gray-300 hover:bg-neutral-50 focus:bg-neutral-50 active:bg-neutral-100 peer-focus:border-blue-400 peer-focus:ring-2 peer-focus:ring-blue-500 cursor-pointer"
+        className="grid grid-cols-1 grid-rows-1 place-items-center py-2 px-2.5 rounded-lg border border-gray-300 hover:bg-neutral-50 focus:bg-neutral-50 active:bg-neutral-100 peer-focus:border-blue-400 peer-focus:ring-2 peer-focus:ring-blue-500 cursor-pointer"
         title={locales.components.VisibilityCheckbox.ariaLabel}
         aria-label={locales.components.VisibilityCheckbox.ariaLabel}
       >
         {/* Visibility is currently private */}
         <PrivateVisibility
-          className="group-has-[:checked]/visibility:hidden"
+          className="group-has-checked/visibility:hidden"
           aria-hidden="true"
         />
         {/* Visibility is currently public */}
         <PublicVisibility
-          className="hidden group-has-[:checked]/visibility:block"
+          className="hidden group-has-checked/visibility:block"
           aria-hidden="true"
         />
       </label>

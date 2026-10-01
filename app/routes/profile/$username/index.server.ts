@@ -11,9 +11,11 @@ import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
+import { getIsParticipant } from "~/routes/event/$slug/utils.server";
 import { uploadFileToStorage } from "~/storage.server";
 import { FILE_FIELD_NAME } from "~/storage.shared";
 import { triggerEntityScore } from "~/utils.server";
+import { type Event } from "@prisma/client";
 
 export type ProfileDetailLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES
@@ -588,4 +590,68 @@ export async function disconnectImage(options: {
     },
     redirectUrl: redirectUrl.toString(),
   };
+}
+
+// old
+async function getIsOnWaitingList(eventId: string, profileId?: string) {
+  if (profileId === undefined) {
+    return false;
+  }
+  const result = await prismaClient.waitingParticipantOfEvent.findFirst({
+    where: {
+      eventId,
+      profileId,
+    },
+  });
+  return result !== null;
+}
+
+// old
+async function getIsSpeaker(eventId: string, profileId?: string) {
+  if (profileId === undefined) {
+    return false;
+  }
+  const result = await prismaClient.speakerOfEvent.findFirst({
+    where: {
+      eventId,
+      profileId,
+    },
+  });
+  return result !== null;
+}
+
+// old
+async function getIsTeamMember(eventId: string, profileId?: string) {
+  if (profileId === undefined) {
+    return false;
+  }
+  const result = await prismaClient.teamMemberOfEvent.findFirst({
+    where: {
+      eventId,
+      profileId,
+    },
+  });
+  return result !== null;
+}
+
+// old (still referenced on profile detail page (/profile/$username/index.tsx))
+export async function addUserParticipationStatus<
+  T extends {
+    event: Pick<Event, "id">;
+  }[],
+>(events: T, userId?: string) {
+  const result = await Promise.all(
+    events.map(async (item) => {
+      return {
+        event: {
+          ...item.event,
+          isParticipant: await getIsParticipant(item.event.id, userId),
+          isOnWaitingList: await getIsOnWaitingList(item.event.id, userId),
+          isTeamMember: await getIsTeamMember(item.event.id, userId),
+          isSpeaker: await getIsSpeaker(item.event.id, userId),
+        },
+      };
+    })
+  );
+  return result as Array<ArrayElement<T> & ArrayElement<typeof result>>;
 }

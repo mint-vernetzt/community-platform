@@ -64,7 +64,7 @@ function ProjectCard(
         )}
       </Card.Header>
       <Card.Body>
-        <div className="mt-[30px] max-h-10 overflow-hidden">
+        <div className="mt-7.5 max-h-10 overflow-hidden">
           <Heading
             as={as}
             className="text-primary text-base leading-5 font-bold mb-0 line-clamp-2"
