@@ -948,6 +948,9 @@ function AbuseReportModal(props: {
       [key: string]: { description: string };
     };
   };
+  event: {
+    slug: string;
+  };
   reasons: { slug: string; description: string }[];
 }) {
   let modalName = "modal-report";
@@ -991,7 +994,12 @@ function AbuseReportModal(props: {
         <RichText html={props.locales.faq} />
       </Modal.Section>
       <Modal.Section>
-        <Form {...getFormProps(form)} method="post" preventScrollReset>
+        <Form
+          {...getFormProps(form)}
+          action={`/event/${props.event.slug}/detail`}
+          method="post"
+          preventScrollReset
+        >
           <input
             {...getInputProps(fields[INTENT_FIELD_NAME], {
               type: "hidden",
@@ -1138,6 +1146,9 @@ function Edit(props: {
 }
 
 function Login(props: {
+  event: {
+    slug: string;
+  };
   children: React.ReactNode;
   pathname: string;
   searchParam: string;
@@ -1403,6 +1414,7 @@ function Login(props: {
                 <RichText html={props.modal.locales.guestAccess.description} />
                 <Form
                   {...getFormProps(form)}
+                  action={`/event/${props.event.slug}/detail`}
                   method="post"
                   preventScrollReset
                   autoComplete="off"
@@ -1564,14 +1576,23 @@ function Login(props: {
 
 const PARTICIPATE_FORM_ID = "participate-form";
 
-function Participate(props: { children: React.ReactNode; profileId?: string }) {
+function Participate(props: {
+  children: React.ReactNode;
+  profileId?: string;
+  event: { slug: string };
+}) {
   const location = useLocation();
   if (typeof props.profileId === "undefined") {
     return null;
   }
 
   return (
-    <Form id={PARTICIPATE_FORM_ID} method="post" preventScrollReset>
+    <Form
+      id={PARTICIPATE_FORM_ID}
+      action={`/event/${props.event.slug}/detail`}
+      method="post"
+      preventScrollReset
+    >
       <input type="hidden" name="profileId" defaultValue={props.profileId} />
       <input type="hidden" name="redirectTo" value={location.pathname} />
       <Button
@@ -1644,6 +1665,7 @@ function ExternalParticipate(props: {
 function WithdrawParticipation(props: {
   children: React.ReactNode;
   event: {
+    slug: string;
     openForRegistration: boolean;
     afterParticipationPeriod: boolean;
     _count: {
@@ -1676,6 +1698,7 @@ function WithdrawParticipation(props: {
 
   const location = useLocation();
   const [searchParams] = useSearchParams();
+  const navigation = useNavigation();
 
   if (typeof props.profileId === "undefined") {
     return null;
@@ -1715,6 +1738,7 @@ function WithdrawParticipation(props: {
       </Button>
       <Form
         id="withdraw-participation-form"
+        action={`/event/${event.slug}/detail`}
         method="post"
         preventScrollReset
         hidden
@@ -1749,6 +1773,7 @@ function WithdrawParticipation(props: {
           form="withdraw-participation-form"
           name={INTENT_FIELD_NAME}
           value="withdrawParticipation"
+          disabled={navigation.state === "submitting"}
         >
           {locales.confirmationModal.submit}
         </Modal.SubmitButton>
@@ -1756,7 +1781,12 @@ function WithdrawParticipation(props: {
       </Modal>
     </>
   ) : (
-    <Form id="withdraw-participation-form" method="post" preventScrollReset>
+    <Form
+      id="withdraw-participation-form"
+      action={`/event/${event.slug}/detail`}
+      method="post"
+      preventScrollReset
+    >
       <input type="hidden" name="profileId" defaultValue={props.profileId} />
       <input type="hidden" name="redirectTo" value={location.pathname} />
       <Button
@@ -1765,6 +1795,7 @@ function WithdrawParticipation(props: {
         value="withdrawParticipation"
         fullSize
         variant="outline"
+        disabled={navigation.state === "submitting"}
       >
         {props.children}
       </Button>
@@ -1777,6 +1808,7 @@ const JOIN_WAITING_LIST_FORM_ID = "join-waiting-list-form";
 function JoinWaitingList(props: {
   children: React.ReactNode;
   profileId?: string;
+  event: { slug: string };
 }) {
   const location = useLocation();
   if (typeof props.profileId === "undefined") {
@@ -1784,7 +1816,12 @@ function JoinWaitingList(props: {
   }
 
   return (
-    <Form id={JOIN_WAITING_LIST_FORM_ID} method="post" preventScrollReset>
+    <Form
+      id={JOIN_WAITING_LIST_FORM_ID}
+      action={`/event/${props.event.slug}/detail`}
+      method="post"
+      preventScrollReset
+    >
       <input type="hidden" name="profileId" defaultValue={props.profileId} />
       <input type="hidden" name="redirectTo" value={location.pathname} />
       <Button
@@ -1806,6 +1843,7 @@ function LeaveWaitingList(props: {
   profileId?: string;
   event: {
     afterParticipationPeriod: boolean;
+    slug: string;
   };
   locales: {
     confirmationModal: {
@@ -1845,6 +1883,7 @@ function LeaveWaitingList(props: {
       </Button>
       <Form
         id="leave-waiting-list-form"
+        action={`/event/${props.event.slug}/detail`}
         method="post"
         preventScrollReset
         hidden
@@ -1868,7 +1907,12 @@ function LeaveWaitingList(props: {
       </Modal>
     </>
   ) : (
-    <Form id="leave-waiting-list-form" method="post" preventScrollReset>
+    <Form
+      id="leave-waiting-list-form"
+      action={`/event/${props.event.slug}/detail`}
+      method="post"
+      preventScrollReset
+    >
       <input type="hidden" name="profileId" defaultValue={props.profileId} />
       <input type="hidden" name="redirectTo" value={location.pathname} />
       <Button
