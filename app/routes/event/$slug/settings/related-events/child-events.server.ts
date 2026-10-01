@@ -428,11 +428,24 @@ export async function removeChildEvent(options: {
     where: {
       id: childEventId,
       parentEventId: event.id,
-      admins: {
-        some: {
-          profileId: userId,
+      OR: [
+        {
+          admins: {
+            some: {
+              profileId: userId,
+            },
+          },
         },
-      },
+        {
+          parentEvent: {
+            admins: {
+              some: {
+                profileId: userId,
+              },
+            },
+          },
+        },
+      ],
     },
     select: {
       slug: true,
