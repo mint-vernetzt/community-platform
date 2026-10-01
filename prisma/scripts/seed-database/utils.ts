@@ -252,160 +252,66 @@ export async function uploadImageBucketData(
   let extension;
   let mimeType;
 
-  console.log("\n--- Fetching images from @faker-js/faker image api ---\n");
+  console.log(
+    "\n--- Using default image default-event-background for all image types ---\n"
+  );
 
-  try {
-    for (const imageType in bucketData) {
-      for (let i = 1; i <= numberOfImages; i++) {
-        const imgUrl = getImageUrl(imageType as ImageType);
-        const response = await fetch(imgUrl);
-        if (response.status !== 200) {
-          console.error(
-            `\n!!!\nUnable to fetch image from ${imgUrl}. Received status code ${response.status}: ${response.statusText}\n!!!\n`
-          );
-          continue;
-        }
-        const arrayBuffer = await (await response.blob()).arrayBuffer();
-        const fileTypeResult = await fileTypeFromBuffer(arrayBuffer);
+  for (const imageType in bucketData) {
+    for (let i = 1; i <= numberOfImages; i++) {
+      try {
+        // TODO: Refactor using different image depending on entity and image type
+        const data = await fs.readFile(
+          "./app/assets/default-event-background.jpg"
+        );
+        const fileTypeResult = await fileTypeFromBuffer(data);
         if (fileTypeResult === undefined) {
           console.error(
             "The MIME-type could not be read. The file was left out."
           );
-          continue;
-        }
-        if (!fileTypeResult.mime.includes("image/")) {
+        } else if (!fileTypeResult.mime.includes("image/")) {
           console.error(
             "The file is not an image as it does not have an image/* MIME-Type. The file was left out."
           );
-          continue;
-        }
-        extension = fileTypeResult.ext;
-        mimeType = fileTypeResult.mime;
-        const hash = await createHashFromString(
-          Buffer.from(arrayBuffer).toString()
-        );
-        const path = generatePathName(hash, extension);
-        const { error: uploadObjectError } = await authClient.storage
-          .from("images")
-          .upload(path, arrayBuffer, {
-            upsert: true,
-            contentType: mimeType,
-          });
-        if (uploadObjectError) {
-          console.error(
-            "The image could not be uploaded and was left out. Following error occured:",
-            uploadObjectError
-          );
-          continue;
-        }
-        bucketData[imageType as ImageType].push({
-          path: path,
-          filename: `faker-image-${i}.${extension}`,
-          mimeType: mimeType,
-          sizeInMB: arrayBuffer.byteLength / 1_000_000,
-          extension: extension,
-        });
-        console.log(
-          `Successfully fetched image from ${imgUrl} and added it to bucket images.`
-        );
-      }
-    }
-  } catch (e) {
-    console.log(e);
-    console.error(
-      "\nCould not fetch images from pravatar.cc. Continueing with one fallback image.\n"
-    );
-    if (
-      typeof e === "object" &&
-      e !== null &&
-      "cause" in e &&
-      typeof e.cause === "object" &&
-      e.cause !== null &&
-      "code" in e.cause &&
-      e.cause.code === "ENOTFOUND"
-    ) {
-      console.error(
-        "Either you have no internet connection or the faker image server is down. Skipped fetching and uploading images to bucket."
-      );
-    }
-    try {
-      const data = await fs.readFile(
-        "./app/assets/default-event-background.jpg"
-      );
-      const fileTypeResult = await fileTypeFromBuffer(data);
-      if (fileTypeResult === undefined) {
-        console.error(
-          "The MIME-type could not be read. The file was left out."
-        );
-      } else if (!fileTypeResult.mime.includes("image/")) {
-        console.error(
-          "The file is not an image as it does not have an image/* MIME-Type. The file was left out."
-        );
-      } else {
-        extension = fileTypeResult.ext;
-        mimeType = fileTypeResult.mime;
-        const hash = await createHashFromString(data.toString());
-        for (const imageType in bucketData) {
-          const path = generatePathName(hash, extension);
-          const { error: uploadObjectError } = await authClient.storage
-            .from("images")
-            .upload(path, data, {
-              upsert: true,
-              contentType: mimeType,
+        } else {
+          extension = fileTypeResult.ext;
+          mimeType = fileTypeResult.mime;
+          const hash = await createHashFromString(data.toString());
+          for (const imageType in bucketData) {
+            const path = generatePathName(hash, extension);
+            const { error: uploadObjectError } = await authClient.storage
+              .from("images")
+              .upload(path, data, {
+                upsert: true,
+                contentType: mimeType,
+              });
+            if (uploadObjectError) {
+              console.error(
+                "The image could not be uploaded and was left out. Following error occured:",
+                uploadObjectError
+              );
+            }
+            bucketData[imageType as ImageType].push({
+              path: path,
+              filename: `fallback-${imageType}.${extension}`,
+              mimeType: mimeType,
+              sizeInMB: data.byteLength / 1_000_000,
+              extension: extension,
             });
-          if (uploadObjectError) {
-            console.error(
-              "The image could not be uploaded and was left out. Following error occured:",
-              uploadObjectError
+            console.log(
+              `Successfully added fallback ${imageType} to bucket images.`
             );
           }
-          bucketData[imageType as ImageType].push({
-            path: path,
-            filename: `fallback-${imageType}.${extension}`,
-            mimeType: mimeType,
-            sizeInMB: data.byteLength / 1_000_000,
-            extension: extension,
-          });
-          console.log(
-            `Successfully added fallback ${imageType} to bucket images.`
-          );
         }
+      } catch (err) {
+        console.error(
+          "\nCould not upload the fallback image. Seeding canceled, as some entities require an image.\n"
+        );
+        console.error(err);
+        throw err;
       }
-    } catch (err) {
-      console.error(
-        "\nCould not upload the fallback image. Seeding canceled, as some entities require an image.\n"
-      );
-      console.error(err);
-      throw err;
     }
   }
   return bucketData;
-}
-
-function getImageUrl(imageType?: ImageType) {
-  if (imageType === "avatars") {
-    return faker.image.avatar();
-  }
-  if (imageType === "logos") {
-    return faker.image.urlLoremFlickr({
-      category: "abstract",
-      width: 248,
-      height: 248,
-    });
-    // TODO: logoIpsum (svg validation)
-    // return `https://img.logoipsum.com/2${faker.number.int({
-    //   min: 11,
-    //   max: 95,
-    // })}.svg`;
-  }
-  if (imageType === "backgrounds") {
-    return faker.image.urlLoremFlickr({
-      category: "nature",
-      width: 1488,
-      height: 480,
-    });
-  }
-  return faker.image.url();
 }
 
 export async function uploadDocumentBucketData(
@@ -572,11 +478,17 @@ export async function seedAllEntities(
   for (let i = 0; i < numberOfStandardEntities; i++) {
     const randomAvatarIndex = faker.number.int({
       min: 0,
-      max: imageBucketData.avatars.length - 1,
+      max:
+        imageBucketData.avatars.length > 0
+          ? imageBucketData.avatars.length - 1
+          : 0,
     });
     const randomBackgroundIndex = faker.number.int({
       min: 0,
-      max: imageBucketData.backgrounds.length - 1,
+      max:
+        imageBucketData.backgrounds.length > 0
+          ? imageBucketData.backgrounds.length - 1
+          : 0,
     });
     const standardProfile = getEntityData<"profile">(
       "profile",
@@ -614,11 +526,15 @@ export async function seedAllEntities(
   for (let i = 0; i < numberOfStandardEntities; i++) {
     const randomLogoIndex = faker.number.int({
       min: 0,
-      max: imageBucketData.logos.length - 1,
+      max:
+        imageBucketData.logos.length > 0 ? imageBucketData.logos.length - 1 : 0,
     });
     const randomBackgroundIndex = faker.number.int({
       min: 0,
-      max: imageBucketData.backgrounds.length - 1,
+      max:
+        imageBucketData.backgrounds.length > 0
+          ? imageBucketData.backgrounds.length - 1
+          : 0,
     });
     const standardOrganization = getEntityData<"organization">(
       "organization",
@@ -704,7 +620,10 @@ export async function seedAllEntities(
             documentBucketData.documents[
               faker.number.int({
                 min: 0,
-                max: documentBucketData.documents.length - 1,
+                max:
+                  documentBucketData.documents.length > 0
+                    ? documentBucketData.documents.length - 1
+                    : 0,
               })
             ],
         },
@@ -732,7 +651,10 @@ export async function seedAllEntities(
     for (let i = 0; i < numberOfStandardEntities; i++) {
       const randomLogoIndex = faker.number.int({
         min: 0,
-        max: imageBucketData.logos.length - 1,
+        max:
+          imageBucketData.logos.length > 0
+            ? imageBucketData.logos.length - 1
+            : 0,
       });
       const standardAward = getEntityData<"award">(
         "award",
@@ -773,7 +695,10 @@ export async function seedAllEntities(
   for (let i = 0; i < numberOfEventsPerStructure; i++) {
     const randomBackgroundIndex = faker.number.int({
       min: 0,
-      max: imageBucketData.backgrounds.length - 1,
+      max:
+        imageBucketData.backgrounds.length > 0
+          ? imageBucketData.backgrounds.length - 1
+          : 0,
     });
     const standardEvent = getEntityData<"event">(
       "event",
@@ -889,11 +814,15 @@ export async function seedAllEntities(
   for (let i = 0; i < numberOfStandardEntities; i++) {
     const randomLogoIndex = faker.number.int({
       min: 0,
-      max: imageBucketData.logos.length - 1,
+      max:
+        imageBucketData.logos.length > 0 ? imageBucketData.logos.length - 1 : 0,
     });
     const randomBackgroundIndex = faker.number.int({
       min: 0,
-      max: imageBucketData.backgrounds.length - 1,
+      max:
+        imageBucketData.backgrounds.length > 0
+          ? imageBucketData.backgrounds.length - 1
+          : 0,
     });
     const standardProject = getEntityData<"project">(
       "project",
@@ -967,7 +896,10 @@ export async function seedAllEntities(
           ? imageBucketData.avatars[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.avatars.length - 1,
+                max:
+                  imageBucketData.avatars.length > 0
+                    ? imageBucketData.avatars.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -976,7 +908,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1008,7 +943,10 @@ export async function seedAllEntities(
           ? imageBucketData.avatars[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.avatars.length - 1,
+                max:
+                  imageBucketData.avatars.length > 0
+                    ? imageBucketData.avatars.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1017,7 +955,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1057,7 +998,10 @@ export async function seedAllEntities(
           ? imageBucketData.avatars[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.avatars.length - 1,
+                max:
+                  imageBucketData.avatars.length > 0
+                    ? imageBucketData.avatars.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1066,7 +1010,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1128,7 +1075,10 @@ export async function seedAllEntities(
           ? imageBucketData.avatars[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.avatars.length - 1,
+                max:
+                  imageBucketData.avatars.length > 0
+                    ? imageBucketData.avatars.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1137,7 +1087,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1181,7 +1134,10 @@ export async function seedAllEntities(
           ? imageBucketData.avatars[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.avatars.length - 1,
+                max:
+                  imageBucketData.avatars.length > 0
+                    ? imageBucketData.avatars.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1190,7 +1146,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1254,7 +1213,10 @@ export async function seedAllEntities(
           ? imageBucketData.avatars[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.avatars.length - 1,
+                max:
+                  imageBucketData.avatars.length > 0
+                    ? imageBucketData.avatars.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1263,7 +1225,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1322,7 +1287,10 @@ export async function seedAllEntities(
             ? imageBucketData.logos[
                 faker.number.int({
                   min: 0,
-                  max: imageBucketData.logos.length - 1,
+                  max:
+                    imageBucketData.logos.length > 0
+                      ? imageBucketData.logos.length - 1
+                      : 0,
                 })
               ]
             : undefined,
@@ -1331,7 +1299,10 @@ export async function seedAllEntities(
             ? imageBucketData.backgrounds[
                 faker.number.int({
                   min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
+                  max:
+                    imageBucketData.backgrounds.length > 0
+                      ? imageBucketData.backgrounds.length - 1
+                      : 0,
                 })
               ]
             : undefined,
@@ -1392,7 +1363,10 @@ export async function seedAllEntities(
           ? imageBucketData.logos[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.logos.length - 1,
+                max:
+                  imageBucketData.logos.length > 0
+                    ? imageBucketData.logos.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1401,7 +1375,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1460,7 +1437,10 @@ export async function seedAllEntities(
           ? imageBucketData.avatars[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.avatars.length - 1,
+                max:
+                  imageBucketData.avatars.length > 0
+                    ? imageBucketData.avatars.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1469,7 +1449,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1550,7 +1533,10 @@ export async function seedAllEntities(
           ? imageBucketData.avatars[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.avatars.length - 1,
+                max:
+                  imageBucketData.avatars.length > 0
+                    ? imageBucketData.avatars.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1559,7 +1545,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1599,7 +1588,10 @@ export async function seedAllEntities(
           ? imageBucketData.avatars[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.avatars.length - 1,
+                max:
+                  imageBucketData.avatars.length > 0
+                    ? imageBucketData.avatars.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1608,7 +1600,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1721,7 +1716,10 @@ export async function seedAllEntities(
           ? imageBucketData.logos[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.logos.length - 1,
+                max:
+                  imageBucketData.logos.length > 0
+                    ? imageBucketData.logos.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1730,7 +1728,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1791,7 +1792,10 @@ export async function seedAllEntities(
           ? imageBucketData.logos[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.logos.length - 1,
+                max:
+                  imageBucketData.logos.length > 0
+                    ? imageBucketData.logos.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1800,7 +1804,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1861,7 +1868,10 @@ export async function seedAllEntities(
           ? imageBucketData.logos[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.logos.length - 1,
+                max:
+                  imageBucketData.logos.length > 0
+                    ? imageBucketData.logos.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1870,7 +1880,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1967,7 +1980,10 @@ export async function seedAllEntities(
           ? imageBucketData.logos[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.logos.length - 1,
+                max:
+                  imageBucketData.logos.length > 0
+                    ? imageBucketData.logos.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -1976,7 +1992,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -2037,7 +2056,10 @@ export async function seedAllEntities(
           ? imageBucketData.logos[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.logos.length - 1,
+                max:
+                  imageBucketData.logos.length > 0
+                    ? imageBucketData.logos.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -2046,7 +2068,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -2107,7 +2132,10 @@ export async function seedAllEntities(
           ? imageBucketData.logos[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.logos.length - 1,
+                max:
+                  imageBucketData.logos.length > 0
+                    ? imageBucketData.logos.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -2116,7 +2144,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -2177,7 +2208,10 @@ export async function seedAllEntities(
           ? imageBucketData.logos[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.logos.length - 1,
+                max:
+                  imageBucketData.logos.length > 0
+                    ? imageBucketData.logos.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -2186,7 +2220,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -2257,7 +2294,10 @@ export async function seedAllEntities(
           ? imageBucketData.logos[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.logos.length - 1,
+                max:
+                  imageBucketData.logos.length > 0
+                    ? imageBucketData.logos.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -2266,7 +2306,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -2337,7 +2380,10 @@ export async function seedAllEntities(
           ? imageBucketData.logos[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.logos.length - 1,
+                max:
+                  imageBucketData.logos.length > 0
+                    ? imageBucketData.logos.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -2346,7 +2392,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -2408,7 +2457,10 @@ export async function seedAllEntities(
           documentBucketData.documents[
             faker.number.int({
               min: 0,
-              max: documentBucketData.documents.length - 1,
+              max:
+                documentBucketData.documents.length > 0
+                  ? documentBucketData.documents.length - 1
+                  : 0,
             })
           ],
       },
@@ -2443,7 +2495,10 @@ export async function seedAllEntities(
             ? imageBucketData.backgrounds[
                 faker.number.int({
                   min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
+                  max:
+                    imageBucketData.backgrounds.length > 0
+                      ? imageBucketData.backgrounds.length - 1
+                      : 0,
                 })
               ]
             : undefined,
@@ -2596,7 +2651,10 @@ export async function seedAllEntities(
           ? imageBucketData.logos[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.logos.length - 1,
+                max:
+                  imageBucketData.logos.length > 0
+                    ? imageBucketData.logos.length - 1
+                    : 0,
               })
             ]
           : {
@@ -2630,7 +2688,10 @@ export async function seedAllEntities(
           ? imageBucketData.logos[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.logos.length - 1,
+                max:
+                  imageBucketData.logos.length > 0
+                    ? imageBucketData.logos.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -2639,7 +2700,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -2722,7 +2786,10 @@ export async function seedAllEntities(
           ? imageBucketData.logos[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.logos.length - 1,
+                max:
+                  imageBucketData.logos.length > 0
+                    ? imageBucketData.logos.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -2731,7 +2798,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -2836,7 +2906,10 @@ export async function seedAllEntities(
             ? imageBucketData.backgrounds[
                 faker.number.int({
                   min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
+                  max:
+                    imageBucketData.backgrounds.length > 0
+                      ? imageBucketData.backgrounds.length - 1
+                      : 0,
                 })
               ]
             : undefined,
@@ -2976,7 +3049,10 @@ export async function seedAllEntities(
             ? imageBucketData.backgrounds[
                 faker.number.int({
                   min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
+                  max:
+                    imageBucketData.backgrounds.length > 0
+                      ? imageBucketData.backgrounds.length - 1
+                      : 0,
                 })
               ]
             : undefined,
@@ -3143,7 +3219,10 @@ export async function seedAllEntities(
             ? imageBucketData.backgrounds[
                 faker.number.int({
                   min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
+                  max:
+                    imageBucketData.backgrounds.length > 0
+                      ? imageBucketData.backgrounds.length - 1
+                      : 0,
                 })
               ]
             : undefined,
@@ -3309,7 +3388,10 @@ export async function seedAllEntities(
           documentBucketData.documents[
             faker.number.int({
               min: 0,
-              max: documentBucketData.documents.length - 1,
+              max:
+                documentBucketData.documents.length > 0
+                  ? documentBucketData.documents.length - 1
+                  : 0,
             })
           ],
       },
@@ -3398,7 +3480,10 @@ export async function seedAllEntities(
           documentBucketData.documents[
             faker.number.int({
               min: 0,
-              max: documentBucketData.documents.length - 1,
+              max:
+                documentBucketData.documents.length > 0
+                  ? documentBucketData.documents.length - 1
+                  : 0,
             })
           ],
       },
@@ -3433,7 +3518,10 @@ export async function seedAllEntities(
             ? imageBucketData.backgrounds[
                 faker.number.int({
                   min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
+                  max:
+                    imageBucketData.backgrounds.length > 0
+                      ? imageBucketData.backgrounds.length - 1
+                      : 0,
                 })
               ]
             : undefined,
@@ -3580,7 +3668,10 @@ export async function seedAllEntities(
             ? imageBucketData.backgrounds[
                 faker.number.int({
                   min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
+                  max:
+                    imageBucketData.backgrounds.length > 0
+                      ? imageBucketData.backgrounds.length - 1
+                      : 0,
                 })
               ]
             : undefined,
@@ -3715,7 +3806,10 @@ export async function seedAllEntities(
             ? imageBucketData.backgrounds[
                 faker.number.int({
                   min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
+                  max:
+                    imageBucketData.backgrounds.length > 0
+                      ? imageBucketData.backgrounds.length - 1
+                      : 0,
                 })
               ]
             : undefined,
@@ -3855,7 +3949,10 @@ export async function seedAllEntities(
             ? imageBucketData.backgrounds[
                 faker.number.int({
                   min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
+                  max:
+                    imageBucketData.backgrounds.length > 0
+                      ? imageBucketData.backgrounds.length - 1
+                      : 0,
                 })
               ]
             : undefined,
@@ -3966,7 +4063,10 @@ export async function seedAllEntities(
             ? imageBucketData.backgrounds[
                 faker.number.int({
                   min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
+                  max:
+                    imageBucketData.backgrounds.length > 0
+                      ? imageBucketData.backgrounds.length - 1
+                      : 0,
                 })
               ]
             : undefined,
@@ -4077,7 +4177,10 @@ export async function seedAllEntities(
             ? imageBucketData.backgrounds[
                 faker.number.int({
                   min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
+                  max:
+                    imageBucketData.backgrounds.length > 0
+                      ? imageBucketData.backgrounds.length - 1
+                      : 0,
                 })
               ]
             : undefined,
@@ -4178,7 +4281,10 @@ export async function seedAllEntities(
             ? imageBucketData.backgrounds[
                 faker.number.int({
                   min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
+                  max:
+                    imageBucketData.backgrounds.length > 0
+                      ? imageBucketData.backgrounds.length - 1
+                      : 0,
                 })
               ]
             : undefined,
@@ -4315,7 +4421,10 @@ export async function seedAllEntities(
             ? imageBucketData.backgrounds[
                 faker.number.int({
                   min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
+                  max:
+                    imageBucketData.backgrounds.length > 0
+                      ? imageBucketData.backgrounds.length - 1
+                      : 0,
                 })
               ]
             : undefined,
@@ -4417,7 +4526,10 @@ export async function seedAllEntities(
             ? imageBucketData.backgrounds[
                 faker.number.int({
                   min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
+                  max:
+                    imageBucketData.backgrounds.length > 0
+                      ? imageBucketData.backgrounds.length - 1
+                      : 0,
                 })
               ]
             : undefined,
@@ -4533,7 +4645,10 @@ export async function seedAllEntities(
             ? imageBucketData.backgrounds[
                 faker.number.int({
                   min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
+                  max:
+                    imageBucketData.backgrounds.length > 0
+                      ? imageBucketData.backgrounds.length - 1
+                      : 0,
                 })
               ]
             : undefined,
@@ -4670,7 +4785,10 @@ export async function seedAllEntities(
             ? imageBucketData.backgrounds[
                 faker.number.int({
                   min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
+                  max:
+                    imageBucketData.backgrounds.length > 0
+                      ? imageBucketData.backgrounds.length - 1
+                      : 0,
                 })
               ]
             : undefined,
@@ -4795,7 +4913,10 @@ export async function seedAllEntities(
           documentBucketData.documents[
             faker.number.int({
               min: 0,
-              max: documentBucketData.documents.length - 1,
+              max:
+                documentBucketData.documents.length > 0
+                  ? documentBucketData.documents.length - 1
+                  : 0,
             })
           ],
       },
@@ -4830,7 +4951,10 @@ export async function seedAllEntities(
             ? imageBucketData.backgrounds[
                 faker.number.int({
                   min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
+                  max:
+                    imageBucketData.backgrounds.length > 0
+                      ? imageBucketData.backgrounds.length - 1
+                      : 0,
                 })
               ]
             : undefined,
@@ -4970,7 +5094,10 @@ export async function seedAllEntities(
           ? imageBucketData.logos[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.logos.length - 1,
+                max:
+                  imageBucketData.logos.length > 0
+                    ? imageBucketData.logos.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -4979,7 +5106,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -5052,7 +5182,10 @@ export async function seedAllEntities(
           ? imageBucketData.logos[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.logos.length - 1,
+                max:
+                  imageBucketData.logos.length > 0
+                    ? imageBucketData.logos.length - 1
+                    : 0,
               })
             ]
           : {
@@ -5144,7 +5277,10 @@ export async function seedAllEntities(
           ? imageBucketData.logos[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.logos.length - 1,
+                max:
+                  imageBucketData.logos.length > 0
+                    ? imageBucketData.logos.length - 1
+                    : 0,
               })
             ]
           : {
@@ -5180,7 +5316,10 @@ export async function seedAllEntities(
           ? imageBucketData.logos[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.logos.length - 1,
+                max:
+                  imageBucketData.logos.length > 0
+                    ? imageBucketData.logos.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -5189,7 +5328,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -5274,7 +5416,10 @@ export async function seedAllEntities(
           ? imageBucketData.logos[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.logos.length - 1,
+                max:
+                  imageBucketData.logos.length > 0
+                    ? imageBucketData.logos.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -5283,7 +5428,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -5370,7 +5518,10 @@ export async function seedAllEntities(
           ? imageBucketData.logos[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.logos.length - 1,
+                max:
+                  imageBucketData.logos.length > 0
+                    ? imageBucketData.logos.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -5379,7 +5530,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -5443,7 +5597,10 @@ export async function seedAllEntities(
           ? imageBucketData.logos[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.logos.length - 1,
+                max:
+                  imageBucketData.logos.length > 0
+                    ? imageBucketData.logos.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -5452,7 +5609,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -5522,7 +5682,10 @@ export async function seedAllEntities(
           ? imageBucketData.logos[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.logos.length - 1,
+                max:
+                  imageBucketData.logos.length > 0
+                    ? imageBucketData.logos.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -5531,7 +5694,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -5605,7 +5771,10 @@ export async function seedAllEntities(
           ? imageBucketData.logos[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.logos.length - 1,
+                max:
+                  imageBucketData.logos.length > 0
+                    ? imageBucketData.logos.length - 1
+                    : 0,
               })
             ]
           : {
@@ -5639,7 +5808,10 @@ export async function seedAllEntities(
           ? imageBucketData.logos[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.logos.length - 1,
+                max:
+                  imageBucketData.logos.length > 0
+                    ? imageBucketData.logos.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -5648,7 +5820,10 @@ export async function seedAllEntities(
           ? imageBucketData.backgrounds[
               faker.number.int({
                 min: 0,
-                max: imageBucketData.backgrounds.length - 1,
+                max:
+                  imageBucketData.backgrounds.length > 0
+                    ? imageBucketData.backgrounds.length - 1
+                    : 0,
               })
             ]
           : undefined,
@@ -7124,15 +7299,7 @@ function generatePhone<
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // profile, organization, project
   let phone;
-  // With the new faker version locale can only be set via the constructor
-  // faker.locale = "de";
-  const tempGermanFaker = new Faker({
-    locale: {
-      phone_number: {
-        formats: ["####-########", "(###)#######", "####/######", "#########"],
-      },
-    },
-  });
+
   if (
     entityType === "profile" ||
     entityType === "organization" ||
@@ -7145,11 +7312,9 @@ function generatePhone<
     } else if (entityStructure === "Largest") {
       phone = "0123456/7891011121314151617181920";
     } else {
-      phone = tempGermanFaker.phone.number();
+      phone = faker.phone.number();
     }
   }
-  // See comment above
-  // faker.locale = "en";
   return phone;
 }
 

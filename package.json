@@ -75,7 +75,7 @@
   },
   "devDependencies": {
     "@epic-web/config": "^1.21.3",
-    "@faker-js/faker": "^8.3.1",
+    "@faker-js/faker": "^10.6.0",
     "@react-router/dev": "^7.18.0",
     "@sentry/vite-plugin": "^3.4.0",
     "@tailwindcss/vite": "^4.1.18",
