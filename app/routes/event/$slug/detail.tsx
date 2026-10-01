@@ -1042,6 +1042,7 @@ function Detail() {
                     loaderData.locales.eventAbuseReportReasonSuggestions,
                 }}
                 reasons={loaderData.abuseReportReasons}
+                event={loaderData.event}
               />
               {loaderData.mode === "administrating" && (
                 <EventsOverview.Edit
@@ -1062,6 +1063,7 @@ function Detail() {
                     locales: loaderData.locales.route.content.anonModal,
                   }}
                   actionData={actionData}
+                  event={loaderData.event}
                 >
                   {loaderData.locales.route.content.login}
                 </EventsOverview.Login>
@@ -1077,7 +1079,10 @@ function Detail() {
                 </EventsOverview.ExternalParticipate>
               )}
               {loaderData.mode === "canParticipate" && (
-                <EventsOverview.Participate profileId={loaderData.profileId}>
+                <EventsOverview.Participate
+                  profileId={loaderData.profileId}
+                  event={loaderData.event}
+                >
                   {loaderData.locales.route.content.participate}
                 </EventsOverview.Participate>
               )}
@@ -1100,6 +1105,7 @@ function Detail() {
               {loaderData.mode === "canWait" && (
                 <EventsOverview.JoinWaitingList
                   profileId={loaderData.profileId}
+                  event={loaderData.event}
                 >
                   {loaderData.locales.route.content.joinWaitingList}
                 </EventsOverview.JoinWaitingList>
@@ -1108,6 +1114,7 @@ function Detail() {
                 <EventsOverview.LeaveWaitingList
                   profileId={loaderData.profileId}
                   event={{
+                    ...loaderData.event,
                     afterParticipationPeriod:
                       loaderData.afterParticipationPeriod,
                   }}
