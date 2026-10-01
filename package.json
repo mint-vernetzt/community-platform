@@ -39,7 +39,6 @@
     "@react-router/node": "^7.18.0",
     "@react-router/serve": "^7.18.0",
     "@sentry/node": "^11.2.0",
-    "@sentry/profiling-node": "^11.2.0",
     "@sentry/react": "^11.2.0",
     "@supabase/ssr": "^0.12.5",
     "@supabase/supabase-js": "^2.112.4",
@@ -131,5 +130,13 @@
     "remix-utils": {
       "react-router": "$react-router"
     }
+  },
+  "allowScripts": {
+    "@prisma/client@5.22.0": true,
+    "@prisma/engines@5.22.0": true,
+    "@sentry/cli@2.58.6": true,
+    "esbuild@0.28.2": true,
+    "prisma@5.22.0": true,
+    "unrs-resolver@1.12.2": true
   }
 }
