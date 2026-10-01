@@ -174,9 +174,13 @@ export const locale = {
     registrationAndParticipationInEvents: {
       title: "3. Registration and Participation in Events",
       description: [
-        "In the context of registration and participation in in-person, online, or hybrid events, personal data of the participating users, such as contact details, is processed, and participation is displayed on the users' profiles.",
+        'You have the opportunity on the platform to create in-person, online, or hybrid events (collectively: "events"), to track participation in events, and to participate in events. As part of the registration via the profile, personal data of the participating users is processed, and participation is displayed on the users\' profiles.',
+        "Registration for events can also take place without creating a profile. If you want to register for an event without creating a profile, you must provide your first and last name and an email address as mandatory information. In addition, you can voluntarily indicate which organization you belong to. You will receive all important information about the event via the provided email address.",
+        "To ensure the best possible networking before, during, and after an event, members of the platform can see in your profile which events you have participated in or will participate in. However, you can delete the entries from your profile using the corresponding edit function.",
+        "In the case of online or hybrid events, an online service (e.g., Zoom) is used to provide video conferencing functionalities. During the event, participants can interact with each other via the tool Mural.",
         "Events are partly offered by us alone, partly in cooperation with organizations, or solely by organizations. In the latter case, we only record participation independently in order to display it on users' profiles.",
         "In the case of online or hybrid events, the service Zoom is used to provide video conferencing functionalities. During the event, participants can interact with each other via the tool Mural.",
+        "The platform enables organizers to manage their events in a decentralized manner. To this end, we provide the respective organizers with a function to export participant data (first name, last name, and email address) as a CSV file. Once the data is exported, it leaves the immediate technical control of the platform. The organizers process this data independently.",
       ],
       purposes: {
         title: "Purpose(s)",
@@ -186,10 +190,10 @@ export const locale = {
       legalBasis: {
         title: "Legal Basis",
         description:
-          "The processing of data is carried out pursuant to Art. 6 para. 1 sentence 1 lit. f GDPR, as we have a legitimate interest in facilitating events. Where these are our own events, we base the data processing on Art. 6 para. 1 sentence 1 lit. b GDPR, insofar as the processing is necessary for the performance of the contract.",
+          "The processing of data is carried out pursuant to Art. 6 para. 1 sentence 1 lit. f GDPR. Our legitimate interests lie in facilitating networking opportunities for participants, speakers, and organizers on the one hand and in the proper conduct of the respective event and, in particular, appropriate participant management on the other hand. The provision of information is necessary to organize and participate in events on the platform as described above. If these are our own events, we base the data processing on Art. 6 para. 1 sentence 1 lit. b GDPR, insofar as the processing is necessary for the performance of the contract.",
       },
       dataRecipients: {
-        title: "Recipients",
+        title: "Additional Recipients",
         description: [
           "Recipients of personal data are Zoom Video Communications, Inc., 55 Almaden Blvd, 6th Floor, San Jose, CA 95113, USA, for the provision of video conferencing services at online or hybrid events, and Tactivos, Inc. (Mural), 655 Montgomery St, San Francisco, CA 94111, USA, for the provision of interaction capabilities during events.",
           "Where we offer events jointly with another organization, we process the data arising in this context under joint controllership pursuant to Art. 26 GDPR. We are responsible for fulfilling the information obligations and data subject rights. You can assert your rights at any time against the organizations and against us.",
