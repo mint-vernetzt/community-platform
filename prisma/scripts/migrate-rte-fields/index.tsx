@@ -22,6 +22,8 @@ import { HorizontalRuleNode } from "@lexical/extension";
 import { OverflowNode } from "@lexical/overflow";
 import { sanitizeUserHtml } from "~/utils.server";
 
+// TODO: Always test this script before using it on prod. JSDOM environment may behave differently than the browser and lexical RTE also may have inconsistent behaviour when changing its functionality.
+
 // Get the current file path
 const __filename = fileURLToPath(import.meta.url);
 // Get the current directory path
