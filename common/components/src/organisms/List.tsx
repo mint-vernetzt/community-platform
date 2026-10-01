@@ -251,7 +251,7 @@ function ListItem(
     <li className={listItemClasses}>
       <Link {...as.props}>
         {typeof preview !== "undefined" && (
-          <div className="w-[138px] h-[92px]">{preview}</div>
+          <div className="w-34.5 h-23">{preview}</div>
         )}
         {typeof avatar === "undefined" &&
         typeof info === "undefined" &&
@@ -274,7 +274,7 @@ function ListItem(
   ) : (
     <li className={listItemClasses}>
       {typeof preview !== "undefined" && (
-        <div className="w-[138px] h-[92px]">{preview}</div>
+        <div className="w-34.5 h-23">{preview}</div>
       )}
       {typeof avatar === "undefined" &&
       typeof info === "undefined" &&

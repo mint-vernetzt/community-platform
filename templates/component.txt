@@ -1,4 +1,6 @@
-type {{componentName}}Props = React.PropsWithChildren & {
+import { PropsWithChildren } from "react"
+
+type {{componentName}}Props = PropsWithChildren & {
   // Additional props
 };
 

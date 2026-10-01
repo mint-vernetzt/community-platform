@@ -1,15 +1,11 @@
-import { format } from "date-fns";
 import {
   type AnyObject,
-  type Asserts,
   type InferType,
   type ObjectSchema,
   type StringSchema,
-  type TestContext,
   ValidationError,
   string,
 } from "yup";
-import { invariantResponse } from "./response";
 import { removeHtmlTags, replaceHtmlEntities } from "./transformHtml";
 
 type Error = {
@@ -146,105 +142,6 @@ export function multiline(maxLength: number) {
     });
 }
 
-export function greaterThanTimeOnSameDate(
-  referenceTime: string,
-  greaterTime: string,
-  referenceStartDate: string,
-  referenceEndDate: string,
-  requiredMessage: string,
-  greaterThanReferenceTimeMessage: string
-) {
-  return string()
-    .trim()
-    .transform((value) => {
-      if (/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)) {
-        return value;
-      }
-      return undefined;
-    })
-    .required(requiredMessage)
-    .test(
-      "greaterThanReferenceTimeOnSameDate",
-      greaterThanReferenceTimeMessage,
-      (value: string | null | undefined, testContext: TestContext) => {
-        if (
-          testContext.parent[referenceTime] &&
-          testContext.parent[greaterTime] &&
-          testContext.parent[referenceEndDate] &&
-          testContext.parent[referenceStartDate]
-        ) {
-          const greaterTimeArray = testContext.parent[greaterTime].split(":");
-          const greaterTimeHours = parseInt(greaterTimeArray[0]);
-          const greaterTimeMinutes = parseInt(greaterTimeArray[1]);
-          const referenceTimeArray =
-            testContext.parent[referenceTime].split(":");
-          const referenceTimeHours = parseInt(referenceTimeArray[0]);
-          const referenceTimeMinutes = parseInt(referenceTimeArray[1]);
-          const referenceStartDateObject = new Date(
-            testContext.parent[referenceStartDate]
-          );
-          const referenceEndDateObject = new Date(
-            testContext.parent[referenceEndDate]
-          );
-          if (
-            referenceStartDateObject.getFullYear() ===
-              referenceEndDateObject.getFullYear() &&
-            referenceStartDateObject.getMonth() ===
-              referenceEndDateObject.getMonth() &&
-            referenceStartDateObject.getDate() ===
-              referenceEndDateObject.getDate()
-          ) {
-            if (referenceTimeHours === greaterTimeHours) {
-              return referenceTimeMinutes > greaterTimeMinutes;
-            } else {
-              return referenceTimeHours > greaterTimeHours;
-            }
-          } else {
-            return true;
-          }
-        } else {
-          return true;
-        }
-      }
-    );
-}
-
-export function greaterThanDate(
-  referenceDate: string,
-  greaterDate: string,
-  requiredMessage: string,
-  greaterThanReferenceDateMessage: string
-) {
-  return string()
-    .trim()
-    .transform((value: string | undefined) => {
-      if (typeof value !== "string") {
-        return undefined;
-      }
-      const trimmedValue = value.trim();
-      const date = new Date(trimmedValue);
-      return format(date, "yyyy-MM-dd");
-    })
-    .required(requiredMessage)
-    .test(
-      "greaterThanReferenceTimeOnSameDate",
-      greaterThanReferenceDateMessage,
-      (value: string | null | undefined, testContext: TestContext) => {
-        if (
-          testContext.parent[referenceDate] &&
-          testContext.parent[greaterDate]
-        ) {
-          return (
-            new Date(testContext.parent[referenceDate]).getTime() >=
-            new Date(testContext.parent[greaterDate]).getTime()
-          );
-        } else {
-          return true;
-        }
-      }
-    );
-}
-
 export async function getFormValues<T extends ObjectSchema<AnyObject>>(
   request: Request,
   schema: T
@@ -305,24 +202,4 @@ export async function validateForm<T extends ObjectSchema<AnyObject>>(
     }
   }
   return { data, errors };
-}
-
-export async function getFormDataValidationResultOrThrow<
-  T extends ObjectSchema<AnyObject>,
->(request: Request, schema: T) {
-  const parsedFormData = await getFormValues<T>(request, schema);
-
-  let errors: FormError | null;
-  let data: Asserts<T>;
-
-  try {
-    const result = await validateForm<T>(schema, parsedFormData);
-
-    errors = result.errors;
-    data = result.data;
-  } catch (error) {
-    console.error(error);
-    invariantResponse(false, "Validation failed", { status: 400 });
-  }
-  return { errors, data };
 }

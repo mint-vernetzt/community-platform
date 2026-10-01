@@ -51,7 +51,7 @@ export function Alert(props: AlertProps & { onClose?: () => void }) {
       className={`w-full ${
         position === "relative"
           ? "relative"
-          : "absolute top-[84px] xl:top-[88px] px-4 @lg:px-8"
+          : "absolute top-21 xl:top-22 px-4 @lg:px-8"
       }`}
     >
       <div className={classes}>

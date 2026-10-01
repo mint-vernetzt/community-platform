@@ -48,13 +48,13 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDuration } from "~/lib/utils/time";
 import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { languageModuleMap } from "~/locales/.server";
-import { addUserParticipationStatus } from "~/routes/event/$slug/utils.server";
 import { getFeatureAbilities } from "~/routes/feature-access.server";
 import { parseMultipartFormData } from "~/storage.server";
 import { UPLOAD_DOCUMENT_INTENT_VALUE } from "~/storage.shared";
 import { redirectWithToast } from "~/toast.server";
 import { hasContent } from "~/utils.shared";
 import {
+  addUserParticipationStatus,
   disconnectImage,
   getProfileByUsername,
   uploadImage,

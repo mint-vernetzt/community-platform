@@ -17,7 +17,7 @@ function Accordion(props: React.PropsWithChildren) {
 
   if (topics.length > 0) {
     return (
-      <ul className="flex flex-col gap-10 @xl:gap-[52px] px-0 pt-0 pb-0 @md:px-8 @md:pt-8 @md:pb-12 @md:border @md:border-neutral-200 @md:rounded-2xl @md:bg-white">
+      <ul className="flex flex-col gap-10 @xl:gap-13 px-0 pt-0 pb-0 @md:px-8 @md:pt-8 @md:pb-12 @md:border @md:border-neutral-200 @md:rounded-2xl @md:bg-white">
         {topics}
       </ul>
     );
@@ -43,7 +43,7 @@ function AccordionTopic(props: React.PropsWithChildren & { id: string }) {
 
   return (
     <li key={`${props.id}-key`} className="relative">
-      <div id={props.id} className="absolute -top-[76px] xl:-top-20" />
+      <div id={props.id} className="absolute -top-19 xl:-top-20" />
       <h2 className="mb-2 @md:mb-3 @xl:mb-5 text-secondary text-3xl font-semibold leading-7">
         {topicLabel}
       </h2>
@@ -91,14 +91,14 @@ function AccordionItem(props: React.PropsWithChildren & { id: string }) {
       <div
         ref={scrollAnchorRef}
         id={props.id}
-        className="absolute -top-[76px] xl:-top-20"
+        className="absolute -top-19 xl:-top-20"
       />
       <label
         htmlFor={`expand-question-${props.id}`}
-        className="pb-6 pt-6 @xl:pb-8 @xl:pt-8 group-has-[:checked]:pb-0 text-primary-600 text-xl font-bold leading-6 cursor-pointer flex gap-2 items-center justify-between mb-0 focus-within:underline focus-within:underline-offset-4 focus-within:decoration-2"
+        className="pb-6 pt-6 @xl:pb-8 @xl:pt-8 group-has-checked:pb-0 text-primary-600 text-xl font-bold leading-6 cursor-pointer flex gap-2 items-center justify-between mb-0 focus-within:underline focus-within:underline-offset-4 focus-within:decoration-2"
       >
-        <p className="max-w-[800px]">{itemLabel}</p>
-        <span className="w-fit h-fit rotate-90 group-has-[:checked]:-rotate-90 mr-0 @md:mr-3 @lg:mr-6">
+        <p className="max-w-200">{itemLabel}</p>
+        <span className="w-fit h-fit rotate-90 group-has-checked:-rotate-90 mr-0 @md:mr-3 @lg:mr-6">
           <Icon type="chevron-right" aria-hidden="true" />
         </span>
         <input
@@ -111,7 +111,7 @@ function AccordionItem(props: React.PropsWithChildren & { id: string }) {
           }}
         />
       </label>
-      <div className="text-primary-600 leading-[20.8px] font-normal pt-[10px] pb-6 @xl:pt-4 @xl:pb-8 max-w-[800px] hidden group-has-[:checked]:block hyphens-auto">
+      <div className="text-primary-600 leading-[20.8px] font-normal pt-2.5 pb-6 @xl:pt-4 @xl:pb-8 max-w-200 hidden group-has-checked:block hyphens-auto">
         {content}
       </div>
     </li>

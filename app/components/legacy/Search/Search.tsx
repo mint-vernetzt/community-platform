@@ -134,7 +134,7 @@ function Search(props: SearchProps) {
   return (
     <>
       <div
-        className="flex gap-2 h-[48px] items-center overflow-hidden"
+        className="flex gap-2 h-12 items-center overflow-hidden"
         ref={searchRef}
       >
         <div className="relative group w-full">
@@ -196,7 +196,7 @@ function Search(props: SearchProps) {
           </div>
 
           <input
-            className="w-full h-10 xl:h-12 outline-hidden bg-neutral-100 xl:bg-neutral-50 min-w-[230px] rounded-lg border border-neutral-100 xl:border-neutral-200 py-2 pl-9 xl:pl-4 pr-4 text-base placeholder:font-normal placeholder:text-neutral-700 font-semibold text-neutral-700 appearance-none leading-6 focus:border-primary-200 focus:border-2"
+            className="w-full h-10 xl:h-12 outline-hidden bg-neutral-100 xl:bg-neutral-50 min-w-57.5 rounded-lg border border-neutral-100 xl:border-neutral-200 py-2 pl-9 xl:pl-4 pr-4 text-base placeholder:font-normal placeholder:text-neutral-700 font-semibold text-neutral-700 appearance-none leading-6 focus:border-primary-200 focus:border-2"
             aria-placeholder={placeholder}
             placeholder={isHydrated === false ? placeholder : undefined}
             minLength={minLength || 3}
@@ -249,7 +249,7 @@ function Search(props: SearchProps) {
         </div>
       </div>
       {showResults && (
-        <div className="absolute lg:relative top-[76px] lg:top-2 h-[calc(100dvh-76px)] lg:h-auto w-full left-0 z-30">
+        <div className="absolute lg:relative top-19 lg:top-2 h-[calc(100dvh-76px)] lg:h-auto w-full left-0 z-30">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-xs w-full h-full lg:hidden" />
           <ul className="absolute inset-0 h-fit bg-white border-t border-b border-neutral-200 lg:border lg:rounded-lg p-4 text-sm text-neutral-700 flex flex-col gap-4 lg:gap-2">
             <ResultItem title={value} />

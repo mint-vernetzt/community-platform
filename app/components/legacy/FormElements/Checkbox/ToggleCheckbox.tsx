@@ -26,7 +26,7 @@ export function ToggleCheckbox(props: ToggleCheckboxProps) {
         aria-label={`Set visibility of ${name} to ${inputProps.value}`}
       >
         <svg
-          className="group-has-[:checked]:hidden block w-6 h-6"
+          className="group-has-checked:hidden block w-6 h-6"
           viewBox="0 0 20 20"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -41,7 +41,7 @@ export function ToggleCheckbox(props: ToggleCheckboxProps) {
           />
         </svg>
         <svg
-          className="hidden group-has-[:checked]:block group-has-[:checked]:w-6 group-has-[:checked]:h-6"
+          className="hidden group-has-checked:block group-has-checked:w-6 group-has-checked:h-6"
           viewBox="0 0 20 20"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"

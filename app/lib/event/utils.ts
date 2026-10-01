@@ -109,37 +109,3 @@ export function canUserBeAddedToWaitingList(event: {
     !event.canceled
   );
 }
-
-export function conferenceLinkExists(event: Pick<Event, "conferenceLink">) {
-  return event.conferenceLink !== null && event.conferenceLink !== "";
-}
-
-function conferenceLinkToBeAnnounced(event: {
-  conferenceLink: string | null;
-  stage: {
-    slug: string;
-  } | null;
-}) {
-  return (
-    !conferenceLinkExists(event) &&
-    event.stage !== null &&
-    event.stage.slug !== "on-site"
-  );
-}
-
-export function canUserAccessConferenceLink(
-  event: {
-    conferenceLink: string | null;
-    stage: {
-      slug: string;
-    } | null;
-  },
-  isParticipant: boolean,
-  isSpeaker: boolean,
-  isTeamMember: boolean
-) {
-  return (
-    (conferenceLinkExists(event) || conferenceLinkToBeAnnounced(event)) &&
-    (isParticipant || isSpeaker || isTeamMember)
-  );
-}

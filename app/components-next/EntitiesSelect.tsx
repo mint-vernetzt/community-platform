@@ -155,7 +155,7 @@ function EntitiesSelectLabel(props: React.PropsWithChildren) {
     "w-full py-1 pr-4 cursor-pointer",
     "inline-flex @lg:hidden items-center justify-between cursor-pointer",
     "bg-neutral-50 rounded-lg border border-neutral-200",
-    "group-has-[:focus-within]/dropdown-label:bg-neutral-100 group-has-[:focus-within]/dropdown-label:ring-2 group-has-[:focus-within]/dropdown-label:ring-primary-200"
+    "group-has-focus-within/dropdown-label:bg-neutral-100 group-has-focus-within/dropdown-label:ring-2 group-has-focus-within/dropdown-label:ring-primary-200"
   );
 
   const location = useLocation();
@@ -201,7 +201,7 @@ function EntitiesSelectLabel(props: React.PropsWithChildren) {
           width="20"
           height="20"
           viewBox="0 0 20 20"
-          className="rotate-90 group-has-[:checked]:-rotate-90 shrink-0"
+          className="rotate-90 group-has-checked:-rotate-90 shrink-0"
         >
           <path
             fill="currentColor"
@@ -226,7 +226,7 @@ function EntitiesSelectDropdown(props: React.PropsWithChildren) {
   const classes = classNames(
     "absolute @lg:relative top-20 @lg:top-0 z-20 @lg:z-0 bg-white w-full @lg:max-w-full",
     "mt-2 @lg:m-0 p-2 @lg:p-6",
-    "hidden group-has-[:checked]:flex @lg:inline-flex @lg:overflow-auto",
+    "hidden group-has-checked:flex @lg:inline-flex @lg:overflow-auto",
     "flex-col @lg:flex-row",
     "gap-2 @lg:gap-6",
     "border rounded-lg border-neutral-200 @lg:rounded-lg @lg:border-0"

@@ -127,11 +127,3 @@ export function getTimeDuration(
     ? `${result} (${language === "de" ? "MEZ" : "CET"})`
     : `${result} Uhr (${language === "de" ? "MEZ" : "CET"})`;
 }
-
-export function isSameDay(date1: Date, date2: Date) {
-  return (
-    date1.getFullYear() === date2.getFullYear() &&
-    date1.getMonth() === date2.getMonth() &&
-    date1.getDate() === date2.getDate()
-  );
-}

@@ -202,11 +202,11 @@ function MaterialListItem(
       key={props.id}
       className="flex w-full items-center rounded-lg bg-white border border-neutral-100 gap-4 overflow-hidden"
     >
-      <div className="shrink-0 w-36 aspect-[3/2] self-stretch bg-primary-100 justify-center items-center text-primary hidden @lg:flex">
+      <div className="shrink-0 w-36 aspect-3/2 self-stretch bg-primary-100 justify-center items-center text-primary hidden @lg:flex">
         {typeof image !== "undefined" && image}
         {typeof pdfIcon !== "undefined" && pdfIcon}
       </div>
-      <div className="ml-4 @lg:ml-0 shrink-1 flex flex-col py-4 gap-2 line-clamp-1">
+      <div className="ml-4 @lg:ml-0 shrink flex flex-col py-4 gap-2 line-clamp-1">
         <h4 className="font-bold mb-0 text-primary text-base truncate overflow-hidden block whitespace-nowrap">
           {typeof title !== "undefined" && title}
           {typeof meta !== "undefined" && meta}

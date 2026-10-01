@@ -1,7 +1,8 @@
-// Don't forget to add this route to app/routes.ts
-// If import is missing run "npm run typegen"
 import type { Route } from "./+types{{ typesPath }}";
 import type { ShouldRevalidateFunctionArgs } from "react-router";
+
+// Don't forget to add this route to app/routes.ts
+// If import is missing run "npm run typegen"
 
 // Add custom headers to this routes responses
 // Remember to return loader and action headers here when setting them via data() utility.

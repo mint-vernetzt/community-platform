@@ -625,3 +625,11 @@ export function sortEvents<
   };
   return sortedEvents as T;
 }
+
+export async function getAreas() {
+  return await prismaClient.area.findMany({
+    include: {
+      state: true,
+    },
+  });
+}

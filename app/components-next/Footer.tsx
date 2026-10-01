@@ -38,7 +38,7 @@ export function Footer(props: { locales?: RootLocales; mode: Mode }) {
               width="42"
               height="42"
               viewBox="0 0 56 56"
-              className="w-[42px] h-[42px] @md:w-auto @md:h-auto"
+              className="w-10.5 h-10.5 @md:w-auto @md:h-auto"
               aria-hidden="true"
             >
               <g fill="none">

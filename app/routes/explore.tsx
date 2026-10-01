@@ -257,7 +257,7 @@ export default function Explore() {
   return (
     <>
       <section
-        className={`mx-auto px-4 xl:px-6 max-w-screen-2xl mb-8 @lg:mb-16${
+        className={`mx-auto px-4 xl:px-6 max-w-2xl mb-8 @lg:mb-16${
           searchParams.has("showFilters") &&
           searchParams.get("showFilters") === "on"
             ? " hidden @lg:block"

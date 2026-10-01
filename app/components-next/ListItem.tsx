@@ -115,7 +115,7 @@ export function ListItem(
         hideAfter !== undefined &&
         listIndex !== undefined &&
         listIndex > hideAfter - 1
-          ? "hidden group-has-[:checked]:block"
+          ? "hidden group-has-checked:block"
           : "block"
       }
     >
@@ -139,10 +139,10 @@ export function ListItem(
           }`}
           {...linkProps}
         >
-          <div className="h-[72px] w-[72px] min-h-[72px] min-w-[72px]">
+          <div className="h-18 w-18 min-h-18 min-w-18">
             <Avatar size="full" {...entity} />
           </div>
-          <div className={validChildren.length > 0 ? "@lg:min-w-[220px]" : ""}>
+          <div className={validChildren.length > 0 ? "@lg:min-w-55" : ""}>
             <p className={`text-primary text-sm font-bold line-clamp-2`}>
               {"academicTitle" in entity
                 ? `${entity.academicTitle ? `${entity.academicTitle} ` : ""}${
