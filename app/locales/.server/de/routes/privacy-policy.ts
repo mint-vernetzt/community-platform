@@ -116,7 +116,7 @@ export const locale = {
     registrationAndProfileManagement: {
       title: "2. Registrierung und Verwaltung eines Profils",
       subline:
-        "Du kannst auf unserer Plattform ein Profil für Dich oder deine Organisation erstellen. Anhand des Profils kannst Du Projekte und Veranstaltungen anlegen, sowie Dich mit anderen Nutzer:innen vernetzen.",
+        "Du kannst auf unserer Plattform ein Profil für Dich oder Deine Organisation erstellen. Anhand des Profils kannst Du Projekte und Veranstaltungen anlegen, sowie Dich mit anderen Nutzer:innen vernetzen.",
       mandatoryData: {
         prefix:
           "Für die Erstellung eines Profils auf unserer Plattform ist eine vorherige Registrierung erforderlich. Hierbei müssen Nutzer:innen folgende Daten bereitstellen:",
@@ -129,7 +129,7 @@ export const locale = {
         ],
       },
       doubleOptIn:
-        "Nach der Eingabe erhältst Du eine E-Mail zur Bestätigung deiner Registrierung (sog. Double-Opt-In), um den Vorgang durch Dich nochmals zu validieren und eine missbräuchliche Profilerstellung durch Dritte zu verhindern.",
+        "Nach der Eingabe erhältst Du eine E-Mail zur Bestätigung Deiner Registrierung (sog. Double-Opt-In), um den Vorgang durch Dich nochmals zu validieren und eine missbräuchliche Profilerstellung durch Dritte zu verhindern.",
       optionalData: {
         prefix:
           "Bei der Bearbeitung des Profils können freiwillig weitere Daten hinterlegt werden, diese sind bspw.:",
@@ -146,7 +146,7 @@ export const locale = {
         ],
       },
       changeProfile:
-        "Du kannst deine Profildaten jederzeit bearbeiten und ändern.",
+        "Du kannst Deine Profildaten jederzeit bearbeiten und ändern.",
       dataUsageByUs:
         "Nachdem ein Profil angelegt worden ist, verwenden wir die dort hinterlegten Daten, um Nutzer:innen einander zur Vernetzung vorschlagen zu können.",
       dataUsageByOtherUsers:
@@ -175,9 +175,12 @@ export const locale = {
     registrationAndParticipationInEvents: {
       title: "3. Registrierung und Teilnahme an Veranstaltungen",
       description: [
-        "Im Rahmen der Anmeldung und Teilnahme bei Präsenz-, Online- oder Hybrid-Veranstaltungen werden personenbezogene Daten der teilnehmenden Nutzer:innen, wie Kontaktdaten, verarbeitet und die Teilnahme wird auf dem Profil der Nutzer:innen angezeigt.",
-        "Die Veranstaltungen werden teilweise durch uns alleine, teilweise in Kooperation mit Organisationen oder alleine von Organisationen angeboten. Im letzteren Fall erfassen wir nur die Teilnahme eigenverantwortlich, um dies auf dem Profil von Nutzer:innen anzeigen zu können.",
-        "Im Falle von Online- oder Hybrid-Veranstaltungen wird der Dienst Zoom zur Bereitstellung der Videokonferenz-Funktionalitäten eingesetzt. Während der Veranstaltung können Teilnehmer über das Tool Mural miteinander interagieren.",
+        "Du hast auf der Plattform die Möglichkeit, Präsenz-, Online- oder Hybrid-Veranstaltungen (insgesamt: „Veranstaltungen“) anzulegen, die Teilnahme an Veranstaltungen nachzuvollziehen und an Veranstaltungen teilzunehmen. Im Rahmen der Anmeldung über das Profil werden personenbezogene Daten der teilnehmenden Nutzer:innen verarbeitet und die Teilnahme wird auf dem Profil der Nutzer:innen angezeigt.",
+        "Die Anmeldung zu Veranstaltungen kann auch ohne Profilerstellung erfolgen. Wenn Du Dich ohne Profilerstellung für ein Event anmelden möchtest, musst Du als Pflichtangaben Deinen Vor- und Nachnamen und eine E-Mail-Adresse angeben. Darüber hinaus kannst Du freiwillig mitteilen, zu welcher Organisation Du gehörst. Über die angegebene E-Mail-Adresse erhältst Du alle wichtigen Informationen zu der Veranstaltung.",
+        "Damit eine bestmögliche Vernetzung vor, nach und während einer Veranstaltung gewährleistet ist, können Mitglieder aus der Plattform in Deinem Profil nachvollziehen, an welchen Veranstaltungen Du teilgenommen hast oder teilnehmen wirst. Du kannst die Einträge über die entsprechende Editierfunktion aber aus Deinem Profil löschen.",
+        "Im Falle von Online- oder Hybrid-Veranstaltungen wird ein Online-Dienst (z. B. Zoom) zur Bereitstellung der Videokonferenz-Funktionalitäten eingesetzt. Während der Veranstaltung können Teilnehmer:innen über das Tool Mural miteinander interagieren.",
+        "Die Veranstaltungen werden teilweise durch uns alleine, teilweise in Kooperation mit Organisationen oder alleine von Organisationen angeboten. Im letzteren Fall erfassen wir nur die Teilnahme in eigener Verantwortung, um dies auf dem Profil von Nutzer:innen anzeigen zu können.",
+        "Die Plattform ermöglicht es Veranstalter:innen, ihre Veranstaltungen dezentral zu organisieren. Zu diesem Zweck stellen wir den jeweiligen Veranstalter:innen eine Funktion zum Export der Teilnehmendendaten (Name, Vorname und E-Mail-Adresse) als CSV-Datei zur Verfügung. Mit dem Export der Daten verlassen diese den unmittelbaren technischen Einflussbereich der Plattform. Die Veranstalter:innen verarbeiten diese Daten in eigener Verantwortung.",
       ],
       purposes: {
         title: "Zweck(e)",
@@ -187,10 +190,10 @@ export const locale = {
       legalBasis: {
         title: "Rechtsgrundlage",
         description:
-          "Die Verarbeitung der Daten erfolgt gemäß Art. 6 Abs. 1 S. 1 lit. f DSGVO, da wir ein berechtigtes Interesse an der Vermittlung von Veranstaltungen haben. Sofern es sich um unsere eigenen Veranstaltungen handelt, stützen wir die Datenverarbeitung auf Art. 6 Abs. 1 S. 1 lit. b DSGVO, soweit die Verarbeitung für die Erfüllung des Vertrages erforderlich ist.",
+          "Die Verarbeitung der Daten erfolgt gemäß Art. 6 Abs. 1 S. 1 lit. f DSGVO. Unsere berechtigte Interessen liegen in der Vereinfachung der Vernetzungsmöglichkeit für Teilnehmende, Speaker:innen und Veranstalter:innen einerseits und der ordnungsmäßen Durchführung der jeweiligen Veranstaltung und insbesondere einem geeigneten Teilnehmendenmanagement andererseits. Die Bereitstellung der Informationen ist notwendig, um über die Plattform Veranstaltungen auf die oben beschriebene Weise zu organisieren und daran teilzunehmen. Sofern es sich um unsere eigenen Veranstaltungen handelt, stützen wir die Datenverarbeitung auf Art. 6 Abs. 1 S. 1 lit. b DSGVO, soweit die Verarbeitung für die Erfüllung des Vertrages erforderlich ist.",
       },
       dataRecipients: {
-        title: "Empfänger",
+        title: "Weitere Empfänger",
         description: [
           "Empfänger der personenbezogenen Daten sind Zoom Video Communications, Inc., 55 Almaden Blvd, 6th Floor, San Jose, CA 95113, USA, für die Bereitstellung der Videokonferenz-Dienste bei Online- oder Hybrid-Veranstaltungen und Tactivos, Inc. (Mural), 655 Montgomery St, San Francisco, CA 94111, USA, für die Bereitstellung der Interaktionsmöglichkeiten während der Veranstaltungen.",
           "Wenn wir gemeinsam mit einer weiteren Organisation Veranstaltungen anbieten, verarbeiten wir die hierbei anfallenden Daten in gemeinsamer Verantwortlichkeit nach Art. 26 DSGVO. Wir sind für die Erfüllung der Informationspflichten sowie der Betroffenenrechte verantwortlich. Du kannst Deine Rechte jederzeit gegenüber den Organisationen und uns geltend machen.",
@@ -247,7 +250,7 @@ export const locale = {
       legalBasis: {
         title: "Rechtsgrundlage",
         description:
-          "Die Verarbeitung Deiner Daten basiert auf Deiner ausdrücklichen Einwilligung gemäß Art. 6 Abs. 1 S. 1 lit. a DSGVO. Du kannst Deine Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen, indem Du den in jeder E-Mail enthaltenen Abmeldelink nutzt, in deinen Profileinstellungen das Häkchen entfernst oder uns direkt kontaktierst.",
+          "Die Verarbeitung Deiner Daten basiert auf Deiner ausdrücklichen Einwilligung gemäß Art. 6 Abs. 1 S. 1 lit. a DSGVO. Du kannst Deine Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen, indem Du den in jeder E-Mail enthaltenen Abmeldelink nutzt, in Deinen Profileinstellungen das Häkchen entfernst oder uns direkt kontaktierst.",
       },
       dataRetention: {
         title: "Speicherfristen",
@@ -258,7 +261,7 @@ export const locale = {
     contactSupport: {
       title: "6. Support kontaktieren",
       description:
-        "Du kannst unseren Support via E-Mail kontaktieren. Hierfür kannst Du entweder auf den Button „Support kontaktieren“ klicken und dein E-Mail-Programm wird automatisch geöffnet, oder Du schreibst uns direkt an <0>{{supportMail}}</0>.",
+        "Du kannst unseren Support via E-Mail kontaktieren. Hierfür kannst Du entweder auf den Button „Support kontaktieren“ klicken und Dein E-Mail-Programm wird automatisch geöffnet, oder Du schreibst uns direkt an <0>{{supportMail}}</0>.",
       purposes: {
         title: "Zweck(e)",
         description:
