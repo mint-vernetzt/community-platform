@@ -1,4 +1,4 @@
-import { Faker, faker } from "@faker-js/faker";
+import { faker } from "@faker-js/faker";
 import type { Prisma, PrismaClient } from "@prisma/client";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { fileTypeFromBuffer } from "file-type";
@@ -256,7 +256,7 @@ export async function uploadImageBucketData(
     "\n--- Using default image default-event-background for all image types ---\n"
   );
 
-  for (const imageType in bucketData) {
+  for (const _imageType in bucketData) {
     for (let i = 1; i <= numberOfImages; i++) {
       try {
         // TODO: Refactor using different image depending on entity and image type
