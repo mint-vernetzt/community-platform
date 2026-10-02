@@ -62,7 +62,7 @@ import {
   hasTeamData,
 } from "./detail.shared";
 import ShadowOrganizationHint from "~/components/next/ShadowOrganizationHint";
-import defaultOrganizationBackground from "~/assets/default-organization-background.jpg";
+import defaultOrganizationBackground from "~/assets/default-organization-background.webp";
 
 export function links() {
   return [

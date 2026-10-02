@@ -67,7 +67,7 @@ import {
   sortEvents,
   splitEventsIntoFutureAndPast,
 } from "./utils.server";
-import defaultProfileBackground from "~/assets/default-profile-background.jpg";
+import defaultProfileBackground from "~/assets/default-profile-background.webp";
 
 export function links() {
   return [

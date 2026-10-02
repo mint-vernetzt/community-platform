@@ -59,7 +59,7 @@ import {
 } from "./detail.server";
 import { publishSchema } from "./detail.shared";
 import { getRedirectPathOnProtectedProjectRoute } from "./settings/utils.server";
-import defaultProjectBackground from "~/assets/default-project-background.jpg";
+import defaultProjectBackground from "~/assets/default-project-background.webp";
 
 export function links() {
   return [

@@ -3,8 +3,8 @@ import fs from "fs-extra";
 import Handlebars from "handlebars";
 import { createTransport } from "nodemailer";
 import type { OneOf } from "./lib/utils/types";
-import shortLogoPath from "~/assets/mint-vernetzt_shortlogo.png";
-import logoPath from "~/assets/mint-vernetzt_logo.png";
+import shortLogoPath from "~/assets/mint-vernetzt_shortlogo.webp";
+import logoPath from "~/assets/mint-vernetzt_logo.webp";
 
 // Mailer configuration
 type MailerOptions = {

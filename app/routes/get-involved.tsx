@@ -2,10 +2,10 @@ import { useLoaderData, type LoaderFunctionArgs } from "react-router";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
-import introImage from "~/assets/get-involved/MINT-V-JT-11022025-LOW-258 2.jpg";
+import introImage from "~/assets/get-involved/MINT-V-JT-11022025-LOW-258 2.webp";
 import introImageBlurred from "~/assets/get-involved/MINT-V-JT-11022025-LOW-258 2-blurred.webp";
 import { Roadmap } from "@mint-vernetzt/components/src/organisms/Roadmap";
-import secondFundingPhaseImage from "~/assets/get-involved/MINT-V-JT-12022025-LOW-283 2.jpg";
+import secondFundingPhaseImage from "~/assets/get-involved/MINT-V-JT-12022025-LOW-283 2.webp";
 import secondFundingPhaseImageBlurred from "~/assets/get-involved/MINT-V-JT-12022025-LOW-283 2-blurred.webp";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import {

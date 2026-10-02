@@ -1,11 +1,11 @@
-import defaultEventBackground from "~/assets/default-event-background.jpg";
-import defaultEventBackgroundBlurred from "~/assets/default-event-background-blurred.jpg";
-import defaultProjectBackground from "~/assets/default-project-background.jpg";
-import defaultProjectBackgroundBlurred from "~/assets/default-project-background-blurred.jpg";
-import defaultOrganizationBackground from "~/assets/default-organization-background.jpg";
-import defaultOrganizationBackgroundBlurred from "~/assets/default-organization-background-blurred.jpg";
-import defaultProfileBackground from "~/assets/default-profile-background.jpg";
-import defaultProfileBackgroundBlurred from "~/assets/default-profile-background-blurred.jpg";
+import defaultEventBackground from "~/assets/default-event-background.webp";
+import defaultEventBackgroundBlurred from "~/assets/default-event-background-blurred.webp";
+import defaultProjectBackground from "~/assets/default-project-background.webp";
+import defaultProjectBackgroundBlurred from "~/assets/default-project-background-blurred.webp";
+import defaultOrganizationBackground from "~/assets/default-organization-background.webp";
+import defaultOrganizationBackgroundBlurred from "~/assets/default-organization-background-blurred.webp";
+import defaultProfileBackground from "~/assets/default-profile-background.webp";
+import defaultProfileBackgroundBlurred from "~/assets/default-profile-background-blurred.webp";
 
 export const MaxImageSizes = {
   Background: {

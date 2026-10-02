@@ -261,7 +261,7 @@ export async function uploadImageBucketData(
       try {
         // TODO: Refactor using different image depending on entity and image type
         const data = await fs.readFile(
-          "./app/assets/default-event-background.jpg"
+          "./app/assets/default-event-background.webp"
         );
         const fileTypeResult = await fileTypeFromBuffer(data);
         if (fileTypeResult === undefined) {
