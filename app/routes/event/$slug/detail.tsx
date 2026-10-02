@@ -77,7 +77,7 @@ import {
 } from "./details.shared";
 import { formatDateTime } from "./index.shared";
 import { filterEventConferenceLink } from "./utils.server";
-import defaultEventBackground from "~/assets/default-event-background.jpg";
+import defaultEventBackground from "~/assets/default-event-background.webp";
 
 export function links() {
   return [

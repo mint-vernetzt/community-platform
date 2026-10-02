@@ -31,7 +31,7 @@ import {
   useSubmit,
 } from "react-router";
 import { HoneypotProvider } from "remix-utils/honeypot/react";
-import defaultEventBackground from "~/assets/default-event-background.jpg";
+import defaultEventBackground from "~/assets/default-event-background.webp";
 import { Footer } from "~/components-next/Footer";
 import { NavBar } from "~/components-next/NavBar";
 import { getAlert } from "./alert.server";

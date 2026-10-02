@@ -14,8 +14,8 @@ import {
   getDataForContributeSection,
 } from "./resources.server";
 import { useLoaderData } from "react-router";
-import mintCampusImage from "~/assets/resources/mint-campus.png";
-import mintCampusImageBlurred from "~/assets/resources/mint-campus-mobile.png";
+import mintCampusImage from "~/assets/resources/mint-campus.webp";
+import mintCampusImageBlurred from "~/assets/resources/mint-campus-mobile.webp";
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const language = await detectLanguage(request);
