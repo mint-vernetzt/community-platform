@@ -146,32 +146,32 @@ async function main(
   // Truncate database tables, create/empty buckets and delete users
   console.log("\n--- Reseting database and buckets ---\n");
   await executeCommand("npx", [
-    "tsx",
+    "vite-node",
     "prisma/scripts/truncate-tables/index.ts",
   ]);
   await executeCommand("npm", ["run", "prisma:migrate"]);
   await executeCommand("npx", [
-    "tsx",
+    "vite-node",
     "prisma/scripts/german-states-and-districts-dataset/load-german-states-and-districts.ts",
   ]);
   await executeCommand("npx", [
-    "tsx",
+    "vite-node",
     "prisma/scripts/import-datasets/index.ts",
   ]);
   await executeCommand("npx", [
-    "tsx",
+    "vite-node",
     "supabase/scripts/create-buckets/index.ts",
   ]);
   await executeCommand("npx", [
-    "tsx",
+    "vite-node",
     "supabase/scripts/empty-buckets/index.ts",
   ]);
   await executeCommand("npx", [
-    "tsx",
+    "vite-node",
     "prisma/scripts/apply-bucket-rls/index.ts",
   ]);
   await executeCommand("npx", [
-    "tsx",
+    "vite-node",
     "supabase/scripts/delete-users/index.ts",
   ]);
 
@@ -202,17 +202,17 @@ async function main(
   );
 
   await executeCommand("npx", [
-    "tsx",
+    "vite-node",
     "prisma/scripts/create-filter-vectors/index.ts",
   ]);
 
   await executeCommand("npx", [
-    "tsx",
+    "vite-node",
     "prisma/scripts/migrate-rte-fields/index.tsx",
   ]);
 
   await executeCommand("npx", [
-    "tsx",
+    "vite-node",
     "prisma/scripts/add-participation-token-to-events/index.ts",
   ]);
 
