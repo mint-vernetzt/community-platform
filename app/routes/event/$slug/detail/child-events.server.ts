@@ -166,8 +166,14 @@ export async function getChildEventsOfEvent(options: {
         blurredBackground = DefaultImages.Event.BlurredBackground;
       }
 
+      const { participationToken: _participationToken, ...restEvent } = event;
+
       return {
-        ...event,
+        ...restEvent,
+        parentEvent:
+          event.parentEvent !== null
+            ? { ...event.parentEvent, participationToken: null }
+            : null,
         participantCount,
         background,
         blurredBackground,

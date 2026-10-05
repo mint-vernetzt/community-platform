@@ -53,7 +53,7 @@ export async function getEventBySlug(slug: string) {
   const { participationToken, ...rest } = event;
   let participationLink: string | null = null;
   if (participationToken !== null) {
-    participationLink = `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${participationToken}`;
+    participationLink = `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail/about?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${participationToken}`;
   }
 
   return {
