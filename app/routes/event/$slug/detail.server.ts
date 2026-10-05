@@ -386,7 +386,7 @@ export async function deriveModeForEvent(options: {
 
   // Check if user is on main event and should participate on sub-event
   if (
-    eventInfo.parentEvent === null &&
+    eventInfo.hasChildEvents &&
     eventInfo.parentParticipationRequired === false
   ) {
     return null;
