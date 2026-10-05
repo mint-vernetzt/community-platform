@@ -1,5 +1,6 @@
 import type React from "react";
 import { useFormContext } from "react-hook-form";
+import { safeStringify } from "~/lib/utils/json";
 
 export type ToggleCheckboxProps = React.HTMLProps<HTMLInputElement> & {
   name: string;
@@ -10,7 +11,7 @@ export function ToggleCheckbox(props: ToggleCheckboxProps) {
   const { name, ...inputProps } = props;
   const registerProp = formContext ? { ...formContext.register(name) } : {};
 
-  const checkboxId = `visibility_${inputProps.value}`;
+  const checkboxId = `visibility_${safeStringify(inputProps.value)}`;
   return (
     <div hidden={inputProps.hidden} className="ml-2 group">
       <input
@@ -23,7 +24,7 @@ export function ToggleCheckbox(props: ToggleCheckboxProps) {
       <label
         htmlFor={checkboxId}
         className={`bg-transparent w-10 h-8 flex items-center justify-center rounded-md border-2 border-neutral-300 text-neutral-600 hover:bg-neutral-100 cursor-pointer ${props.className}`}
-        aria-label={`Set visibility of ${name} to ${inputProps.value}`}
+        aria-label={`Set visibility of ${name} to ${safeStringify(inputProps.value)}`}
       >
         <svg
           className="group-has-checked:hidden block w-6 h-6"

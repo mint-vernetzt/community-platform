@@ -4,7 +4,6 @@ import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import mapStyles from "maplibre-gl/dist/maplibre-gl.css?url";
 import { useState } from "react";
 import {
-  data,
   Link,
   type LinksFunction,
   type LoaderFunctionArgs,
@@ -31,11 +30,7 @@ import { filterOrganizationByVisibility } from "~/public-fields-filtering.server
 import { getPublicURL } from "~/storage.server";
 import customMapStyles from "~/styles/map/map.css?url";
 import { getFilterSchemes } from "../all.shared";
-import {
-  getOrganizationIds,
-  VIEW_COOKIE_VALUES,
-  viewCookie,
-} from "../organizations.server";
+import { getOrganizationIds } from "../organizations.server";
 import { getAllOrganizations } from "./map.server";
 
 export const links: LinksFunction = () => [
@@ -207,16 +202,7 @@ export async function loader(args: LoaderFunctionArgs) {
     enhancedOrganizations.push(transformedOrganization);
   }
 
-  const viewCookieHeader = {
-    "Set-Cookie": await viewCookie.serialize(VIEW_COOKIE_VALUES.map),
-  };
-
-  return data(
-    { lng: language, organizations: enhancedOrganizations, locales },
-    {
-      headers: viewCookieHeader,
-    }
-  );
+  return { lng: language, organizations: enhancedOrganizations, locales };
 }
 
 export default function ExploreOrganizationsList() {

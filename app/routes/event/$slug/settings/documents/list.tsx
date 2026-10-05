@@ -1,4 +1,7 @@
-import { useEffect, useState } from "react";
+import { parseWithZod } from "@conform-to/zod";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { captureException } from "@sentry/node";
+import { useState } from "react";
 import {
   redirect,
   useActionData,
@@ -15,21 +18,14 @@ import {
   getSessionUserOrThrow,
 } from "~/auth.server";
 import List from "~/components/next/List";
+import ListItemMaterial from "~/components/next/ListItemMaterial";
+import TitleSection from "~/components/next/TitleSection";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { invariantResponse } from "~/lib/utils/response";
+import { Deep, extendSearchParams } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
-import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
-import {
-  getDocumentsOfEvent,
-  getEventBySlug,
-  removeDocumentFromEvent,
-  updateDocumentOfEvent,
-} from "./list.server";
-import ListItemMaterial from "~/components/next/ListItemMaterial";
-import { INTENT_FIELD_NAME } from "~/form-helpers";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Deep, extendSearchParams } from "~/lib/utils/searchParams";
 import {
   DOCUMENT_ID_FIELD_NAME,
   EDIT_DOCUMENT_INTENT_VALUE,
@@ -39,10 +35,14 @@ import {
   REMOVE_DOCUMENT_INTENT_VALUE,
   SEARCH_DOCUMENTS_SEARCH_PARAM,
 } from "~/storage.shared";
-import { parseWithZod } from "@conform-to/zod";
-import { captureException } from "@sentry/node";
 import { redirectWithToast } from "~/toast.server";
-import TitleSection from "~/components/next/TitleSection";
+import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
+import {
+  getDocumentsOfEvent,
+  getEventBySlug,
+  removeDocumentFromEvent,
+  updateDocumentOfEvent,
+} from "./list.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -124,7 +124,7 @@ export async function action(args: ActionFunctionArgs) {
   );
 
   if (intent === REMOVE_DOCUMENT_INTENT_VALUE) {
-    const submission = await parseWithZod(formData, {
+    const submission = parseWithZod(formData, {
       schema: getRemoveDocumentSchema(),
     });
 
@@ -165,7 +165,7 @@ export async function action(args: ActionFunctionArgs) {
       level: "positive",
     });
   } else {
-    const submission = await parseWithZod(formData, {
+    const submission = parseWithZod(formData, {
       schema: getEditDocumentSchema(locales.route.validation.edit),
     });
 
@@ -208,18 +208,20 @@ export async function action(args: ActionFunctionArgs) {
 
 function DocumentsList() {
   const loaderData = useLoaderData<typeof loader>();
+  const { locales, event } = loaderData;
   const actionData = useActionData<typeof action>();
   const { submission, intent } = actionData ?? {};
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const navigation = useNavigation();
 
-  const { locales, event } = loaderData;
   const [documents, setDocuments] = useState(loaderData.documents);
+  const [syncedDocuments, setSyncedDocuments] = useState(loaderData.documents);
 
-  useEffect(() => {
+  if (syncedDocuments !== loaderData.documents) {
     setDocuments(loaderData.documents);
-  }, [loaderData.documents]);
+    setSyncedDocuments(loaderData.documents);
+  }
 
   return (
     <>

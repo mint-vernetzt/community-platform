@@ -147,7 +147,7 @@ export async function action(args: ActionFunctionArgs) {
     }
   );
 
-  const submission = await parseWithZod(formData, {
+  const submission = parseWithZod(formData, {
     schema: createInviteProfileToParticipateOnEvent(),
   });
 
@@ -292,6 +292,7 @@ function ParticipantsAdd() {
                       "participationLink"
                     );
                   }}
+                  aria-label={locales.route.copyParticipationLink}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

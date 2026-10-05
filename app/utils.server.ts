@@ -10,6 +10,7 @@ import sanitizeHtml from "sanitize-html";
 import { z } from "zod";
 import { getScoreOfEntity } from "../prisma/scripts/update-score/utils";
 import { prismaClient } from "./prisma.server";
+import { safeStringify } from "./lib/utils/json";
 
 export type Mode = "anon" | "authenticated";
 
@@ -31,7 +32,7 @@ export function createHashFromString(
 }
 
 export function createHashFromObject(object: object) {
-  const json = JSON.stringify(object);
+  const json = safeStringify(object);
   const hash = createHash("sha256").update(json).digest("hex");
   return hash;
 }

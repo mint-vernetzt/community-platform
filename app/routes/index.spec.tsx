@@ -92,7 +92,7 @@ test("Landing page is rendered without errors", async () => {
   ]);
 
   const routeUrl = `/`;
-  await render(<LandingPage initialEntries={[routeUrl]} />);
+  render(<LandingPage initialEntries={[routeUrl]} />);
 
   const heading = await screen.findByRole("heading", {
     level: 1,

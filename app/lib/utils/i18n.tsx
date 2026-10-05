@@ -1,4 +1,5 @@
 import { cloneElement } from "react";
+import { safeStringify } from "./json";
 
 // TODO: Its not possible to provide nested components which is very unuseful if you want to insert lists f.e.
 export function insertComponentsIntoLocale(
@@ -83,7 +84,7 @@ export function insertParametersIntoLocale(
         return match;
       }
     }
-    return String(value);
+    return safeStringify(value);
   });
 }
 

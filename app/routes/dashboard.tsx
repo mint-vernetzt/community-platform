@@ -10,13 +10,14 @@ import { CardContainer } from "@mint-vernetzt/components/src/organisms/container
 import type { Organization, Profile } from "@prisma/client";
 import { captureException } from "@sentry/node";
 import { utcToZonedTime } from "date-fns-tz";
-import Cookies from "js-cookie";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import {
+  data,
   Form,
   redirect,
+  useFetcher,
   useLoaderData,
   useLocation,
   type ActionFunctionArgs,
@@ -70,12 +71,23 @@ import {
   getProfilesForCards,
   getProjectsForCards,
   getUpcomingCanceledEvents,
+  hideNewsCookie,
+  hideNewsCookieSchema,
+  hideNotificationsCookie,
+  hideNotificationsCookieSchema,
+  hideUpdatesCookie,
+  hideUpdatesCookieSchema,
 } from "./dashboard.server";
 import {
+  DASHBOARD_PREFERENCES_COOKIE_VALUES,
   getDataForNewsTeasers,
   getDataForUpdateTeasers,
+  HIDE_NEWS_COOKIE_NAME,
+  HIDE_NOTIFICATIONS_COOKIE_NAME,
+  HIDE_UPDATES_COOKIE_NAME,
 } from "./dashboard.shared";
 import { viewCookie, viewCookieSchema } from "./explore/organizations.server";
+import { VIEW_COOKIE_VALUES } from "./explore/organizations.shared";
 import { getFeatureAbilities } from "./feature-access.server";
 import { disconnectImage, uploadImage } from "./profile/$username/index.server";
 import {
@@ -657,13 +669,50 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const abilities = await getFeatureAbilities(authClient, "news_section");
 
-  let preferredExploreOrganizationsView: "map" | "list" = "map";
+  let preferredExploreOrganizationsView: keyof typeof VIEW_COOKIE_VALUES =
+    VIEW_COOKIE_VALUES.map;
+  let hideNotifications: keyof typeof DASHBOARD_PREFERENCES_COOKIE_VALUES =
+    DASHBOARD_PREFERENCES_COOKIE_VALUES.false;
+  let hideUpdates: keyof typeof DASHBOARD_PREFERENCES_COOKIE_VALUES =
+    DASHBOARD_PREFERENCES_COOKIE_VALUES.false;
+  let hideNews: keyof typeof DASHBOARD_PREFERENCES_COOKIE_VALUES =
+    DASHBOARD_PREFERENCES_COOKIE_VALUES.false;
 
   const cookieHeader = request.headers.get("Cookie");
-  const cookie = (await viewCookie.parse(cookieHeader)) as null | any;
-  if (cookie !== null) {
+  const viewCookieValue = await viewCookie.parse(cookieHeader);
+  if (viewCookieValue !== null) {
     try {
-      preferredExploreOrganizationsView = viewCookieSchema.parse(cookie);
+      preferredExploreOrganizationsView =
+        viewCookieSchema.parse(viewCookieValue);
+    } catch {
+      // ignore invalid cookie
+    }
+  }
+  const hideNotificationsCookieValue =
+    await hideNotificationsCookie.parse(cookieHeader);
+  if (hideNotificationsCookieValue !== null) {
+    try {
+      hideNotifications = hideNotificationsCookieSchema.parse(
+        hideNotificationsCookieValue
+      );
+    } catch {
+      // ignore invalid cookie
+    }
+  }
+
+  const hideUpdatesCookieValue = await hideUpdatesCookie.parse(cookieHeader);
+  if (hideUpdatesCookieValue !== null) {
+    try {
+      hideUpdates = hideUpdatesCookieSchema.parse(hideUpdatesCookieValue);
+    } catch {
+      // ignore invalid cookie
+    }
+  }
+
+  const hideNewsCookieValue = await hideNewsCookie.parse(cookieHeader);
+  if (hideNewsCookieValue !== null) {
+    try {
+      hideNews = hideNewsCookieSchema.parse(hideNewsCookieValue);
     } catch {
       // ignore invalid cookie
     }
@@ -689,11 +738,15 @@ export async function loader(args: LoaderFunctionArgs) {
     locales,
     imageCropperLocales,
     language,
+    now: new Date(),
     abilities,
     profile,
     tags,
     entities: enhancedEntities,
     preferredExploreOrganizationsView,
+    hideNotifications,
+    hideUpdates,
+    hideNews,
   };
 }
 
@@ -727,6 +780,40 @@ export async function action(args: ActionFunctionArgs) {
       message: locales.route.error.onStoring,
       level: "negative",
     });
+  }
+
+  const hideNotifications = formData.get(HIDE_NOTIFICATIONS_COOKIE_NAME);
+  if (
+    hideNotifications !== null &&
+    (hideNotifications === DASHBOARD_PREFERENCES_COOKIE_VALUES.true ||
+      hideNotifications === DASHBOARD_PREFERENCES_COOKIE_VALUES.false)
+  ) {
+    const hideNotificationsCookieHeader = {
+      "Set-Cookie": await hideNotificationsCookie.serialize(hideNotifications),
+    };
+    return data(null, { headers: hideNotificationsCookieHeader });
+  }
+  const hideNews = formData.get(HIDE_NEWS_COOKIE_NAME);
+  if (
+    hideNews !== null &&
+    (hideNews === DASHBOARD_PREFERENCES_COOKIE_VALUES.true ||
+      hideNews === DASHBOARD_PREFERENCES_COOKIE_VALUES.false)
+  ) {
+    const hideNewsCookieHeader = {
+      "Set-Cookie": await hideNewsCookie.serialize(hideNews),
+    };
+    return data(null, { headers: hideNewsCookieHeader });
+  }
+  const hideUpdates = formData.get(HIDE_UPDATES_COOKIE_NAME);
+  if (
+    hideUpdates !== null &&
+    (hideUpdates === DASHBOARD_PREFERENCES_COOKIE_VALUES.true ||
+      hideUpdates === DASHBOARD_PREFERENCES_COOKIE_VALUES.false)
+  ) {
+    const hideUpdatesCookieHeader = {
+      "Set-Cookie": await hideUpdatesCookie.serialize(hideUpdates),
+    };
+    return data(null, { headers: hideUpdatesCookieHeader });
   }
 
   const intent = formData.get(INTENT_FIELD_NAME);
@@ -779,28 +866,20 @@ function Dashboard() {
   const loaderData = useLoaderData<typeof loader>();
   const location = useLocation();
   const isSubmitting = useIsSubmitting();
+  const fetcher = useFetcher();
 
   const updateTeasers = getDataForUpdateTeasers();
   const newsTeasers = getDataForNewsTeasers();
 
-  const [hideUpdates, setHideUpdates] = useState(false);
-  const [hideNews, setHideNews] = useState(false);
-  const [hideNotifications, setHideNotifications] = useState(false);
-
-  useEffect(() => {
-    const hideUpdatesCookie = Cookies.get("mv-hide-updates");
-    if (hideUpdatesCookie === "true") {
-      setHideUpdates(true);
-    }
-    const hideNewsCookie = Cookies.get("mv-hide-news");
-    if (hideNewsCookie === "true") {
-      setHideNews(true);
-    }
-    const hideNotificationsCookie = Cookies.get("mv-hide-notifications");
-    if (hideNotificationsCookie === "true") {
-      setHideNotifications(true);
-    }
-  }, []);
+  const [hideUpdates, setHideUpdates] = useState(
+    loaderData.hideUpdates === DASHBOARD_PREFERENCES_COOKIE_VALUES.true
+  );
+  const [hideNews, setHideNews] = useState(
+    loaderData.hideNews === DASHBOARD_PREFERENCES_COOKIE_VALUES.true
+  );
+  const [hideNotifications, setHideNotifications] = useState(
+    loaderData.hideNotifications === DASHBOARD_PREFERENCES_COOKIE_VALUES.true
+  );
 
   return (
     <>
@@ -866,6 +945,9 @@ function Dashboard() {
                     form="modal-avatar-form"
                     className="hidden @lg:grid absolute top-0 w-full h-full rounded-full opacity-0 hover:opacity-100 focus-within:opacity-100 hover:bg-neutral-700/70 focus-within:bg-neutral-700/70 transition-all bg-neutral-700/0 grid-rows-1 grid-cols-1 place-items-center cursor-pointer"
                     disabled={isSubmitting}
+                    aria-label={
+                      loaderData.locales.route.content.header.controls.edit
+                    }
                   >
                     <div className="flex flex-col items-center gap-1">
                       <div className="w-8 h-8 rounded-full bg-neutral-50 flex items-center justify-center border border-primary">
@@ -890,9 +972,9 @@ function Dashboard() {
                           />
                         </svg>
                       </div>
-                      <p className="text-white text-sm font-semibold leading-4">
+                      <span className="text-white text-sm font-semibold leading-4">
                         {loaderData.locales.route.content.header.controls.edit}
-                      </p>
+                      </span>
                     </div>
                   </button>
                 </div>
@@ -1476,18 +1558,15 @@ function Dashboard() {
                 id="hide-notifications"
                 type="checkbox"
                 onChange={() => {
-                  const hideNotifications =
-                    Cookies.get("mv-hide-notifications") === "true"
-                      ? false
-                      : true;
-                  Cookies.set(
-                    "mv-hide-notifications",
-                    hideNotifications.toString(),
-                    {
-                      sameSite: "strict",
-                    }
+                  const formData = new FormData();
+                  formData.set(
+                    HIDE_NOTIFICATIONS_COOKIE_NAME,
+                    hideNotifications
+                      ? DASHBOARD_PREFERENCES_COOKIE_VALUES.false
+                      : DASHBOARD_PREFERENCES_COOKIE_VALUES.true
                   );
-                  setHideNotifications(hideNotifications);
+                  void fetcher.submit(formData, { method: "post" });
+                  setHideNotifications(!hideNotifications);
                 }}
                 checked={hideNotifications}
                 className="w-0 h-0 opacity-0"
@@ -1647,12 +1726,15 @@ function Dashboard() {
               id="hide-updates"
               type="checkbox"
               onChange={() => {
-                const hideUpdates =
-                  Cookies.get("mv-hide-updates") === "true" ? false : true;
-                Cookies.set("mv-hide-updates", hideUpdates.toString(), {
-                  sameSite: "strict",
-                });
-                setHideUpdates(hideUpdates);
+                const formData = new FormData();
+                formData.set(
+                  HIDE_UPDATES_COOKIE_NAME,
+                  hideUpdates
+                    ? DASHBOARD_PREFERENCES_COOKIE_VALUES.false
+                    : DASHBOARD_PREFERENCES_COOKIE_VALUES.true
+                );
+                void fetcher.submit(formData, { method: "post" });
+                setHideUpdates(!hideUpdates);
               }}
               checked={hideUpdates}
               className="w-0 h-0 opacity-0"
@@ -1721,12 +1803,15 @@ function Dashboard() {
                 id="hide-news"
                 type="checkbox"
                 onChange={() => {
-                  const hideNews =
-                    Cookies.get("mv-hide-news") === "true" ? false : true;
-                  Cookies.set("mv-hide-news", hideNews.toString(), {
-                    sameSite: "strict",
-                  });
-                  setHideNews(hideNews);
+                  const formData = new FormData();
+                  formData.set(
+                    HIDE_NEWS_COOKIE_NAME,
+                    hideNews
+                      ? DASHBOARD_PREFERENCES_COOKIE_VALUES.false
+                      : DASHBOARD_PREFERENCES_COOKIE_VALUES.true
+                  );
+                  void fetcher.submit(formData, { method: "post" });
+                  setHideNews(!hideNews);
                 }}
                 className="w-0 h-0 opacity-0"
                 checked={hideNews}
@@ -1935,6 +2020,7 @@ function Dashboard() {
                 event.participationUntil,
                 "Europe/Berlin"
               );
+              const now = utcToZonedTime(loaderData.now, "Europe/Berlin");
               return (
                 <EventCard
                   key={`newest-event-card-${event.slug}`}
@@ -1953,6 +2039,7 @@ function Dashboard() {
                   as="h3"
                   prefetch="intent"
                   showPublishedStatus={false}
+                  now={now}
                 />
               );
             })}

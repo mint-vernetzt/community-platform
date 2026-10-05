@@ -136,6 +136,9 @@ export async function action(args: ActionFunctionArgs) {
       const searchParams = extendSearchParams(url.searchParams, {
         addOrReplace: { [PUBLISH_EVENT_MODAL_SEARCH_PARAM]: "true" },
       });
+      if (typeof location !== "string") {
+        return redirect(`/event/${params.slug}/settings/details/info`);
+      }
       return redirect(`${location}?${searchParams.toString()}`);
     } else if (intent === PUBLISH_EVENT_INTENT) {
       await publishEvent(event);

@@ -5,11 +5,14 @@ import {
   useForm,
 } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { EventCard } from "@mint-vernetzt/components/src/organisms/cards/EventCard";
 import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
 import { utcToZonedTime } from "date-fns-tz";
+import { useState } from "react";
 import {
   Form,
   redirect,
@@ -43,7 +46,8 @@ import {
   filterOrganizationByVisibility,
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
-import { type FilterSchemes, getFilterSchemes } from "./all.shared";
+import { createHashFromObject } from "~/utils.server";
+import { getFilterSchemes, type FilterSchemes } from "./all.shared";
 import {
   enhanceEventsWithParticipationStatus,
   getAllEventTargetGroups,
@@ -57,10 +61,6 @@ import {
   getTakeParam,
 } from "./events.server";
 import { EVENT_SORT_VALUES, PERIOD_OF_TIME_VALUES } from "./events.shared";
-import { createHashFromObject } from "~/utils.server";
-import { useEffect, useState } from "react";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -406,6 +406,7 @@ export async function loader(args: LoaderFunctionArgs) {
     eventsCount,
     locales,
     language,
+    now: new Date(),
     submissionHash: createHashFromObject(submission.value),
   };
 }
@@ -477,6 +478,14 @@ export default function ExploreEvents() {
     useState<typeof loaderData.responsibleOrganizations>(
       loaderData.responsibleOrganizations
     );
+  const [syncedResponsibleOrganizations, setSyncedResponsibleOrganizations] =
+    useState(loaderData.responsibleOrganizations);
+
+  if (syncedResponsibleOrganizations !== loaderData.responsibleOrganizations) {
+    setSyncedResponsibleOrganizations(loaderData.responsibleOrganizations);
+    setVisibleResponsibleOrganizations(loaderData.responsibleOrganizations);
+  }
+
   const handleResponsibleOrganizationSearch = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -499,10 +508,6 @@ export default function ExploreEvents() {
       setVisibleResponsibleOrganizations(loaderData.responsibleOrganizations);
     }
   };
-
-  useEffect(() => {
-    setVisibleResponsibleOrganizations(loaderData.responsibleOrganizations);
-  }, [loaderData.responsibleOrganizations]);
 
   return (
     <>
@@ -1257,6 +1262,8 @@ export default function ExploreEvents() {
                     "Europe/Berlin"
                   );
 
+                  const now = utcToZonedTime(loaderData.now, "Europe/Berlin");
+
                   return (
                     <EventCard
                       key={event.id}
@@ -1275,6 +1282,7 @@ export default function ExploreEvents() {
                       }}
                       as="h2"
                       prefetch="intent"
+                      now={now}
                     />
                   );
                 })}

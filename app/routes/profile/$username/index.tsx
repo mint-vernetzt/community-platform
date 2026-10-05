@@ -6,7 +6,6 @@ import type { Profile } from "@prisma/client";
 import { captureException } from "@sentry/node";
 import { utcToZonedTime } from "date-fns-tz";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
-import { useCallback } from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import {
   Form,
@@ -489,44 +488,9 @@ export default function Index() {
   const blurredAvatar = loaderData.data.blurredAvatar;
   const firstName = loaderData.data.firstName;
   const lastName = loaderData.data.lastName;
-  const Avatar = useCallback(
-    () => (
-      <div className="h-36 w-36 bg-neutral-600 text-white text-6xl flex items-center justify-center overflow-hidden rounded-full">
-        {hasContent(avatar) ? (
-          <MVAvatar
-            avatar={avatar}
-            blurredAvatar={blurredAvatar}
-            firstName={firstName}
-            lastName={lastName}
-            size="full"
-            textSize="xl"
-          />
-        ) : (
-          initials
-        )}
-      </div>
-    ),
-    [avatar, blurredAvatar, firstName, lastName, initials]
-  );
 
   const background = loaderData.data.background;
   const blurredBackground = loaderData.data.blurredBackground;
-  const Background = useCallback(
-    () => (
-      <div className="w-full bg-yellow-100 rounded-md overflow-hidden">
-        {hasContent(background) ? (
-          <Image
-            src={background}
-            alt={locales.route.images.currentBackground}
-            blurredSrc={blurredBackground}
-          />
-        ) : (
-          <div className="w-75 min-h-27" />
-        )}
-      </div>
-    ),
-    [background, blurredBackground, locales]
-  );
 
   const hasFutureEvents =
     hasContent(loaderData.futureEvents.teamMemberOfEvents) ||
@@ -600,7 +564,17 @@ export default function Index() {
                     modalSearchParam="modal-background"
                     locales={locales}
                   >
-                    <Background />
+                    <div className="w-full bg-yellow-100 rounded-md overflow-hidden">
+                      {hasContent(background) ? (
+                        <Image
+                          src={background}
+                          alt={locales.route.images.currentBackground}
+                          blurredSrc={blurredBackground}
+                        />
+                      ) : (
+                        <div className="w-75 min-h-27" />
+                      )}
+                    </div>
                   </ImageCropper>
                 </Modal.Section>
               </Modal>
@@ -613,7 +587,20 @@ export default function Index() {
           <div className="flex-gridcol @lg:w-5/12 px-4 pt-10 @lg:pt-0">
             <div className="px-4 py-8 @lg:p-8 pb-15 @md:pb-5 rounded-3xl border border-neutral-100 bg-neutral-50 shadow-lg @lg:ml-14 -mt-2 @lg:-mt-44 sticky top-24">
               <div className="flex items-center flex-col">
-                <Avatar />
+                <div className="h-36 w-36 bg-neutral-600 text-white text-6xl flex items-center justify-center overflow-hidden rounded-full">
+                  {hasContent(avatar) ? (
+                    <MVAvatar
+                      avatar={avatar}
+                      blurredAvatar={blurredAvatar}
+                      firstName={firstName}
+                      lastName={lastName}
+                      size="full"
+                      textSize="xl"
+                    />
+                  ) : (
+                    initials
+                  )}
+                </div>
                 {loaderData.mode === "owner" ? (
                   <>
                     <Form method="get" preventScrollReset>
@@ -654,7 +641,20 @@ export default function Index() {
                           modalSearchParam="modal-avatar"
                           locales={locales}
                         >
-                          <Avatar />
+                          <div className="h-36 w-36 bg-neutral-600 text-white text-6xl flex items-center justify-center overflow-hidden rounded-full">
+                            {hasContent(avatar) ? (
+                              <MVAvatar
+                                avatar={avatar}
+                                blurredAvatar={blurredAvatar}
+                                firstName={firstName}
+                                lastName={lastName}
+                                size="full"
+                                textSize="xl"
+                              />
+                            ) : (
+                              initials
+                            )}
+                          </div>
                         </ImageCropper>
                       </Modal.Section>
                     </Modal>

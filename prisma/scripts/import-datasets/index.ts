@@ -118,10 +118,7 @@ const staticDatasets: Array<{
 
 Promise.all(
   staticDatasets.map(
-    (dataset) =>
-      new Promise(async (resolve) => {
-        await importDataset(dataset.data, dataset.tableName).then(resolve);
-      })
+    async (dataset) => await importDataset(dataset.data, dataset.tableName)
   )
 )
   .catch((e) => {

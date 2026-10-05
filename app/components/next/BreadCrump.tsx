@@ -21,8 +21,8 @@ function BreadCrump(props: { children: React.ReactNode }) {
   return (
     <div className="flex -my-4 xl:mt-0 xl:-mb-2 gap-2 items-center">
       <menu className="flex gap-2 items-center">
-        {links.map((link) => {
-          return <li key={link.toString()}>{link}</li>;
+        {links.map((link, index) => {
+          return <li key={`breadcrump-link-${index}`}>{link}</li>;
         })}
       </menu>
       {typeof current !== "undefined" ? current : null}

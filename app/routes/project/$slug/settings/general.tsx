@@ -123,7 +123,7 @@ export async function loader(args: LoaderFunctionArgs) {
       type: true,
     },
   });
-  const areaOptions = await createAreaOptions(allAreas);
+  const areaOptions = createAreaOptions(allAreas);
 
   return { project, allFormats, areaOptions, locales };
 }
@@ -371,7 +371,12 @@ function General() {
         autoComplete="off"
       >
         {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
-        <button type="submit" hidden disabled={isSubmitting} />
+        <button
+          type="submit"
+          hidden
+          disabled={isSubmitting}
+          aria-label={locales.route.content.submit}
+        />
         <div className="flex flex-col gap-6 @md:gap-4">
           <div className="@md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
             <h2 className="text-primary text-lg font-semibold mb-4">

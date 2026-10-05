@@ -198,7 +198,7 @@ export async function action(args: ActionFunctionArgs) {
     const schema = createExternalRegistrationUrlSchema({
       locales: locales.route.type.external.form.errors,
     });
-    const submission = await parseWithZod(formData, { schema });
+    const submission = parseWithZod(formData, { schema });
 
     if (submission.status !== "success") {
       return submission.reply();

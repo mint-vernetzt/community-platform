@@ -7,6 +7,7 @@ import {
   sendLastMail,
   sendSecondMail,
 } from "./mail";
+import { safeStringify } from "~/lib/utils/json";
 
 const useMocks = false;
 
@@ -192,7 +193,10 @@ async function main() {
         );
       }
 
-      const profileBackupJson = JSON.stringify(profileBackup, null, 2);
+      const profileBackupJson = safeStringify(profileBackup, null, 2).replace(
+        /^"|"$/g,
+        ""
+      );
 
       console.log(`  -> Backup anlegen (${profileBackupJson.length} Zeichen)`);
 

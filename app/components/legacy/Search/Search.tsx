@@ -36,21 +36,29 @@ function Search(props: SearchProps) {
     inputProps: { placeholder, minLength = 3, ...otherInputProps },
   } = props;
   const [searchParams] = useSearchParams();
-  const query = searchParams.get("search");
-  const [value, setValue] = useState(query !== null ? query : "");
+  const query = searchParams.get("search") || "";
+  const [value, setValue] = useState(query);
+  const [syncedValue, setSyncedValue] = useState(query);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const fetcher = useFetcher<typeof rootLoader>();
+  const [lastFetcherResult, setLastFetcherResult] = useState(fetcher.data);
   const searchRef = useRef<HTMLDivElement | null>(null);
   const [showResults, setShowResults] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(false);
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const query = event.target.value;
-    setValue(query);
-
-    if (query.length >= minLength) {
-      void fetcher.submit({ method: "get", search: query });
+  const submitFetcher = (value: string) => {
+    if (value.length >= minLength) {
+      void fetcher.submit({ method: "get", search: value });
+    } else {
+      void fetcher.submit({ method: "get", search: null });
     }
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newQuery = event.target.value;
+    setValue(newQuery);
+
+    submitFetcher(newQuery);
   };
 
   const handleClear = (event: React.SyntheticEvent<HTMLButtonElement>) => {
@@ -60,6 +68,12 @@ function Search(props: SearchProps) {
 
   const handleFocus = () => {
     setIsInputFocused(true);
+    if (value.length >= minLength) {
+      setShowResults(true);
+    } else {
+      setShowResults(false);
+    }
+    submitFetcher(value);
   };
 
   const handleBlur = () => {
@@ -106,28 +120,26 @@ function Search(props: SearchProps) {
     };
   }, [searchRef, fetcher]);
 
-  useEffect(() => {
-    const query = searchParams.get("search");
-    setValue(query !== null ? query : "");
+  // Collapse search results when submitting to without a navigation (f.e. on explore pages)
+  if (syncedValue !== query) {
+    setValue(query);
+    setSyncedValue(query);
     setShowResults(false);
-  }, [searchParams]);
+  }
 
-  useEffect(() => {
-    if (isInputFocused === false) {
-      return;
-    }
-
-    if (
-      value.length >= minLength ||
-      (value.length >= minLength &&
-        typeof fetcher.data !== "undefined" &&
-        fetcher.data.tags.length >= minLength)
-    ) {
+  // Show and hide results after fetcher data changes and input is focused. Show and hide depends on the current value length
+  if (
+    typeof fetcher.data !== "undefined" &&
+    fetcher.data !== lastFetcherResult &&
+    isInputFocused
+  ) {
+    if (value.length >= minLength) {
       setShowResults(true);
     } else {
       setShowResults(false);
     }
-  }, [fetcher.data, minLength, value, isInputFocused]);
+    setLastFetcherResult(fetcher.data);
+  }
 
   const isHydrated = useHydrated();
 
@@ -156,6 +168,7 @@ function Search(props: SearchProps) {
             <button
               tabIndex={-1}
               className="hidden h-8 xl:group-focus-within:block mt-0.5 xl:mr-0.5 xl:-mt-1 xl:p-1.5 rounded-lg bg-transparent xl:group-focus-within:bg-primary-500 pointer-events-auto"
+              aria-hidden="true"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

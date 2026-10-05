@@ -7,6 +7,7 @@ import {
   insertComponentsIntoLocale,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
+import { safeStringify } from "~/lib/utils/json";
 import { languageModuleMap } from "~/locales/.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -20,27 +21,21 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export default function PrivacyPolicy() {
   const { locales } = useLoaderData<typeof loader>();
   const [isOptedOutOfMatomo, setIsOptedOutOfMatomo] = useState(false);
-  const [doNotTrack, setDoNotTrack] = useState(false);
 
   useEffect(() => {
     try {
-      const dnt = navigator.doNotTrack === "1";
-      setDoNotTrack(dnt);
       const _paq = (window._paq = window._paq || []);
       _paq.push([
         // @ts-expect-error - Matomo docs mention that this works. https://developer.matomo.org/guides/tracking-javascript-guide
         function () {
           // @ts-expect-error
-          setIsOptedOutOfMatomo(dnt ? true : this.isUserOptedOut());
+          setIsOptedOutOfMatomo(this.isUserOptedOut());
         },
       ]);
     } catch (error) {
       console.warn(`Matomo Opt-Out initialization failed.`);
       const formData = new FormData();
-      formData.append(
-        "error",
-        JSON.stringify(error, Object.getOwnPropertyNames(error))
-      );
+      formData.append("error", safeStringify(error));
       void fetch("/error", {
         method: "POST",
         body: formData,
@@ -715,52 +710,40 @@ export default function PrivacyPolicy() {
 
           <h4>{locales.individualProcessingSteps.matomo.optOut.title}</h4>
           <div className="w-full flex flex-col gap-2 mb-4">
-            {doNotTrack === false ? (
-              <div className="w-fit flex gap-2 items-center">
-                <Checkbox
-                  id="matomo-opt-out"
-                  type="checkbox"
-                  checked={!isOptedOutOfMatomo}
-                  onChange={(e) => {
-                    const isChecked = !e.target.checked;
-                    setIsOptedOutOfMatomo(isChecked);
-                    const _paq = (window._paq = window._paq || []);
-                    try {
-                      if (isChecked === false) {
-                        _paq.push(["forgetUserOptOut"]);
-                      } else {
-                        window._paq.push(["optUserOut"]);
-                      }
-                    } catch (error) {
-                      console.warn(`Matomo Opt-Out trigger failed.`);
-                      const formData = new FormData();
-                      formData.append(
-                        "error",
-                        JSON.stringify(error, Object.getOwnPropertyNames(error))
-                      );
-                      void fetch("/error", {
-                        method: "POST",
-                        body: formData,
-                      });
+            <div className="w-fit flex gap-2 items-center">
+              <Checkbox
+                id="matomo-opt-out"
+                type="checkbox"
+                checked={!isOptedOutOfMatomo}
+                onChange={(e) => {
+                  const isChecked = !e.target.checked;
+                  setIsOptedOutOfMatomo(isChecked);
+                  const _paq = (window._paq = window._paq || []);
+                  try {
+                    if (isChecked === false) {
+                      _paq.push(["forgetUserOptOut"]);
+                    } else {
+                      window._paq.push(["optUserOut"]);
                     }
-                  }}
-                />
-                <label htmlFor="matomo-opt-out" className="cursor-pointer">
-                  {isOptedOutOfMatomo
-                    ? locales.individualProcessingSteps.matomo.optOut
-                        .trackerInactive
-                    : locales.individualProcessingSteps.matomo.optOut
-                        .trackerActive}
-                </label>
-              </div>
-            ) : (
-              <p>
-                {
-                  locales.individualProcessingSteps.matomo.optOut
-                    .doNotTrackEnabled
-                }
-              </p>
-            )}
+                  } catch (error) {
+                    console.warn(`Matomo Opt-Out trigger failed.`);
+                    const formData = new FormData();
+                    formData.append("error", safeStringify(error));
+                    void fetch("/error", {
+                      method: "POST",
+                      body: formData,
+                    });
+                  }
+                }}
+              />
+              <label htmlFor="matomo-opt-out" className="cursor-pointer">
+                {isOptedOutOfMatomo
+                  ? locales.individualProcessingSteps.matomo.optOut
+                      .trackerInactive
+                  : locales.individualProcessingSteps.matomo.optOut
+                      .trackerActive}
+              </label>
+            </div>
           </div>
         </>
       ) : (

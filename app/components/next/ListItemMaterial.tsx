@@ -498,7 +498,6 @@ function ListItemControlsEditModal(props: {
   modalProps: ModalProps;
   modalSubmitButtonProps?: ModalSubmitButtonProps;
   modalCloseButtonProps?: ModalCloseButtonProps;
-  useFormOptions?: Parameters<typeof useForm>;
   formProps?: ForwardRefExoticComponent<
     FormProps & RefAttributes<HTMLFormElement>
   >;
@@ -524,7 +523,6 @@ function ListItemControlsEditModal(props: {
     modalProps,
     modalSubmitButtonProps,
     modalCloseButtonProps,
-    useFormOptions,
     formProps,
     idInputProps,
     locales,
@@ -555,7 +553,6 @@ function ListItemControlsEditModal(props: {
       });
       return submission;
     },
-    ...useFormOptions,
   });
 
   const modalCloseButtonRoute =

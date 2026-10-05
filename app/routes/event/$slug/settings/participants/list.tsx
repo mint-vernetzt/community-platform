@@ -1,7 +1,7 @@
 import { parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { captureException } from "@sentry/node";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Form,
   Link,
@@ -172,7 +172,7 @@ export async function action(args: ActionFunctionArgs) {
   }
 
   const formData = await request.formData();
-  const submission = await parseWithZod(formData, {
+  const submission = parseWithZod(formData, {
     schema: createRemoveParticipantSchema(),
   });
 
@@ -246,15 +246,18 @@ export async function action(args: ActionFunctionArgs) {
 function ParticipantsList() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales, language, event, fullDepthParticipantsCount } = loaderData;
-
-  const [participants, setParticipants] = useState(loaderData.participants);
-
-  useEffect(() => {
-    setParticipants(loaderData.participants);
-  }, [loaderData.participants]);
-
   const location = useLocation();
   const [searchParams] = useSearchParams();
+
+  const [participants, setParticipants] = useState(loaderData.participants);
+  const [syncedParticipants, setSyncedParticipants] = useState(
+    loaderData.participants
+  );
+
+  if (syncedParticipants !== loaderData.participants) {
+    setParticipants(loaderData.participants);
+    setSyncedParticipants(loaderData.participants);
+  }
 
   return (
     <>

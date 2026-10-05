@@ -1,3 +1,7 @@
+import { parseWithZod } from "@conform-to/zod";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { captureException } from "@sentry/node";
+import { useState } from "react";
 import {
   Form,
   redirect,
@@ -10,32 +14,28 @@ import {
   getSessionUser,
   getSessionUserOrThrow,
 } from "~/auth.server";
+import List from "~/components/next/List";
+import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
+import TitleSection from "~/components/next/TitleSection";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
+import { Deep } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
+import { redirectWithToast } from "~/toast.server";
+import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
 import {
   getEventBySlug,
   getInvitedProfilesToParticipateOnEvent,
   revokeInviteOfProfileToParticipateOnEvent,
 } from "./invites.server";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
-import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
-import { parseWithZod } from "@conform-to/zod";
 import {
   createRevokeInviteOfProfileToParticipateOnEventSchema,
   createSearchInvitedProfilesToParticipateOnEventSchema,
   INVITED_PROFILES_SEARCH_PARAM,
   PROFILE_ID,
 } from "./invites.shared";
-import { captureException } from "@sentry/node";
-import { redirectWithToast } from "~/toast.server";
-import { useEffect, useState } from "react";
-import TitleSection from "~/components/next/TitleSection";
-import List from "~/components/next/List";
-import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Deep } from "~/lib/utils/searchParams";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -124,7 +124,7 @@ export async function action(args: ActionFunctionArgs) {
     languageModuleMap[language]["event/$slug/settings/participants/invites"];
 
   const formData = await request.formData();
-  const submission = await parseWithZod(formData, {
+  const submission = parseWithZod(formData, {
     schema: createRevokeInviteOfProfileToParticipateOnEventSchema(),
   });
 
@@ -172,10 +172,12 @@ function ParticipantsInvites() {
   const { locales, language } = loaderData;
 
   const [profiles, setProfiles] = useState(loaderData.profiles);
+  const [syncedProfiles, setSyncedProfiles] = useState(loaderData.profiles);
 
-  useEffect(() => {
+  if (syncedProfiles !== loaderData.profiles) {
+    setSyncedProfiles(loaderData.profiles);
     setProfiles(loaderData.profiles);
-  }, [loaderData.profiles]);
+  }
 
   return (
     <>

@@ -12,7 +12,7 @@ import { Image as ImageComponent } from "@mint-vernetzt/components/src/molecules
 import { Input } from "@mint-vernetzt/components/src/molecules/Input"; // refactor?
 import classNames from "classnames";
 import { utcToZonedTime } from "date-fns-tz";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import {
   Form,
   Link,
@@ -885,7 +885,6 @@ function ReportEvent(props: {
           name={modalName}
           defaultValue="true"
           aria-label={props.locales.report}
-          aria-hidden="true"
         />
         <button
           {...OverlayMenuComponent.getListChildrenStyles()}
@@ -952,6 +951,7 @@ function AbuseReportModal(props: {
     slug: string;
   };
   reasons: { slug: string; description: string }[];
+  timestamp: number;
 }) {
   let modalName = "modal-report";
   if (typeof props.modalName === "string") {
@@ -962,10 +962,8 @@ function AbuseReportModal(props: {
     }
   }
 
-  const now = useRef(Date.now());
-
   const [form, fields] = useForm({
-    id: `abuse-report-form-${now.current}`,
+    id: `abuse-report-form-${props.timestamp}`,
     constraint: getZodConstraint(createAbuseReportSchema(props.locales)),
     defaultValue: {
       [INTENT_FIELD_NAME]: ABUSE_REPORT_INTENT,
@@ -1006,7 +1004,6 @@ function AbuseReportModal(props: {
             })}
             key={ABUSE_REPORT_INTENT}
             aria-label={props.locales.submit}
-            aria-hidden="true"
           />
           <input type="hidden" name="redirectTo" value={location.pathname} />
           <div className="flex flex-col gap-6">

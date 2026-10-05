@@ -33,6 +33,7 @@ import {
   hasSubline,
 } from "./child-events.shared";
 import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "~/events.shared";
+import { safeStringify } from "~/lib/utils/json";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -235,7 +236,7 @@ export async function action(args: ActionFunctionArgs) {
 
   if (submission.status !== "success") {
     return redirectWithToast(request.url, {
-      id: `update-participation-error-toast-${submission.payload.eventId}`,
+      id: `update-participation-error-toast-${safeStringify(submission.payload.eventId)}`,
       key: `${new Date().getTime()}`,
       message: locales.route.errors[intent],
       level: "negative",

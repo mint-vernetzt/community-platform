@@ -3,7 +3,7 @@ import { parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { captureException } from "@sentry/node";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Form,
   redirect,
@@ -20,6 +20,7 @@ import {
 } from "~/auth.server";
 import List from "~/components/next/List";
 import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
+import TitleSection from "~/components/next/TitleSection";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import {
@@ -32,6 +33,7 @@ import { languageModuleMap } from "~/locales/.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { redirectWithToast } from "~/toast.server";
 import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
+import { updateFilterVectorOfEvent } from "../utils.server";
 import {
   addOwnOrganizationToEvent,
   getEventBySlug,
@@ -50,8 +52,6 @@ import {
   SEARCH_ORGANIZATIONS_SEARCH_PARAM,
   SEARCH_OWN_ORGANIZATIONS_SEARCH_PARAM,
 } from "./add.shared";
-import TitleSection from "~/components/next/TitleSection";
-import { updateFilterVectorOfEvent } from "../utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -151,7 +151,7 @@ export async function action(args: ActionFunctionArgs) {
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   if (intent === INVITE_ORGANIZATION_INTENT) {
-    const submission = await parseWithZod(formData, {
+    const submission = parseWithZod(formData, {
       schema: createInviteOrganizationSchema(),
     });
 
@@ -202,7 +202,7 @@ export async function action(args: ActionFunctionArgs) {
       level: "positive",
     });
   } else {
-    const submission = await parseWithZod(formData, {
+    const submission = parseWithZod(formData, {
       schema: createAddOwnOrganizationSchema(),
     });
 
@@ -279,10 +279,14 @@ function AddResponsibleOrg() {
   const [ownOrganizations, setOwnOrganizations] = useState(
     loaderData.ownOrganizations
   );
+  const [syncedOwnOrganizations, setSyncedOwnOrganizations] = useState(
+    loaderData.ownOrganizations
+  );
 
-  useEffect(() => {
+  if (syncedOwnOrganizations !== loaderData.ownOrganizations) {
+    setSyncedOwnOrganizations(loaderData.ownOrganizations);
     setOwnOrganizations(loaderData.ownOrganizations);
-  }, [loaderData.ownOrganizations]);
+  }
 
   return (
     <>

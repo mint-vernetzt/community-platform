@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { NavLink, useLocation } from "react-router";
+import { NavLink, useLocation, useNavigation } from "react-router";
 
 const EntitiesSelectMenuItemContext = createContext<Pick<
   DropDownMenuItemProps,
@@ -158,12 +158,13 @@ function EntitiesSelectLabel(props: React.PropsWithChildren) {
     "group-has-focus-within/dropdown-label:bg-neutral-100 group-has-focus-within/dropdown-label:ring-2 group-has-focus-within/dropdown-label:ring-primary-200"
   );
 
-  const location = useLocation();
+  const navigation = useNavigation();
 
   const [isOpen, setIsOpen] = useState(false);
-  useEffect(() => {
+
+  if (navigation.state === "loading" && isOpen) {
     setIsOpen(false);
-  }, [location.pathname]);
+  }
 
   const menuRef = useMenuRef();
   const labelRef = useRef<HTMLLabelElement | null>(null);

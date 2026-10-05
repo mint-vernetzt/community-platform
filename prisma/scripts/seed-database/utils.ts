@@ -18,6 +18,7 @@ import {
   generateProjectSlug,
   generateUsername as generateUsername_app,
 } from "../../../app/utils.server";
+import { safeStringify } from "~/lib/utils/json";
 
 type EntityData = {
   profile: Prisma.ProfileCreateArgs["data"];
@@ -275,7 +276,7 @@ export async function uploadImageBucketData(
         } else {
           extension = fileTypeResult.ext;
           mimeType = fileTypeResult.mime;
-          const hash = await createHashFromString(data.toString());
+          const hash = createHashFromString(data.toString());
           for (const imageType in bucketData) {
             const path = generatePathName(hash, extension);
             const { error: uploadObjectError } = await authClient.storage
@@ -364,7 +365,7 @@ export async function uploadDocumentBucketData(
       );
       continue;
     }
-    const hash = await createHashFromString(Buffer.from(pdfBytes).toString());
+    const hash = createHashFromString(Buffer.from(pdfBytes).toString());
     const path = generatePathName(hash, fileTypeResult.ext);
     const { error: uploadObjectError } = await authClient.storage
       .from("documents")
@@ -3490,7 +3491,7 @@ export async function seedAllEntities(
       useRealNames,
       numberOfStandardEntities
     );
-    const emptyStringsDocumentId = await seedEntity<"document">(
+    emptyStringsDocumentId = await seedEntity<"document">(
       "document",
       emptyStringsDocument,
       imageBucketData,
@@ -6180,8 +6181,12 @@ export async function seedEntity<
     });
   }
   if (result === undefined || result === null) {
-    console.error(`${entity} could not be created.`);
-    throw new Error(`${entity} could not be created.`);
+    console.error(
+      `${entityType} could not be created: ${safeStringify(entity)}`
+    );
+    throw new Error(
+      `${entityType} could not be created: ${safeStringify(entity)}`
+    );
   }
 
   return result.id as string;

@@ -116,7 +116,7 @@ export async function action(args: ActionFunctionArgs) {
     timePeriod,
     parentEvent,
   });
-  const submission = await parseWithZod(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
   if (submission.status !== "success") {
     return submission.reply();

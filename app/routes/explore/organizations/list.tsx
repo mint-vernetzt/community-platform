@@ -1,35 +1,29 @@
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { OrganizationCard } from "@mint-vernetzt/components/src/organisms/cards/OrganizationCard";
 import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
 import {
-  data,
   type LoaderFunctionArgs,
   useLoaderData,
   useNavigation,
 } from "react-router";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { ConformForm } from "~/components-next/ConformForm";
 import { HiddenFilterInputsInContext } from "~/components-next/HiddenFilterInputs";
-import { OrganizationCard } from "@mint-vernetzt/components/src/organisms/cards/OrganizationCard";
-import { getFilterSchemes } from "../all.shared";
-import {
-  getOrganizationIds,
-  getTakeParam,
-  VIEW_COOKIE_VALUES,
-  viewCookie,
-} from "../organizations.server";
-import { createAuthClient, getSessionUser } from "~/auth.server";
-import { invariantResponse } from "~/lib/utils/response";
 import { detectLanguage } from "~/i18n.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
+import { DefaultImages } from "~/images.shared";
+import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
-import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
-import { DefaultImages } from "~/images.shared";
-import { getAllOrganizations } from "./list.server";
 import { createHashFromObject } from "~/utils.server";
+import { getFilterSchemes } from "../all.shared";
+import { getOrganizationIds, getTakeParam } from "../organizations.server";
+import { getAllOrganizations } from "./list.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
@@ -224,23 +218,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
     enhancedOrganizations.push(transformedOrganization);
   }
 
-  const viewCookieHeader = {
-    "Set-Cookie": await viewCookie.serialize(VIEW_COOKIE_VALUES.list),
+  return {
+    filteredByVisibilityCount,
+    organizations: enhancedOrganizations,
+    organizationCount,
+    locales,
+    isLoggedIn,
+    submission,
+    submissionHash: createHashFromObject(submission.value),
   };
-  return data(
-    {
-      filteredByVisibilityCount,
-      organizations: enhancedOrganizations,
-      organizationCount,
-      locales,
-      isLoggedIn,
-      submission,
-      submissionHash: createHashFromObject(submission.value),
-    },
-    {
-      headers: viewCookieHeader,
-    }
-  );
 }
 
 export default function ExploreOrganizationsList() {

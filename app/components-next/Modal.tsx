@@ -1,5 +1,6 @@
-import { type LinkProps, useLocation, useSearchParams } from "react-router";
-import { createPortal } from "react-dom";
+import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
 import {
   Children,
   cloneElement,
@@ -7,11 +8,10 @@ import {
   useEffect,
   useState,
 } from "react";
+import { createPortal } from "react-dom";
+import { type LinkProps, useLocation, useSearchParams } from "react-router";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { ModalClose as ModalCloseIcon } from "./icons/ModalClose";
-import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
 
 function ModalSection(props: { children: React.ReactNode }) {
   return (
@@ -151,19 +151,17 @@ export type ModalProps = React.PropsWithChildren<{
 function Modal(props: ModalProps) {
   const [searchParams] = useSearchParams();
   const [open, setOpen] = useState(false);
+  const [syncedOpen, setSyncedOpen] = useState(false);
   const redirect = useRedirect({ searchParam: props.searchParam });
+  const openSearchParam = searchParams.get(props.searchParam) === "true";
 
-  useEffect(() => {
-    if (typeof document !== "undefined") {
-      setOpen(searchParams.get(props.searchParam) === "true");
-    }
-  }, [props.searchParam, searchParams]);
+  if (typeof document !== "undefined" && syncedOpen !== openSearchParam) {
+    setOpen(openSearchParam);
+    setSyncedOpen(openSearchParam);
+  }
 
   useEffect(() => {
     if (open) {
-      // const modalCloseTop = document.getElementById("modal-close-top");
-      // modalCloseTop?.focus();
-
       const modal = document.getElementById("modal");
       modal?.focus();
     }

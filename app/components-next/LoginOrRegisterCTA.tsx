@@ -1,32 +1,30 @@
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import Cookies from "js-cookie";
-import { useEffect, useState } from "react";
-import { Form, useLocation } from "react-router";
+import { useState } from "react";
+import { useFetcher, useLocation } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { type RootLocales } from "~/root.server";
+import {
+  HIDE_LOGIN_OR_REGISTER_CTA_COOKIE_NAME,
+  HIDE_LOGIN_OR_REGISTER_CTA_COOKIE_VALUES,
+} from "~/root.shared";
 
 export function LoginOrRegisterCTA(props: {
   isAnon?: boolean;
   locales: RootLocales;
+  hideLoginOrRegisterCta: boolean;
 }) {
   const { isAnon = false, locales } = props;
   const location = useLocation();
   const isHydrated = useHydrated();
   const isSubmitting = useIsSubmitting();
+  const fetcher = useFetcher();
 
-  const [hideLoginOrRegisterCookie, setHideLoginOrRegisterCookie] =
-    useState(false);
-  useEffect(() => {
-    const cookie = Cookies.get("mv-hide-login-or-register-cta");
-    if (cookie === "true") {
-      setHideLoginOrRegisterCookie(true);
-    } else {
-      setHideLoginOrRegisterCookie(false);
-    }
-  }, []);
+  const [hideLoginOrRegisterCta, setHideLoginOrRegisterCta] = useState(
+    props.hideLoginOrRegisterCta
+  );
 
-  if (isAnon === false || hideLoginOrRegisterCookie) {
+  if (isAnon === false || hideLoginOrRegisterCta) {
     return null;
   }
 
@@ -37,21 +35,19 @@ export function LoginOrRegisterCTA(props: {
           {locales.route.root.loginOrRegisterCTA.info}
         </p>
 
-        <Form
-          action={`${location.pathname}${location.search}`}
-          method="get"
-          onSubmit={(event) => {
-            event.stopPropagation();
-            event.preventDefault();
-            Cookies.set("mv-hide-login-or-register-cta", "true", {
-              expires: 1,
-            });
-            setHideLoginOrRegisterCookie(true);
+        <fetcher.Form
+          action="/hide-login-or-register-cta"
+          method="post"
+          onSubmit={() => {
+            setHideLoginOrRegisterCta(true);
           }}
           className={`${isHydrated ? "opacity-100" : "opacity-0"}`}
+          preventScrollReset
         >
           <button
             type="submit"
+            name={HIDE_LOGIN_OR_REGISTER_CTA_COOKIE_NAME}
+            value={HIDE_LOGIN_OR_REGISTER_CTA_COOKIE_VALUES.true}
             disabled={isSubmitting}
             aria-label={locales.route.root.loginOrRegisterCTA.hide}
           >
@@ -68,7 +64,7 @@ export function LoginOrRegisterCTA(props: {
               />
             </svg>
           </button>
-        </Form>
+        </fetcher.Form>
       </div>
       <div className="flex w-full gap-4 items-baseline">
         <div className="text-primary font-semibold hover:underline grow @sm:grow-0">

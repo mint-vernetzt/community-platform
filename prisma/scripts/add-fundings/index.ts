@@ -193,7 +193,7 @@ async function main() {
     skipDuplicates: true,
   });
 
-  for await (const funding of fundings) {
+  for (const funding of fundings) {
     const existingFunding = await prismaClient.funding.count({
       where: {
         url: funding.url,

@@ -143,7 +143,7 @@ export async function action(args: ActionFunctionArgs) {
   );
 
   if (intent === ADD_PARENT_EVENT_INTENT) {
-    const submission = await parseWithZod(formData, {
+    const submission = parseWithZod(formData, {
       schema: createAddParentEventSchema(),
     });
     if (submission.status !== "success") {
@@ -171,7 +171,7 @@ export async function action(args: ActionFunctionArgs) {
       level: "positive",
     });
   } else if (intent === REQUEST_TO_JOIN_PARENT_EVENT_INTENT) {
-    const submission = await parseWithZod(formData, {
+    const submission = parseWithZod(formData, {
       schema: createRequestParentEventSchema(),
     });
     if (submission.status !== "success") {
@@ -209,7 +209,7 @@ export async function action(args: ActionFunctionArgs) {
       level: "positive",
     });
   } else if (intent === CANCEL_PARENT_EVENT_JOIN_REQUEST_INTENT) {
-    const submission = await parseWithZod(formData, {
+    const submission = parseWithZod(formData, {
       schema: createCancelParentEventJoinRequestSchema(),
     });
     if (submission.status !== "success") {

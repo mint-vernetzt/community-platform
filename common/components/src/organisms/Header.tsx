@@ -74,7 +74,8 @@ function Body(props: BodyProps) {
     const isValid = isValidElement(child);
     if (!isValid) {
       console.warn(
-        `The child you passed to <HeaderBody> is not a valid element and will be ignored: ${child}`
+        `The child you passed to <HeaderBody> is not a valid element and will be ignored:`,
+        child
       );
     }
     return isValid;
@@ -105,7 +106,8 @@ function Footer(props: FooterProps) {
     const isValid = isValidElement(child) || typeof child === "string";
     if (!isValid) {
       console.warn(
-        `The child you passed to <HeaderFooter> is not a valid element and will be ignored: ${child}`
+        `The child you passed to <HeaderFooter> is not a valid element and will be ignored:`,
+        child
       );
     }
     return isValid;
