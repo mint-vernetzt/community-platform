@@ -365,6 +365,11 @@ export async function loader(args: LoaderFunctionArgs) {
     contactPersons,
     conferenceLink,
     conferenceCode,
+    participationToken: null,
+    parentEvent:
+      event.parentEvent !== null
+        ? { ...event.parentEvent, participationToken: null }
+        : null,
     _count: {
       ...event._count,
       guests: event.guests.filter((guest) => guest.onWaitingList === false)
@@ -384,6 +389,11 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const abilities = await getFeatureAbilities(authClient, "events");
 
+  const guestCanParticipateOnChildEvent =
+    tokenHash !== null &&
+    event.parentEvent !== null &&
+    tokenHash === event.parentEvent.participationToken;
+
   return {
     event: enhancedEvent,
     locales,
@@ -401,6 +411,7 @@ export async function loader(args: LoaderFunctionArgs) {
     abuseReportReasons,
     abilities,
     currentTimestamp: Date.now(),
+    guestCanParticipateOnChildEvent,
   };
 }
 
@@ -552,13 +563,11 @@ export async function action(args: ActionFunctionArgs) {
   const afterParticipationPeriod = now > eventInfo.participationUntil;
   const inPast = now > eventInfo.endTime;
 
-  const url = new URL(request.url);
-  const searchParams = url.searchParams;
-  const tokenHash = searchParams.get(PARTICIPATION_TOKEN_HASH_SEARCH_PARAM);
+  const tokenHash = formData.get(PARTICIPATION_TOKEN_HASH_SEARCH_PARAM);
 
   const mode = await deriveModeForEvent({
     sessionUser,
-    tokenHash,
+    tokenHash: typeof tokenHash === "string" ? tokenHash : null,
     eventInfo: {
       ...eventInfo,
       participantCount:
@@ -836,11 +845,6 @@ function Detail() {
     "Europe/Berlin"
   );
 
-  const guestCanParticipateOnChildEvent =
-    tokenHash !== null &&
-    loaderData.event.parentEvent !== null &&
-    tokenHash === loaderData.event.parentEvent.participationToken;
-
   return (
     <>
       <BasicStructure>
@@ -1001,7 +1005,7 @@ function Detail() {
               ) : loaderData.event.parentEvent !== null &&
                 loaderData.event.parentParticipationRequired !== false &&
                 loaderData.event.parentEvent.parentParticipationRequired &&
-                guestCanParticipateOnChildEvent === false &&
+                loaderData.guestCanParticipateOnChildEvent === false &&
                 loaderData.event.parentEvent.participants.some(
                   (relation) => relation.profileId === loaderData.profileId
                 ) === false ? (
@@ -1084,6 +1088,7 @@ function Detail() {
                 <EventsOverview.Participate
                   profileId={loaderData.profileId}
                   event={loaderData.event}
+                  tokenHash={tokenHash}
                 >
                   {loaderData.locales.route.content.participate}
                 </EventsOverview.Participate>

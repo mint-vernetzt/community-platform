@@ -1577,6 +1577,7 @@ function Participate(props: {
   children: React.ReactNode;
   profileId?: string;
   event: { slug: string };
+  tokenHash: string | null;
 }) {
   const location = useLocation();
   if (typeof props.profileId === "undefined") {
@@ -1592,6 +1593,11 @@ function Participate(props: {
     >
       <input type="hidden" name="profileId" defaultValue={props.profileId} />
       <input type="hidden" name="redirectTo" value={location.pathname} />
+      <input
+        type="hidden"
+        name={PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}
+        value={props.tokenHash || undefined}
+      />
       <Button
         type="submit"
         name={INTENT_FIELD_NAME}
