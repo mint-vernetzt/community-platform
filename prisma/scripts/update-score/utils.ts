@@ -1,6 +1,6 @@
 export function getScoreOfEntity(entity: {
-  avatarImageMetaData?: any | null;
-  logoImageMetaData?: any | null;
+  avatarImageMetaData?: object | null;
+  logoImageMetaData?: object | null;
   position?: string | null;
   types?: any[];
   bio?: string | null;

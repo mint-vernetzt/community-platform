@@ -3,7 +3,7 @@ import { parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { captureException } from "@sentry/node";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Form,
   redirect,
@@ -144,7 +144,7 @@ export async function action(args: ActionFunctionArgs) {
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   if (intent === INVITE_PROFILE_TO_JOIN_AS_TEAM_MEMBER_INTENT) {
-    const submission = await parseWithZod(formData, {
+    const submission = parseWithZod(formData, {
       schema: createInviteProfileToJoinAsTeamMemberSchema(),
     });
 
@@ -190,7 +190,7 @@ export async function action(args: ActionFunctionArgs) {
       level: "positive",
     });
   } else {
-    const submission = await parseWithZod(formData, {
+    const submission = parseWithZod(formData, {
       schema: createAddAdminAsTeamMemberSchema(),
     });
 
@@ -262,10 +262,12 @@ function AddTeamMember() {
       : loaderData.searchedProfiles;
 
   const [admins, setAdmins] = useState(loaderData.admins);
+  const [syncedAdmins, setSyncedAdmins] = useState(loaderData.admins);
 
-  useEffect(() => {
+  if (syncedAdmins !== loaderData.admins) {
+    setSyncedAdmins(loaderData.admins);
     setAdmins(loaderData.admins);
-  }, [loaderData.admins]);
+  }
 
   return (
     <>

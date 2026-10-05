@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export type AlertLevel = "neutral" | "positive" | "attention" | "negative";
 
@@ -30,10 +30,6 @@ export function Alert(props: AlertProps & { onClose?: () => void }) {
     }
   };
 
-  useEffect(() => {
-    setShow(true);
-  }, [props]);
-
   if (!show) {
     return null;
   }
@@ -63,7 +59,11 @@ export function Alert(props: AlertProps & { onClose?: () => void }) {
           {props.children}
         </div>
         {closeable ? (
-          <button onClick={handleClick}>
+          <button
+            onClick={handleClick}
+            // TODO: i18n with locales
+            aria-label="Close alert"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"

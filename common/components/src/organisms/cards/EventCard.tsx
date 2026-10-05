@@ -61,6 +61,7 @@ type EventCardProps = {
   as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
   prefetch?: LinkProps["prefetch"];
   showPublishedStatus?: boolean;
+  now: Date;
 };
 
 function IconOnSite() {
@@ -118,9 +119,8 @@ function EventCard(
     as = "h4",
     prefetch,
     showPublishedStatus = true,
+    now,
   } = props;
-
-  const now = new Date();
 
   const dateDuration = getDateDuration(
     event.startTime,
@@ -305,7 +305,7 @@ function EventCard(
           event._count.childEvents === 0 &&
           event.published &&
           !event.canceled &&
-          event.participationUntil.getTime() > Date.now() &&
+          event.participationUntil.getTime() > now.getTime() &&
           !event.isTeamMember &&
           !event.isSpeaker &&
           !event.isOnWaitingList &&
@@ -322,7 +322,7 @@ function EventCard(
           event._count.childEvents === 0 &&
           event.published &&
           !event.canceled &&
-          event.participationUntil.getTime() > Date.now() &&
+          event.participationUntil.getTime() > now.getTime() &&
           !event.isTeamMember &&
           !event.isSpeaker &&
           !event.isOnWaitingList &&
@@ -346,7 +346,7 @@ function EventCard(
           event._count.childEvents === 0 &&
           event.published &&
           !event.canceled &&
-          event.participationUntil.getTime() > Date.now() &&
+          event.participationUntil.getTime() > now.getTime() &&
           event.isOnWaitingList && (
             <span className="text-xs font-bold text-neutral-700">
               {locales.eventCard.onWaitingList}

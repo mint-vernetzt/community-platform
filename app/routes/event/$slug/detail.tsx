@@ -400,6 +400,7 @@ export async function loader(args: LoaderFunctionArgs) {
     hasUserReportedEvent,
     abuseReportReasons,
     abilities,
+    currentTimestamp: Date.now(),
   };
 }
 
@@ -461,7 +462,7 @@ export async function action(args: ActionFunctionArgs) {
   };
 
   if (intent === PARTICIPATE_AS_GUEST_INTENT) {
-    const submission = await parseWithZod(formData, {
+    const submission = parseWithZod(formData, {
       schema: createRegisterSchema(
         locales.route.content.anonModal.guestAccess.form
       ),
@@ -1043,6 +1044,7 @@ function Detail() {
                 }}
                 reasons={loaderData.abuseReportReasons}
                 event={loaderData.event}
+                timestamp={loaderData.currentTimestamp}
               />
               {loaderData.mode === "administrating" && (
                 <EventsOverview.Edit

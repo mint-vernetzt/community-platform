@@ -1,12 +1,12 @@
 import { parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { captureException } from "@sentry/node";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
-  type ActionFunctionArgs,
   Form,
   redirect,
   useLoaderData,
+  type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
 import {
@@ -16,6 +16,7 @@ import {
 } from "~/auth.server";
 import List from "~/components/next/List";
 import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
+import TitleSection from "~/components/next/TitleSection";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
@@ -32,7 +33,6 @@ import {
   getSearchSpeakersSchema,
   SEARCH_SPEAKERS_SEARCH_PARAM,
 } from "./list.shared";
-import TitleSection from "~/components/next/TitleSection";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -100,7 +100,7 @@ export async function action(args: ActionFunctionArgs) {
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   const formData = await request.formData();
-  const submission = await parseWithZod(formData, {
+  const submission = parseWithZod(formData, {
     schema: getRemoveSpeakerSchema(),
   });
 
@@ -137,10 +137,12 @@ function SpeakerList() {
 
   const { locales } = loaderData;
   const [speakers, setSpeakers] = useState(loaderData.speakers);
+  const [syncedSpeakers, setSyncedSpeakers] = useState(loaderData.speakers);
 
-  useEffect(() => {
+  if (syncedSpeakers !== loaderData.speakers) {
     setSpeakers(loaderData.speakers);
-  }, [loaderData.speakers]);
+    setSyncedSpeakers(loaderData.speakers);
+  }
 
   return (
     <>

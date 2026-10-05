@@ -13,7 +13,7 @@ export async function main(
 ) {
   if (apiUrl) {
     // Makes a http request to the corona API and passes on the response body to evaluateJsonObject()
-    await get(apiUrl, async (res: any) => {
+    get(apiUrl, async (res: any) => {
       const data: any = [];
 
       res.on("data", (chunk: any) => {
@@ -417,7 +417,7 @@ export async function writeToDatabase(
         " states and " +
         queries.insertDistricts.length +
         " districts" +
-        queries.insertAreas +
+        queries.insertAreas.length +
         " areas"
     );
   }

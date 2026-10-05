@@ -40,10 +40,16 @@ const TextArea = (
     rte,
     helperText,
     height = "h-58.5",
+    hasIssue,
     ...inputProps
   } = props;
-  const { value, className, readOnly, tabIndex, hasIssue, ...rteInputProps } =
-    inputProps;
+  const {
+    value: _value,
+    className: _className,
+    readOnly: _readOnly,
+    tabIndex: _tabIndex,
+    ...rteInputProps
+  } = inputProps;
 
   const [characterCount, updateCharacterCount] = useState(
     props.defaultValue?.toString().length || 0

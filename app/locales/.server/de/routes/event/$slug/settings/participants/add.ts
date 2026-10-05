@@ -8,6 +8,7 @@ export const locale = {
     "Deine Einstellung erlaubt nur die Teilnahme an Deinen Unterevents. Deshalb kannst Du nicht zur Rahmenveranstaltung einladen.",
   participationLinkHint:
     "Du kannst den Teilnahmelink auch direkt an Deine Teilnehmer:innen senden. Sie können sich dann selbstständig für die Veranstaltung anmelden.",
+  copyParticipationLink: "Teilnahmelink kopieren",
   search: {
     label: "Suche Personen",
     placeholder: "Name oder E-Mail-Adresse",

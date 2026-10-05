@@ -16,7 +16,7 @@ german-states-and-districts-dataset: ## Import german states and districts into 
 	npx vite-node prisma/scripts/german-states-and-districts-dataset/load-german-states-and-districts.ts
 
 import-datasets: ## Import other static datasets (located in ./prisma/scripts/import-datasets/data/)
-	npx vite-node prisma/scripts/import-datasets/index.ts && npx vite-node prisma/scripts/add-slugs-to-areas
+	npx vite-node prisma/scripts/import-datasets/index.ts && npx vite-node prisma/scripts/add-slugs-to-areas/index.ts
 
 apply-create-profile-trigger: ## Applies the "create profile" trigger, which creates a public profile everytime a user is created on the auth.users table
 	npx vite-node prisma/scripts/apply-create-profile-trigger/index.ts
@@ -55,7 +55,7 @@ download-storage-objects: ## Downloading all storage objects from supabase stora
 	npx vite-node supabase/scripts/download-storage-objects/index.ts
 
 migrate-storage-objects: ## Migrating all storage objects from old supabase storage to the new supabase storage (Please look at the script and the .env.example located in "./supabase/scripts/migrate-storgae-objects/" before executing)
-	npx vite-node supabase/scripts/download-storage-objects/index.ts
+	npx vite-node supabase/scripts/migrate-storage-objects/index.ts
 
 upload-sentry-sourcemaps: ## Sourcemaps are created with each remix build (see npm script build). This command uploads those sourcemaps to sentry and sentry creates a new release.
 	npx sentry-upload-sourcemaps --org ${SENTRY_ORGANIZATION_NAME} --project ${SENTRY_PROJECT_NAME}

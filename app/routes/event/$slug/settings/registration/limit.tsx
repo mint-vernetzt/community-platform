@@ -146,7 +146,7 @@ export async function action(args: ActionFunctionArgs) {
 
   if (intent === UPDATE_MOVE_UP_TO_PARTICIPANTS_INTENT) {
     const schema = createMoveUpToParticipantsSchema();
-    const submission = await parseWithZod(formData, { schema });
+    const submission = parseWithZod(formData, { schema });
 
     if (submission.status !== "success") {
       return { intent, submission: submission.reply() };
@@ -196,7 +196,7 @@ export async function action(args: ActionFunctionArgs) {
     }
   }
   const schema = createParticipantLimitSchema();
-  const submission = await parseWithZod(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
   if (submission.status !== "success") {
     return { intent, submission: submission.reply() };

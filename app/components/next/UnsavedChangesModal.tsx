@@ -1,5 +1,5 @@
 import { type FormMetadata } from "@conform-to/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Form,
   useBlocker,
@@ -26,6 +26,7 @@ export function UnsavedChangesModal(props: {
     forms = [forms];
   }
   const location = useLocation();
+  const [syncedLocation, setSyncedLocation] = useState(location);
   const [searchParams] = useSearchParams();
   const searchParamsWithoutModal = extendSearchParams(searchParams, {
     remove: [searchParam],
@@ -55,11 +56,12 @@ export function UnsavedChangesModal(props: {
     return isBlocked;
   });
 
-  useEffect(() => {
+  if (syncedLocation !== location) {
     if (searchParams.has(searchParam) === false) {
       setNextLocationPathname(null);
     }
-  }, [searchParams, searchParam]);
+    setSyncedLocation(location);
+  }
 
   return (
     <>

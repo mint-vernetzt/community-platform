@@ -11,7 +11,10 @@ import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { type GetSearchSchema } from "./all.shared";
-import { type GetOrganizationsSchema } from "./organizations.shared";
+import {
+  VIEW_COOKIE_VALUES,
+  type GetOrganizationsSchema,
+} from "./organizations.shared";
 import { createCookie } from "react-router";
 import { z } from "zod";
 
@@ -22,10 +25,6 @@ export type ExploreOrganizationsLocales =
 
 const VIEW_COOKIE_NAME = "mv-explore-organizations-view" as const;
 const VIEW_COOKIE_MAX_AGE = 31540000 as const;
-export const VIEW_COOKIE_VALUES = {
-  list: "list",
-  map: "map",
-} as const;
 
 export const viewCookieSchema = z.enum([
   VIEW_COOKIE_VALUES.list,
@@ -87,11 +86,13 @@ type SearchWhereStatement = {
           };
         }
       | {
-          [K in
-            | "networkMembers"
-            | "memberOf"
-            | "teamMembers"
-            | "responsibleForProject"]?: {
+          [
+            K in
+              | "networkMembers"
+              | "memberOf"
+              | "teamMembers"
+              | "responsibleForProject"
+          ]?: {
             some: {
               [K in "networkMember" | "network" | "profile" | "project"]?: {
                 AND: (
@@ -102,14 +103,15 @@ type SearchWhereStatement = {
                       };
                     }
                   | {
-                      [K in
-                        | "organizationVisibility"
-                        | "projectVisibility"
-                        | "profileVisibility"]?: {
-                        [K in
-                          | Organization
-                          | Project
-                          | Profile as string]: boolean;
+                      [
+                        K in
+                          | "organizationVisibility"
+                          | "projectVisibility"
+                          | "profileVisibility"
+                      ]?: {
+                        [
+                          K in Organization | Project | Profile as string
+                        ]: boolean;
                       };
                     }
                 )[];

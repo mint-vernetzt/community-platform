@@ -1,33 +1,40 @@
+import { parseWithZod } from "@conform-to/zod";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { captureException } from "@sentry/node";
+import { useState } from "react";
 import {
-  type ActionFunctionArgs,
   Form,
   Link,
   redirect,
   useLoaderData,
+  type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
-import { detectLanguage } from "~/i18n.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { languageModuleMap } from "~/locales/.server";
-import {
-  getEventBySlug,
-  getWaitingListOfEvent,
-  moveToParticipants,
-} from "./waiting-list.server";
 import {
   createAuthClient,
   getSessionUser,
   getSessionUserOrThrow,
 } from "~/auth.server";
-import { Deep } from "~/lib/utils/searchParams";
-import { useEffect, useState } from "react";
-import TitleSection from "~/components/next/TitleSection";
 import Hint from "~/components/next/Hint";
+import List from "~/components/next/List";
+import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
+import TitleSection from "~/components/next/TitleSection";
+import { detectLanguage } from "~/i18n.server";
 import {
   insertComponentsIntoLocale,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
-import List from "~/components/next/List";
+import { invariantResponse } from "~/lib/utils/response";
+import { Deep } from "~/lib/utils/searchParams";
+import { languageModuleMap } from "~/locales/.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
+import { redirectWithToast } from "~/toast.server";
+import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
+import {
+  getEventBySlug,
+  getWaitingListOfEvent,
+  moveToParticipants,
+} from "./waiting-list.server";
 import {
   createMoveToParticipantsSchema,
   createSearchWaitingListSchema,
@@ -35,13 +42,6 @@ import {
   PROFILE_ID,
   SEARCH_WAITING_LIST_SEARCH_PARAM,
 } from "./waiting-list.shared";
-import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
-import { parseWithZod } from "@conform-to/zod";
-import { captureException } from "@sentry/node";
-import { redirectWithToast } from "~/toast.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -185,10 +185,14 @@ function ParticipantsWaitingList() {
   const { locales, language } = loaderData;
 
   const [waitingList, setWaitingList] = useState(loaderData.waitingList);
+  const [syncedWaitingList, setSyncedWaitingList] = useState(
+    loaderData.waitingList
+  );
 
-  useEffect(() => {
+  if (syncedWaitingList !== loaderData.waitingList) {
+    setSyncedWaitingList(loaderData.waitingList);
     setWaitingList(loaderData.waitingList);
-  }, [loaderData.waitingList]);
+  }
 
   let hint: string = locales.route.hints.automaticallyMoveToParticipants;
   if (loaderData.moveUpToParticipants === false) {

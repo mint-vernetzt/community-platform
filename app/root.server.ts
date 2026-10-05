@@ -6,6 +6,31 @@ import {
 import { type SUPPORTED_COOKIE_LANGUAGES } from "./i18n.shared";
 import { type ArrayElement } from "./lib/utils/types";
 import { languageModuleMap } from "./locales/.server";
+import {
+  HIDE_LOGIN_OR_REGISTER_CTA_COOKIE_NAME,
+  HIDE_LOGIN_OR_REGISTER_CTA_COOKIE_VALUES,
+} from "./root.shared";
+import { createCookie } from "react-router";
+import z from "zod";
+
+const HIDE_LOGIN_OR_REGISTER_CTA_COOKIE_MAX_AGE = 31540000 as const;
+
+export const hideLoginOrRegisterCtaCookieSchema = z.enum([
+  HIDE_LOGIN_OR_REGISTER_CTA_COOKIE_VALUES.true,
+  HIDE_LOGIN_OR_REGISTER_CTA_COOKIE_VALUES.false,
+]);
+
+export const hideLoginOrRegisterCtaCookie = createCookie(
+  HIDE_LOGIN_OR_REGISTER_CTA_COOKIE_NAME,
+  {
+    path: "/",
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    httpOnly: true,
+    // 1 year
+    maxAge: HIDE_LOGIN_OR_REGISTER_CTA_COOKIE_MAX_AGE,
+  }
+);
 
 export async function getProfileByUserId(id: string) {
   return await prismaClient.profile.findUnique({

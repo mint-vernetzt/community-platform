@@ -3,17 +3,28 @@ import { useEffect, useState } from "react";
 import { Form } from "react-router";
 import { type DashboardLocales } from "~/routes/dashboard.server";
 import Search from "./Search";
-import { DEFAULT_LANGUAGE } from "~/i18n.shared";
 
 function DashboardSearchPlaceholderRotation(props: {
   locales: DashboardLocales["route"]["content"]["search"]["placeholder"]["rotation"];
 }) {
   const [count, setCount] = useState(0);
   const defaultClasses = "text-neutral-700 flex flex-col gap-3 line-clamp-1";
+  const [classes, setClasses] = useState(defaultClasses);
 
   useEffect(() => {
     const interval = setInterval(
       () => {
+        const newClasses = classNames(
+          defaultClasses,
+          count === 0 && "mt-0",
+          count === 1 && "-mt-9",
+          count === 2 && "-mt-18",
+          count === 3 && "-mt-27",
+          count === 4 && "-mt-36",
+          count === 5 && "-mt-45",
+          count <= 5 && count > 0 && "transition-margin duration-1000"
+        );
+        setClasses(newClasses);
         if (count >= props.locales.length + 1) {
           setCount(0);
         } else {
@@ -27,36 +38,6 @@ function DashboardSearchPlaceholderRotation(props: {
       clearInterval(interval);
     };
   }, [count, props.locales.length]);
-
-  const [classes, setClasses] = useState(defaultClasses);
-
-  useEffect(() => {
-    const newClasses = classNames(
-      defaultClasses,
-      count === 0 && "mt-0",
-      count === 1 && "-mt-9",
-      count === 2 && "-mt-18",
-      count === 3 && "-mt-27",
-      count === 4 && "-mt-36",
-      count === 5 && "-mt-45",
-      count <= 5 && count > 0 && "transition-margin duration-1000"
-    );
-    setClasses(newClasses);
-
-    let timeout = null;
-    if (count >= props.locales.length) {
-      timeout = setTimeout(() => {
-        setClasses(defaultClasses);
-        setCount(0);
-      }, 1000);
-    }
-
-    return () => {
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-    };
-  }, [count, defaultClasses, props.locales.length]);
 
   return (
     <div className={classes}>
@@ -82,37 +63,22 @@ export function DashboardSearch(props: {
             inputProps={{
               id: "search-bar",
               name: "search",
-              placeholder:
-                typeof props.locales === "undefined"
-                  ? DEFAULT_LANGUAGE === "de"
-                    ? "Suche..."
-                    : "Search..."
-                  : props.locales.placeholder.default,
+              placeholder: props.locales.placeholder.defaultValue,
             }}
             locales={props.locales}
           >
             <label className="">
-              {typeof props.locales === "undefined" ? (
-                DEFAULT_LANGUAGE === "de" ? (
-                  "Suche..."
-                ) : (
-                  "Search..."
-                )
-              ) : (
-                <>
-                  <div className="xl:hidden mt-3 text-neutral-700 font-normal">
-                    {props.locales.placeholder.default}
-                  </div>
-                  <div className="hidden xl:flex gap-1 mt-3">
-                    <div className="text-neutral-700 font-normal">
-                      {props.locales.placeholder.xl}
-                    </div>
-                    <DashboardSearchPlaceholderRotation
-                      locales={props.locales.placeholder.rotation}
-                    />
-                  </div>
-                </>
-              )}
+              <div className="xl:hidden mt-3 text-neutral-700 font-normal">
+                {props.locales.placeholder.defaultValue}
+              </div>
+              <div className="hidden xl:flex gap-1 mt-3">
+                <div className="text-neutral-700 font-normal">
+                  {props.locales.placeholder.xl}
+                </div>
+                <DashboardSearchPlaceholderRotation
+                  locales={props.locales.placeholder.rotation}
+                />
+              </div>
             </label>
           </Search>
         </Form>

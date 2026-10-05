@@ -1,5 +1,6 @@
 import classNames from "classnames";
 import { Children, isValidElement } from "react";
+import { safeStringify } from "~/lib/utils/json";
 
 function FormControlLabel(props: React.PropsWithChildren) {
   return (
@@ -200,10 +201,10 @@ export function FormControl(
               "id" in info.props &&
               typeof info.props.id === "string"
                 ? info.props.id
-                : String(label)
+                : safeStringify(label)
             }
             className="h-5 hover:text-primary focus:text-primary"
-            aria-label={String(label)}
+            aria-label={safeStringify(label)}
           >
             <svg
               width="20"

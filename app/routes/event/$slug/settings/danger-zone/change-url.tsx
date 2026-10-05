@@ -95,7 +95,7 @@ export async function action(args: ActionFunctionArgs) {
 
   const formData = await request.formData();
   const schema = createChangeURLSchema({ locales: locales.route });
-  const submission = await parseWithZod(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
   if (submission.status !== "success") {
     return submission.reply();

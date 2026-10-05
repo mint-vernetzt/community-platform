@@ -1,6 +1,7 @@
 import { program } from "commander";
 import inquirer from "inquirer";
 import { createAdminAuthClient } from "~/auth.server";
+import { safeStringify } from "~/lib/utils/json";
 import { prismaClient } from "~/prisma.server";
 
 program.option("--id <id>", "The ID of the profile to ban.");
@@ -175,7 +176,10 @@ async function main() {
     throw new Error(`No profile found with ID ${options.id}`);
   }
 
-  const profileBackupJson = JSON.stringify(profileBackup, null, 2);
+  const profileBackupJson = safeStringify(profileBackup, null, 2).replace(
+    /^"|"$/g,
+    ""
+  );
 
   await prismaClient.$transaction([
     prismaClient.bannedProfile.create({

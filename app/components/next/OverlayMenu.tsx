@@ -57,12 +57,14 @@ function OverlayMenu(props: OverlayMenuProps) {
   }
 
   const [isOpen, setIsOpen] = useState(fallBackIsOpen);
+  const [syncedIsOpen, setSyncedIsOpen] = useState(fallBackIsOpen);
   const listRef = useRef<HTMLUListElement>(null);
   const linkRef = useRef<HTMLAnchorElement>(null);
 
-  useEffect(() => {
+  if (syncedIsOpen !== fallBackIsOpen) {
+    setSyncedIsOpen(fallBackIsOpen);
     setIsOpen(fallBackIsOpen);
-  }, [fallBackIsOpen]);
+  }
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

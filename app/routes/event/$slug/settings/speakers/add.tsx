@@ -126,7 +126,7 @@ export async function action(args: ActionFunctionArgs) {
   const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
-  const submission = await parseWithZod(formData, {
+  const submission = parseWithZod(formData, {
     schema: createInviteProfileToJoinAsSpeakerSchema(),
   });
 

@@ -1,7 +1,7 @@
 import { parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { captureException } from "@sentry/node";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Form,
   redirect,
@@ -16,6 +16,7 @@ import {
 } from "~/auth.server";
 import List from "~/components/next/List";
 import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
+import TitleSection from "~/components/next/TitleSection";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
@@ -34,7 +35,6 @@ import {
   INVITED_PROFILES_SEARCH_PARAM,
   PROFILE_ID_FIELD,
 } from "./invites.shared";
-import TitleSection from "~/components/next/TitleSection";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -105,7 +105,7 @@ export async function action(args: ActionFunctionArgs) {
     languageModuleMap[language]["event/$slug/settings/admins/invites"];
 
   const formData = await request.formData();
-  const submission = await parseWithZod(formData, {
+  const submission = parseWithZod(formData, {
     schema: createRevokeInviteOfProfileToJoinEventAsAdminSchema(),
   });
 
@@ -151,10 +151,12 @@ function AdminInvites() {
   const { locales, language } = loaderData;
 
   const [profiles, setProfiles] = useState(loaderData.profiles);
+  const [syncedProfiles, setSyncedProfiles] = useState(loaderData.profiles);
 
-  useEffect(() => {
+  if (syncedProfiles !== loaderData.profiles) {
     setProfiles(loaderData.profiles);
-  }, [loaderData.profiles]);
+    setSyncedProfiles(loaderData.profiles);
+  }
 
   return (
     <>

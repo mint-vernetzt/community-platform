@@ -27,6 +27,7 @@ import { ListItem, type ListOrganization } from "./ListItem";
 import { BurgerMenuClosed } from "./icons/BurgerMenuClosed";
 import { BurgerMenuOpen } from "./icons/BurgerMenuOpen";
 import { MapPopupClose } from "./icons/MapPopupClose";
+import { safeStringify } from "~/lib/utils/json";
 
 function isWebglSupported(locales: { error: string }) {
   if (window.WebGLRenderingContext) {
@@ -194,39 +195,16 @@ export function MapView(props: {
     }
   }, [mapLoaded, embeddable]);
 
-  const unclusteredClickHandler = useCallback(
-    (
-      event: MapMouseEvent & {
-        features?: MapGeoJSONFeature[];
-      } & {
-        slug?: string;
-        duplicate_count?: number;
-      }
-    ) => {
+  const showOrganizationsPopup = useCallback(
+    (commaSeperatedSlugs: any, duplicateCount: any) => {
       if (mapRef.current === null) {
         return;
       }
-      const commaSeparatedSlugs =
-        "slug" in event
-          ? event.slug
-          : typeof event.features !== "undefined"
-            ? event.features[0].properties.id
-            : null;
-      if (
-        typeof commaSeparatedSlugs === "undefined" ||
-        commaSeparatedSlugs === null
-      ) {
+      if (typeof commaSeperatedSlugs !== "string") {
         return;
       }
-      const slugs = commaSeparatedSlugs.split(",");
-      const duplicateCount =
-        "slug" in event
-          ? event.duplicate_count
-          : typeof event.features !== "undefined"
-            ? (event.features[0].properties.duplicate_count as
-                number | null | undefined)
-            : null;
-      if (typeof duplicateCount === "undefined" || duplicateCount === null) {
+      const slugs = commaSeperatedSlugs.split(",");
+      if (typeof duplicateCount !== "number") {
         return;
       }
 
@@ -334,11 +312,30 @@ export function MapView(props: {
     [locales, organizations, popupClosedByHandlerRef, embeddable]
   );
 
+  const unclusteredClickHandler = useCallback(
+    (
+      event: MapMouseEvent & {
+        features?: MapGeoJSONFeature[];
+      } & {
+        slug?: string;
+        duplicate_count?: number;
+      }
+    ) => {
+      const feature = event.features?.[0];
+      if (typeof feature === "undefined") return;
+      showOrganizationsPopup(
+        feature.properties.id,
+        feature.properties.duplicate_count
+      );
+    },
+    [showOrganizationsPopup]
+  );
+
   useEffect(() => {
     if (
       mapLoaded &&
       mapRef.current !== null &&
-      JSON.stringify(lastOrgsRef.current) !== JSON.stringify(organizations)
+      safeStringify(lastOrgsRef.current) !== safeStringify(organizations)
     ) {
       lastOrgsRef.current = organizations;
 
@@ -954,21 +951,12 @@ export function MapView(props: {
                         ) {
                           return;
                         }
-                        const mapEvent = new MapMouseEvent(
-                          "click",
-                          mapRef.current,
-                          event.nativeEvent
-                        );
-                        unclusteredClickHandler({
-                          ...mapEvent,
-                          preventDefault: () => event.preventDefault(),
-                          defaultPrevented: false,
-                          slug: existingOrganizationsAtAddress
+                        showOrganizationsPopup(
+                          existingOrganizationsAtAddress
                             .map((org) => org.slug)
                             .join(","),
-                          duplicate_count:
-                            existingOrganizationsAtAddress.length,
-                        });
+                          existingOrganizationsAtAddress.length
+                        );
                       }}
                       id={organization.slug}
                       key={`organization-${organization.slug}`}

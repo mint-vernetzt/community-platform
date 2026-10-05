@@ -1,7 +1,7 @@
 import { parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { captureException } from "@sentry/node";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   type ActionFunctionArgs,
   Form,
@@ -20,11 +20,13 @@ import { Modal } from "~/components-next/Modal";
 import Hint from "~/components/next/Hint";
 import List from "~/components/next/List";
 import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
+import TitleSection from "~/components/next/TitleSection";
 import {
   insertComponentsIntoLocale,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
+import { extendSearchParams } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
@@ -41,8 +43,6 @@ import {
   getSearchAdminsSchema,
   SEARCH_ADMINS_SEARCH_PARAM,
 } from "./list.shared";
-import { extendSearchParams } from "~/lib/utils/searchParams";
-import TitleSection from "~/components/next/TitleSection";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -115,7 +115,7 @@ export async function action(args: ActionFunctionArgs) {
   }
 
   const formData = await request.formData();
-  const submission = await parseWithZod(formData, {
+  const submission = parseWithZod(formData, {
     schema: getRemoveAdminSchema(),
   });
 
@@ -161,16 +161,17 @@ export async function action(args: ActionFunctionArgs) {
 
 function AdminsList() {
   const loaderData = useLoaderData<typeof loader>();
-
   const { locales } = loaderData;
-  const [admins, setAdmins] = useState(loaderData.admins);
-
   const location = useLocation();
   const [searchParams] = useSearchParams();
 
-  useEffect(() => {
+  const [admins, setAdmins] = useState(loaderData.admins);
+  const [syncedAdmins, setSyncedAdmins] = useState(loaderData.admins);
+
+  if (syncedAdmins !== loaderData.admins) {
     setAdmins(loaderData.admins);
-  }, [loaderData.admins]);
+    setSyncedAdmins(loaderData.admins);
+  }
 
   return (
     <>

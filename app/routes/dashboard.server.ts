@@ -12,10 +12,69 @@ import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { type getAllEvents } from "./explore/events.server";
+import z from "zod";
+import {
+  DASHBOARD_PREFERENCES_COOKIE_VALUES,
+  HIDE_NEWS_COOKIE_NAME,
+  HIDE_NOTIFICATIONS_COOKIE_NAME,
+  HIDE_UPDATES_COOKIE_NAME,
+} from "./dashboard.shared";
+import { createCookie } from "react-router";
 
 export type DashboardLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES
 >]["dashboard"];
+
+const HIDE_UPDATES_COOKIE_MAX_AGE = 31540000 as const;
+
+export const hideUpdatesCookieSchema = z.enum([
+  DASHBOARD_PREFERENCES_COOKIE_VALUES.true,
+  DASHBOARD_PREFERENCES_COOKIE_VALUES.false,
+]);
+
+export const hideUpdatesCookie = createCookie(HIDE_UPDATES_COOKIE_NAME, {
+  path: "/",
+  sameSite: "lax",
+  secure: process.env.NODE_ENV === "production",
+  httpOnly: true,
+  // 1 year
+  maxAge: HIDE_UPDATES_COOKIE_MAX_AGE,
+});
+
+const HIDE_NEWS_COOKIE_MAX_AGE = 31540000 as const;
+
+export const hideNewsCookieSchema = z.enum([
+  DASHBOARD_PREFERENCES_COOKIE_VALUES.true,
+  DASHBOARD_PREFERENCES_COOKIE_VALUES.false,
+]);
+
+export const hideNewsCookie = createCookie(HIDE_NEWS_COOKIE_NAME, {
+  path: "/",
+  sameSite: "lax",
+  secure: process.env.NODE_ENV === "production",
+  httpOnly: true,
+  // 1 year
+  maxAge: HIDE_NEWS_COOKIE_MAX_AGE,
+});
+
+const HIDE_NOTIFICATIONS_COOKIE_MAX_AGE = 31540000 as const;
+
+export const hideNotificationsCookieSchema = z.enum([
+  DASHBOARD_PREFERENCES_COOKIE_VALUES.true,
+  DASHBOARD_PREFERENCES_COOKIE_VALUES.false,
+]);
+
+export const hideNotificationsCookie = createCookie(
+  HIDE_NOTIFICATIONS_COOKIE_NAME,
+  {
+    path: "/",
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    httpOnly: true,
+    // 1 year
+    maxAge: HIDE_NOTIFICATIONS_COOKIE_MAX_AGE,
+  }
+);
 
 export async function getProfileById(id: string, authClient: SupabaseClient) {
   const profile = await prismaClient.profile.findUnique({

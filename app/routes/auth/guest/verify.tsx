@@ -187,7 +187,10 @@ function GuestVerify() {
                   href={`mailto:${actionData.supportMail}`}
                   key="support-mail"
                   className="underline hover:no-underline font-semibold"
-                />,
+                  aria-label="Support"
+                >
+                  {" "}
+                </a>,
               ]
             )}
           </p>

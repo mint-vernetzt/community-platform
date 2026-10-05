@@ -33,7 +33,7 @@ export const locale = {
       headline: "Discover the community and find new funding opportunities",
       label: "Search",
       placeholder: {
-        default: "Search...",
+        defaultValue: "Search...",
         xl: "Search for",
         rotation: [
           "inspiration from the STEM world",

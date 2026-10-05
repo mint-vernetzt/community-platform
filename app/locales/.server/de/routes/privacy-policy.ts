@@ -322,8 +322,6 @@ export const locale = {
           "Tracker ist aktiv. Wähle die Checkbox ab, um den Tracker zu deaktivieren.",
         trackerInactive:
           "Tracker ist inaktiv. Wähle die Checkbox an, um den Tracker zu aktivieren.",
-        doNotTrackEnabled:
-          "Der Tracker ist deaktiviert, da die Do-Not-Track-Einstellung in Deinem Browser aktiviert ist.",
       },
       matomoNotConfigured:
         "Der Matomo Tracking Code ist nicht konfiguriert. Deshalb werden derzeit keine Daten erhoben.",

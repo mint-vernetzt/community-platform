@@ -160,6 +160,10 @@ async function main(
   ]);
   await executeCommand("npx", [
     "vite-node",
+    "prisma/scripts/add-slugs-to-areas/index.ts",
+  ]);
+  await executeCommand("npx", [
+    "vite-node",
     "supabase/scripts/create-buckets/index.ts",
   ]);
   await executeCommand("npx", [

@@ -3,6 +3,7 @@ import { type UseFormRegisterReturn } from "react-hook-form";
 import { type InputForFormProps } from "../../RTE";
 import { useEffect, useState } from "react";
 import { $getSelection, type EditorState } from "lexical";
+import { safeStringify } from "~/lib/utils/json";
 
 function InputForFormPlugin(
   props: InputForFormProps & {
@@ -80,7 +81,10 @@ function InputForFormPlugin(
       }
       editor.read(() => {
         const editorState = editor.getEditorState();
-        const editorStateJSON = JSON.stringify(editorState.toJSON());
+        const editorStateJSON = safeStringify(editorState.toJSON()).replace(
+          /^"|"$/g,
+          ""
+        );
         setEditorStateValue(String(editorStateJSON));
       });
     };

@@ -1,7 +1,7 @@
 import { parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { captureException } from "@sentry/node";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Form,
   redirect,
@@ -109,7 +109,7 @@ export async function action(args: ActionFunctionArgs) {
     ];
 
   const formData = await request.formData();
-  const submission = await parseWithZod(formData, {
+  const submission = parseWithZod(formData, {
     schema: createRevokeOrganizationInviteSchema(),
   });
 
@@ -158,10 +158,15 @@ function OrganizationInvites() {
   const { locales, language } = loaderData;
 
   const [organizations, setOrganizations] = useState(loaderData.organizations);
+  const [syncedOrganizations, setSyncedOrganizations] = useState(
+    loaderData.organizations
+  );
 
-  useEffect(() => {
+  if (syncedOrganizations !== loaderData.organizations) {
     setOrganizations(loaderData.organizations);
-  }, [loaderData.organizations]);
+    setSyncedOrganizations(loaderData.organizations);
+  }
+
   return (
     <>
       <TitleSection>

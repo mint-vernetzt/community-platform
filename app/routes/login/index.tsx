@@ -30,6 +30,7 @@ import { createAuthClient, getSessionUser } from "../../auth.server";
 import { login } from "./index.server";
 import { createLoginSchema } from "./index.shared";
 import { HONEYPOT_CLASSNAME } from "~/honeypot.shared";
+import { safeStringify } from "~/lib/utils/json";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -74,8 +75,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const replyWithoutPassword = {
       ...reply,
       initialValue: {
-        loginRedirect: submission.payload.loginRedirect.toString(),
-        email: submission.payload.email.toString(),
+        loginRedirect: safeStringify(submission.payload.loginRedirect).replace(
+          /^"|"$/g,
+          ""
+        ),
+        email: safeStringify(submission.payload.email),
         password: "", // Don't return password to client
       },
     };

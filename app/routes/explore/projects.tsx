@@ -10,7 +10,7 @@ import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { ProjectCard } from "@mint-vernetzt/components/src/organisms/cards/ProjectCard";
 import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Form,
   redirect,
@@ -104,7 +104,7 @@ export async function loader(args: LoaderFunctionArgs) {
       isLoggedIn,
       language,
     });
-    filteredByVisibilityCount = await projectIdsFilteredByVisibility.length;
+    filteredByVisibilityCount = projectIdsFilteredByVisibility.length;
   }
 
   const projectIds = await getProjectIds({
@@ -554,9 +554,14 @@ export default function ExploreProjects() {
     showMore = loaderData.projectsCount > loaderData.projects.length;
   }
 
-  const [visibleAreas, setVisibleAreas] = useState<typeof loaderData.areas>(
-    loaderData.areas
-  );
+  const [visibleAreas, setVisibleAreas] = useState(loaderData.areas);
+  const [syncedAreas, setSyncedAreas] = useState(loaderData.areas);
+
+  if (syncedAreas !== loaderData.areas) {
+    setSyncedAreas(loaderData.areas);
+    setVisibleAreas(loaderData.areas);
+  }
+
   const handleAreaSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
     const value = event.target.value.trim().toLowerCase();
@@ -591,10 +596,6 @@ export default function ExploreProjects() {
       setVisibleAreas(loaderData.areas);
     }
   };
-
-  useEffect(() => {
-    setVisibleAreas(loaderData.areas);
-  }, [loaderData.areas]);
 
   return (
     <>

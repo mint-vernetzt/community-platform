@@ -12,6 +12,7 @@ import {
 } from "@sentry/react";
 import { StrictMode, startTransition, useEffect } from "react";
 import { hydrateRoot } from "react-dom/client";
+import { safeStringify } from "./lib/utils/json";
 
 if (ENV.MODE === "production" && typeof ENV.SENTRY_DSN !== "undefined") {
   try {
@@ -57,10 +58,7 @@ if (ENV.MODE === "production" && typeof ENV.SENTRY_DSN !== "undefined") {
   } catch (error) {
     console.warn("Sentry initialization failed");
     const formData = new FormData();
-    formData.append(
-      "error",
-      JSON.stringify(error, Object.getOwnPropertyNames(error))
-    );
+    formData.append("error", safeStringify(error));
     void fetch("/error", {
       method: "POST",
       body: formData,

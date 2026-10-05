@@ -52,7 +52,7 @@ async function updateEvents() {
       }
     }
   } catch (error) {
-    console.error(`Error updating events: ${error}`);
+    console.error(`Error updating events:`, error);
     throw error;
   }
 }
@@ -96,7 +96,7 @@ async function updateProjects() {
       }
     }
   } catch (error) {
-    console.error(`Error updating projects: ${error}`);
+    console.error(`Error updating projects:`, error);
     throw error;
   }
 }
@@ -115,7 +115,7 @@ async function main() {
 
     console.log(`Update process completed successfully`);
   } catch (error) {
-    console.error(`Error during update process: ${error}`);
+    console.error(`Error during update process:`, error);
     throw error;
   }
 }

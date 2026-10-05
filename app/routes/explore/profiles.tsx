@@ -55,7 +55,7 @@ import {
 } from "./profiles.server";
 import { PROFILE_SORT_VALUES } from "./profiles.shared";
 import { getAllAreas, getAreaNameBySlug } from "./utils.server";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createHashFromObject } from "~/utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -416,6 +416,13 @@ export default function ExploreProfiles() {
   const [visibleAreas, setVisibleAreas] = useState<typeof loaderData.areas>(
     loaderData.areas
   );
+  const [syncedAreas, setSyncedAreas] = useState(loaderData.areas);
+
+  if (syncedAreas !== loaderData.areas) {
+    setSyncedAreas(loaderData.areas);
+    setVisibleAreas(loaderData.areas);
+  }
+
   const handleAreaSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
     const value = event.target.value.trim().toLowerCase();
@@ -450,10 +457,6 @@ export default function ExploreProfiles() {
       setVisibleAreas(loaderData.areas);
     }
   };
-
-  useEffect(() => {
-    setVisibleAreas(loaderData.areas);
-  }, [loaderData.areas]);
 
   return (
     <>

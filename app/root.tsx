@@ -53,13 +53,14 @@ import { PreviousLocationContext } from "./components/next/PreviousLocationConte
 import { getEnv } from "./env.server";
 import { INTENT_FIELD_NAME } from "./form-helpers";
 import { honeypot } from "./honeypot.server";
-import { detectLanguage, localeCookie } from "./i18n.server";
+import { detectLanguage } from "./i18n.server";
 import { DEFAULT_LANGUAGE } from "./i18n.shared";
 import { BlurFactor, getImageURL, ImageSizes } from "./images.server";
 import {
   insertComponentsIntoLocale,
   insertParametersIntoLocale,
 } from "./lib/utils/i18n";
+import { safeStringify } from "./lib/utils/json";
 import { invariantResponse } from "./lib/utils/response";
 import { extendSearchParams } from "./lib/utils/searchParams";
 import { languageModuleMap } from "./locales/.server";
@@ -69,11 +70,14 @@ import {
   getEntitiesBySearchQuery,
   getProfileByUserId,
   getTagsBySearchQuery,
+  hideLoginOrRegisterCtaCookie,
+  hideLoginOrRegisterCtaCookieSchema,
   linkGuestDataToUser,
   removeGuestData,
 } from "./root.server";
 import {
   CURRENT_LOCATION,
+  HIDE_LOGIN_OR_REGISTER_CTA_COOKIE_VALUES,
   LINK_GUEST_DATA_INTENT,
   SKIP_LINK_GUEST_DATA_INTENT,
 } from "./root.shared";
@@ -84,6 +88,7 @@ import {
 import { getPublicURL } from "./storage.server";
 import { getToast, redirectWithToast } from "./toast.server";
 import { combineHeaders, deriveMode } from "./utils.server";
+import { VIEW_COOKIE_VALUES } from "./routes/explore/organizations.shared";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { loaderData } = args;
@@ -139,9 +144,6 @@ export async function loader(args: LoaderFunctionArgs) {
   const honeyProps = await honeypot.getInputProps();
 
   const language = await detectLanguage(request);
-  const languageCookieHeaders = {
-    "Set-Cookie": await localeCookie.serialize(language),
-  };
   const locales = languageModuleMap[language].root;
 
   const { authClient, headers } = createAuthClient(request);
@@ -248,13 +250,30 @@ export async function loader(args: LoaderFunctionArgs) {
     };
   });
 
-  let preferredExploreOrganizationsView: "map" | "list" = "list";
+  let preferredExploreOrganizationsView: keyof typeof VIEW_COOKIE_VALUES =
+    VIEW_COOKIE_VALUES.list;
 
   const cookieHeader = request.headers.get("Cookie");
-  const cookie = (await viewCookie.parse(cookieHeader)) as null | any;
-  if (cookie !== null) {
+  const viewCookieValue = await viewCookie.parse(cookieHeader);
+  if (viewCookieValue !== null) {
     try {
-      preferredExploreOrganizationsView = viewCookieSchema.parse(cookie);
+      preferredExploreOrganizationsView =
+        viewCookieSchema.parse(viewCookieValue);
+    } catch {
+      // ignore invalid cookie
+    }
+  }
+
+  let hideLoginOrRegisterCta: keyof typeof HIDE_LOGIN_OR_REGISTER_CTA_COOKIE_VALUES =
+    HIDE_LOGIN_OR_REGISTER_CTA_COOKIE_VALUES.false;
+
+  const hideLoginOrRegisterCtaCookieValue =
+    await hideLoginOrRegisterCtaCookie.parse(cookieHeader);
+  if (hideLoginOrRegisterCtaCookieValue !== null) {
+    try {
+      hideLoginOrRegisterCta = hideLoginOrRegisterCtaCookieSchema.parse(
+        hideLoginOrRegisterCtaCookieValue
+      );
     } catch {
       // ignore invalid cookie
     }
@@ -262,12 +281,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   // Make prefetching work with a short lived cache header only on requests that have a prefetch purpose
   // see https://sergiodxa.com/tutorials/fix-double-data-request-when-prefetching-in-remix
-  const combinedHeaders = combineHeaders(
-    headers,
-    alertHeaders,
-    toastHeaders,
-    languageCookieHeaders
-  );
+  const combinedHeaders = combineHeaders(headers, alertHeaders, toastHeaders);
   const isGet = request.method.toLowerCase() === "get";
   const purpose =
     request.headers.get("Purpose") ||
@@ -321,6 +335,7 @@ export async function loader(args: LoaderFunctionArgs) {
       preferredExploreOrganizationsView,
       authRoutesNotMeantToIndex,
       sanitizedPathname,
+      hideLoginOrRegisterCta,
     },
     {
       headers: combinedHeaders,
@@ -341,7 +356,7 @@ export async function action(args: ActionFunctionArgs) {
 
   const currentLocation = formData.get(CURRENT_LOCATION);
   let redirectUrl;
-  if (currentLocation !== null) {
+  if (currentLocation !== null && typeof currentLocation === "string") {
     redirectUrl = `${process.env.COMMUNITY_BASE_URL}${currentLocation.toString()}`;
   } else {
     redirectUrl = request.url;
@@ -427,10 +442,7 @@ export const ErrorBoundary = () => {
       // When client side error occurs and sentry is not working, we send the error to the server
       console.warn("Sentry Sentry.captureException failed");
       const formData = new FormData();
-      formData.append(
-        "error",
-        JSON.stringify(error, Object.getOwnPropertyNames(error))
-      );
+      formData.append("error", safeStringify(error));
       void fetch("/error", {
         method: "POST",
         body: formData,
@@ -662,7 +674,7 @@ export const ErrorBoundary = () => {
             nonce={nonce}
             suppressHydrationWarning
             dangerouslySetInnerHTML={{
-              __html: `window.ENV = ${JSON.stringify(ENV)}`,
+              __html: `window.ENV = ${safeStringify(ENV)}`,
             }}
           />
           <ScrollRestoration nonce={nonce} />
@@ -688,6 +700,7 @@ export default function App() {
     honeyProps,
     authRoutesNotMeantToIndex,
     sanitizedPathname,
+    hideLoginOrRegisterCta,
   } = useLoaderData<typeof loader>();
   const location = useLocation();
   const nonce = useNonce();
@@ -720,10 +733,7 @@ export default function App() {
       } catch (error) {
         console.warn(`Matomo initialization failed.`);
         const formData = new FormData();
-        formData.append(
-          "error",
-          JSON.stringify(error, Object.getOwnPropertyNames(error))
-        );
+        formData.append("error", safeStringify(error));
         void fetch("/error", {
           method: "POST",
           body: formData,
@@ -742,10 +752,7 @@ export default function App() {
       } catch (error) {
         console.warn(`Matomo tracking failed.`);
         const formData = new FormData();
-        formData.append(
-          "error",
-          JSON.stringify(error, Object.getOwnPropertyNames(error))
-        );
+        formData.append("error", safeStringify(error));
         void fetch("/error", {
           method: "POST",
           body: formData,
@@ -906,6 +913,10 @@ export default function App() {
                         <LoginOrRegisterCTA
                           isAnon={mode === "anon"}
                           locales={locales}
+                          hideLoginOrRegisterCta={
+                            hideLoginOrRegisterCta ===
+                            HIDE_LOGIN_OR_REGISTER_CTA_COOKIE_VALUES.true
+                          }
                         />
                       </div>
                     )}
@@ -924,7 +935,11 @@ export default function App() {
                     </div>
                   </div>
                   {isIndexRoute || isGetInvolvedRoute ? (
-                    <Footer locales={locales} mode={mode} />
+                    <Footer
+                      locales={locales}
+                      mode={mode}
+                      currentYear={new Date().getFullYear()}
+                    />
                   ) : null}
                   {alert !== null ? (
                     <Alert level={alert.level}>
@@ -988,7 +1003,7 @@ export default function App() {
             nonce={nonce}
             suppressHydrationWarning
             dangerouslySetInnerHTML={{
-              __html: `window.ENV = ${JSON.stringify(ENV)}`,
+              __html: `window.ENV = ${safeStringify(ENV)}`,
             }}
           />
           <ScrollRestoration nonce={nonce} />

@@ -9,12 +9,15 @@ import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
+  ActionFunctionArgs,
+  data,
   Form,
   NavLink,
   Outlet,
   redirect,
+  useFetcher,
   useLoaderData,
   useNavigation,
   useSearchParams,
@@ -43,6 +46,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import { languageModuleMap } from "~/locales/.server";
 import { getPublicURL } from "~/storage.server";
+import { createHashFromObject } from "~/utils.server";
 import { getFilterSchemes, type FilterSchemes } from "./all.shared";
 import {
   getAllFocuses,
@@ -52,10 +56,13 @@ import {
   getFilterCountForSlug,
   getOrganizationFilterVectorForAttribute,
   getOrganizationIds,
+  viewCookie,
 } from "./organizations.server";
-import { ORGANIZATION_SORT_VALUES } from "./organizations.shared";
+import {
+  ORGANIZATION_SORT_VALUES,
+  VIEW_COOKIE_VALUES,
+} from "./organizations.shared";
 import { getAllAreas, getAreaNameBySlug } from "./utils.server";
-import { createHashFromObject } from "~/utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -338,6 +345,23 @@ export async function loader(args: LoaderFunctionArgs) {
   };
 }
 
+export async function action(args: ActionFunctionArgs) {
+  const { request } = args;
+  const formData = await request.formData();
+  const view = formData.get("view");
+  invariantResponse(
+    view === VIEW_COOKIE_VALUES.list || view === VIEW_COOKIE_VALUES.map,
+    "Invalid view value",
+    {
+      status: 400,
+    }
+  );
+  const viewCookieHeader = {
+    "Set-Cookie": await viewCookie.serialize(view),
+  };
+  return data(null, { headers: viewCookieHeader });
+}
+
 export default function ExploreOrganizations() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales } = loaderData;
@@ -345,6 +369,7 @@ export default function ExploreOrganizations() {
   const navigation = useNavigation();
   const submit = useSubmit();
   const isHydrated = useHydrated();
+  const fetcher = useFetcher();
 
   const [form, fields] = useForm<FilterSchemes>({
     id: `filter-organizations-${loaderData.submissionHash}`,
@@ -383,9 +408,14 @@ export default function ExploreOrganizations() {
     return value === `${loaderData.submission.value.orgSortBy}`;
   });
 
-  const [visibleNetworks, setVisibleNetworks] = useState<
-    typeof loaderData.networks
-  >(loaderData.networks);
+  const [visibleNetworks, setVisibleNetworks] = useState(loaderData.networks);
+  const [syncedNetworks, setSyncedNetworks] = useState(loaderData.networks);
+
+  if (syncedNetworks !== loaderData.networks) {
+    setSyncedNetworks(loaderData.networks);
+    setVisibleNetworks(loaderData.networks);
+  }
+
   const handleNetworkSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
     const value = event.target.value;
@@ -403,13 +433,14 @@ export default function ExploreOrganizations() {
     }
   };
 
-  useEffect(() => {
-    setVisibleNetworks(loaderData.networks);
-  }, [loaderData.networks]);
+  const [visibleAreas, setVisibleAreas] = useState(loaderData.areas);
+  const [syncedAreas, setSyncedAreas] = useState(loaderData.areas);
 
-  const [visibleAreas, setVisibleAreas] = useState<typeof loaderData.areas>(
-    loaderData.areas
-  );
+  if (syncedAreas !== loaderData.areas) {
+    setSyncedAreas(loaderData.areas);
+    setVisibleAreas(loaderData.areas);
+  }
+
   const handleAreaSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
     const value = event.target.value.trim().toLowerCase();
@@ -444,10 +475,6 @@ export default function ExploreOrganizations() {
       setVisibleAreas(loaderData.areas);
     }
   };
-
-  useEffect(() => {
-    setVisibleAreas(loaderData.areas);
-  }, [loaderData.areas]);
 
   return (
     <>
@@ -1053,6 +1080,11 @@ export default function ExploreOrganizations() {
                   }
                   preventScrollReset
                   prefetch="intent"
+                  onClick={() => {
+                    const formData = new FormData();
+                    formData.set("view", VIEW_COOKIE_VALUES.list);
+                    void fetcher.submit(formData, { method: "post" });
+                  }}
                 >
                   <List aria-hidden="true" />
                   <span>{locales.route.view.list}</span>
@@ -1070,6 +1102,11 @@ export default function ExploreOrganizations() {
                   }
                   preventScrollReset
                   prefetch="intent"
+                  onClick={() => {
+                    const formData = new FormData();
+                    formData.set("view", VIEW_COOKIE_VALUES.map);
+                    void fetcher.submit(formData, { method: "post" });
+                  }}
                 >
                   <MapIcon aria-hidden="true" />
                   <span>{locales.route.view.map}</span>

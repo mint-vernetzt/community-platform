@@ -109,6 +109,8 @@ export const locale = {
       close: "Schließen",
     },
     contactPerson: "Ansprechpartner:in",
+    copyEmail: "E-Mail kopieren",
+    copyPhone: "Telefonnummer kopieren",
     participateOnEventIntentModal: {
       title: "Möchtest Du an dieser Veranstaltung teilnehmen?",
       description: {

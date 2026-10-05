@@ -9,6 +9,11 @@ export default [
   route("/resources", "./routes/resources.tsx"),
   route("/imprint", "./routes/imprint.tsx"),
   route("/privacy-policy", "./routes/privacy-policy.tsx"),
+  route("/switch-locale", "./routes/switch-locale.ts"),
+  route(
+    "/hide-login-or-register-cta",
+    "./routes/hide-login-or-register-cta.ts"
+  ),
   route("/terms-of-use", "./routes/terms-of-use.tsx"),
   route("/help", "./routes/help.tsx"),
   route("/goodbye", "./routes/goodbye.tsx"),

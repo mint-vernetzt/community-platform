@@ -8,6 +8,7 @@ export const locale = {
     "Your current setting only allows participation in your sub-events. Therefore, you cannot invite participants to the main event.",
   participationLinkHint:
     "You can also share the participation link directly with your participants. They can then register for the event on their own.",
+  copyParticipationLink: "Copy participation link",
   search: {
     label: "Search People",
     placeholder: "Name or Email Address",

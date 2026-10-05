@@ -21,6 +21,7 @@ import { LinkNode, AutoLinkNode } from "@lexical/link";
 import { HorizontalRuleNode } from "@lexical/extension";
 import { OverflowNode } from "@lexical/overflow";
 import { sanitizeUserHtml } from "~/utils.server";
+import { safeStringify } from "~/lib/utils/json";
 
 // TODO: Always test this script before using it on prod. JSDOM environment may behave differently than the browser and lexical RTE also may have inconsistent behaviour when changing its functionality.
 
@@ -120,7 +121,7 @@ async function getNewValueFromRTE(options: {
               }
               editor.read(() => {
                 const editorState = editor.getEditorState();
-                const editorStateJSON = JSON.stringify(editorState.toJSON());
+                const editorStateJSON = safeStringify(editorState.toJSON());
                 submissionEditorStateJSON = editorStateJSON;
               });
               const event = new CustomEvent(EDITOR_VALUE_SET_EVENT, {
@@ -179,7 +180,7 @@ async function getNewValueFromRTE(options: {
       window.addEventListener(EDITOR_VALUE_SET_EVENT, (event) => {
         console.log("Successfully hydrated RTE and read its values");
         resolve(
-          JSON.stringify({
+          safeStringify({
             // @ts-ignore
             htmlValue: event.detail.htmlValue,
             // @ts-ignore

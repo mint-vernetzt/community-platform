@@ -162,7 +162,7 @@ export async function action(args: ActionFunctionArgs) {
     "invalid intent",
     { status: 400 }
   );
-  const submission = await parseWithZod(formData, {
+  const submission = parseWithZod(formData, {
     schema: createAcceptOrRejectInviteOrRequestSchema(),
   });
 

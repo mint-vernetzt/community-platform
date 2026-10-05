@@ -56,7 +56,9 @@ export async function action({ request }: ActionFunctionArgs) {
   ) {
     return redirect(
       `/auth/request-confirmation?type=${type}${
-        loginRedirect !== null ? `&login_redirect=${loginRedirect}` : ""
+        loginRedirect !== null && typeof loginRedirect === "string"
+          ? `&login_redirect=${loginRedirect}`
+          : ""
       }`
     );
   }
@@ -110,7 +112,9 @@ export async function action({ request }: ActionFunctionArgs) {
     await resetInactivityReminderState(user.id);
     return redirect(
       `/reset/set-password${
-        loginRedirect !== null ? `?login_redirect=${loginRedirect}` : ""
+        loginRedirect !== null
+          ? `?login_redirect=${typeof loginRedirect === "string" ? loginRedirect : "/dashboard"}`
+          : ""
       }`,
       { headers }
     );

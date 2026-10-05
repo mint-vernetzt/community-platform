@@ -34,6 +34,7 @@ import Search from "~/components/legacy/Search/Search";
 import { DEFAULT_LANGUAGE } from "~/i18n.shared";
 import { getPublicURL } from "~/storage.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
+import { VIEW_COOKIE_VALUES } from "./explore/organizations.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -47,7 +48,7 @@ export async function loader(args: LoaderFunctionArgs) {
     schema: getFilterSchemes,
   });
 
-  const { authClient } = await createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const isLoggedIn = sessionUser !== null;
 
@@ -138,15 +139,16 @@ export async function loader(args: LoaderFunctionArgs) {
     };
   });
 
-  let preferredExploreOrganizationsView: "map" | "list" = "map";
+  let preferredExploreOrganizationsView: keyof typeof VIEW_COOKIE_VALUES =
+    VIEW_COOKIE_VALUES.map;
 
   if (url.pathname === "/explore/organizations/list") {
-    preferredExploreOrganizationsView = "list";
+    preferredExploreOrganizationsView = VIEW_COOKIE_VALUES.list;
   } else if (url.pathname === "/explore/organizations/map") {
-    preferredExploreOrganizationsView = "map";
+    preferredExploreOrganizationsView = VIEW_COOKIE_VALUES.map;
   } else {
     const cookieHeader = request.headers.get("Cookie");
-    const cookie = (await viewCookie.parse(cookieHeader)) as null | any;
+    const cookie = await viewCookie.parse(cookieHeader);
     if (cookie !== null) {
       try {
         preferredExploreOrganizationsView = viewCookieSchema.parse(cookie);

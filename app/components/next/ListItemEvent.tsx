@@ -339,6 +339,9 @@ function ListItemEventControls(props: { children: React.ReactNode }) {
     <div
       className="w-full flex flex-col @md:flex-row gap-4"
       onClick={(event) => event.stopPropagation()}
+      onKeyDown={(event) => event.stopPropagation()}
+      role="grid"
+      tabIndex={-1}
     >
       {props.children}
     </div>

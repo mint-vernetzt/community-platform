@@ -12,7 +12,8 @@ function Controls(props: ControlsProps) {
     const isValid = isValidElement(child);
     if (!isValid) {
       console.warn(
-        `The child you passed to <Controls> is not a valid element and will be ignored: ${child}`
+        `The child you passed to <Controls> is not a valid element and will be ignored:`,
+        child
       );
     }
     return isValid;

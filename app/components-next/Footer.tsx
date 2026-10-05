@@ -4,8 +4,12 @@ import { type RootLocales } from "~/root.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { type Mode } from "~/utils.server";
 
-export function Footer(props: { locales?: RootLocales; mode: Mode }) {
-  const currentYear = new Date().getFullYear();
+export function Footer(props: {
+  locales?: RootLocales;
+  mode: Mode;
+  currentYear: number;
+}) {
+  const currentYear = props.currentYear;
   return (
     <footer className="flex flex-col gap-5 px-8 pt-6 pb-2 w-full">
       {/* CP logo and description */}
