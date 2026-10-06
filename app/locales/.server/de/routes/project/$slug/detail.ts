@@ -3,7 +3,8 @@ export const locale = {
     invariant: {
       undefinedSlug: 'Route parameter "slug" not found',
       projectNotFound: "Project not found",
-      projectNotPublished: "This project isn't published yet.",
+      projectNotPublished:
+        "Dieses Projekt ist nicht veröffentlicht. Du musst Admin oder Teammitglied sein, um darauf zugreifen zu können.",
     },
     onPublishing:
       "Das Projekt konnte nicht veröffentlicht oder versteckt werden. Bitte versuche es erneut oder wende Dich an den Support.",
