@@ -1,10 +1,16 @@
 import { type User } from "@supabase/supabase-js";
-import { createHash, createHmac, type BinaryToTextEncoding } from "crypto";
+import {
+  createHash,
+  createHmac,
+  type BinaryToTextEncoding,
+  randomBytes,
+} from "crypto";
 import * as isbotModule from "isbot";
 import sanitizeHtml from "sanitize-html";
 import { z } from "zod";
 import { getScoreOfEntity } from "../prisma/scripts/update-score/utils";
 import { prismaClient } from "./prisma.server";
+import { safeStringify } from "./lib/utils/json";
 
 export type Mode = "anon" | "authenticated";
 
@@ -26,77 +32,9 @@ export function createHashFromString(
 }
 
 export function createHashFromObject(object: object) {
-  const json = JSON.stringify(object);
+  const json = safeStringify(object);
   const hash = createHash("sha256").update(json).digest("hex");
   return hash;
-}
-
-export async function getFocuses() {
-  const focuses = await prismaClient.focus.findMany({
-    select: {
-      id: true,
-      slug: true,
-    },
-  });
-  return focuses;
-}
-
-export async function getTypes() {
-  const types = await prismaClient.eventType.findMany({
-    select: {
-      id: true,
-      slug: true,
-    },
-  });
-  return types;
-}
-
-export async function getTags() {
-  const tags = await prismaClient.tag.findMany({
-    select: {
-      id: true,
-      slug: true,
-    },
-  });
-  return tags;
-}
-
-export async function getEventTargetGroups() {
-  const targetGroups = await prismaClient.eventTargetGroup.findMany({
-    select: {
-      id: true,
-      slug: true,
-    },
-  });
-  return targetGroups;
-}
-
-export async function getExperienceLevels() {
-  const experienceLevel = await prismaClient.experienceLevel.findMany({
-    select: {
-      id: true,
-      slug: true,
-    },
-  });
-  return experienceLevel;
-}
-
-export async function getStages() {
-  const stages = await prismaClient.stage.findMany({
-    select: {
-      id: true,
-      slug: true,
-    },
-  });
-  return stages;
-}
-
-export async function getAreas() {
-  return await prismaClient.area.findMany({
-    include: {
-      state: true,
-    },
-  });
 }
 
 export async function triggerEntityScore(options: {
@@ -151,19 +89,19 @@ export function combineHeaders(
 }
 
 export function generateUsername(firstName: string, lastName: string) {
-  return generateValidSlug(`${firstName}${lastName}`);
+  return generateValidSlug(`${firstName.trim()}${lastName.trim()}`);
 }
 
 export function generateOrganizationSlug(name: string) {
-  return generateValidSlug(name);
+  return generateValidSlug(name.trim());
 }
 
 export function generateEventSlug(name: string) {
-  return generateValidSlug(name);
+  return generateValidSlug(name.trim());
 }
 
 export function generateProjectSlug(name: string) {
-  return generateValidSlug(name);
+  return generateValidSlug(name.trim());
 }
 
 // TODO: Use libraray (Don't know the name anymore) to convert all Unicode in a valid slug
@@ -194,7 +132,8 @@ export function generateValidSlug(
     .replace(/[úùû]/, "u")
     .replace(/[ü]/, "ue")
     .replace(/[^\w ]/g, "")
-    .replace(/[\s]/g, "");
+    .replace(/[\s]/g, "")
+    .trim();
 
   return hashFunction(slug);
 }
@@ -349,6 +288,7 @@ type CSPHeaderOptions =
   | "img-src"
   | "worker-src"
   | "frame-src"
+  | "object-src"
   | "base-uri"
   | "frame-ancestors"
   | "report-uri"
@@ -388,16 +328,7 @@ export function isBotRequest(userAgent: string | null) {
   return false;
 }
 
-export function generateValidationToken(options: {
-  data: string;
-  secret: string;
-  salt: string;
-}) {
-  const { data, secret, salt } = options;
-
-  const token = createHmac("sha256", secret)
-    .update(data)
-    .update(salt, "hex")
-    .digest("hex");
+export function generateValidationToken() {
+  const token = randomBytes(32).toString("hex");
   return token;
 }

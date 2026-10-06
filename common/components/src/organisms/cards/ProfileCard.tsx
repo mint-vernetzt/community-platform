@@ -72,7 +72,7 @@ function ProfileCard(
       </CardHeader>
       <CardBody>
         {
-          <div className="mt-[30px] min-h-[80px]">
+          <div className="mt-7.5 min-h-20">
             {/* TODO: */}
             {/* Issue with combination of line clamp with ellipsis (truncate) */}
             {/* Maybe find a better solution */}

@@ -31,7 +31,8 @@ export const locale = {
   },
   mail: {
     moveToParticipants: {
-      subject: "Deine Teilnahme am Event {{eventName}}",
+      subject:
+        "You have been moved from the waiting list to the participants of the event {{eventName}}",
     },
   },
 } as const;

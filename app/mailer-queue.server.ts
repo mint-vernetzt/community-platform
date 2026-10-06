@@ -13,6 +13,7 @@ import { insertParametersIntoLocale } from "./lib/utils/i18n";
 import { languageModuleMap } from "./locales/.server";
 import { getVenueString } from "./utils.shared";
 import { utcToZonedTime } from "date-fns-tz";
+import { getDuration } from "./lib/utils/time";
 
 declare global {
   var __taskTimer: TaskTimer | undefined;
@@ -46,12 +47,14 @@ async function onTick() {
       slug: true,
       name: true,
       startTime: true,
+      endTime: true,
       venueName: true,
       venueStreet: true,
       venueStreetNumber: true,
       venueZipCode: true,
       venueCity: true,
       conferenceLink: true,
+      conferenceCode: true,
       stage: {
         select: {
           slug: true,
@@ -108,6 +111,7 @@ async function onTick() {
           ),
         },
         reminderState: "open",
+        activeReminderMails: { has: "oneDayBefore" },
       },
       select,
     });
@@ -138,7 +142,8 @@ async function onTick() {
           { stageId: null },
           { stage: { slug: { in: ["on-site", "hybrid"] } } },
         ],
-        reminderState: "firstScheduled",
+        reminderState: { in: ["open", "firstScheduled"] },
+        activeReminderMails: { has: "oneHourBefore" },
       },
       select,
     });
@@ -169,7 +174,8 @@ async function onTick() {
           { stageId: null },
           { stage: { slug: { in: ["online", "hybrid"] } } },
         ],
-        reminderState: { in: ["firstScheduled", "secondScheduled"] },
+        reminderState: { in: ["open", "firstScheduled", "secondScheduled"] },
+        activeReminderMails: { has: "fifteenMinutesBefore" },
       },
       select,
     });
@@ -212,21 +218,38 @@ async function onTick() {
         }),
       ];
 
-      const locales = languageModuleMap["de"]["root"];
+      const germanLocales = languageModuleMap["de"]["root"];
+      const englishLocales = languageModuleMap["en"]["root"];
 
-      let subjectSource;
+      let subjectSource = {
+        de: "",
+        en: "",
+      };
       if (event.starts === "tomorrow") {
-        subjectSource = locales.route.event.reminder.oneDayBefore.subject;
+        subjectSource.de =
+          germanLocales.route.event.reminder.oneDayBefore.subject;
+        subjectSource.en =
+          englishLocales.route.event.reminder.oneDayBefore.subject;
       } else if (event.starts === "inOneHour") {
-        subjectSource = locales.route.event.reminder.oneHourBefore.subject;
+        subjectSource.de =
+          germanLocales.route.event.reminder.oneHourBefore.subject;
+        subjectSource.en =
+          englishLocales.route.event.reminder.oneHourBefore.subject;
       } else {
-        subjectSource =
-          locales.route.event.reminder.fifteenMinutesBefore.subject;
+        subjectSource.de =
+          germanLocales.route.event.reminder.fifteenMinutesBefore.subject;
+        subjectSource.en =
+          englishLocales.route.event.reminder.fifteenMinutesBefore.subject;
       }
 
-      const subject = insertParametersIntoLocale(subjectSource, {
-        eventName: event.name,
-      });
+      const subject = {
+        de: insertParametersIntoLocale(subjectSource.de, {
+          eventName: event.name,
+        }),
+        en: insertParametersIntoLocale(subjectSource.en, {
+          eventName: event.name,
+        }),
+      };
 
       let textTemplatePath: TemplatePath;
       let htmlTemplatePath: TemplatePath;
@@ -250,50 +273,50 @@ async function onTick() {
 
       for (const profile of receiver) {
         const zonedStartTime = utcToZonedTime(event.startTime, "Europe/Berlin");
+        const zonedEndTime = utcToZonedTime(event.endTime, "Europe/Berlin");
+
+        const date = {
+          de: getDuration(zonedStartTime, zonedEndTime, "de"),
+          en: getDuration(zonedStartTime, zonedEndTime, "en"),
+        };
         const content = {
           headline: subject,
           profile,
           event: {
             name: event.name,
-            url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail`,
-            startDate: zonedStartTime.toLocaleDateString("de-DE", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-            }),
-            startTime: zonedStartTime.toLocaleTimeString("de-DE", {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-            timezone: "MEZ",
+            url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail/about`,
+            date,
             location: getVenueString(event),
             conferenceLink: event.conferenceLink,
+            conferenceCode: event.conferenceCode,
             revocationLink: null as string | null,
           },
         };
 
         if (profile.isGuest && profile.revocationToken !== null) {
-          const revocationLink = `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?type=revoke&confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?type=revoke&token_hash=${profile.revocationToken}&confirmation_redirect=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail`)}`)}`;
+          const revocationLink = `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?type=revoke&confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?type=revoke&token_hash=${profile.revocationToken}&confirmation_redirect=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail/about`)}`)}`;
           content.event.revocationLink = revocationLink;
         }
 
-        const text = await getCompiledMailTemplate(
-          textTemplatePath,
-          content,
-          "text"
-        );
-        const html = await getCompiledMailTemplate(
-          htmlTemplatePath,
-          content,
-          "html"
-        );
+        const text = getCompiledMailTemplate(textTemplatePath, content, "text");
+        const html = getCompiledMailTemplate(htmlTemplatePath, content, "html");
         await scheduleMail({
           eventId: event.id,
           recipient: profile.email,
-          subject,
+          subject: `${subject.de} | ${subject.en}`,
           plainText: text,
           html,
-          scheduledFor: now, // send immediately
+          scheduledFor:
+            event.starts === "tomorrow"
+              ? new Date(
+                  now.getFullYear(),
+                  now.getMonth(),
+                  now.getDate(),
+                  event.startTime.getHours(),
+                  event.startTime.getMinutes(),
+                  event.startTime.getSeconds()
+                )
+              : now, // send immediately
         });
       }
 

@@ -13,6 +13,15 @@ export async function getParentEventBySlug(slug: string) {
       external: true,
       openForRegistration: true,
       parentParticipationRequired: true,
+      guests: {
+        where: {
+          onWaitingList: false,
+          confirmed: true,
+        },
+        select: {
+          id: true,
+        },
+      },
       _count: {
         select: { participants: true },
       },
@@ -75,7 +84,7 @@ export async function createEvent(options: {
       },
     });
     if (parentEvent === null) {
-      throw new Error("Parent event not found");
+      throw new Error("main event not found");
     }
   }
 

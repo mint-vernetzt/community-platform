@@ -10,7 +10,7 @@ import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { ProjectCard } from "@mint-vernetzt/components/src/organisms/cards/ProjectCard";
 import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Form,
   redirect,
@@ -61,6 +61,7 @@ import {
 } from "./projects.server";
 import { PROJECT_SORT_VALUES } from "./projects.shared";
 import { getAllAreas, getAreaNameBySlug } from "./utils.server";
+import { createHashFromObject } from "~/utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -103,7 +104,7 @@ export async function loader(args: LoaderFunctionArgs) {
       isLoggedIn,
       language,
     });
-    filteredByVisibilityCount = await projectIdsFilteredByVisibility.length;
+    filteredByVisibilityCount = projectIdsFilteredByVisibility.length;
   }
 
   const projectIds = await getProjectIds({
@@ -482,6 +483,7 @@ export async function loader(args: LoaderFunctionArgs) {
     filteredByVisibilityCount,
     projectsCount: projectCount,
     locales,
+    submissionHash: createHashFromObject(submission.value),
   };
 }
 
@@ -494,7 +496,7 @@ export default function ExploreProjects() {
   const isHydrated = useHydrated();
 
   const [form, fields] = useForm<FilterSchemes>({
-    id: "filter-projects",
+    id: `filter-projects-${loaderData.submissionHash}`,
     defaultValue: {
       ...loaderData.submission.value,
       search: [loaderData.submission.value.search.join(" ")],
@@ -507,7 +509,7 @@ export default function ExploreProjects() {
   const prjFilterFieldset = fields.prjFilter.getFieldset();
 
   const [loadMoreForm, loadMoreFields] = useForm<FilterSchemes>({
-    id: "load-more-projects",
+    id: `load-more-projects-${loaderData.submissionHash}`,
     defaultValue: {
       ...loaderData.submission.value,
       prjPage: loaderData.submission.value.prjPage + 1,
@@ -519,7 +521,7 @@ export default function ExploreProjects() {
   });
 
   const [resetForm, resetFields] = useForm<FilterSchemes>({
-    id: "reset-projects-filters",
+    id: `reset-projects-filters-${loaderData.submissionHash}`,
     defaultValue: {
       ...loaderData.submission.value,
       prjFilter: {
@@ -552,9 +554,14 @@ export default function ExploreProjects() {
     showMore = loaderData.projectsCount > loaderData.projects.length;
   }
 
-  const [visibleAreas, setVisibleAreas] = useState<typeof loaderData.areas>(
-    loaderData.areas
-  );
+  const [visibleAreas, setVisibleAreas] = useState(loaderData.areas);
+  const [syncedAreas, setSyncedAreas] = useState(loaderData.areas);
+
+  if (syncedAreas !== loaderData.areas) {
+    setSyncedAreas(loaderData.areas);
+    setVisibleAreas(loaderData.areas);
+  }
+
   const handleAreaSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
     const value = event.target.value.trim().toLowerCase();
@@ -589,10 +596,6 @@ export default function ExploreProjects() {
       setVisibleAreas(loaderData.areas);
     }
   };
-
-  useEffect(() => {
-    setVisibleAreas(loaderData.areas);
-  }, [loaderData.areas]);
 
   return (
     <>
@@ -636,6 +639,7 @@ export default function ExploreProjects() {
               {...getFieldsetProps(fields.prjFilter)}
               showMore={locales.route.filter.showMore}
               showLess={locales.route.filter.showLess}
+              hideAfter={6}
             >
               <Dropdown>
                 <Dropdown.Label>
@@ -1472,7 +1476,7 @@ export default function ExploreProjects() {
                     <ConformForm
                       key={selectedDiscipline}
                       useFormOptions={{
-                        id: `delete-filter-${selectedDiscipline}`,
+                        id: `delete-filter-${selectedDiscipline}-${loaderData.submissionHash}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           prjFilter: {
@@ -1544,7 +1548,7 @@ export default function ExploreProjects() {
                       <ConformForm
                         key={selectedAdditionalDiscipline}
                         useFormOptions={{
-                          id: `delete-filter-${selectedAdditionalDiscipline}`,
+                          id: `delete-filter-${selectedAdditionalDiscipline}-${loaderData.submissionHash}`,
                           defaultValue: {
                             ...loaderData.submission.value,
                             prjFilter: {
@@ -1611,7 +1615,7 @@ export default function ExploreProjects() {
                     <ConformForm
                       key={selectedTargetGroup}
                       useFormOptions={{
-                        id: `delete-filter-${selectedTargetGroup}`,
+                        id: `delete-filter-${selectedTargetGroup}-${loaderData.submissionHash}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           prjFilter: {
@@ -1663,7 +1667,7 @@ export default function ExploreProjects() {
                     <ConformForm
                       key={selectedArea.slug}
                       useFormOptions={{
-                        id: `delete-filter-${selectedArea.slug}`,
+                        id: `delete-filter-${selectedArea.slug}-${loaderData.submissionHash}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           prjFilter: {
@@ -1723,7 +1727,7 @@ export default function ExploreProjects() {
                     <ConformForm
                       key={selectedFormat}
                       useFormOptions={{
-                        id: `delete-filter-${selectedFormat}`,
+                        id: `delete-filter-${selectedFormat}-${loaderData.submissionHash}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           prjFilter: {
@@ -1792,7 +1796,7 @@ export default function ExploreProjects() {
                       <ConformForm
                         key={selectedSpecialTargetGroup}
                         useFormOptions={{
-                          id: `delete-filter-${selectedSpecialTargetGroup}`,
+                          id: `delete-filter-${selectedSpecialTargetGroup}-${loaderData.submissionHash}`,
                           defaultValue: {
                             ...loaderData.submission.value,
                             prjFilter: {
@@ -1857,7 +1861,7 @@ export default function ExploreProjects() {
                     <ConformForm
                       key={selectedFinancing}
                       useFormOptions={{
-                        id: `delete-filter-${selectedFinancing}`,
+                        id: `delete-filter-${selectedFinancing}-${loaderData.submissionHash}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           prjFilter: {

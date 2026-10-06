@@ -65,6 +65,12 @@ export async function getEventBySlug(options: {
               _count: {
                 select: {
                   participants: true,
+                  guests: {
+                    where: {
+                      confirmed: true,
+                      onWaitingList: false,
+                    },
+                  },
                 },
               },
             },
@@ -97,6 +103,12 @@ export async function getEventBySlug(options: {
           _count: {
             select: {
               participants: true,
+              guests: {
+                where: {
+                  confirmed: true,
+                  onWaitingList: false,
+                },
+              },
             },
           },
         },
@@ -273,6 +285,12 @@ export async function getParentEventsToAdd(options: {
       _count: {
         select: {
           participants: true,
+          guests: {
+            where: {
+              confirmed: true,
+              onWaitingList: false,
+            },
+          },
         },
       },
     },
@@ -363,7 +381,7 @@ export async function addParentEvent(options: {
   }
 
   if (event.published) {
-    throw new Error("Cannot add parent event to a published event");
+    throw new Error("Cannot add main event to a published event");
   }
 
   const parentEvent = await prismaClient.event.findFirst({
@@ -396,7 +414,7 @@ export async function addParentEvent(options: {
   });
 
   if (parentEvent === null) {
-    throw new Error("Parent event not found or not eligible to be a parent");
+    throw new Error("main event not found or not eligible to be a parent");
   }
 
   const transactions = [
@@ -471,7 +489,7 @@ export async function requestToJoinParentEvent(options: {
   }
 
   if (event.published) {
-    throw new Error("Cannot request to join parent event on a published event");
+    throw new Error("Cannot request to join main event on a published event");
   }
 
   const parentEvent = await prismaClient.event.findFirst({
@@ -497,7 +515,7 @@ export async function requestToJoinParentEvent(options: {
   });
 
   if (parentEvent === null) {
-    throw new Error("Parent event not found or not eligible to be a parent");
+    throw new Error("main event not found or not eligible to be a parent");
   }
 
   const result = await prismaClient.requestToParentEventToAddChildEvent.upsert({
@@ -750,7 +768,7 @@ export async function removeParentEvent(options: {
   }
 
   if (currentEvent.parentEvent === null) {
-    throw new Error("No parent event to remove");
+    throw new Error("No main event to remove");
   }
 
   const transactions = [

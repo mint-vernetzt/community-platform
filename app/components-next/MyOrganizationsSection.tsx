@@ -46,7 +46,7 @@ function SectionHeadline(props: React.PropsWithChildren<{ id?: string }>) {
   const { children, ...otherProps } = props;
   return (
     <h2
-      className="text-2xl font-bold text-primary leading-[26px] mb-0"
+      className="text-2xl font-bold text-primary leading-6.5 mb-0"
       {...otherProps}
     >
       {children}

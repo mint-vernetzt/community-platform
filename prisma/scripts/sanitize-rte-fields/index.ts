@@ -71,7 +71,7 @@ async function main() {
   // Send all rte fields through the new hydrated RTE component, which transforms the old HTML to the new HTML
   // Did each entity on its own to get typescript support. Typescript cannot resolve the type on the third nested for loop.
   for (const oldProfile of changes.old.profiles) {
-    const { id, ...rteFields } = oldProfile;
+    const { id: _id, ...rteFields } = oldProfile;
     const newProfile = { ...oldProfile };
     for (const rteField in rteFields) {
       const typedRteField = rteField as keyof typeof rteFields;
@@ -91,7 +91,7 @@ async function main() {
   }
 
   for (const oldOrganization of changes.old.organizations) {
-    const { id, ...rteFields } = oldOrganization;
+    const { id: _id, ...rteFields } = oldOrganization;
     const newOrganization = { ...oldOrganization };
     for (const rteField in rteFields) {
       const typedRteField = rteField as keyof typeof rteFields;
@@ -112,7 +112,7 @@ async function main() {
   }
 
   for (const oldProject of changes.old.projects) {
-    const { id, ...rteFields } = oldProject;
+    const { id: _id, ...rteFields } = oldProject;
     const newProject = { ...oldProject };
     for (const rteField in rteFields) {
       const typedRteField = rteField as keyof typeof rteFields;
@@ -132,7 +132,7 @@ async function main() {
   }
 
   for (const oldEvent of changes.old.events) {
-    const { id, ...rteFields } = oldEvent;
+    const { id: _id, ...rteFields } = oldEvent;
     const newEvent = { ...oldEvent };
     for (const rteField in rteFields) {
       const typedRteField = rteField as keyof typeof rteFields;

@@ -12,13 +12,8 @@ export interface InputAddProps {
 
 function InputAdd(props: React.HTMLProps<HTMLInputElement> & InputAddProps) {
   const buttonRef = createRef<HTMLButtonElement>();
-  const {
-    label,
-    entries = [],
-    isPublic,
-    withPublicPrivateToggle,
-    ...inputProps
-  } = props;
+  const { label, entries, isPublic, withPublicPrivateToggle, ...inputProps } =
+    props;
   const singularName = (inputProps.name || "").slice(0, -1);
   const uppercaseSingularName = capitalizeFirstLetter(singularName);
   const isSubmitting = useIsSubmitting();
@@ -98,8 +93,9 @@ function InputAdd(props: React.HTMLProps<HTMLInputElement> & InputAddProps) {
               name={`remove${uppercaseSingularName}`}
               value={entry}
               className="ml-auto bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-transparent text-neutral-600"
-              title="entfernen"
               disabled={isSubmitting}
+              // TODO: i18n with locales
+              aria-label="Remove entry"
             >
               <svg
                 viewBox="0 0 10 10"

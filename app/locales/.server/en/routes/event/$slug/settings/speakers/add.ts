@@ -26,7 +26,7 @@ export const locale = {
     inviteProfileAsSpeaker: "The invitation was sent successfully.",
   },
   mail: {
-    buttonText: "Zur Community Plattform",
-    subject: "Einladung als Speaker:in für Event {{eventName}}",
+    buttonText: "To the Community Platform",
+    subject: "Invitation as a speaker for event {{eventName}}",
   },
 } as const;

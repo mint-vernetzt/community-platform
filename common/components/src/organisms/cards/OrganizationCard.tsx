@@ -21,9 +21,7 @@ type OrganizationCardProps = {
   match?: number;
   publicAccess?: boolean;
   locales:
-    | DashboardLocales
-    | ExploreOrganizationsLocales
-    | MyOrganizationsLocales;
+    DashboardLocales | ExploreOrganizationsLocales | MyOrganizationsLocales;
   organization: {
     slug: string;
     name: string;
@@ -92,7 +90,7 @@ function OrganizationCard(
       </CardHeader>
       <CardBody>
         {
-          <div className="mt-[30px] min-h-[80px]">
+          <div className="mt-7.5 min-h-20">
             <div className="max-h-10 overflow-hidden">
               <Heading
                 as={as}

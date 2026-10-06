@@ -174,7 +174,12 @@ function WebSocial() {
         preventScrollReset
         autoComplete="off"
       >
-        <button type="submit" hidden disabled={isSubmitting} />
+        <button
+          type="submit"
+          hidden
+          disabled={isSubmitting}
+          aria-label={locales.route.form.submit}
+        />
         <div className="flex flex-col gap-6 @md:gap-4">
           <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
             <h2 className="text-primary text-lg font-semibold mb-0">

@@ -13,7 +13,7 @@ function ResourceList(props: ResourceListProps) {
   );
 
   return (
-    <div className="w-full max-w-[358px] @md:max-w-[740px] @lg:max-w-none flex flex-col @lg:items-center gap-6">
+    <div className="w-full max-w-89.5 @md:max-w-185 @lg:max-w-none flex flex-col @lg:items-center gap-6">
       {header}
       <div className="w-full grid grid-cols-1 @md:grid-cols-2 @lg:grid-cols-1 @lg:items-center gap-6">
         {other}
@@ -90,7 +90,7 @@ function ContentSection(props: ContentSectionProps) {
   );
 
   return (
-    <div className="w-full flex flex-col gap-2 max-w-[560px] @md:min-h-[132px] @lg:min-h-fit">
+    <div className="w-full flex flex-col gap-2 max-w-140 @md:min-h-33 @lg:min-h-fit">
       {contentHeader}
       {other}
     </div>

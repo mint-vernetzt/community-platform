@@ -1,16 +1,18 @@
 import { captureException } from "@sentry/node";
 import { type EmailOtpType } from "@supabase/supabase-js";
-import { redirect, type LoaderFunctionArgs } from "react-router";
+import { redirect, type ActionFunctionArgs } from "react-router";
 import { createAuthClient, resetInactivityReminderState } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
-import { createProfile, sendWelcomeMail } from "../register/utils.server";
-import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
 import { isBotRequest } from "~/utils.server";
+import { createProfile, sendWelcomeMail } from "../register/utils.server";
 import { getNumberOfGuestsByEmail } from "./verify.server";
+import { checkHoneypot } from "~/honeypot.server";
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
   if (process.env.NODE_ENV !== "test") {
+    await checkHoneypot(formData);
     const isBot = isBotRequest(request.headers.get("user-agent"));
     invariantResponse(
       isBot === false,
@@ -19,14 +21,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
-  const requestUrl = new URL(request.url);
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["auth/verify"];
-  const token_hash = requestUrl.searchParams.get("token_hash");
-  const type = requestUrl.searchParams.get("type") as EmailOtpType | null;
-  invariantResponse(token_hash !== null && type !== null, "Bad request", {
-    status: 400,
-  });
+  const token_hash = formData.get("token_hash");
+  const type = formData.get("type") as EmailOtpType | null;
+  invariantResponse(
+    token_hash !== null && type !== null && typeof token_hash === "string",
+    "Bad request",
+    {
+      status: 400,
+    }
+  );
   invariantResponse(type === "signup" || type === "recovery", "Bad request", {
     status: 400,
   });
@@ -35,11 +38,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     type,
     token_hash,
   });
-  let loginRedirect = requestUrl.searchParams.get("login_redirect");
+  let loginRedirect = formData.get("login_redirect");
   // Supabase defaults the login redirect to "/" if not specified so this will overwrite this behaviour
   if (
     loginRedirect === process.env.COMMUNITY_BASE_URL ||
     (loginRedirect !== null &&
+      typeof loginRedirect === "string" &&
       loginRedirect.startsWith(process.env.COMMUNITY_BASE_URL) === false &&
       loginRedirect.startsWith("/") === false)
   ) {
@@ -52,7 +56,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   ) {
     return redirect(
       `/auth/request-confirmation?type=${type}${
-        loginRedirect !== null ? `&login_redirect=${loginRedirect}` : ""
+        loginRedirect !== null && typeof loginRedirect === "string"
+          ? `&login_redirect=${loginRedirect}`
+          : ""
       }`
     );
   }
@@ -69,12 +75,22 @@ export async function loader({ request }: LoaderFunctionArgs) {
       "Did not provide necessary user meta data to create a corresponding profile after sign up.",
       { status: 400 }
     );
-    sendWelcomeMail({ profile, locales }).catch((error) => {
+    sendWelcomeMail({
+      profile,
+      locales: {
+        mail: {
+          subject: {
+            de: languageModuleMap["de"]["auth/verify"].welcomeEmail.subject,
+            en: languageModuleMap["en"]["auth/verify"].welcomeEmail.subject,
+          },
+        },
+      },
+    }).catch((error) => {
       captureException(error);
     });
 
     let loginRedirectUrl;
-    if (loginRedirect !== null) {
+    if (loginRedirect !== null && typeof loginRedirect === "string") {
       loginRedirectUrl = new URL(loginRedirect, request.url);
     } else {
       loginRedirectUrl = new URL(`/profile/${profile.username}`, request.url);
@@ -96,9 +112,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
     await resetInactivityReminderState(user.id);
     return redirect(
       `/reset/set-password${
-        loginRedirect !== null ? `?login_redirect=${loginRedirect}` : ""
+        loginRedirect !== null
+          ? `?login_redirect=${typeof loginRedirect === "string" ? loginRedirect : "/dashboard"}`
+          : ""
       }`,
       { headers }
     );
   }
 }
+
+function GuestVerify() {
+  return <div>This is a POST endpoint for confirmation link verification</div>;
+}
+
+export default GuestVerify;

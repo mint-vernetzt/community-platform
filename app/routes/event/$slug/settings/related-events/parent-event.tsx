@@ -143,7 +143,7 @@ export async function action(args: ActionFunctionArgs) {
   );
 
   if (intent === ADD_PARENT_EVENT_INTENT) {
-    const submission = await parseWithZod(formData, {
+    const submission = parseWithZod(formData, {
       schema: createAddParentEventSchema(),
     });
     if (submission.status !== "success") {
@@ -171,7 +171,7 @@ export async function action(args: ActionFunctionArgs) {
       level: "positive",
     });
   } else if (intent === REQUEST_TO_JOIN_PARENT_EVENT_INTENT) {
-    const submission = await parseWithZod(formData, {
+    const submission = parseWithZod(formData, {
       schema: createRequestParentEventSchema(),
     });
     if (submission.status !== "success") {
@@ -209,7 +209,7 @@ export async function action(args: ActionFunctionArgs) {
       level: "positive",
     });
   } else if (intent === CANCEL_PARENT_EVENT_JOIN_REQUEST_INTENT) {
-    const submission = await parseWithZod(formData, {
+    const submission = parseWithZod(formData, {
       schema: createCancelParentEventJoinRequestSchema(),
     });
     if (submission.status !== "success") {
@@ -343,7 +343,10 @@ function ParentEvent() {
                   stages: locales.stages,
                   ...loaderData.locales.route.list,
                 }}
-                participantCount={request.parentEvent._count.participants}
+                participantCount={
+                  request.parentEvent._count.participants +
+                  request.parentEvent._count.guests
+                }
                 language={language}
               ></ListItemEvent.Info>
               <ListItemEvent.Headline>
@@ -433,7 +436,10 @@ function ParentEvent() {
               stages: locales.stages,
               ...loaderData.locales.route.list,
             }}
-            participantCount={event.parentEvent._count.participants}
+            participantCount={
+              event.parentEvent._count.participants +
+              event.parentEvent._count.guests
+            }
             language={language}
           ></ListItemEvent.Info>
           <ListItemEvent.Headline>
@@ -584,7 +590,10 @@ function ParentEvent() {
                       stages: locales.stages,
                       ...loaderData.locales.route.list,
                     }}
-                    participantCount={parentEvent._count.participants}
+                    participantCount={
+                      parentEvent._count.participants +
+                      parentEvent._count.guests
+                    }
                     language={language}
                   ></ListItemEvent.Info>
                   <ListItemEvent.Headline>

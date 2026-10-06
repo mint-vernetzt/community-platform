@@ -69,7 +69,11 @@ export async function updateEventRegistrationAccess(options: {
       external: false,
       externalRegistrationUrl: null,
       parentParticipationRequired:
-        event._count.childEvents > 0 ? openForRegistration : undefined,
+        event._count.childEvents > 0
+          ? openForRegistration
+          : openForRegistration // Participation on closed events should be forced
+            ? null
+            : false,
     };
   }
 
@@ -122,11 +126,11 @@ export async function updateParentParticipationRequired(options: {
   if (event._count.childEvents > 0) {
     // Event is parent
     if (intent === SET_PARENT_PARTICIPATION_TO_REQUIRED_INTENT) {
-      // Set parentParticipationRequired to true on parent event
+      // Set parentParticipationRequired to true on main event
       parentParticipationRequired = true;
     }
     if (intent === SET_PARENT_PARTICIPATION_TO_NOT_REQUIRED_INTENT) {
-      // Set parentParticipationRequired to false on parent event
+      // Set parentParticipationRequired to false on main event
       parentParticipationRequired = false;
     }
   }
@@ -137,11 +141,11 @@ export async function updateParentParticipationRequired(options: {
       intent === SET_PARENT_PARTICIPATION_TO_REQUIRED_INTENT &&
       event.parentEvent.parentParticipationRequired === true
     ) {
-      // Set parentParticipationRequired to null on child event
+      // Set parentParticipationRequired to null on sub-event
       parentParticipationRequired = null;
     }
     if (intent === SET_PARENT_PARTICIPATION_TO_NOT_REQUIRED_INTENT) {
-      // Set parentParticipationRequired to false on child event
+      // Set parentParticipationRequired to false on sub-event
       parentParticipationRequired = false;
     }
   }

@@ -5,7 +5,7 @@ import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { captureException } from "@sentry/node";
 import { format } from "date-fns";
 import { utcToZonedTime } from "date-fns-tz";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   data,
   Form,
@@ -49,6 +49,7 @@ import {
   createSetRegistrationPeriodToDefaultSchema,
   createUpdateRegistrationPeriodSchema,
   REGISTRATION_PERIOD_CUSTOM,
+  REGISTRATION_PERIOD_DEFAULT,
   REGISTRATION_PERIOD_SEARCH_PARAM,
   SET_REGISTRATION_PERIOD_TO_DEFAULT_INTENT,
   UPDATE_REGISTRATION_PERIOD_INTENT,
@@ -136,7 +137,7 @@ export async function action(args: ActionFunctionArgs) {
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   if (intent === SET_REGISTRATION_PERIOD_TO_DEFAULT_INTENT) {
-    const submission = await parseWithZod(formData, {
+    const submission = parseWithZod(formData, {
       schema: createSetRegistrationPeriodToDefaultSchema({
         locales: locales.route.custom.form,
       }),
@@ -173,7 +174,7 @@ export async function action(args: ActionFunctionArgs) {
     }
   }
 
-  const submission = await parseWithZod(formData, {
+  const submission = parseWithZod(formData, {
     schema: createUpdateRegistrationPeriodSchema({
       startDate: event.startTime,
       endDate: event.endTime,
@@ -227,24 +228,34 @@ function RegistrationPeriod() {
   const isSubmitting = useIsSubmitting();
   const navigation = useNavigation();
 
-  const [isDefault, setIsDefault] = useState(
-    event.participationFrom.getTime() === event.createdAt.getTime() &&
-      event.participationUntil.getTime() === event.startTime.getTime()
+  const registrationSearchParamValue = searchParams.get(
+    REGISTRATION_PERIOD_SEARCH_PARAM
   );
+  console.log("registrationSearchParamValue:", registrationSearchParamValue);
+  const [isDefault, setIsDefault] = useState(
+    typeof actionData !== "undefined" &&
+      actionData.intent === SET_REGISTRATION_PERIOD_TO_DEFAULT_INTENT
+      ? true
+      : registrationSearchParamValue === REGISTRATION_PERIOD_DEFAULT
+        ? true
+        : registrationSearchParamValue === REGISTRATION_PERIOD_CUSTOM
+          ? false
+          : event.participationFrom.getTime() === event.createdAt.getTime() &&
+            event.participationUntil.getTime() === event.startTime.getTime()
+  );
+  const [syncedEvent, setSyncedEvent] = useState(event);
 
-  useEffect(() => {
-    if (navigation.state === "idle") {
-      const registrationSearchParamValue = searchParams.get(
-        REGISTRATION_PERIOD_SEARCH_PARAM
-      );
-      if (registrationSearchParamValue !== null) {
-        setIsDefault(
-          searchParams.get(REGISTRATION_PERIOD_SEARCH_PARAM) !==
-            REGISTRATION_PERIOD_CUSTOM
-        );
-      }
-    }
-  }, [navigation.state, searchParams]);
+  if (
+    syncedEvent !== event &&
+    navigation.state === "idle" &&
+    registrationSearchParamValue !== null
+  ) {
+    setIsDefault(
+      searchParams.get(REGISTRATION_PERIOD_SEARCH_PARAM) !==
+        REGISTRATION_PERIOD_CUSTOM
+    );
+    setSyncedEvent(event);
+  }
 
   let intent;
   let submission;
@@ -375,6 +386,7 @@ function RegistrationPeriod() {
           value={SET_REGISTRATION_PERIOD_TO_DEFAULT_INTENT}
           active={isDefault}
           buttonProps={{
+            type: "submit",
             onClick: () => {
               setIsDefault(true);
               searchParams.delete(REGISTRATION_PERIOD_SEARCH_PARAM);

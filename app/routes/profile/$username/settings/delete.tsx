@@ -1,5 +1,16 @@
-import { makeDomainFunction } from "domain-functions";
-import { performMutation } from "remix-forms";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { captureException } from "@sentry/node";
+import {
+  type ActionFunctionArgs,
+  Form,
+  type LoaderFunctionArgs,
+  redirect,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+} from "react-router";
 import { z } from "zod";
 import {
   createAdminAuthClient,
@@ -9,40 +20,14 @@ import {
   getSessionUserOrThrow,
   signOut,
 } from "~/auth.server";
-import Input from "~/components/legacy/FormElements/Input/Input";
+import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { deriveProfileMode } from "../utils.server";
-import {
-  type DeleteProfileLocales,
-  getProfileByUsername,
-  getProfileWithAdministrations,
-} from "./delete.server";
-import { detectLanguage } from "~/i18n.server";
-import { RemixFormsForm } from "~/components/legacy/RemixFormsForm/RemixFormsForm";
 import { languageModuleMap } from "~/locales/.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import {
-  useLoaderData,
-  redirect,
-  type LoaderFunctionArgs,
-  type ActionFunctionArgs,
-} from "react-router";
-
-const createSchema = (locales: DeleteProfileLocales) => {
-  return z.object({
-    confirmedToken: z
-      .string()
-      .regex(
-        new RegExp(locales.validation.confirmed.regex),
-        locales.validation.confirmed.message
-      ),
-  });
-};
-
-const environmentSchema = z.object({
-  userId: z.string(),
-});
+import { deriveProfileMode } from "../utils.server";
+import { getProfileByUsername, validateLastAdmin } from "./delete.server";
+import { createSchema } from "./delete.shared";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const username = getParamValueOrThrow(params, "username");
@@ -71,74 +56,6 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   return { locales };
 };
 
-const createMutation = (locales: DeleteProfileLocales) => {
-  return makeDomainFunction(
-    createSchema(locales),
-    environmentSchema
-  )(async (values, environment) => {
-    const profile = await getProfileWithAdministrations(environment.userId);
-    if (profile === null) {
-      throw locales.error.notFound;
-    }
-    const lastAdminOrganizations: string[] = [];
-    profile.administeredOrganizations.map((relation) => {
-      if (relation.organization._count.admins === 1) {
-        lastAdminOrganizations.push(relation.organization.name);
-      }
-      return null;
-    });
-    const lastAdminEvents: string[] = [];
-    profile.administeredEvents.map((relation) => {
-      if (relation.event._count.admins === 1) {
-        lastAdminEvents.push(relation.event.name);
-      }
-      return null;
-    });
-    const lastAdminProjects: string[] = [];
-    profile.administeredProjects.map((relation) => {
-      if (relation.project._count.admins === 1) {
-        lastAdminProjects.push(relation.project.name);
-      }
-      return null;
-    });
-
-    if (
-      lastAdminOrganizations.length > 0 ||
-      lastAdminEvents.length > 0 ||
-      lastAdminProjects.length > 0
-    ) {
-      const errors: string[] = [];
-      if (lastAdminOrganizations.length > 0) {
-        errors.push(
-          insertParametersIntoLocale(locales.error.lastAdmin.organizations, {
-            organizations: lastAdminOrganizations.join(", "),
-          })
-        );
-      }
-      if (lastAdminEvents.length > 0) {
-        errors.push(
-          insertParametersIntoLocale(locales.error.lastAdmin.events, {
-            events: lastAdminEvents.join(", "),
-          })
-        );
-      }
-      if (lastAdminProjects.length > 0) {
-        errors.push(
-          insertParametersIntoLocale(locales.error.lastAdmin.projects, {
-            projects: lastAdminProjects.join(", "),
-          })
-        );
-      }
-
-      throw `${locales.error.lastAdmin.intro} ${errors.join(", ")} ${
-        locales.error.lastAdmin.outro
-      }`;
-    }
-
-    return values;
-  });
-};
-
 export const action = async ({ request, params }: ActionFunctionArgs) => {
   const { authClient } = createAuthClient(request);
 
@@ -153,35 +70,71 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     status: 403,
   });
 
-  const result = await performMutation({
-    request,
-    schema: createSchema(locales),
-    mutation: createMutation(locales),
-    environment: { userId: sessionUser.id },
+  const formData = await request.formData();
+  const schema = createSchema(locales);
+  const submission = await parseWithZod(formData, {
+    schema: () =>
+      schema.transform(async (data, ctx) => {
+        try {
+          const { error } = await validateLastAdmin(sessionUser.id, locales);
+          if (error !== null) {
+            ctx.addIssue({
+              path: ["confirmedToken"],
+              code: "custom",
+              message: error,
+            });
+            return z.NEVER;
+          }
+        } catch (error) {
+          captureException(error);
+          ctx.addIssue({
+            code: "custom",
+            message: locales.error.serverError,
+          });
+          return z.NEVER;
+        }
+
+        return { ...data };
+      }),
+    async: true,
   });
-  if (result.success) {
-    const { error, headers } = await signOut(request);
-    if (error !== null) {
-      console.error(error.message);
-      invariantResponse(false, locales.error.serverError, { status: 500 });
-    }
 
-    const adminAuthClient = createAdminAuthClient();
-
-    const result = await deleteUserByUid(adminAuthClient, sessionUser.id);
-    if (result.error !== null) {
-      console.error(result.error.message);
-      throw locales.error.serverError;
-    }
-
-    return redirect("/goodbye", { headers });
+  if (submission.status !== "success") {
+    return submission.reply();
   }
-  return result;
+
+  const { error, headers } = await signOut(request);
+  if (error !== null) {
+    invariantResponse(false, locales.error.serverError, { status: 500 });
+  }
+
+  const adminAuthClient = createAdminAuthClient();
+
+  const result = await deleteUserByUid(adminAuthClient, sessionUser.id);
+  invariantResponse(result.error === null, locales.error.serverError, {
+    status: 500,
+  });
+
+  return redirect("/goodbye", { headers });
 };
 
 export default function Index() {
   const { locales } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+
   const schema = createSchema(locales);
+  const [form, fields] = useForm({
+    id: "change-url-form",
+    constraint: getZodConstraint(schema),
+    shouldValidate: "onInput",
+    onValidate: (values) => {
+      return parseWithZod(values.formData, {
+        schema: schema,
+      });
+    },
+    lastResult: navigation.state === "idle" ? actionData : null,
+  });
 
   return (
     <>
@@ -191,32 +144,35 @@ export default function Index() {
 
       <p className="mb-8">{locales.content.intro}</p>
 
-      <RemixFormsForm method="post" schema={schema}>
-        {({ Field, Errors, register }) => (
-          <>
-            <Field name="confirmedToken" className="mb-4">
-              {({ Errors }) => (
-                <>
-                  <Input
-                    id="confirmedToken"
-                    label={locales.form.confirmed.label}
-                    placeholder={locales.form.confirmed.placeholder}
-                    {...register("confirmedToken")}
-                  />
-                  <Errors />
-                </>
-              )}
-            </Field>
-            <button
-              type="submit"
-              className="ml-auto border border-primary bg-white text-primary h-auto min-h-0 whitespace-nowrap py-[.375rem] px-6 normal-case leading-[1.125rem] inline-flex cursor-pointer selct-none flex-wrap items-center justify-center rounded-lg text-center text-sm font-semibold gap-2 hover:bg-primary hover:text-white"
-            >
-              {locales.form.submit.label}
-            </button>
-            <Errors />
-          </>
-        )}
-      </RemixFormsForm>
+      <Form
+        {...getFormProps(form)}
+        method="post"
+        preventScrollReset
+        autoComplete="off"
+      >
+        <div className="mb-4">
+          <Input
+            {...getInputProps(fields.confirmedToken, { type: "text" })}
+            key="confirmedToken"
+            placeholder={locales.form.confirmed.placeholder}
+          >
+            <Input.Label htmlFor={fields.confirmedToken.id}>
+              {locales.form.confirmed.label}
+            </Input.Label>
+            {typeof fields.confirmedToken.errors !== "undefined" &&
+            fields.confirmedToken.errors.length > 0
+              ? fields.confirmedToken.errors.map((error) => (
+                  <Input.Error id={fields.confirmedToken.errorId} key={error}>
+                    {error}
+                  </Input.Error>
+                ))
+              : null}
+          </Input>
+        </div>
+        <Button type="submit" variant="outline">
+          {locales.form.submit.label}
+        </Button>
+      </Form>
     </>
   );
 }

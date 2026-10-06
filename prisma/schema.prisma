@@ -549,6 +549,14 @@ enum EventReminderState {
   @@map("event_reminder_state")
 }
 
+enum EventReminderType {
+  oneDayBefore
+  oneHourBefore
+  fifteenMinutesBefore
+
+  @@map("event_reminder_type")
+}
+
 model Event {
   id                               String                                         @id @default(uuid())
   name                             String
@@ -620,6 +628,7 @@ model Event {
   receivedParentEventJoinRequests  RequestToParentEventToAddChildEvent[]          @relation("received_requests")
   eventTransactions                EventTransaction[]
   reminderState                    EventReminderState                             @default(open) @map("reminder_state")
+  activeReminderMails              EventReminderType[]                            @default([oneDayBefore, oneHourBefore, fifteenMinutesBefore]) @map("active_reminder_mails")
 
   filterVector Unsupported("tsvector")? @map("filter_vector")
 
@@ -652,14 +661,14 @@ model EventVisibility {
   venueName                        Boolean @default(true) @map("venue_name")
   venueStreet                      Boolean @default(true) @map("venue_street")
   venueStreetNumber                Boolean @default(true) @map("venue_street_number") // legacy
+  venueLatitude                    Boolean @default(true) @map("venue_latitude")
+  venueLongitude                   Boolean @default(true) @map("venue_longitude")
   venueCity                        Boolean @default(true) @map("venue_city")
   venueZipCode                     Boolean @default(true) @map("venue_zip_code")
   accessibilityInformation         Boolean @default(true) @map("accessibility_information")
   accessibilityInformationRTEState Boolean @default(true) @map("accessibility_information_rte_state")
   privacyInformation               Boolean @default(true) @map("privacy_information")
   privacyInformationRTEState       Boolean @default(true) @map("privacy_information_rte_state")
-  venueLatitude                    Boolean @default(true) @map("venue_latitude")
-  venueLongitude                   Boolean @default(true) @map("venue_longitude")
   canceled                         Boolean @default(true)
   stageId                          Boolean @default(true) @map("stage_id")
   subline                          Boolean @default(true)
@@ -669,6 +678,7 @@ model EventVisibility {
   externalRegistrationUrl          Boolean @default(true) @map("external_registration_url")
   moveUpToParticipants             Boolean @default(true) @map("move_up_to_participants")
   parentParticipationRequired      Boolean @default(true) @map("parent_participation_required")
+  participationToken               Boolean @default(false) @map("participation_token")
   areas                            Boolean @default(true)
   documents                        Boolean @default(true)
   types                            Boolean @default(true)
@@ -678,6 +688,7 @@ model EventVisibility {
   stage                            Boolean @default(true)
   focuses                          Boolean @default(true)
   participants                     Boolean @default(false)
+  guests                           Boolean @default(false)
   participantInvites               Boolean @default(false)
   responsibleOrganizations         Boolean @default(true)
   responsibleOrganizationInvites   Boolean @default(false)
@@ -687,15 +698,17 @@ model EventVisibility {
   eventTargetGroups                Boolean @default(true)
   teamMembers                      Boolean @default(true)
   contactPersons                   Boolean @default(true)
-  admins                           Boolean @default(false)
-  profileJoinInvites               Boolean @default(false)
   waitingList                      Boolean @default(false)
   eventVisibility                  Boolean @default(true)
+  admins                           Boolean @default(false)
+  profileJoinInvites               Boolean @default(false)
   abuseReports                     Boolean @default(false)
-  filterVector                     Boolean @default(true)
   sentParentEventJoinRequests      Boolean @default(false)
   receivedParentEventJoinRequests  Boolean @default(false)
   eventTransactions                Boolean @default(false)
+  reminderState                    Boolean @default(false)
+  activeReminderMails              Boolean @default(false)
+  filterVector                     Boolean @default(true)
   event                            Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId                          String  @unique
 

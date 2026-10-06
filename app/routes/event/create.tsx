@@ -104,7 +104,7 @@ export async function action(args: ActionFunctionArgs) {
     );
     invariantResponse(
       parentEvent !== null,
-      "Parent Event not found or not authorized",
+      "main event not found or not authorized",
       {
         status: 404,
       }
@@ -116,7 +116,7 @@ export async function action(args: ActionFunctionArgs) {
     timePeriod,
     parentEvent,
   });
-  const submission = await parseWithZod(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
   if (submission.status !== "success") {
     return submission.reply();
@@ -253,7 +253,9 @@ export default function Create() {
               <ListItemEvent.Info
                 {...parentEvent}
                 stage={parentEvent.stage}
-                participantCount={parentEvent._count.participants}
+                participantCount={
+                  parentEvent._count.participants + parentEvent.guests.length
+                }
                 locales={{
                   stages: locales.stages,
                   ...locales.route.list,
@@ -296,7 +298,10 @@ export default function Create() {
                   <ListItemEvent.Info
                     {...parentEvent}
                     stage={parentEvent.stage}
-                    participantCount={parentEvent._count.participants}
+                    participantCount={
+                      parentEvent._count.participants +
+                      parentEvent.guests.length
+                    }
                     locales={{
                       stages: locales.stages,
                       ...locales.route.list,

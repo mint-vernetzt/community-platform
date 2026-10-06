@@ -6,7 +6,6 @@ import type { Profile } from "@prisma/client";
 import { captureException } from "@sentry/node";
 import { utcToZonedTime } from "date-fns-tz";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
-import { useCallback } from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import {
   Form,
@@ -48,13 +47,13 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDuration } from "~/lib/utils/time";
 import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { languageModuleMap } from "~/locales/.server";
-import { addUserParticipationStatus } from "~/routes/event/$slug/utils.server";
 import { getFeatureAbilities } from "~/routes/feature-access.server";
 import { parseMultipartFormData } from "~/storage.server";
 import { UPLOAD_DOCUMENT_INTENT_VALUE } from "~/storage.shared";
 import { redirectWithToast } from "~/toast.server";
 import { hasContent } from "~/utils.shared";
 import {
+  addUserParticipationStatus,
   disconnectImage,
   getProfileByUsername,
   uploadImage,
@@ -67,6 +66,7 @@ import {
   sortEvents,
   splitEventsIntoFutureAndPast,
 } from "./utils.server";
+import defaultProfileBackground from "~/assets/default-profile-background.webp";
 
 export function links() {
   return [
@@ -110,13 +110,11 @@ export const meta: MetaFunction<typeof loader> = (args) => {
       {
         name: "image",
         property: "og:image",
-        content:
-          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+        content: `${loaderData.meta.baseUrl}${defaultProfileBackground}`,
       },
       {
         property: "og:image:secure_url",
-        content:
-          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+        content: `${loaderData.meta.baseUrl}${defaultProfileBackground}`,
       },
       {
         property: "og:url",
@@ -171,13 +169,11 @@ export const meta: MetaFunction<typeof loader> = (args) => {
       {
         name: "image",
         property: "og:image",
-        content:
-          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+        content: `${loaderData.meta.baseUrl}${defaultProfileBackground}`,
       },
       {
         property: "og:image:secure_url",
-        content:
-          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+        content: `${loaderData.meta.baseUrl}${defaultProfileBackground}`,
       },
       {
         property: "og:url",
@@ -248,20 +244,60 @@ export async function loader(args: LoaderFunctionArgs) {
     contributedEvents,
     teamMemberOfEvents,
     participatedEvents,
-    waitingForEvents,
     ...profileWithoutEvents
   } = enhancedProfile;
   // Combine participated and waiting events to show them both in one list in the frontend
 
-  const events = {
-    contributedEvents,
-    teamMemberOfEvents,
-    participatedEvents: mode !== "anon" ? participatedEvents : [],
-  };
+  const enhancedContributedEvents = contributedEvents.map((relation) => {
+    return {
+      ...relation,
+      event: {
+        ...relation.event,
+        participatingGuests: relation.event.guests.filter(
+          (guest) => !guest.onWaitingList
+        ),
+        waitingGuests: relation.event.guests.filter(
+          (guest) => guest.onWaitingList
+        ),
+      },
+    };
+  });
 
-  if (mode === "owner") {
-    events.participatedEvents.concat(waitingForEvents);
-  }
+  const enhancedTeamMemberOfEvents = teamMemberOfEvents.map((relation) => {
+    return {
+      ...relation,
+      event: {
+        ...relation.event,
+        participatingGuests: relation.event.guests.filter(
+          (guest) => !guest.onWaitingList
+        ),
+        waitingGuests: relation.event.guests.filter(
+          (guest) => guest.onWaitingList
+        ),
+      },
+    };
+  });
+
+  const enhancedParticipatedEvents = participatedEvents.map((relation) => {
+    return {
+      ...relation,
+      event: {
+        ...relation.event,
+        participatingGuests: relation.event.guests.filter(
+          (guest) => !guest.onWaitingList
+        ),
+        waitingGuests: relation.event.guests.filter(
+          (guest) => guest.onWaitingList
+        ),
+      },
+    };
+  });
+
+  const events = {
+    contributedEvents: enhancedContributedEvents,
+    teamMemberOfEvents: enhancedTeamMemberOfEvents,
+    participatedEvents: mode !== "anon" ? enhancedParticipatedEvents : [],
+  };
 
   // Split events into future and past (Note: The events are already ordered by startTime: descending from the database)
   type Events = typeof events;
@@ -452,44 +488,9 @@ export default function Index() {
   const blurredAvatar = loaderData.data.blurredAvatar;
   const firstName = loaderData.data.firstName;
   const lastName = loaderData.data.lastName;
-  const Avatar = useCallback(
-    () => (
-      <div className="h-36 w-36 bg-neutral-600 text-white text-6xl flex items-center justify-center overflow-hidden rounded-full">
-        {hasContent(avatar) ? (
-          <MVAvatar
-            avatar={avatar}
-            blurredAvatar={blurredAvatar}
-            firstName={firstName}
-            lastName={lastName}
-            size="full"
-            textSize="xl"
-          />
-        ) : (
-          initials
-        )}
-      </div>
-    ),
-    [avatar, blurredAvatar, firstName, lastName, initials]
-  );
 
   const background = loaderData.data.background;
   const blurredBackground = loaderData.data.blurredBackground;
-  const Background = useCallback(
-    () => (
-      <div className="w-full bg-yellow-100 rounded-md overflow-hidden">
-        {hasContent(background) ? (
-          <Image
-            src={background}
-            alt={locales.route.images.currentBackground}
-            blurredSrc={blurredBackground}
-          />
-        ) : (
-          <div className="w-75 min-h-27" />
-        )}
-      </div>
-    ),
-    [background, blurredBackground, locales]
-  );
 
   const hasFutureEvents =
     hasContent(loaderData.futureEvents.teamMemberOfEvents) ||
@@ -563,7 +564,17 @@ export default function Index() {
                     modalSearchParam="modal-background"
                     locales={locales}
                   >
-                    <Background />
+                    <div className="w-full bg-yellow-100 rounded-md overflow-hidden">
+                      {hasContent(background) ? (
+                        <Image
+                          src={background}
+                          alt={locales.route.images.currentBackground}
+                          blurredSrc={blurredBackground}
+                        />
+                      ) : (
+                        <div className="w-75 min-h-27" />
+                      )}
+                    </div>
                   </ImageCropper>
                 </Modal.Section>
               </Modal>
@@ -576,7 +587,20 @@ export default function Index() {
           <div className="flex-gridcol @lg:w-5/12 px-4 pt-10 @lg:pt-0">
             <div className="px-4 py-8 @lg:p-8 pb-15 @md:pb-5 rounded-3xl border border-neutral-100 bg-neutral-50 shadow-lg @lg:ml-14 -mt-2 @lg:-mt-44 sticky top-24">
               <div className="flex items-center flex-col">
-                <Avatar />
+                <div className="h-36 w-36 bg-neutral-600 text-white text-6xl flex items-center justify-center overflow-hidden rounded-full">
+                  {hasContent(avatar) ? (
+                    <MVAvatar
+                      avatar={avatar}
+                      blurredAvatar={blurredAvatar}
+                      firstName={firstName}
+                      lastName={lastName}
+                      size="full"
+                      textSize="xl"
+                    />
+                  ) : (
+                    initials
+                  )}
+                </div>
                 {loaderData.mode === "owner" ? (
                   <>
                     <Form method="get" preventScrollReset>
@@ -617,7 +641,20 @@ export default function Index() {
                           modalSearchParam="modal-avatar"
                           locales={locales}
                         >
-                          <Avatar />
+                          <div className="h-36 w-36 bg-neutral-600 text-white text-6xl flex items-center justify-center overflow-hidden rounded-full">
+                            {hasContent(avatar) ? (
+                              <MVAvatar
+                                avatar={avatar}
+                                blurredAvatar={blurredAvatar}
+                                firstName={firstName}
+                                lastName={lastName}
+                                size="full"
+                                textSize="xl"
+                              />
+                            ) : (
+                              initials
+                            )}
+                          </div>
                         </ImageCropper>
                       </Modal.Section>
                     </Modal>
@@ -1113,24 +1150,28 @@ export default function Index() {
                                       ` | ${locales.route.section.event.unlimitedSeats}`}
                                     {hasContent(event.participantLimit) &&
                                       event.participantLimit -
-                                        event._count.participants >
+                                        event._count.participants -
+                                        event.participatingGuests.length >
                                         0 &&
                                       ` | ${
                                         event.participantLimit -
-                                        event._count.participants
+                                        event._count.participants -
+                                        event.participatingGuests.length
                                       } / ${event.participantLimit} ${
                                         locales.route.section.event.seatsFree
                                       }`}
 
                                     {hasContent(event.participantLimit) &&
                                     event.participantLimit -
-                                      event._count.participants <=
+                                      event._count.participants -
+                                      event.participatingGuests.length <=
                                       0 ? (
                                       <>
                                         {" "}
                                         |{" "}
                                         <span>
-                                          {event._count.waitingList}{" "}
+                                          {event._count.waitingList +
+                                            event.waitingGuests.length}{" "}
                                           {
                                             locales.route.section.event
                                               .onWaitingList
@@ -1268,24 +1309,28 @@ export default function Index() {
                                       ` | ${locales.route.section.event.unlimitedSeats}`}
                                     {hasContent(event.participantLimit) &&
                                       event.participantLimit -
-                                        event._count.participants >
+                                        event._count.participants -
+                                        event.participatingGuests.length >
                                         0 &&
                                       ` | ${
                                         event.participantLimit -
-                                        event._count.participants
+                                        (event._count.participants -
+                                          event.participatingGuests.length)
                                       } / ${event.participantLimit} ${
                                         locales.route.section.event.seatsFree
                                       }`}
 
                                     {hasContent(event.participantLimit) &&
                                     event.participantLimit -
-                                      event._count.participants <=
+                                      event._count.participants -
+                                      event.participatingGuests.length <=
                                       0 ? (
                                       <>
                                         {" "}
                                         |{" "}
                                         <span>
-                                          {event._count.waitingList}{" "}
+                                          {event._count.waitingList +
+                                            event.waitingGuests.length}{" "}
                                           {
                                             locales.route.section.event
                                               .onWaitingList
@@ -1417,24 +1462,28 @@ export default function Index() {
                                       ` | ${locales.route.section.event.unlimitedSeats}`}
                                     {hasContent(event.participantLimit) &&
                                       event.participantLimit -
-                                        event._count.participants >
+                                        event._count.participants -
+                                        event.participatingGuests.length >
                                         0 &&
                                       ` | ${
                                         event.participantLimit -
-                                        event._count.participants
+                                        (event._count.participants -
+                                          event.participatingGuests.length)
                                       } / ${event.participantLimit} ${
                                         locales.route.section.event.seatsFree
                                       }`}
 
                                     {hasContent(event.participantLimit) &&
                                     event.participantLimit -
-                                      event._count.participants <=
+                                      event._count.participants -
+                                      event.participatingGuests.length <=
                                       0 ? (
                                       <>
                                         {" "}
                                         |{" "}
                                         <span>
-                                          {event._count.waitingList}{" "}
+                                          {event._count.waitingList +
+                                            event.waitingGuests.length}{" "}
                                           {
                                             locales.route.section.event
                                               .onWaitingList

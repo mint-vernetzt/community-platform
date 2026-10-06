@@ -369,7 +369,12 @@ function Requirements() {
           autoComplete="off"
         >
           {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
-          <button type="submit" hidden disabled={isSubmitting} />
+          <button
+            type="submit"
+            hidden
+            disabled={isSubmitting}
+            aria-label={locales.route.form.submit}
+          />
           <div className="flex flex-col gap-6 @md:gap-4">
             <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
               <h2 className="text-primary text-lg font-semibold mb-0">

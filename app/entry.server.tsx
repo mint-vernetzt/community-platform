@@ -37,11 +37,11 @@ export default async function handleRequest(
   const nonce = crypto.randomUUID();
   responseHeaders.set(
     "Reporting-Endpoints",
-    `csp-endpoint='${process.env.COMMUNITY_BASE_URL}/csp-reports'`
+    `csp-endpoint="${process.env.COMMUNITY_BASE_URL}/csp-reports"`
   );
 
   const url = new URL(request.url);
-  const isMap = url.pathname === "/map";
+  const isMapForIFrame = url.pathname === "/map";
 
   const connectSrc = ["'self'"];
   if (process.env.MATOMO_URL !== "") {
@@ -64,7 +64,7 @@ export default async function handleRequest(
     styleSrcElem.push("'unsafe-inline'");
   }
 
-  const imgSrc = ["'self'", "data:"];
+  const imgSrc = ["'self'", "data:", "blob:"];
   if (process.env.MATOMO_URL !== "") {
     imgSrc.push(process.env.MATOMO_URL.replace(/https?:\/\//, ""));
   }
@@ -78,6 +78,11 @@ export default async function handleRequest(
   }
   scriptSrc.push(`'nonce-${nonce}'`);
 
+  const workerSrc = ["'self'"];
+  if (process.env.NODE_ENV === "development") {
+    workerSrc.push("blob:");
+  }
+
   const cspHeaderOptions = createCSPHeaderOptions({
     "default-src": "'self'",
     "style-src": "'self'",
@@ -87,10 +92,11 @@ export default async function handleRequest(
     "form-action": "'self'",
     "script-src": scriptSrc.join(" "),
     "img-src": imgSrc.join(" "),
-    "worker-src": "blob:",
-    "frame-src": `'self' www.youtube.com www.youtube-nocookie.com 'nonce-${nonce}'`,
+    "worker-src": workerSrc.join(" "),
+    "frame-src": `'self' www.youtube.com www.youtube-nocookie.com`,
+    "object-src": "'none'",
     "base-uri": "'none'",
-    "frame-ancestors": isMap ? false : "'none'",
+    "frame-ancestors": isMapForIFrame ? false : "'none'",
     "report-uri": `${process.env.COMMUNITY_BASE_URL}/csp-reports`,
     "report-to": "csp-endpoint",
     "upgrade-insecure-requests": process.env.NODE_ENV === "production",
@@ -98,8 +104,8 @@ export default async function handleRequest(
   });
 
   responseHeaders.set("Content-Security-Policy", cspHeaderOptions);
-  if (isMap === false) {
-    responseHeaders.set("X-Frame-Options", "SAMEORIGIN");
+  if (isMapForIFrame === false) {
+    responseHeaders.set("X-Frame-Options", "DENY");
   }
 
   // Appending profiling policy header to the response when sentry is enabled

@@ -8,10 +8,11 @@ import {
 import {
   init as initSentry,
   replayIntegration,
-  reactRouterV7BrowserTracingIntegration,
+  reactRouterBrowserTracingIntegration,
 } from "@sentry/react";
 import { StrictMode, startTransition, useEffect } from "react";
 import { hydrateRoot } from "react-dom/client";
+import { safeStringify } from "./lib/utils/json";
 
 if (ENV.MODE === "production" && typeof ENV.SENTRY_DSN !== "undefined") {
   try {
@@ -32,8 +33,10 @@ if (ENV.MODE === "production" && typeof ENV.SENTRY_DSN !== "undefined") {
         return event;
       },
       integrations: [
-        replayIntegration(),
-        reactRouterV7BrowserTracingIntegration({
+        replayIntegration({
+          useCompression: false,
+        }),
+        reactRouterBrowserTracingIntegration({
           useEffect,
           useLocation,
           useNavigationType,
@@ -45,20 +48,17 @@ if (ENV.MODE === "production" && typeof ENV.SENTRY_DSN !== "undefined") {
       // Set tracesSampleRate to 1.0 to capture 100%
       // of transactions for performance monitoring.
       // We recommend adjusting this value in production
-      tracesSampleRate: 0.5,
+      tracesSampleRate: 1,
 
-      // Capture Replay for 10% of all sessions,
-      // plus for 100% of sessions with an error
-      replaysSessionSampleRate: 0.1,
+      // Capture no session replays,
+      // Capture 100% of sessions with an error
+      replaysSessionSampleRate: 0,
       replaysOnErrorSampleRate: 1.0,
     });
   } catch (error) {
     console.warn("Sentry initialization failed");
     const formData = new FormData();
-    formData.append(
-      "error",
-      JSON.stringify(error, Object.getOwnPropertyNames(error))
-    );
+    formData.append("error", safeStringify(error));
     void fetch("/error", {
       method: "POST",
       body: formData,

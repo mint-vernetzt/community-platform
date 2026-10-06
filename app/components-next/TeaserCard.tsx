@@ -33,7 +33,7 @@ export function TeaserCard(props: {
           <h3 className="appearance-none text-neutral-700 text-xs font-bold leading-[15.6px] tracking-[-0.24px]">
             {headline}
           </h3>
-          <div className="text-primary text-2xl font-semibold leading-[26px] tracking-[-0.44px] @xl:grow">
+          <div className="text-primary text-2xl font-semibold leading-6.5 tracking-[-0.44px] @xl:grow">
             {description}
           </div>
           <div className="flex items-end gap-1 text-primary text-sm font-semibold leading-5 tracking-[0.14px] underline underline-offset-1">
@@ -68,7 +68,7 @@ export function TeaserCard(props: {
           </div>
         </div>
         <div
-          className={`grid grid-cols-1 grid-rows-1 place-items-center h-[76px] w-[85px] min-h-[76px] min-w-[85px] shrink rounded-lg ${
+          className={`grid grid-cols-1 grid-rows-1 place-items-center h-19 w-21.25 min-h-19 min-w-21.25 shrink rounded-lg ${
             type === "primary" ? "bg-primary-200" : "bg-secondary"
           }`}
         >

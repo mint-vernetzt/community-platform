@@ -6,6 +6,9 @@ export const locale = {
     showLess: "Show less",
     focuses: "Field of Focus",
     targetGroups: "Target groups",
+    responsibleOrganizations: "Responsible organizations",
+    responsibleOrganizationSearchPlaceholder: "Search for an organization...",
+    searchResponsibleOrganizationHelper: "At least 3 letters.",
     periodOfTime: {
       label: "Period of time",
       values: {

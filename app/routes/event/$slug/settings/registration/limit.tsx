@@ -146,7 +146,7 @@ export async function action(args: ActionFunctionArgs) {
 
   if (intent === UPDATE_MOVE_UP_TO_PARTICIPANTS_INTENT) {
     const schema = createMoveUpToParticipantsSchema();
-    const submission = await parseWithZod(formData, { schema });
+    const submission = parseWithZod(formData, { schema });
 
     if (submission.status !== "success") {
       return { intent, submission: submission.reply() };
@@ -160,7 +160,16 @@ export async function action(args: ActionFunctionArgs) {
         },
         locales: {
           mail: {
-            moveUpToParticipants: locales.route.mail.moveUpToParticipants,
+            moveUpToParticipants: {
+              subject: {
+                de: languageModuleMap["de"][
+                  "event/$slug/settings/registration/limit"
+                ].route.mail.moveUpToParticipants.subject,
+                en: languageModuleMap["en"][
+                  "event/$slug/settings/registration/limit"
+                ].route.mail.moveUpToParticipants.subject,
+              },
+            },
           },
         },
       });
@@ -187,7 +196,7 @@ export async function action(args: ActionFunctionArgs) {
     }
   }
   const schema = createParticipantLimitSchema();
-  const submission = await parseWithZod(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
   if (submission.status !== "success") {
     return { intent, submission: submission.reply() };
@@ -204,7 +213,16 @@ export async function action(args: ActionFunctionArgs) {
         ACCEPT_FILL_UP_PARTICIPANTS_AUTOMATICALLY,
       locales: {
         mail: {
-          moveUpToParticipants: locales.route.mail.moveUpToParticipants,
+          moveUpToParticipants: {
+            subject: {
+              de: languageModuleMap["de"][
+                "event/$slug/settings/registration/limit"
+              ].route.mail.moveUpToParticipants.subject,
+              en: languageModuleMap["en"][
+                "event/$slug/settings/registration/limit"
+              ].route.mail.moveUpToParticipants.subject,
+            },
+          },
         },
       },
     });
@@ -294,7 +312,8 @@ function RegistrationLimit() {
       if (
         submission.status === "success" &&
         submission.value.participantLimit !== null &&
-        submission.value.participantLimit < loaderData.event._count.participants
+        submission.value.participantLimit <
+          loaderData.event._count.participants + loaderData.event.guests.length
       ) {
         if (
           searchParams.get(LIMIT_BELOW_CURRENT_PARTICIPANTS_SEARCH_PARAM) !==
@@ -320,7 +339,8 @@ function RegistrationLimit() {
         submission.status === "success" &&
         (submission.value.participantLimit === null ||
           submission.value.participantLimit >
-            loaderData.event._count.participants) &&
+            loaderData.event._count.participants +
+              loaderData.event.guests.length) &&
         loaderData.event._count.waitingList + loaderData.event._count.guests > 0
       ) {
         if (
@@ -446,7 +466,9 @@ function RegistrationLimit() {
                     {
                       participantLimit:
                         participantLimitFields.participantLimit.value,
-                      participantsCount: loaderData.event._count.participants,
+                      participantsCount:
+                        loaderData.event._count.participants +
+                        loaderData.event.guests.length,
                     }
                   ),
                   [<span key="highlight" className="font-semibold" />]
@@ -489,7 +511,9 @@ function RegistrationLimit() {
                           : locales.route.limit.form.modal
                               .fillUpParticipantsAutomaticallyModal
                               .noParticipantLimit,
-                      participantsCount: loaderData.event._count.participants,
+                      participantsCount:
+                        loaderData.event._count.participants +
+                        loaderData.event.guests.length,
                       waitingListCount:
                         loaderData.event._count.waitingList +
                         loaderData.event._count.guests,

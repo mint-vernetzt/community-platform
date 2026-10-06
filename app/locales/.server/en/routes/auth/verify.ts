@@ -1,5 +1,5 @@
 export const locale = {
   welcomeEmail: {
-    subject: "Schön, dass Du da bist, {{firstName}}",
+    subject: "Nice to have you here, {{firstName}}",
   },
 } as const;

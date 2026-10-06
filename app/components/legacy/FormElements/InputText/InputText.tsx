@@ -75,7 +75,12 @@ const InputText = forwardRef(
             />
           </div>
           {withClearButton && (
-            <button className="p-2 ml-2 text-neutral-600" onClick={handleClear}>
+            // TODO: i18n with locales
+            <button
+              className="p-2 ml-2 text-neutral-600"
+              onClick={handleClear}
+              aria-label="Clear input"
+            >
               <svg
                 viewBox="0 0 10 10"
                 width="10px"

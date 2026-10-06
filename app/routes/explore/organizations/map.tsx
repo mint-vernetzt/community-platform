@@ -4,7 +4,6 @@ import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import mapStyles from "maplibre-gl/dist/maplibre-gl.css?url";
 import { useState } from "react";
 import {
-  data,
   Link,
   type LinksFunction,
   type LoaderFunctionArgs,
@@ -31,11 +30,7 @@ import { filterOrganizationByVisibility } from "~/public-fields-filtering.server
 import { getPublicURL } from "~/storage.server";
 import customMapStyles from "~/styles/map/map.css?url";
 import { getFilterSchemes } from "../all.shared";
-import {
-  getOrganizationIds,
-  VIEW_COOKIE_VALUES,
-  viewCookie,
-} from "../organizations.server";
+import { getOrganizationIds } from "../organizations.server";
 import { getAllOrganizations } from "./map.server";
 
 export const links: LinksFunction = () => [
@@ -207,16 +202,7 @@ export async function loader(args: LoaderFunctionArgs) {
     enhancedOrganizations.push(transformedOrganization);
   }
 
-  const viewCookieHeader = {
-    "Set-Cookie": await viewCookie.serialize(VIEW_COOKIE_VALUES.map),
-  };
-
-  return data(
-    { lng: language, organizations: enhancedOrganizations, locales },
-    {
-      headers: viewCookieHeader,
-    }
-  );
+  return { lng: language, organizations: enhancedOrganizations, locales };
 }
 
 export default function ExploreOrganizationsList() {
@@ -317,7 +303,7 @@ export default function ExploreOrganizationsList() {
           ]
         )}
       </Alert>
-      <div className="w-full relative rounded-lg md:rounded-2xl overflow-hidden h-[calc(100dvh-292px)] min-h-[284px] mb-3 ring-1 ring-neutral-200">
+      <div className="w-full relative rounded-lg md:rounded-2xl overflow-hidden h-[calc(100dvh-292px)] min-h-71 mb-3 ring-1 ring-neutral-200">
         <MapView
           organizations={organizationsWithAddress}
           locales={loaderData.locales}
@@ -353,7 +339,7 @@ export default function ExploreOrganizationsList() {
             </p>
             <ul className="flex flex-col gap-5 text-sm">
               <li className="flex gap-2">
-                <span className="text-center align-middle h-[18px] aspect-square rounded-full bg-primary-50 text-xs text-primary font-semibold leading-[16px] mt-[2px]">
+                <span className="text-center align-middle h-4.5 aspect-square rounded-full bg-primary-50 text-xs text-primary font-semibold leading-4 mt-0.5">
                   1
                 </span>
                 <span className="text-primary font-semibold leading-5">
@@ -361,7 +347,7 @@ export default function ExploreOrganizationsList() {
                 </span>
               </li>
               <li className="flex gap-2">
-                <span className="text-center align-middle h-[18px] aspect-square rounded-full bg-primary-50 text-xs text-primary font-semibold leading-[16px] mt-[2px]">
+                <span className="text-center align-middle h-4.5 aspect-square rounded-full bg-primary-50 text-xs text-primary font-semibold leading-4 mt-0.5">
                   2
                 </span>
                 <span className="text-primary font-semibold leading-5">
@@ -369,7 +355,7 @@ export default function ExploreOrganizationsList() {
                 </span>
               </li>
               <li className="flex gap-2">
-                <span className="text-center align-middle h-[18px] aspect-square rounded-full bg-primary-50 text-xs text-primary font-semibold leading-[16px] mt-[2px]">
+                <span className="text-center align-middle h-4.5 aspect-square rounded-full bg-primary-50 text-xs text-primary font-semibold leading-4 mt-0.5">
                   3
                 </span>
                 <span className="text-primary font-semibold leading-5">
@@ -386,7 +372,7 @@ export default function ExploreOrganizationsList() {
               </label>
               <textarea
                 id="embed-code"
-                className="w-full h-[162px] py-1 px-2 rounded-lg border border-neutral-300 text-neutral-800 font-semibold leading-5 text-base"
+                className="w-full h-40.5 py-1 px-2 rounded-lg border border-neutral-300 text-neutral-800 font-semibold leading-5 text-base"
                 value={iframeString}
                 readOnly
               />

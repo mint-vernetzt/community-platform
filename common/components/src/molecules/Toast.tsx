@@ -12,7 +12,7 @@ type ToastProps = {
 
 function Toast(props: React.PropsWithChildren<ToastProps>) {
   const { level = "positive", delay = 5000, onHide } = props;
-  const [hide, setHide] = useState(true);
+  const [hide, setHide] = useState(false);
 
   useEffect(() => {
     const timeout: NodeJS.Timeout = setTimeout(() => {
@@ -21,7 +21,6 @@ function Toast(props: React.PropsWithChildren<ToastProps>) {
       }
       setHide(true);
     }, delay);
-    setHide(false);
     return () => {
       clearTimeout(timeout);
     };

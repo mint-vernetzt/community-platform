@@ -66,6 +66,12 @@ export async function getChildEventsOfEvent(options: {
     _count: {
       select: {
         participants: true,
+        guests: {
+          where: {
+            confirmed: true,
+            onWaitingList: false,
+          },
+        },
         childEvents: true,
       },
     },
@@ -114,14 +120,14 @@ export async function getChildEventsOfEvent(options: {
       const afterParticipationPeriod = now > event.participationUntil;
       const inPast = now > event.endTime;
 
-      const participantCount = event._count.participants;
+      const participantCount = event._count.participants + event._count.guests;
 
       const mode = await deriveModeForEvent({
         sessionUser,
         tokenHash: options.tokenHash,
         eventInfo: {
           ...event,
-          participantCount: event._count.participants,
+          participantCount: event._count.participants + event._count.guests,
           beforeParticipationPeriod,
           afterParticipationPeriod,
           inPast,
@@ -160,8 +166,14 @@ export async function getChildEventsOfEvent(options: {
         blurredBackground = DefaultImages.Event.BlurredBackground;
       }
 
+      const { participationToken: _participationToken, ...restEvent } = event;
+
       return {
-        ...event,
+        ...restEvent,
+        parentEvent:
+          event.parentEvent !== null
+            ? { ...event.parentEvent, participationToken: null }
+            : null,
         participantCount,
         background,
         blurredBackground,
@@ -193,6 +205,7 @@ export async function getEventByIdForAction(id: string) {
       participationUntil: true,
       endTime: true,
       external: true,
+      published: true,
       openForRegistration: true,
       parentParticipationRequired: true,
       participationToken: true,
@@ -211,6 +224,12 @@ export async function getEventByIdForAction(id: string) {
       _count: {
         select: {
           participants: true,
+          guests: {
+            where: {
+              confirmed: true,
+              onWaitingList: false,
+            },
+          },
           childEvents: true,
         },
       },

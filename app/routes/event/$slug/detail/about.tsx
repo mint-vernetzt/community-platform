@@ -1,5 +1,6 @@
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { useEffect, useState } from "react";
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
+import { useState } from "react";
 import { useLoaderData, type LoaderFunctionArgs } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { RichText } from "~/components/legacy/Richtext/RichText";
@@ -20,6 +21,7 @@ import { detectLanguage } from "~/i18n.server";
 import { getLocaleFromSlug } from "~/i18n.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
+import { hasContent } from "~/utils.shared";
 import { getEventBySlug } from "./about.server";
 import {
   getFormattedAddress,
@@ -48,8 +50,6 @@ import {
   SEARCH_SPEAKERS_SEARCH_PARAM,
   SEARCH_TEAM_MEMBERS_SEARCH_PARAM,
 } from "./about.shared";
-import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
-import { hasContent } from "~/utils.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -98,16 +98,26 @@ function About() {
   } = useLoaderData<typeof loader>();
 
   const [speakers, setSpeakers] = useState(event.speakers);
+  const [syncedSpeakers, setSyncedSpeakers] = useState(event.speakers);
   const [teamMembers, setTeamMembers] = useState(event.teamMembers);
+  const [syncedTeamMembers, setSyncedTeamMembers] = useState(event.teamMembers);
   const [responsibleOrganizations, setResponsibleOrganizations] = useState(
     event.responsibleOrganizations
   );
-
-  useEffect(() => {
+  const [syncedResponsibleOrganizations, setSyncedResponsibleOrganizations] =
+    useState(event.responsibleOrganizations);
+  if (syncedSpeakers !== event.speakers) {
+    setSyncedSpeakers(event.speakers);
     setSpeakers(event.speakers);
+  }
+  if (syncedTeamMembers !== event.teamMembers) {
+    setSyncedTeamMembers(event.teamMembers);
     setTeamMembers(event.teamMembers);
+  }
+  if (syncedResponsibleOrganizations !== event.responsibleOrganizations) {
+    setSyncedResponsibleOrganizations(event.responsibleOrganizations);
     setResponsibleOrganizations(event.responsibleOrganizations);
-  }, [event.speakers, event.teamMembers, event.responsibleOrganizations]);
+  }
 
   return (
     <div className="w-full flex flex-col gap-8 md:gap-10">

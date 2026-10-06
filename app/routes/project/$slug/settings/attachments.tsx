@@ -5,7 +5,7 @@ import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import { captureException } from "@sentry/node";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Form,
   Link,
@@ -289,9 +289,10 @@ function Attachments() {
       return submission;
     },
   });
-  useEffect(() => {
+
+  if (navigation.state === "loading" && selectedDocumentFileNames.length > 0) {
     setSelectedDocumentFileNames([]);
-  }, [loaderData]);
+  }
 
   // Image upload form
   const [selectedImageFileNames, setSelectedImageFileNames] = useState<
@@ -320,9 +321,10 @@ function Attachments() {
       return submission;
     },
   });
-  useEffect(() => {
+
+  if (navigation.state === "loading" && selectedImageFileNames.length > 0) {
     setSelectedImageFileNames([]);
-  }, [loaderData]);
+  }
 
   // Edit document form
   const [editDocumentForm, editDocumentFields] = useForm({

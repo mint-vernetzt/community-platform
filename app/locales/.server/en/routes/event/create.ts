@@ -63,7 +63,7 @@ export const locale = {
       startTimeRequired: "Please enter the start time.",
       endTimeRequired: "Please enter the end time.",
       eventNotInParentEventBoundaries:
-        "Your event is not within the timeframe of the parent event.",
+        "Your event is not within the timeframe of the main event.",
       multiDaySameDay:
         "For multi-day events, the start and end dates must be different.",
     },

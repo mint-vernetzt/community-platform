@@ -1,7 +1,17 @@
 import { z } from "zod";
-import { type ProfileSecurityLocales } from "./security.server";
 
-export const changeEmailSchema = (locales: ProfileSecurityLocales) => {
+export const changeEmailSchema = (locales: {
+  validation: {
+    email: {
+      required: string;
+      min: string;
+    };
+    confirmEmail: {
+      required: string;
+      min: string;
+    };
+  };
+}) => {
   return z.object({
     email: z
       .string({
@@ -20,7 +30,18 @@ export const changeEmailSchema = (locales: ProfileSecurityLocales) => {
   });
 };
 
-export const changePasswordSchema = (locales: ProfileSecurityLocales) => {
+export const changePasswordSchema = (locales: {
+  validation: {
+    password: {
+      required: string;
+      min: string;
+    };
+    confirmPassword: {
+      required: string;
+      min: string;
+    };
+  };
+}) => {
   return z.object({
     password: z
       .string({

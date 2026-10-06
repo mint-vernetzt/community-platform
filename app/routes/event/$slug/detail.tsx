@@ -27,6 +27,7 @@ import ContactPerson from "~/components/next/ContactPerson";
 import EventsOverview from "~/components/next/EventsOverview";
 import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import TabBar from "~/components/next/TabBar";
+import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "~/events.shared";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { checkHoneypot } from "~/honeypot.server";
 import { detectLanguage } from "~/i18n.server";
@@ -53,9 +54,9 @@ import {
   getContactPersonsOfEvent,
   getEventBySlug,
   getEventIdBySlug,
+  getFullDepthParticipantsCount,
   getHasUserReportedEvent,
   getIsMember,
-  getParticipantsCount,
   removeProfileFromParticipants,
   removeProfileFromWaitingList,
   reportEvent,
@@ -76,7 +77,7 @@ import {
 } from "./details.shared";
 import { formatDateTime } from "./index.shared";
 import { filterEventConferenceLink } from "./utils.server";
-import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "~/events.shared";
+import defaultEventBackground from "~/assets/default-event-background.webp";
 
 export function links() {
   return [
@@ -132,13 +133,11 @@ export function meta(
       {
         name: "image",
         property: "og:image",
-        content:
-          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+        content: `${loaderData.meta.baseUrl}${defaultEventBackground}`,
       },
       {
         property: "og:image:secure_url",
-        content:
-          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+        content: `${loaderData.meta.baseUrl}${defaultEventBackground}`,
       },
       {
         property: "og:url",
@@ -185,13 +184,11 @@ export function meta(
       {
         name: "image",
         property: "og:image",
-        content:
-          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+        content: `${loaderData.meta.baseUrl}${defaultEventBackground}`,
       },
       {
         property: "og:image:secure_url",
-        content:
-          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+        content: `${loaderData.meta.baseUrl}${defaultEventBackground}`,
       },
       {
         property: "og:url",
@@ -256,7 +253,9 @@ export async function loader(args: LoaderFunctionArgs) {
     tokenHash,
     eventInfo: {
       ...event,
-      participantCount: event._count.participants + event._count.guests,
+      participantCount:
+        event._count.participants +
+        event.guests.filter((guest) => guest.onWaitingList === false).length,
       beforeParticipationPeriod,
       afterParticipationPeriod,
       inPast,
@@ -347,17 +346,16 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const abuseReportReasons = await getAbuseReportReasons();
 
-  const participantsCount = await getParticipantsCount(
-    params.slug,
-    sessionUser
-  );
-
   const { conferenceLink, conferenceCode } = await filterEventConferenceLink({
     event,
     mode,
     isMember,
     inPast,
   });
+
+  const fullDepthParticipantsCount = await getFullDepthParticipantsCount(
+    params.slug
+  );
 
   const enhancedEvent = {
     ...event,
@@ -367,20 +365,34 @@ export async function loader(args: LoaderFunctionArgs) {
     contactPersons,
     conferenceLink,
     conferenceCode,
+    participationToken: null,
+    parentEvent:
+      event.parentEvent !== null
+        ? { ...event.parentEvent, participationToken: null }
+        : null,
     _count: {
       ...event._count,
+      guests: event.guests.filter((guest) => guest.onWaitingList === false)
+        .length,
+      waitingGuests: event.guests.filter((guest) => guest.onWaitingList).length,
       participants:
         event.external ||
         (event.openForRegistration === false &&
           isMember === false &&
           mode !== "participating")
           ? 0
-          : participantsCount,
+          : event._count.participants,
+      fullDepthParticipants: fullDepthParticipantsCount,
     },
     isMember,
   };
 
   const abilities = await getFeatureAbilities(authClient, "events");
+
+  const guestCanParticipateOnChildEvent =
+    tokenHash !== null &&
+    event.parentEvent !== null &&
+    tokenHash === event.parentEvent.participationToken;
 
   return {
     event: enhancedEvent,
@@ -398,6 +410,8 @@ export async function loader(args: LoaderFunctionArgs) {
     hasUserReportedEvent,
     abuseReportReasons,
     abilities,
+    currentTimestamp: Date.now(),
+    guestCanParticipateOnChildEvent,
   };
 }
 
@@ -459,7 +473,7 @@ export async function action(args: ActionFunctionArgs) {
   };
 
   if (intent === PARTICIPATE_AS_GUEST_INTENT) {
-    const submission = await parseWithZod(formData, {
+    const submission = parseWithZod(formData, {
       schema: createRegisterSchema(
         locales.route.content.anonModal.guestAccess.form
       ),
@@ -480,7 +494,32 @@ export async function action(args: ActionFunctionArgs) {
           organizationName: submission.value.organizationName,
         },
         locales: {
-          mail: locales.route.mail,
+          mail: {
+            profileAlreadyExists: {
+              subject: {
+                de: languageModuleMap["de"]["event/$slug/detail"].route.mail
+                  .profileAlreadyExists.subject,
+                en: languageModuleMap["en"]["event/$slug/detail"].route.mail
+                  .profileAlreadyExists.subject,
+              },
+            },
+            guestAlreadyExists: {
+              subject: {
+                de: languageModuleMap["de"]["event/$slug/detail"].route.mail
+                  .guestAlreadyExists.subject,
+                en: languageModuleMap["en"]["event/$slug/detail"].route.mail
+                  .guestAlreadyExists.subject,
+              },
+            },
+            confirmRegistration: {
+              subject: {
+                de: languageModuleMap["de"]["event/$slug/detail"].route.mail
+                  .confirmRegistration.subject,
+                en: languageModuleMap["en"]["event/$slug/detail"].route.mail
+                  .confirmRegistration.subject,
+              },
+            },
+          },
         },
         redirectUrl: submission.value.redirectTo,
       });
@@ -524,16 +563,17 @@ export async function action(args: ActionFunctionArgs) {
   const afterParticipationPeriod = now > eventInfo.participationUntil;
   const inPast = now > eventInfo.endTime;
 
-  const url = new URL(request.url);
-  const searchParams = url.searchParams;
-  const tokenHash = searchParams.get(PARTICIPATION_TOKEN_HASH_SEARCH_PARAM);
+  const tokenHash = formData.get(PARTICIPATION_TOKEN_HASH_SEARCH_PARAM);
 
   const mode = await deriveModeForEvent({
     sessionUser,
-    tokenHash,
+    tokenHash: typeof tokenHash === "string" ? tokenHash : null,
     eventInfo: {
       ...eventInfo,
-      participantCount: eventInfo._count.participants + eventInfo._count.guests,
+      participantCount:
+        eventInfo._count.participants +
+        eventInfo.guests.filter((guest) => guest.onWaitingList === false)
+          .length,
       beforeParticipationPeriod,
       afterParticipationPeriod,
       inPast,
@@ -673,7 +713,14 @@ export async function action(args: ActionFunctionArgs) {
             profileId: sessionUser.id,
             eventId,
             locales: {
-              mail: { subject: locales.route.mail.participate.subject },
+              mail: {
+                subject: {
+                  de: languageModuleMap["de"]["event/$slug/detail"].route.mail
+                    .participate.subject,
+                  en: languageModuleMap["en"]["event/$slug/detail"].route.mail
+                    .participate.subject,
+                },
+              },
             },
           });
         } else if (
@@ -684,7 +731,32 @@ export async function action(args: ActionFunctionArgs) {
             profileId: sessionUser.id,
             eventId,
             locales: {
-              mail: locales.route.mail,
+              mail: {
+                moveFromWaitingListToParticipants: {
+                  subject: {
+                    de: languageModuleMap["de"]["event/$slug/detail"].route.mail
+                      .moveFromWaitingListToParticipants.subject,
+                    en: languageModuleMap["en"]["event/$slug/detail"].route.mail
+                      .moveFromWaitingListToParticipants.subject,
+                  },
+                },
+                removeFromParticipants: {
+                  subject: {
+                    de: languageModuleMap["de"]["event/$slug/detail"].route.mail
+                      .removeFromParticipants.subject,
+                    en: languageModuleMap["en"]["event/$slug/detail"].route.mail
+                      .removeFromParticipants.subject,
+                  },
+                },
+                removeFromWaitingList: {
+                  subject: {
+                    de: languageModuleMap["de"]["event/$slug/detail"].route.mail
+                      .removeFromWaitingList.subject,
+                    en: languageModuleMap["en"]["event/$slug/detail"].route.mail
+                      .removeFromWaitingList.subject,
+                  },
+                },
+              },
             },
           });
         } else if (intent === JOIN_WAITING_LIST_INTENT && mode === "canWait") {
@@ -692,7 +764,14 @@ export async function action(args: ActionFunctionArgs) {
             profileId: sessionUser.id,
             eventId,
             locales: {
-              mail: { subject: locales.route.mail.waitingList.subject },
+              mail: {
+                subject: {
+                  de: languageModuleMap["de"]["event/$slug/detail"].route.mail
+                    .waitingList.subject,
+                  en: languageModuleMap["en"]["event/$slug/detail"].route.mail
+                    .waitingList.subject,
+                },
+              },
             },
           });
         } else if (intent === LEAVE_WAITING_LIST_INTENT && mode === "waiting") {
@@ -702,7 +781,12 @@ export async function action(args: ActionFunctionArgs) {
             locales: {
               mail: {
                 removeFromWaitingList: {
-                  subject: locales.route.mail.removeFromWaitingList.subject,
+                  subject: {
+                    de: languageModuleMap["de"]["event/$slug/detail"].route.mail
+                      .removeFromWaitingList.subject,
+                    en: languageModuleMap["en"]["event/$slug/detail"].route.mail
+                      .removeFromWaitingList.subject,
+                  },
                 },
               },
             },
@@ -767,7 +851,7 @@ function Detail() {
         {hasContent(loaderData.event.parentEvent) ? (
           <BreadCrump>
             <BreadCrump.Link
-              to={`/event/${loaderData.event.parentEvent.slug}/detail/about`}
+              to={`/event/${loaderData.event.parentEvent.slug}/detail/about${tokenHash ? `?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${tokenHash}` : ""}`}
               prefetch="intent"
             >
               {loaderData.event.parentEvent.name}
@@ -921,6 +1005,7 @@ function Detail() {
               ) : loaderData.event.parentEvent !== null &&
                 loaderData.event.parentParticipationRequired !== false &&
                 loaderData.event.parentEvent.parentParticipationRequired &&
+                loaderData.guestCanParticipateOnChildEvent === false &&
                 loaderData.event.parentEvent.participants.some(
                   (relation) => relation.profileId === loaderData.profileId
                 ) === false ? (
@@ -962,6 +1047,8 @@ function Detail() {
                     loaderData.locales.eventAbuseReportReasonSuggestions,
                 }}
                 reasons={loaderData.abuseReportReasons}
+                event={loaderData.event}
+                timestamp={loaderData.currentTimestamp}
               />
               {loaderData.mode === "administrating" && (
                 <EventsOverview.Edit
@@ -982,6 +1069,7 @@ function Detail() {
                     locales: loaderData.locales.route.content.anonModal,
                   }}
                   actionData={actionData}
+                  event={loaderData.event}
                 >
                   {loaderData.locales.route.content.login}
                 </EventsOverview.Login>
@@ -997,7 +1085,11 @@ function Detail() {
                 </EventsOverview.ExternalParticipate>
               )}
               {loaderData.mode === "canParticipate" && (
-                <EventsOverview.Participate profileId={loaderData.profileId}>
+                <EventsOverview.Participate
+                  profileId={loaderData.profileId}
+                  event={loaderData.event}
+                  tokenHash={tokenHash}
+                >
                   {loaderData.locales.route.content.participate}
                 </EventsOverview.Participate>
               )}
@@ -1020,6 +1112,7 @@ function Detail() {
               {loaderData.mode === "canWait" && (
                 <EventsOverview.JoinWaitingList
                   profileId={loaderData.profileId}
+                  event={loaderData.event}
                 >
                   {loaderData.locales.route.content.joinWaitingList}
                 </EventsOverview.JoinWaitingList>
@@ -1028,6 +1121,7 @@ function Detail() {
                 <EventsOverview.LeaveWaitingList
                   profileId={loaderData.profileId}
                   event={{
+                    ...loaderData.event,
                     afterParticipationPeriod:
                       loaderData.afterParticipationPeriod,
                   }}
@@ -1052,11 +1146,12 @@ function Detail() {
                 </TabBar.Item.Title>
               </Link>
             </TabBar.Item>
-            {loaderData.event._count.participants +
-              loaderData.event._count.guests >
-              0 &&
-              loaderData.mode !== null &&
-              loaderData.mode !== "anon" && (
+            {loaderData.event._count.fullDepthParticipants > 0 &&
+              loaderData.mode !== "anon" &&
+              loaderData.event.external === false &&
+              (loaderData.event.openForRegistration === true ||
+                loaderData.event.isMember ||
+                loaderData.mode === "participating") && (
                 <TabBar.Item active={pathname.endsWith("/participants")}>
                   <Link
                     to={`./participants${tokenHash ? `?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${tokenHash}` : ""}`}
@@ -1069,8 +1164,7 @@ function Detail() {
                       {loaderData.locales.route.content.participants}
                     </TabBar.Item.Title>
                     <TabBar.Item.Counter>
-                      {loaderData.event._count.participants +
-                        loaderData.event._count.guests}
+                      {loaderData.event._count.fullDepthParticipants}
                     </TabBar.Item.Counter>
                   </Link>
                 </TabBar.Item>

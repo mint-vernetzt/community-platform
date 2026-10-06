@@ -3,7 +3,7 @@ import { parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { captureException } from "@sentry/node";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Form,
   redirect,
@@ -20,6 +20,7 @@ import {
 } from "~/auth.server";
 import List from "~/components/next/List";
 import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
+import TitleSection from "~/components/next/TitleSection";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import {
   decideBetweenSingularOrPlural,
@@ -50,7 +51,6 @@ import {
   SEARCH_ADMINS_SEARCH_PARAM,
   SEARCH_TEAM_MEMBERS_SEARCH_PARAM,
 } from "./add.shared";
-import TitleSection from "~/components/next/TitleSection";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -144,7 +144,7 @@ export async function action(args: ActionFunctionArgs) {
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   if (intent === INVITE_PROFILE_TO_JOIN_AS_ADMIN_INTENT) {
-    const submission = await parseWithZod(formData, {
+    const submission = parseWithZod(formData, {
       schema: createInviteProfileToJoinAsAdminSchema(),
     });
 
@@ -156,7 +156,22 @@ export async function action(args: ActionFunctionArgs) {
       await inviteProfileToJoinEventAsAdmin({
         eventId: event.id,
         profileId: submission.value[PROFILE_ID_FIELD],
-        locales: locales.route,
+        locales: {
+          mail: {
+            subject: {
+              de: languageModuleMap.de["event/$slug/settings/admins/add"].route
+                .mail.subject,
+              en: languageModuleMap.en["event/$slug/settings/admins/add"].route
+                .mail.subject,
+            },
+            buttonText: {
+              de: languageModuleMap.de["event/$slug/settings/admins/add"].route
+                .mail.buttonText,
+              en: languageModuleMap.en["event/$slug/settings/admins/add"].route
+                .mail.buttonText,
+            },
+          },
+        },
       });
     } catch (error) {
       captureException(error);
@@ -175,7 +190,7 @@ export async function action(args: ActionFunctionArgs) {
       level: "positive",
     });
   } else {
-    const submission = await parseWithZod(formData, {
+    const submission = parseWithZod(formData, {
       schema: createAddTeamMemberAsAdminSchema(),
     });
 
@@ -245,10 +260,13 @@ function AddAdmin() {
       : loaderData.searchedProfiles;
 
   const [teamMembers, setTeamMembers] = useState(loaderData.teamMembers);
+  const [syncedTeamMembers, setSyncedTeamMembers] = useState(
+    loaderData.teamMembers
+  );
 
-  useEffect(() => {
-    setTeamMembers(loaderData.teamMembers);
-  }, [loaderData.teamMembers]);
+  if (syncedTeamMembers !== loaderData.teamMembers) {
+    setSyncedTeamMembers(loaderData.teamMembers);
+  }
 
   return (
     <>

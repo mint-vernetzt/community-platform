@@ -293,8 +293,14 @@ export async function inviteOrganizationToBeResponsibleForEvent(options: {
   userId: string;
   locales: {
     mail: {
-      buttonText: string;
-      subject: string;
+      buttonText: {
+        de: string;
+        en: string;
+      };
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -341,7 +347,7 @@ export async function inviteOrganizationToBeResponsibleForEvent(options: {
     });
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/invites/organization-to-join-event/text.hbs";
   const htmlTemplatePath =

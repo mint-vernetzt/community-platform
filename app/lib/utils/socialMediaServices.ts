@@ -1,29 +1,14 @@
-import type { Organization, Profile } from "@prisma/client";
 import { type GeneralProfileSettingsLocales } from "~/routes/profile/$username/settings/general.server";
 
 type SocialMediaIdType =
-  | keyof Pick<
-      Organization,
-      | "facebook"
-      | "linkedin"
-      | "twitter"
-      | "youtube"
-      | "instagram"
-      | "xing"
-      | "mastodon"
-      | "tiktok"
-    >
-  | keyof Pick<
-      Profile,
-      | "facebook"
-      | "linkedin"
-      | "twitter"
-      | "youtube"
-      | "instagram"
-      | "xing"
-      | "mastodon"
-      | "tiktok"
-    >;
+  | "facebook"
+  | "linkedin"
+  | "twitter"
+  | "xing"
+  | "instagram"
+  | "youtube"
+  | "mastodon"
+  | "tiktok";
 
 type SocialMediaService = {
   id: SocialMediaIdType;

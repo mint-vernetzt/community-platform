@@ -9,7 +9,7 @@ function ScrollToTopButton(props: { locales: RootLocales }) {
 
   return (
     <>
-      <div className="w-0 h-[80px] xl:h-[84px]"></div>
+      <div className="w-0 h-20 xl:h-21"></div>
       <div className="w-0 h-dvh sticky top-0">
         <div className="relative w-0 h-dvh">
           <div className="absolute bottom-4 -left-20">
@@ -22,8 +22,8 @@ function ScrollToTopButton(props: { locales: RootLocales }) {
                 locales !== undefined
                   ? locales.route.root.scrollToTop
                   : DEFAULT_LANGUAGE === "de"
-                  ? "Nach oben scrollen"
-                  : "Scroll to top"
+                    ? "Nach oben scrollen"
+                    : "Scroll to top"
               }
             >
               <svg

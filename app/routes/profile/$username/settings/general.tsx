@@ -34,7 +34,7 @@ import { createSocialMediaServices } from "~/lib/utils/socialMediaServices";
 import { getFormValues, validateForm, type FormError } from "~/lib/utils/yup";
 import { languageModuleMap } from "~/locales/.server";
 import { getAllOffers } from "~/routes/utils.server";
-import { getAreas } from "~/utils.server";
+import { getAreas } from "./../utils.server";
 import {
   deriveProfileMode,
   getProfileVisibilitiesById,
@@ -633,7 +633,7 @@ export default function Index() {
               </h4>
               <Link
                 to="/organization/create"
-                className="border border-primary bg-white text-primary h-auto min-h-0 whitespace-nowrap py-[.375rem] px-6 normal-case leading-[1.125rem] inline-flex cursor-pointer selct-none flex-wrap items-center justify-center rounded-lg text-center text-sm font-semibold gap-2 hover:bg-primary hover:text-white"
+                className="border border-primary bg-white text-primary h-auto min-h-0 whitespace-nowrap py-1.5 px-6 normal-case leading-4.5 inline-flex cursor-pointer selct-none flex-wrap items-center justify-center rounded-lg text-center text-sm font-semibold gap-2 hover:bg-primary hover:text-white"
                 prefetch="intent"
               >
                 {locales.route.network.action}

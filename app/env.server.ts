@@ -43,10 +43,6 @@ const schema = z.object({
   SUPPORT_MAIL: z.string(),
   CONTACT_PERSON_FIRST_NAME: z.string(),
   CONTACT_PERSON_URL: z.string(),
-  GUEST_SECRET: z.string(),
-  GUEST_SALT: z.string(),
-  PARTICIPATION_SECRET: z.string(),
-  PARTICIPATION_SALT: z.string(),
 });
 
 declare global {

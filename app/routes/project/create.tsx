@@ -42,7 +42,7 @@ export async function loader(args: LoaderFunctionArgs) {
     return redirect(redirectPath);
   }
 
-  const mode = await deriveMode(sessionUser);
+  const mode = deriveMode(sessionUser);
   invariantResponse(
     mode !== "anon",
     "You have to be logged in to access this route",
@@ -65,7 +65,7 @@ export async function action(args: ActionFunctionArgs) {
 
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const mode = await deriveMode(sessionUser);
+  const mode = deriveMode(sessionUser);
   invariantResponse(mode !== "anon", locales.error.invariantResponse, {
     status: 403,
   });

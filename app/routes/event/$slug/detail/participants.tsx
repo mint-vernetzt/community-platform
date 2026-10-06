@@ -14,6 +14,7 @@ import {
   SEARCH_PARTICIPANTS_SEARCH_PARAM,
 } from "./participants.shared";
 import { deriveModeForEvent, getIsMember } from "../detail.server";
+import { TabBadgeNew } from "~/components/next/TabBadgeNew";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -25,7 +26,12 @@ export async function loader(args: LoaderFunctionArgs) {
     languageModuleMap[language]["event/$slug/detail/participants"];
 
   if (sessionUser === null) {
-    return redirect(`/login?login_redirect=${encodeURIComponent(request.url)}`);
+    const url = new URL(request.url);
+    const pathname = url.pathname;
+    const searchParamsString = url.searchParams.toString();
+    return redirect(
+      `/login?login_redirect=${pathname}${searchParamsString !== "" ? `?${searchParamsString}` : ""}`
+    );
   }
 
   const { slug } = params;
@@ -62,7 +68,7 @@ export async function loader(args: LoaderFunctionArgs) {
     tokenHash: null, // No need to check participation token here
     eventInfo: {
       ...event,
-      participantCount: event._count.participants,
+      participantCount: event._count.participants + event._count.guests,
       beforeParticipationPeriod,
       afterParticipationPeriod,
       inPast,
@@ -132,6 +138,13 @@ function Participants() {
                 <ListItemPersonOrg.Subline>
                   {participant.position}
                 </ListItemPersonOrg.Subline>
+              )}
+              {hasContent(participant.username) === false && (
+                <ListItemPersonOrg.Controls>
+                  <TabBadgeNew state="neutral">
+                    {loaderData.locales.route.content.guestBadge}
+                  </TabBadgeNew>
+                </ListItemPersonOrg.Controls>
               )}
             </ListItemPersonOrg>
           );

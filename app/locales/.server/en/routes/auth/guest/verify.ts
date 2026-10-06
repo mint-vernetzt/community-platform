@@ -2,11 +2,10 @@ export const locale = {
   confirmation: {
     mail: {
       waitingList: {
-        subject:
-          "Du wurdest auf die Warteliste des Events {{eventName}} gesetzt",
+        subject: "You are now on the waiting list for the event {{eventName}}",
       },
       participants: {
-        subject: "Deine Anmeldung zum Event {{eventName}}",
+        subject: "Your registration for the event {{eventName}}",
       },
     },
     success: {
@@ -29,6 +28,20 @@ export const locale = {
       title: "No guest found",
       description:
         "No guest could be found with the provided token. It is possible that you have already revoked your registration. Please check your email inbox and, if necessary, also the spam folder. If you did not receive an email, please contact our <0>support</0>.",
+    },
+    mail: {
+      moveFromWaitingListToParticipants: {
+        subject:
+          "You have been moved from the waiting list to the participants of the event {{eventName}}",
+      },
+      removeFromParticipants: {
+        subject:
+          "You have been removed from the participants of the event {{eventName}}",
+      },
+      removeFromWaitingList: {
+        subject:
+          "You have been removed from the waiting list for the event {{eventName}}",
+      },
     },
   },
 } as const;

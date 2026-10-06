@@ -45,6 +45,7 @@ export const locale = {
         description:
           "Du kannst Dein Event veröffentlichen, jedoch empfehlen wir vorher noch folgende Angaben in den Einstellungen zu ergänzen:",
         submit: "Trotzdem veröffentlichen",
+        view: "Event ansehen",
         cancel: "Zurück zu den Einstellungen",
       },
       noIssues: {
@@ -52,9 +53,10 @@ export const locale = {
         description:
           "Super! Dein Event ist vollständig ausgefüllt und bereit zur Veröffentlichung.",
         submit: "Jetzt veröffentlichen",
+        view: "Event ansehen",
         cancel: "Abbrechen",
       },
-      hint: "<0>Hinweis</0>: Nach der Veröffentlichung ist Dein Event für Nutzer:innen sichtbar und kann nicht mehr in den Entwurf zurückgesetzt werden. Bei Bedarf kannst Du das Event später noch absagen und löschen.",
+      hint: "<0>Hinweis</0>: Nach der Veröffentlichung ist Dein Event für Nutzer:innen sichtbar und kann nicht mehr in den Entwurf zurückgesetzt werden. Bei Bedarf kannst Du das Event später noch absagen und löschen. Nach der Veröffentlichung kannst Du das Event auch noch bearbeiten. (Außer die Art der Registierung.)",
     },
   },
   issues: {

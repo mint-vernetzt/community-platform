@@ -147,7 +147,7 @@ export async function action(args: ActionFunctionArgs) {
     }
   );
 
-  const submission = await parseWithZod(formData, {
+  const submission = parseWithZod(formData, {
     schema: createInviteProfileToParticipateOnEvent(),
   });
 
@@ -159,7 +159,22 @@ export async function action(args: ActionFunctionArgs) {
     await inviteProfileToParticipateOnEvent({
       eventId: event.id,
       profileId: submission.value[PROFILE_ID],
-      locales: locales.route,
+      locales: {
+        mail: {
+          subject: {
+            de: languageModuleMap.de["event/$slug/settings/participants/add"]
+              .route.mail.subject,
+            en: languageModuleMap.en["event/$slug/settings/participants/add"]
+              .route.mail.subject,
+          },
+          buttonText: {
+            de: languageModuleMap.de["event/$slug/settings/participants/add"]
+              .route.mail.buttonText,
+            en: languageModuleMap.en["event/$slug/settings/participants/add"]
+              .route.mail.buttonText,
+          },
+        },
+      },
     });
   } catch (error) {
     captureException(error);
@@ -252,8 +267,8 @@ function ParticipantsAdd() {
             {locales.route.participationLinkHint}
           </Hint>
           <div className="flex items-center justify-between py-3 px-4 bg-neutral-100 rounded-lg">
-            <div className="flex gap-4 items-center">
-              <span>{event.participationLink}</span>
+            <div className="flex gap-4 items-center overflow-hidden">
+              <span className="truncate">{event.participationLink}</span>
             </div>
             <div>
               {participationLinkCopiedToClipboard ? (
@@ -277,6 +292,7 @@ function ParticipantsAdd() {
                       "participationLink"
                     );
                   }}
+                  aria-label={locales.route.copyParticipationLink}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

@@ -1,7 +1,7 @@
 export function Container(props: { children: React.ReactNode }) {
   return (
     <div className="w-full h-full flex justify-center pb-8">
-      <div className="w-full py-6 px-4 @lg:py-8 @md:px-6 @lg:px-8 flex flex-col gap-6 mb-10 @sm:mb-[72px] @lg:mb-16 max-w-screen-2xl">
+      <div className="w-full py-6 px-4 @lg:py-8 @md:px-6 @lg:px-8 flex flex-col gap-6 mb-10 @sm:mb-18 @lg:mb-16 max-w-2xl">
         {props.children}
       </div>
     </div>

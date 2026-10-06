@@ -33,15 +33,6 @@ import { HONEYPOT_CLASSNAME } from "~/honeypot.shared";
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
 
-  if (process.env.NODE_ENV !== "test") {
-    const isBot = isBotRequest(request.headers.get("user-agent"));
-    invariantResponse(
-      isBot === false,
-      "Bots are not allowed to access this resource",
-      { status: 403 }
-    );
-  }
-
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 

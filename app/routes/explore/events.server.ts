@@ -214,13 +214,15 @@ function getEventsFilterWhereClause(filter: GetEventsSchema["evtFilter"]) {
       const filterValues = filter[typedFilterKey];
       for (const slug of filterValues) {
         const filterWhereStatement = {
-          [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
-            some: {
-              [typedFilterKey]: {
-                slug,
+          [`${typedFilterKey === "responsibleOrganizations" ? typedFilterKey : typedFilterKey === "focus" ? `${typedFilterKey}es` : `${typedFilterKey}s`}`]:
+            {
+              some: {
+                [`${typedFilterKey === "responsibleOrganizations" ? "organization" : typedFilterKey}`]:
+                  {
+                    slug,
+                  },
               },
             },
-          },
         };
         filterKeyWhereStatement.OR.push(filterWhereStatement);
       }
@@ -604,7 +606,9 @@ export async function getEventIds(options: {
               ? "startTime"
               : typedFilterKey === "stage"
                 ? "stage"
-                : `${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`
+                : typedFilterKey === "responsibleOrganizations"
+                  ? typedFilterKey
+                  : `${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`
           }`]: true,
         },
       };
@@ -666,6 +670,14 @@ export async function getAllEvents(options: {
       canceled: true,
       subline: true,
       description: true,
+      guests: {
+        select: {
+          onWaitingList: true,
+        },
+        where: {
+          confirmed: true,
+        },
+      },
       _count: {
         select: {
           childEvents: true,
@@ -877,6 +889,42 @@ export async function getEventFilterVectorForAttribute(options: {
         const whereStatement = `filter_vector @@ '${tuple}'::tsquery`;
         fieldWhereStatements.push(whereStatement);
       }
+    } else if (typedFilterKey === "responsibleOrganizations") {
+      let allPossibleFilterValues;
+      try {
+        allPossibleFilterValues = await prismaClient.organization.findMany({
+          select: {
+            slug: true,
+          },
+          where: {
+            responsibleForEvents: {
+              some: {
+                event: {
+                  published: true,
+                },
+              },
+            },
+          },
+        });
+      } catch (error: any) {
+        console.error({ error });
+        invariantResponse(false, "Server error", { status: 500 });
+      }
+      const filterValues = filter[typedFilterKey];
+
+      for (const slug of filterValues) {
+        // Validate slug because of queryRawUnsafe
+        invariantResponse(
+          allPossibleFilterValues.some((value) => {
+            return value.slug === slug;
+          }),
+          "Cannot filter by the specified slug.",
+          { status: 400 }
+        );
+        const tuple = `${typedFilterKey}\\:${slug}`;
+        const whereStatement = `filter_vector @@ '${tuple}'::tsquery`;
+        fieldWhereStatements.push(whereStatement);
+      }
     } else {
       // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
       /* Example:
@@ -1034,4 +1082,33 @@ export async function getAllEventTargetGroups() {
       slug: true,
     },
   });
+}
+
+export async function getAllResponsibleOrganizations() {
+  const responsibleOrganizations = await prismaClient.organization.findMany({
+    where: {
+      responsibleForEvents: {
+        some: {
+          event: {
+            published: true,
+          },
+        },
+      },
+    },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      logoImageMetaData: {
+        select: {
+          path: true,
+        },
+      },
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
+
+  return responsibleOrganizations;
 }

@@ -32,6 +32,7 @@ import {
 import { getAllProfiles, getProfileIds } from "./profiles.server";
 import { getAllProjects, getProjectIds } from "./projects.server";
 import { getAllOrganizations } from "./organizations/list.server";
+import { VIEW_COOKIE_VALUES } from "./organizations.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -452,6 +453,12 @@ export async function loader(args: LoaderFunctionArgs) {
       blurredBackground,
       responsibleOrganizations: enhancedResponsibleOrganizations,
       ...otherFields,
+      _count: {
+        ...event._count,
+        waitingGuests: event.guests.filter((guest) => guest.onWaitingList)
+          .length,
+        guests: event.guests.filter((guest) => !guest.onWaitingList).length,
+      },
     };
   });
 
@@ -602,10 +609,11 @@ export async function loader(args: LoaderFunctionArgs) {
     fundingIds,
   });
 
-  let preferredExploreOrganizationsView: "map" | "list" = "map";
+  let preferredExploreOrganizationsView: keyof typeof VIEW_COOKIE_VALUES =
+    VIEW_COOKIE_VALUES.map;
 
   const cookieHeader = request.headers.get("Cookie");
-  const cookie = (await viewCookie.parse(cookieHeader)) as null | any;
+  const cookie = await viewCookie.parse(cookieHeader);
   if (cookie !== null) {
     try {
       preferredExploreOrganizationsView = viewCookieSchema.parse(cookie);
@@ -622,6 +630,7 @@ export async function loader(args: LoaderFunctionArgs) {
     fundings,
     locales,
     language,
+    now: new Date(),
     preferredExploreOrganizationsView,
   };
 }
@@ -742,6 +751,7 @@ export default function ExploreAll() {
                   event.participationUntil,
                   "Europe/Berlin"
                 );
+                const now = utcToZonedTime(loaderData.now, "Europe/Berlin");
                 return (
                   <EventCard
                     key={`newest-event-card-${event.slug}`}
@@ -759,6 +769,7 @@ export default function ExploreAll() {
                     }}
                     as="h3"
                     prefetch="intent"
+                    now={now}
                   />
                 );
               })}

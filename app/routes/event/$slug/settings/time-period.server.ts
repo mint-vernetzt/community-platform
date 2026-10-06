@@ -19,7 +19,15 @@ export async function getEventBySlug(slug: string) {
           openForRegistration: true,
           parentParticipationRequired: true,
           _count: {
-            select: { participants: true },
+            select: {
+              participants: true,
+              guests: {
+                where: {
+                  confirmed: true,
+                  onWaitingList: false,
+                },
+              },
+            },
           },
           stage: {
             select: { slug: true },
@@ -38,7 +46,15 @@ export async function getEventBySlug(slug: string) {
           openForRegistration: true,
           parentParticipationRequired: true,
           _count: {
-            select: { participants: true },
+            select: {
+              participants: true,
+              guests: {
+                where: {
+                  confirmed: true,
+                  onWaitingList: false,
+                },
+              },
+            },
           },
           stage: {
             select: { slug: true },

@@ -1,14 +1,35 @@
-{{headline}}
+{{headline.de}}
 
 Hallo {{profile.firstName}},
 
 {{#if profile.isOnWaitingList}}
-Du wurdest von der Warteliste des Events "{{event.name}}" entfernt.
+Du wurdest von der Warteliste des Events {{event.name}} entfernt.
 {{else}}
-Du wurdest als Teilnehmer:in vom Event "{{event.name}}" entfernt.
+Du wurdest als Teilnehmer:in vom Event {{event.name}} entfernt.
 {{/if}}
+
+Link zum Event: {{event.url}}
 
 Falls Du Fragen dazu hast, melde Dich bitte bei der Ansprechperson des Events oder beim Event-Team.
 
 Viele Grüße
 Dein MINTvernetzt-Team
+
+---
+
+{{headline.en}}
+
+Hello {{profile.firstName}},
+
+{{#if profile.isOnWaitingList}}
+You have been removed from the waiting list for the event {{event.name}}.
+{{else}}
+You have been removed as a participant from the event {{event.name}}.
+{{/if}}
+
+Event link: {{event.url}}
+
+If you have any questions, please contact the event's contact person or the event team.
+
+Best regards
+Your MINTvernetzt Team

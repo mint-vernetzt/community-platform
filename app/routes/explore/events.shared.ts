@@ -23,6 +23,7 @@ export const getEventsSchema = z.object({
       stage: z.string().trim(),
       focus: z.array(z.string().trim()),
       eventTargetGroup: z.array(z.string().trim()),
+      responsibleOrganizations: z.array(z.string().trim()),
       periodOfTime: z
         .enum(PERIOD_OF_TIME_VALUES)
         .optional()
@@ -40,6 +41,7 @@ export const getEventsSchema = z.object({
           stage: "all",
           focus: [],
           eventTargetGroup: [],
+          responsibleOrganizations: [],
           periodOfTime: PERIOD_OF_TIME_VALUES[0],
         };
       }

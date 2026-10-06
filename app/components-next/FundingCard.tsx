@@ -83,7 +83,7 @@ function FundingCardTitle(props: {
   return (
     <Heading
       as={as}
-      className="text-primary-500 @lg:text-lg font-bold min-h-[48px] @lg:min-h-[50px] line-clamp-2"
+      className="text-primary-500 @lg:text-lg font-bold min-h-12 @lg:min-h-12.5 line-clamp-2"
     >
       {children}
     </Heading>
@@ -151,7 +151,7 @@ function FundingCardCategory(props: {
   return (
     <div className="flex flex-col text-neutral-700 font-semibold gap-1.5">
       {title}
-      <div className="min-h-[48px] @lg:min-h-[54px]">
+      <div className="min-h-12 @lg:min-h-13.5">
         {props.items.length === 0 ||
         (props.items.length === 1 && props.items[0] === "ohne Kategorie") ? (
           <span className="text-neutral-400 text-sm tracking-wide">

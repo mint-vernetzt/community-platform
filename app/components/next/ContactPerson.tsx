@@ -20,6 +20,8 @@ function ContactPerson(props: {
   phone: string | null;
   locales: {
     contactPerson: string;
+    copyEmail: string;
+    copyPhone: string;
   };
 }) {
   const { email, phone, locales } = props;
@@ -113,6 +115,7 @@ function ContactPerson(props: {
                     onClick={() => {
                       handleCopyToClipboard(email, "email");
                     }}
+                    aria-label={locales.copyEmail}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -174,6 +177,7 @@ function ContactPerson(props: {
                     onClick={() => {
                       handleCopyToClipboard(phone, "phone");
                     }}
+                    aria-label={locales.copyPhone}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"

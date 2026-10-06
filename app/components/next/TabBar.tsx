@@ -201,6 +201,8 @@ function TabBar(props: TabBarProps) {
           className={leftScrollClasses}
           onClick={handleLeftClick}
           disabled={isHydrated ? !showScrollLeft : false}
+          // TODO: i18n with locales
+          aria-label="Scroll left"
         >
           <span className="bg-white h-full flex items-center">
             <svg
@@ -222,6 +224,8 @@ function TabBar(props: TabBarProps) {
           className={rightScrollClasses}
           onClick={handleRightClick}
           disabled={isHydrated ? !showScrollRight : false}
+          // TODO: i18n with locales
+          aria-label="Scroll right"
         >
           <span className="h-full w-5 bg-linear-to-l from-white" />
           <span className="bg-white h-full flex items-center">

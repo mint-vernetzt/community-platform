@@ -5,7 +5,7 @@ function EventSubline(props: { children: React.ReactNode }) {
   const { children } = props;
 
   return (
-    <h2 className="mb-0 max-w-[800px] text-neutral-700 text-2xl font-semibold leading-7">
+    <h2 className="mb-0 max-w-200 text-neutral-700 text-2xl font-semibold leading-7">
       {children}
     </h2>
   );

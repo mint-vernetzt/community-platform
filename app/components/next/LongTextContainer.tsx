@@ -10,7 +10,7 @@ function LongTextContainer(props: {
   const { children, as } = props;
 
   const classes = classNames(
-    "text-neutral-700 max-w-[800px] text-lg font-normal leading-normal"
+    "text-neutral-700 max-w-200 text-lg font-normal leading-normal"
   );
 
   return as === "p" ? (

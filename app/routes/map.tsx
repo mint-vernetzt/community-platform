@@ -169,7 +169,7 @@ function MapIndex() {
   const { organizations, locales, language } = useLoaderData<typeof loader>();
 
   return (
-    <div className="relative w-screen h-dvh min-h-[284px]">
+    <div className="relative w-screen h-dvh min-h-71">
       <MapView
         organizations={organizations}
         locales={locales}

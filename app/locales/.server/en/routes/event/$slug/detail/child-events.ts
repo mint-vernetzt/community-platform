@@ -29,26 +29,23 @@ export const locale = {
   },
   mail: {
     participate: {
-      subject: "Deine Anmeldung zum Event {{eventName}}",
+      subject: "Your registration for the event {{eventName}}",
     },
     waitingList: {
-      subject: "Du wurdest zur Warteliste des Events {{eventName}} hinzugefügt",
+      subject:
+        "You have been added to the waiting list for the event {{eventName}}",
     },
     removeFromParticipants: {
       subject:
-        "Du wurdest von den Teilnehmenden des Events {{eventName}} entfernt",
+        "You have been removed from the participants of the event {{eventName}}",
     },
     removeFromWaitingList: {
       subject:
-        "Du wurdest von der Warteliste des Events {{eventName}} entfernt",
-    },
-    guestRemoved: {
-      subject:
-        "Du wurdest von den Teilnehmenden des Events {{eventName}} entfernt",
+        "You have been removed from the waiting list for the event {{eventName}}",
     },
     moveFromWaitingListToParticipants: {
       subject:
-        "Du wurdest von der Warteliste zu den Teilnehmenden eines Events hinzugefügt",
+        "You have been moved from the waiting list to the participants of the event {{eventName}}",
     },
   },
 } as const;

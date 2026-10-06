@@ -38,7 +38,7 @@ function SectionFooter(
   props: React.PropsWithChildren<Pick<SectionProps, "withBorder">>
 ) {
   const classes = classNames(
-    "min-h-[0.5rem]",
+    "min-h-2",
     "rounded-b-lg",
     props.withBorder && "border-b border-x border-gray-200"
   );

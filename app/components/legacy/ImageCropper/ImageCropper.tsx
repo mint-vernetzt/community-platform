@@ -10,32 +10,32 @@ import {
 import {
   getFormProps,
   getInputProps,
-  type SubmissionResult,
   useForm,
+  type SubmissionResult,
 } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import Slider from "rc-slider";
+import { useRef, useState } from "react";
 import { Form, useNavigation, useSubmit } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { FileInput, type SelectedFile } from "~/components-next/FileInput";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { DefaultImages } from "~/images.shared";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { invariant } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import {
   BUCKET_FIELD_NAME,
   BUCKET_NAME_IMAGES,
   FILE_FIELD_NAME,
-  IMAGE_MIME_TYPES,
   getUploadImageSchema,
+  IMAGE_MIME_TYPES,
   UPLOAD_DOCUMENT_INTENT_VALUE,
 } from "~/storage.shared";
 import { canvasPreview } from "./canvasPreview";
 import { useDebounceEffect } from "./useDebounceEffect";
-import { useEffect, useRef, useState } from "react";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export type ImageCropperLocales = {
   upload: {
@@ -236,9 +236,6 @@ function ImageCropper(props: ImageCropperProps) {
       return submission;
     },
   });
-  useEffect(() => {
-    setSelectedImageFileNames([]);
-  }, [lastSubmission]);
 
   const [disconnectImageForm, disconnectImageFields] = useForm({
     id: `disconnect-${uploadKey}-form`,
@@ -264,9 +261,20 @@ function ImageCropper(props: ImageCropperProps) {
       const file = e.target.files[0];
       setCrop(undefined); // Makes crop preview update between images.
       const reader = new FileReader();
-      reader.addEventListener("load", () =>
-        setImgSrc(reader.result?.toString() || "")
-      );
+      reader.addEventListener("load", () => {
+        if (reader.result === null) {
+          return;
+        }
+        if (typeof reader.result === "string") {
+          setImgSrc(reader.result);
+          return;
+        }
+        const url = URL.createObjectURL(
+          new Blob([reader.result], { type: file.type })
+        );
+        setImgSrc(url);
+        URL.revokeObjectURL(url);
+      });
       reader.readAsDataURL(file);
     }
   }
@@ -589,6 +597,8 @@ function ImageCropper(props: ImageCropperProps) {
                 id="scaleDown"
                 className="bg-white border border-primary h-8 w-8 flex items-center justify-center rounded-md hover:bg-primary text-primary hover:text-white"
                 onClick={handleZoomClick}
+                // TODO: i18n with locales
+                aria-label="Zoom out"
               >
                 <svg
                   width="11"
@@ -626,6 +636,8 @@ function ImageCropper(props: ImageCropperProps) {
                 id="scaleUp"
                 className="bg-white border border-primary h-8 w-8 flex items-center justify-center rounded-md hover:bg-primary text-primary hover:text-white"
                 onClick={handleZoomClick}
+                // TODO: i18n with locales
+                aria-label="Zoom in"
               >
                 <svg
                   width="12"

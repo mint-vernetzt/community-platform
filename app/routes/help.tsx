@@ -27,7 +27,7 @@ export default function Help() {
   return (
     <>
       <section className="w-full mx-auto @md:max-w-md @lg:max-w-lg @xl:max-w-xl @2xl:max-w-2xl px-4 @md:px-6 @xl:px-8 pt-16 pb-8 @md:pb-12 @xl:pb-16">
-        <h1 className="w-full text-center text-5xl @sm:text-6xl @md:text-7xl @xl:text-8xl font-[900] leading-9 @sm:leading-10 @md:leading-[64px] @xl:leading-[80px]">
+        <h1 className="w-full text-center text-5xl @sm:text-6xl @md:text-7xl @xl:text-8xl font-black leading-9 @sm:leading-10 @md:leading-16 @xl:leading-20">
           {locales.headline}
         </h1>
         <div className="w-full text-center text-neutral-700 leading-5">

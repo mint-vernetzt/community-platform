@@ -56,6 +56,12 @@ export async function getEventBySlug(options: {
           _count: {
             select: {
               participants: true,
+              guests: {
+                where: {
+                  confirmed: true,
+                  onWaitingList: false,
+                },
+              },
             },
           },
         },
@@ -161,6 +167,12 @@ export async function getChildEventsToAdd(options: {
     _count: {
       select: {
         participants: true,
+        guests: {
+          where: {
+            confirmed: true,
+            onWaitingList: false,
+          },
+        },
         childEvents: true,
       },
     },
@@ -341,7 +353,7 @@ export async function addChildEvent(options: {
   });
 
   if (childEvent === null) {
-    throw new Error("Child event not found or not eligible to be a child");
+    throw new Error("Sub-event not found or not eligible to be a child");
   }
 
   const transactions = [];
@@ -416,11 +428,24 @@ export async function removeChildEvent(options: {
     where: {
       id: childEventId,
       parentEventId: event.id,
-      admins: {
-        some: {
-          profileId: userId,
+      OR: [
+        {
+          admins: {
+            some: {
+              profileId: userId,
+            },
+          },
         },
-      },
+        {
+          parentEvent: {
+            admins: {
+              some: {
+                profileId: userId,
+              },
+            },
+          },
+        },
+      ],
     },
     select: {
       slug: true,
@@ -429,7 +454,7 @@ export async function removeChildEvent(options: {
 
   if (childEvent === null) {
     throw new Error(
-      "Child event not found or not eligible to be removed as a child"
+      "Sub-event not found or not eligible to be removed as a child"
     );
   }
 

@@ -56,7 +56,7 @@ export function MainMenu(
         isOpen !== null && isOpen !== "false"
           ? "flex flex-col mr-20 xl:mr-0"
           : "hidden xl:flex xl:flex-col"
-      } w-full min-w-full xl:w-[300px] xl:min-w-[300px] overflow-hidden h-dvh sticky top-0 bg-white`}
+      } w-full min-w-full xl:w-75 xl:min-w-75 overflow-hidden h-dvh sticky top-0 bg-white`}
     >
       <a
         id="main-menu-start"
@@ -91,7 +91,7 @@ export function MainMenu(
       >
         <HeaderLogo />
       </Link>
-      <div className="xl:hidden flex w-full items-center h-[75px] min-h-[75px] px-6 shrink">
+      <div className="xl:hidden flex w-full items-center h-18.75 min-h-18.75 px-6 shrink">
         {mode === "anon" ? (
           <div className="gap-x-4 grow items-center flex xl:hidden">
             <div>
@@ -313,6 +313,27 @@ export function MainMenu(
                     : "Resources"}
               </div>
             </Item>
+
+            <Item
+              to="/get-involved"
+              setActiveTopicId={setActiveTopicId}
+              prefetch="intent"
+            >
+              <IconWrapper>
+                {location.pathname === "/get-involved" ? (
+                  <Icon type="heart" aria-hidden="true" />
+                ) : (
+                  <Icon type="heart-outline" aria-hidden="true" />
+                )}
+              </IconWrapper>
+              <div className="font-semibold">
+                {locales !== undefined
+                  ? locales.route.root.menu.getInvolved.label
+                  : DEFAULT_LANGUAGE === "de"
+                    ? "Mitmachen"
+                    : "Get Involved"}
+              </div>
+            </Item>
           </TopMenu>
         </div>
         <div className="shrink">
@@ -506,7 +527,7 @@ function FooterMenu(props: React.PropsWithChildren) {
   const children = Children.toArray(props.children);
 
   return (
-    <div className="grid grid-cols-1 place-items-start pt-[15px] px-6 select-none">
+    <div className="grid grid-cols-1 place-items-start pt-3.75 px-6 select-none">
       <div className="relative flex flex-wrap items-center gap-x-4 gap-y-2 w-full px-2.5 pb-4 pt-6 text-xs">
         <div className="absolute top-0 left-0 px-4 w-full">
           <div className="w-full border-t border-gray-200" />
@@ -609,10 +630,10 @@ function Topic(
           }
         }}
       />
-      <span className="peer-[:focus]:text-primary-500 peer-[:focus]:border-blue-500 border-2 border-transparent rounded-sm">
+      <span className="peer-focus:text-primary-500 peer-focus:border-blue-500 border-2 border-transparent rounded-sm">
         {label}
       </span>
-      <div className="hidden group-has-[:checked]:block">{topicItems}</div>
+      <div className="hidden group-has-checked:block">{topicItems}</div>
     </label>
   );
 }
@@ -622,10 +643,10 @@ function Label(props: React.PropsWithChildren) {
 
   return (
     <div className="flex items-center gap-2 w-full cursor-pointer px-2 py-4 rounded-sm hover:bg-blue-50 hover:text-primary-500">
-      <div className="flex items-center gap-2 grow group-has-[:checked]:text-primary-500">
+      <div className="flex items-center gap-2 grow group-has-checked:text-primary-500">
         {children}
       </div>
-      <div className="shrink cursor-pointer rotate-90 group-has-[:checked]:-rotate-90">
+      <div className="shrink cursor-pointer rotate-90 group-has-checked:-rotate-90">
         <Icon type="chevron-right" aria-hidden="true" />
       </div>
     </div>
@@ -660,7 +681,7 @@ function TopicItem(
       end
       className={({ isActive, isPending, isTransitioning }) => {
         const baseClasses =
-          "relative flex items-center gap-2 w-full cursor-pointer pl-[38px] pr-2 py-4";
+          "relative flex items-center gap-2 w-full cursor-pointer pl-9.5 pr-2 py-4";
         if (isActive || isPending || isTransitioning) {
           return `${baseClasses} bg-blue-50 text-primary-500`;
         }

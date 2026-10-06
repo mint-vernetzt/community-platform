@@ -14,16 +14,11 @@ type DropdownLabelType = React.DetailedReactHTMLElement<
   HTMLLabelElement
 >;
 type DropdownLabelProps = React.PropsWithChildren & {
-  listRef?: React.RefObject<HTMLDivElement | null>;
+  listElement?: HTMLDivElement | null;
   responsive?: boolean;
 };
 
-function DropdownLabel(
-  props: React.PropsWithChildren & {
-    listRef?: React.RefObject<HTMLDivElement>;
-    responsive?: boolean;
-  }
-) {
+function DropdownLabel(props: DropdownLabelProps) {
   const { responsive = true } = props;
 
   const [checked, setChecked] = useState(false);
@@ -40,9 +35,9 @@ function DropdownLabel(
       if (
         ref.current !== null &&
         ref.current.contains(target) === false &&
-        typeof props.listRef !== "undefined" &&
-        props.listRef.current !== null &&
-        props.listRef.current.contains(target) === false
+        typeof props.listElement !== "undefined" &&
+        props.listElement !== null &&
+        props.listElement.contains(target) === false
       ) {
         setChecked(false);
       }
@@ -51,7 +46,7 @@ function DropdownLabel(
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [props.listRef]);
+  }, [props.listElement]);
 
   const classes = classNames(
     "peer group justify-between items-center gap-1 cursor-pointer font-semibold text-gray-700 hover:bg-gray-100 group-has-focus-within/dropdown:ring-2 group-has-focus-within/dropdown:ring-primary-200 transition bg-white",
@@ -192,11 +187,11 @@ export function Dropdown(
   const list = children.find((child) => {
     return isValidElement(child) && child.type === DropdownList;
   });
-  const listRef = useRef<HTMLDivElement | null>(null);
+  const [listElement, setListElement] = useState<HTMLDivElement | null>(null);
   const listClone =
     typeof list !== "undefined" && typeof list !== "string"
       ? cloneElement<DropdownListProps>(list as DropdownListType, {
-          ref: listRef,
+          ref: setListElement,
           orientation,
           responsive,
         })
@@ -208,7 +203,7 @@ export function Dropdown(
   const labelClone =
     typeof label !== "undefined"
       ? cloneElement<DropdownLabelProps>(label as DropdownLabelType, {
-          listRef,
+          listElement,
           responsive,
         })
       : null;

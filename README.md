@@ -10,6 +10,8 @@ The following steps are mandatory in order to put the project into operation for
 
 ### 1. Install Supabase
 
+_Update:_ The project has moved to self-hosted supabase for local development. Using it as explained below (with the Supabase cli) might need some tweaks. For self-hosting supabase follow this [Self-hosted Supabase Guide](https://supabase.com/docs/guides/self-hosting/docker) and look into the [Supabase Docker Repository](https://github.com/supabase/supabase/tree/master/docker)
+
 You will find a detailed description of the installation process at [Supabase "getting started" documentation](https://supabase.com/docs/guides/cli/getting-started).
 Please note that you will need a local Docker instance up and running for this.
 
@@ -59,18 +61,10 @@ make imgproxy_stop
 Run the script
 
 ```shell
-npx tsx prisma/scripts/seed-database/index.ts -s 2 -r -e 1 -i 1 -d 1
+make seed-database
 ```
 
 this will seed the database with random but reasonably data.
-
-### 5. Copy fonts
-
-To use the custom fonts integrated in the project, they must be copied to a local directory using a script.
-
-```shell
-npm run copy:fonts
-```
 
 ## Run DEV
 
@@ -87,8 +81,9 @@ npm run start
 
 ## Further information
 
-- [Remix Docs](https://remix.run/docs)
+- [React Router Docs](https://reactrouter.com/home)
 - [Supabase Docs](https://supabase.com/docs)
+- [Self-hosted Supabase Guide](https://supabase.com/docs/guides/self-hosting/docker)
+- [Supabase Docker Repository](https://github.com/supabase/supabase/tree/master/docker)
 - [Prisma Docs](https://www.prisma.io/docs/orm)
-- [DaisyUI](https://daisyui.com/)
 - [Tailwind CSS](https://tailwindcss.com/)

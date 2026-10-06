@@ -122,8 +122,8 @@ function SettingsNavigation(props: {
   const menuContainerClasses = classNames(
     "w-full",
     contentSmallerThanMenu
-      ? "lg:w-[436px] lg:min-w-[436px]"
-      : "lg:w-[435px] lg:min-w-[435px]",
+      ? "lg:w-109 lg:min-w-109"
+      : "lg:w-108.75 lg:min-w-108.75",
     deep !== null
       ? "hidden lg:flex lg:flex-col"
       : "flex flex-col overflow-y-scroll"

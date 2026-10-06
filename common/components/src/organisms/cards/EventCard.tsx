@@ -41,7 +41,9 @@ type EventCardProps = {
     stage?: { slug: string } | null;
     _count: {
       participants: number;
+      guests: number;
       waitingList: number;
+      waitingGuests: number;
       childEvents: number;
     };
     responsibleOrganizations: {
@@ -58,6 +60,8 @@ type EventCardProps = {
   waitingListControl?: React.ReactElement;
   as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
   prefetch?: LinkProps["prefetch"];
+  showPublishedStatus?: boolean;
+  now: Date;
 };
 
 function IconOnSite() {
@@ -108,9 +112,15 @@ function IconHybrid() {
 function EventCard(
   props: React.ButtonHTMLAttributes<HTMLDivElement> & EventCardProps
 ) {
-  const { event, locales, currentLanguage, as = "h4", prefetch } = props;
-
-  const now = new Date();
+  const {
+    event,
+    locales,
+    currentLanguage,
+    as = "h4",
+    prefetch,
+    showPublishedStatus = true,
+    now,
+  } = props;
 
   const dateDuration = getDateDuration(
     event.startTime,
@@ -172,12 +182,14 @@ function EventCard(
         {event.endTime.getTime() < now.getTime() && (
           <CardStatus variant="neutral">{locales.eventCard.passed}</CardStatus>
         )}
-        {event.published === false && event.isTeamMember && (
-          <CardStatus variant="primary" inverted>
-            {locales.eventCard.draft}
-          </CardStatus>
-        )}
-        {event.published && event.isTeamMember && (
+        {showPublishedStatus &&
+          event.published === false &&
+          event.isTeamMember && (
+            <CardStatus variant="primary" inverted>
+              {locales.eventCard.draft}
+            </CardStatus>
+          )}
+        {showPublishedStatus && event.published && event.isTeamMember && (
           <CardStatus variant="positive">
             {locales.eventCard.published}
           </CardStatus>
@@ -201,10 +213,15 @@ function EventCard(
             )}
           {event._count.childEvents === 0 &&
             typeof event.participantLimit === "number" &&
-            event.participantLimit - event._count.participants > 0 && (
+            event.participantLimit -
+              event._count.participants -
+              event._count.guests >
+              0 && (
               <span className="text-xs text-neutral-200 font-semibold px-2 py-1 rounded-lg bg-primary">
-                {event.participantLimit - event._count.participants} /{" "}
-                {event.participantLimit}{" "}
+                {event.participantLimit -
+                  event._count.participants -
+                  event._count.guests}{" "}
+                / {event.participantLimit}{" "}
                 {decideBetweenSingularOrPlural(
                   locales.eventCard.seats.free_one,
                   locales.eventCard.seats.free_other,
@@ -214,13 +231,16 @@ function EventCard(
             )}
           {event._count.childEvents === 0 &&
             typeof event.participantLimit === "number" &&
-            event.participantLimit - event._count.participants <= 0 && (
+            event.participantLimit -
+              event._count.participants -
+              event._count.guests <=
+              0 && (
               <span className="text-xs text-neutral-200 font-semibold px-2 py-1 rounded-lg bg-primary">
-                {event._count.waitingList}{" "}
+                {event._count.waitingList + event._count.waitingGuests}{" "}
                 {decideBetweenSingularOrPlural(
                   locales.eventCard.waitingList.places_one,
                   locales.eventCard.waitingList.places_other,
-                  event._count.waitingList
+                  event._count.waitingList + event._count.waitingGuests
                 )}
               </span>
             )}
@@ -238,7 +258,7 @@ function EventCard(
       </CardHeader>
       <CardBody>
         {
-          <div className="min-h-[80px]">
+          <div className="min-h-20">
             {/* TODO: */}
             {/* Issue with combination of line clamp with ellipsis (truncate) */}
             {/* Maybe find a better solution */}
@@ -285,27 +305,33 @@ function EventCard(
           event._count.childEvents === 0 &&
           event.published &&
           !event.canceled &&
-          event.participationUntil.getTime() > Date.now() &&
+          event.participationUntil.getTime() > now.getTime() &&
           !event.isTeamMember &&
           !event.isSpeaker &&
           !event.isOnWaitingList &&
           !event.isParticipant &&
           (typeof event.participantLimit !== "number" ||
             (typeof event.participantLimit === "number" &&
-              event.participantLimit - event._count.participants > 0)) &&
+              event.participantLimit -
+                event._count.participants -
+                event._count.guests >
+                0)) &&
           props.participateControl}
         {!props.publicAccess &&
           props.waitingListControl !== undefined &&
           event._count.childEvents === 0 &&
           event.published &&
           !event.canceled &&
-          event.participationUntil.getTime() > Date.now() &&
+          event.participationUntil.getTime() > now.getTime() &&
           !event.isTeamMember &&
           !event.isSpeaker &&
           !event.isOnWaitingList &&
           !event.isParticipant &&
           typeof event.participantLimit === "number" &&
-          event.participantLimit - event._count.participants <= 0 &&
+          event.participantLimit -
+            event._count.participants -
+            event._count.guests <=
+            0 &&
           props.waitingListControl}
         {!props.publicAccess &&
           event._count.childEvents === 0 &&
@@ -320,7 +346,7 @@ function EventCard(
           event._count.childEvents === 0 &&
           event.published &&
           !event.canceled &&
-          event.participationUntil.getTime() > Date.now() &&
+          event.participationUntil.getTime() > now.getTime() &&
           event.isOnWaitingList && (
             <span className="text-xs font-bold text-neutral-700">
               {locales.eventCard.onWaitingList}

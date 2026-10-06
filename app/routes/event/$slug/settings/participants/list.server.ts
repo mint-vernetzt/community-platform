@@ -71,6 +71,7 @@ export async function getParticipantsOfEvent(options: {
       where: {
         eventId,
         onWaitingList: false,
+        confirmed: true,
       },
       select: guestsSelect,
     });
@@ -200,6 +201,15 @@ export async function getEventBySlug(slug: string) {
               profileId: true,
             },
           },
+          guests: {
+            select: {
+              email: true,
+            },
+            where: {
+              confirmed: true,
+              onWaitingList: false,
+            },
+          },
         },
       },
     },
@@ -214,10 +224,13 @@ export async function removeFromEvent(options: {
   locales: {
     mail: {
       removeFromParticipants: {
-        subject: string;
+        subject: { de: string; en: string };
       };
       moveFromWaitingListToParticipants: {
-        subject: string;
+        subject: { de: string; en: string };
+      };
+      removeFromWaitingList: {
+        subject: { de: string; en: string };
       };
     };
   };
@@ -231,9 +244,6 @@ export async function removeFromEvent(options: {
     recursively: true,
     locales: {
       ...options.locales.mail,
-      guestRemoved: {
-        subject: options.locales.mail.removeFromParticipants.subject,
-      },
     }, // TODO: improve TS
   });
 

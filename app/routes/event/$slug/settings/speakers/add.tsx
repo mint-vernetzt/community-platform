@@ -126,7 +126,7 @@ export async function action(args: ActionFunctionArgs) {
   const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
-  const submission = await parseWithZod(formData, {
+  const submission = parseWithZod(formData, {
     schema: createInviteProfileToJoinAsSpeakerSchema(),
   });
 
@@ -138,7 +138,22 @@ export async function action(args: ActionFunctionArgs) {
     await inviteProfileToJoinEventAsSpeaker({
       eventId: event.id,
       profileId: submission.value[PROFILE_ID_FIELD],
-      locales: locales.route,
+      locales: {
+        mail: {
+          buttonText: {
+            de: languageModuleMap.de["event/$slug/settings/speakers/add"].route
+              .mail.buttonText,
+            en: languageModuleMap.en["event/$slug/settings/speakers/add"].route
+              .mail.buttonText,
+          },
+          subject: {
+            de: languageModuleMap.de["event/$slug/settings/speakers/add"].route
+              .mail.subject,
+            en: languageModuleMap.en["event/$slug/settings/speakers/add"].route
+              .mail.subject,
+          },
+        },
+      },
     });
   } catch (error) {
     captureException(error);

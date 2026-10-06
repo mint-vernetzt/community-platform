@@ -14,7 +14,8 @@ function Status(props: StatusProps) {
     const isValid = isValidElement(child) || typeof child === "string";
     if (!isValid) {
       console.warn(
-        `The child you passed to <Status> is not a valid element and will be ignored: ${child}`
+        `The child you passed to <Status> is not a valid element and will be ignored:`,
+        child
       );
     }
     return isValid;

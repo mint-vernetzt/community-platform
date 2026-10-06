@@ -6,6 +6,9 @@ export const locale = {
     showLess: "Weniger anzeigen",
     focuses: "Schwerpunkte",
     targetGroups: "Zielgruppe",
+    responsibleOrganizations: "Verantwortliche Organisationen",
+    responsibleOrganizationSearchPlaceholder: "Nach Organisation suchen...",
+    searchResponsibleOrganizationHelper: "Mindestens 3 Buchstaben.",
     periodOfTime: {
       label: "Zeitraum",
       values: {
@@ -28,7 +31,7 @@ export const locale = {
       },
     },
     stage: "Veranstaltungsart",
-    close: "Filter schliepen",
+    close: "Filter schließen",
   },
   empty: "Es konnten leider keine Events gefunden werden.",
   more: "Weitere laden",

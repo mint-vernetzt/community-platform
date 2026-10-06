@@ -1,7 +1,7 @@
 import { parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { captureException } from "@sentry/node";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Form,
   redirect,
@@ -16,6 +16,7 @@ import { Modal } from "~/components-next/Modal";
 import Hint from "~/components/next/Hint";
 import List from "~/components/next/List";
 import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
@@ -43,7 +44,6 @@ import {
   SEARCH_TEAM_MEMBERS_SEARCH_PARAM,
   TEAM_MEMBER_ID,
 } from "./list.shared";
-import { INTENT_FIELD_NAME } from "~/form-helpers";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -126,7 +126,7 @@ export async function action(args: ActionFunctionArgs) {
       });
     }
 
-    const submission = await parseWithZod(formData, {
+    const submission = parseWithZod(formData, {
       schema: getRemoveTeamMemberSchema(),
     });
 
@@ -159,7 +159,7 @@ export async function action(args: ActionFunctionArgs) {
       level: "positive",
     });
   } else if (intent === ADD_CONTACT_PERSON_INTENT) {
-    const submission = await parseWithZod(formData, {
+    const submission = parseWithZod(formData, {
       schema: getAddContactPersonSchema(),
     });
 
@@ -192,7 +192,7 @@ export async function action(args: ActionFunctionArgs) {
       level: "positive",
     });
   } else {
-    const submission = await parseWithZod(formData, {
+    const submission = parseWithZod(formData, {
       schema: getRemoveContactPersonSchema(),
     });
 
@@ -229,16 +229,19 @@ export async function action(args: ActionFunctionArgs) {
 
 function TeamList() {
   const loaderData = useLoaderData<typeof loader>();
-
   const { locales } = loaderData;
-  const [teamMembers, setTeamMembers] = useState(loaderData.teamMembers);
-
   const location = useLocation();
   const [searchParams] = useSearchParams();
 
-  useEffect(() => {
+  const [teamMembers, setTeamMembers] = useState(loaderData.teamMembers);
+  const [syncedTeamMembers, setSyncedTeamMembers] = useState(
+    loaderData.teamMembers
+  );
+
+  if (syncedTeamMembers !== loaderData.teamMembers) {
+    setSyncedTeamMembers(loaderData.teamMembers);
     setTeamMembers(loaderData.teamMembers);
-  }, [loaderData.teamMembers]);
+  }
 
   return (
     <>

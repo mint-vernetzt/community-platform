@@ -55,4 +55,5 @@ export default defineConfig({
         "./node_modules/.prisma/client/index-browser.js",
     },
   },
+  ssr: { noExternal: ["maplibre-gl"] },
 });

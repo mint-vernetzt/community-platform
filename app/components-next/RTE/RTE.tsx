@@ -136,7 +136,7 @@ function RTE(
       {isHydrated === false ? (
         <div
           title="Rich text editor is loading..."
-          className="w-full h-[234px] border border-gray-200 rounded-lg"
+          className="w-full h-58.5 border border-gray-200 rounded-lg"
         >
           <LoadingToolbar locales={locales} />
         </div>
@@ -158,7 +158,7 @@ function RTE(
               }
             }
           }}
-          className="relative w-full h-[234px] border border-gray-200 rounded-lg focus-within:ring-2 focus-within:ring-blue-400 focus-within:border-blue-400 active-within:ring-2 active-within:ring-blue-400 active-within:border-blue-400"
+          className="relative w-full h-58.5 border border-gray-200 rounded-lg focus-within:ring-2 focus-within:ring-blue-400 focus-within:border-blue-400 active-within:ring-2 active-within:ring-blue-400 active-within:border-blue-400"
         >
           <LexicalComposer initialConfig={initialConfig}>
             <EditorRefPlugin editorRef={editorRef} />

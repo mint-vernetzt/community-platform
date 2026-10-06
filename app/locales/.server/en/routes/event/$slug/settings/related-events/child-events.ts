@@ -1,34 +1,34 @@
 export const locale = {
   current: {
-    headline: "Current Child Events",
-    cta: "Remove as Child Event",
+    headline: "Current sub-events",
+    cta: "Remove as sub-event",
     removeConfirmation: {
-      title: "Remove Child Event",
+      title: "Remove sub-event",
       description:
-        "The child event is already published. If you remove the child event, it will become an independent event again. The child event cannot be added as a child event again after removal.",
+        "The sub-event is already published. If you remove the sub-event, it will become an independent event again. The sub-event cannot be added as a sub-event again after removal.",
       confirm: "Remove Anyway",
       abort: "Cancel",
     },
   },
   addOrCreate: {
-    headline: "Add Child Events",
+    headline: "Add sub-events",
     hasParentEventHint:
-      "Your event is already a child event of a parent event. Therefore, it is not possible to add child events. Remove the event from the parent event to make it a parent event and add child events to it.",
+      "Your event is already a sub-event of a main event. Therefore, it is not possible to add sub-events. Remove the event from the main event to make it a main event and add sub-events to it.",
     hasPendingRequestHint:
-      "You have already requested to add your event as a child event to a parent event. While this request is pending, you cannot add another event as a child event. If you want to add a different event instead, first withdraw your existing request.",
+      "You have already requested to add your event as a sub-event to a main event. While this request is pending, you cannot add another event as a sub-event. If you want to add a different event instead, first withdraw your existing request.",
     subline:
-      "You can add more events to your event – these will then be managed as child events. Your original event will become the parent event. A parent event can contain multiple child events.",
+      "You can add more events to your event – these will then be managed as sub-events. Your original event will become the main event. A main event can contain multiple sub-events.",
     timePeriodHint:
-      "Child events must be within the timeframe of the parent event and must not be published yet.",
+      "Sub-events must be within the timeframe of the main event and must not be published yet.",
     blankStateHint:
-      "There are currently no child events that you can add. First, create an event within the appropriate timeframe and add it as a child event.",
+      "There are currently no sub-events that you can add. First, create an event within the appropriate timeframe and add it as a sub-event.",
     add: {
-      label: "Add your own events as child events",
-      cta: "Add new Child Event",
+      label: "Add your own events as sub-events",
+      cta: "Add new sub-event",
     },
     create: {
-      label: "Create a Child Event",
-      cta: "Create New Child Event",
+      label: "Create a sub-event",
+      cta: "Create new sub-event",
     },
   },
   list: {
@@ -40,19 +40,18 @@ export const locale = {
     draft: "Draft",
     canceled: "Canceled",
     alreadyPublished: "already published",
-    alreadyAdded: "already added as a child event",
-    hasChildEvents: "already has child events",
-    hasDifferentParent: "has a different parent event",
+    alreadyAdded: "already added as a sub-event",
+    hasChildEvents: "already has sub-events",
+    hasDifferentParent: "has a different main event",
     outOfTimeframe: "not within the appropriate timeframe",
   },
   errors: {
-    addChildEvent:
-      "The child event could not be added. Please try again later.",
+    addChildEvent: "The sub-event could not be added. Please try again later.",
     removeChildEvent:
-      "The child event could not be removed. Please try again later.",
+      "The sub-event could not be removed. Please try again later.",
   },
   success: {
-    addChildEvent: "The child event was successfully added.",
-    removeChildEvent: "The child event was successfully removed.",
+    addChildEvent: "The sub-event was successfully added.",
+    removeChildEvent: "The sub-event was successfully removed.",
   },
 } as const;

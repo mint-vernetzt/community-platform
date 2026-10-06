@@ -1,26 +1,13 @@
-import {
-  Link,
-  useLoaderData,
-  useSearchParams,
-  type LoaderFunctionArgs,
-} from "react-router";
+import { Form, useLoaderData, type LoaderFunctionArgs } from "react-router";
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
-import { isBotRequest } from "~/utils.server";
+import { HONEYPOT_CLASSNAME } from "~/honeypot.shared";
+import { HoneypotInputs } from "remix-utils/honeypot/react";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
-
-  if (process.env.NODE_ENV !== "test") {
-    const isBot = isBotRequest(request.headers.get("user-agent"));
-    invariantResponse(
-      isBot === false,
-      "Bots are not allowed to access this resource",
-      { status: 403 }
-    );
-  }
 
   const url = new URL(request.url);
 
@@ -63,22 +50,20 @@ export async function loader(args: LoaderFunctionArgs) {
     { status: 400 }
   );
 
-  // Build new URL
-  const sanitizedConfirmationLink = `${process.env.COMMUNITY_BASE_URL}/auth/verify?token_hash=${tokenHash}&type=${type}&login_redirect=${loginRedirect}`;
-
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["auth/confirm"];
 
   return {
-    confirmationLink: sanitizedConfirmationLink,
+    tokenHash,
+    type,
+    loginRedirect,
     locales,
   };
 }
 
 export default function Confirm() {
-  const { confirmationLink, locales } = useLoaderData<typeof loader>();
-  const [searchParams] = useSearchParams();
-  const type = searchParams.get("type") as EmailOtpType | null;
+  const { tokenHash, type, loginRedirect, locales } =
+    useLoaderData<typeof loader>();
 
   return (
     <>
@@ -91,12 +76,22 @@ export default function Confirm() {
                 <h1 className="mb-4">{locales.signup.title}</h1>
 
                 <p className="mb-6">{locales.signup.description}</p>
-                <Link
-                  to={confirmationLink}
-                  className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
-                >
-                  {locales.signup.action}
-                </Link>
+                <Form method="post" action="/auth/verify">
+                  <HoneypotInputs className={HONEYPOT_CLASSNAME} />
+                  <input type="hidden" name="token_hash" value={tokenHash} />
+                  <input type="hidden" name="type" value={type} />
+                  <input
+                    type="hidden"
+                    name="login_redirect"
+                    value={loginRedirect ?? ""}
+                  />
+                  <button
+                    type="submit"
+                    className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
+                  >
+                    {locales.signup.action}
+                  </button>
+                </Form>
               </>
             )}
             {type === "recovery" && (
@@ -104,12 +99,22 @@ export default function Confirm() {
                 <h1 className="mb-4">{locales.recovery.title}</h1>
 
                 <p className="mb-6">{locales.recovery.description}</p>
-                <Link
-                  to={confirmationLink}
-                  className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
-                >
-                  {locales.recovery.action}
-                </Link>
+                <Form method="post" action="/auth/verify">
+                  <HoneypotInputs className={HONEYPOT_CLASSNAME} />
+                  <input type="hidden" name="token_hash" value={tokenHash} />
+                  <input type="hidden" name="type" value={type} />
+                  <input
+                    type="hidden"
+                    name="login_redirect"
+                    value={loginRedirect ?? ""}
+                  />
+                  <button
+                    type="submit"
+                    className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
+                  >
+                    {locales.recovery.action}
+                  </button>
+                </Form>
               </>
             )}
           </div>

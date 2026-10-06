@@ -36,21 +36,29 @@ function Search(props: SearchProps) {
     inputProps: { placeholder, minLength = 3, ...otherInputProps },
   } = props;
   const [searchParams] = useSearchParams();
-  const query = searchParams.get("search");
-  const [value, setValue] = useState(query !== null ? query : "");
+  const query = searchParams.get("search") || "";
+  const [value, setValue] = useState(query);
+  const [syncedValue, setSyncedValue] = useState(query);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const fetcher = useFetcher<typeof rootLoader>();
+  const [lastFetcherResult, setLastFetcherResult] = useState(fetcher.data);
   const searchRef = useRef<HTMLDivElement | null>(null);
   const [showResults, setShowResults] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(false);
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const query = event.target.value;
-    setValue(query);
-
-    if (query.length >= minLength) {
-      void fetcher.submit({ method: "get", search: query });
+  const submitFetcher = (value: string) => {
+    if (value.length >= minLength) {
+      void fetcher.submit({ method: "get", search: value });
+    } else {
+      void fetcher.submit({ method: "get", search: null });
     }
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newQuery = event.target.value;
+    setValue(newQuery);
+
+    submitFetcher(newQuery);
   };
 
   const handleClear = (event: React.SyntheticEvent<HTMLButtonElement>) => {
@@ -60,6 +68,12 @@ function Search(props: SearchProps) {
 
   const handleFocus = () => {
     setIsInputFocused(true);
+    if (value.length >= minLength) {
+      setShowResults(true);
+    } else {
+      setShowResults(false);
+    }
+    submitFetcher(value);
   };
 
   const handleBlur = () => {
@@ -106,35 +120,33 @@ function Search(props: SearchProps) {
     };
   }, [searchRef, fetcher]);
 
-  useEffect(() => {
-    const query = searchParams.get("search");
-    setValue(query !== null ? query : "");
+  // Collapse search results when submitting to without a navigation (f.e. on explore pages)
+  if (syncedValue !== query) {
+    setValue(query);
+    setSyncedValue(query);
     setShowResults(false);
-  }, [searchParams]);
+  }
 
-  useEffect(() => {
-    if (isInputFocused === false) {
-      return;
-    }
-
-    if (
-      value.length >= minLength ||
-      (value.length >= minLength &&
-        typeof fetcher.data !== "undefined" &&
-        fetcher.data.tags.length >= minLength)
-    ) {
+  // Show and hide results after fetcher data changes and input is focused. Show and hide depends on the current value length
+  if (
+    typeof fetcher.data !== "undefined" &&
+    fetcher.data !== lastFetcherResult &&
+    isInputFocused
+  ) {
+    if (value.length >= minLength) {
       setShowResults(true);
     } else {
       setShowResults(false);
     }
-  }, [fetcher.data, minLength, value, isInputFocused]);
+    setLastFetcherResult(fetcher.data);
+  }
 
   const isHydrated = useHydrated();
 
   return (
     <>
       <div
-        className="flex gap-2 h-[48px] items-center overflow-hidden"
+        className="flex gap-2 h-12 items-center overflow-hidden"
         ref={searchRef}
       >
         <div className="relative group w-full">
@@ -156,6 +168,7 @@ function Search(props: SearchProps) {
             <button
               tabIndex={-1}
               className="hidden h-8 xl:group-focus-within:block mt-0.5 xl:mr-0.5 xl:-mt-1 xl:p-1.5 rounded-lg bg-transparent xl:group-focus-within:bg-primary-500 pointer-events-auto"
+              aria-hidden="true"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -196,7 +209,7 @@ function Search(props: SearchProps) {
           </div>
 
           <input
-            className="w-full h-10 xl:h-12 outline-hidden bg-neutral-100 xl:bg-neutral-50 min-w-[230px] rounded-lg border border-neutral-100 xl:border-neutral-200 py-2 pl-9 xl:pl-4 pr-4 text-base placeholder:font-normal placeholder:text-neutral-700 font-semibold text-neutral-700 appearance-none leading-6 focus:border-primary-200 focus:border-2"
+            className="w-full h-10 xl:h-12 outline-hidden bg-neutral-100 xl:bg-neutral-50 min-w-57.5 rounded-lg border border-neutral-100 xl:border-neutral-200 py-2 pl-9 xl:pl-4 pr-4 text-base placeholder:font-normal placeholder:text-neutral-700 font-semibold text-neutral-700 appearance-none leading-6 focus:border-primary-200 focus:border-2"
             aria-placeholder={placeholder}
             placeholder={isHydrated === false ? placeholder : undefined}
             minLength={minLength || 3}
@@ -249,7 +262,7 @@ function Search(props: SearchProps) {
         </div>
       </div>
       {showResults && (
-        <div className="absolute lg:relative top-[76px] lg:top-2 h-[calc(100dvh-76px)] lg:h-auto w-full left-0 z-30">
+        <div className="absolute lg:relative top-19 lg:top-2 h-[calc(100dvh-76px)] lg:h-auto w-full left-0 z-30">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-xs w-full h-full lg:hidden" />
           <ul className="absolute inset-0 h-fit bg-white border-t border-b border-neutral-200 lg:border lg:rounded-lg p-4 text-sm text-neutral-700 flex flex-col gap-4 lg:gap-2">
             <ResultItem title={value} />

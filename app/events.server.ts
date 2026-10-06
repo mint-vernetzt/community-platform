@@ -5,10 +5,11 @@ import { insertParametersIntoLocale } from "./lib/utils/i18n";
 import { scheduleMail } from "./mailer-queue.server";
 import { getVenueString } from "./utils.shared";
 import { utcToZonedTime } from "date-fns-tz";
+import { getDuration } from "./lib/utils/time";
+import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "./events.shared";
 
 export type ParticipantIdentifier =
-  | { type: "user"; profileId: string }
-  | { type: "guest"; email: string };
+  { type: "user"; profileId: string } | { type: "guest"; email: string };
 
 function getRemoveFromParticipantsTransaction(options: {
   identifier: ParticipantIdentifier;
@@ -100,7 +101,7 @@ function shouldMoveUpToParticipants(options: {
 
 function getNextOnWaitingList(options: {
   usersOnWaitingList: { profileId: string; createdAt: Date }[];
-  guestsOnWaitingList: { id: string; confirmedAt: Date }[];
+  guestsOnWaitingList: { id: string; confirmedAt: Date | null }[];
 }) {
   const { usersOnWaitingList, guestsOnWaitingList } = options;
 
@@ -120,6 +121,9 @@ function getNextOnWaitingList(options: {
       type: "guest" as const,
     })),
   ].sort((a, b) => {
+    // We know they are not null because of the where clause. Just making TS happy.
+    if (a.createdAt === null) return 1;
+    if (b.createdAt === null) return -1;
     return a.createdAt.getTime() - b.createdAt.getTime();
   });
 
@@ -186,7 +190,7 @@ export async function getChildEventsRemovalCascadesInto(options: {
       id: eventId,
     },
     select: {
-      // Include child events where parent participation is required
+      // Include sub-events where parent participation is required
       childEvents: {
         where: {
           OR: [
@@ -212,8 +216,11 @@ export async function getChildEventsRemovalCascadesInto(options: {
               email: true,
               onWaitingList: true,
             },
+            where: {
+              confirmed: true,
+            },
           },
-          // For legacy reasons we need to check child events of child events
+          // For legacy reasons we need to check sub-events of sub-events
           childEvents: {
             where: {
               OR: [
@@ -238,6 +245,9 @@ export async function getChildEventsRemovalCascadesInto(options: {
                 select: {
                   email: true,
                   onWaitingList: true,
+                },
+                where: {
+                  confirmed: true,
                 },
               },
             },
@@ -283,13 +293,13 @@ export async function removeParticipantFromEvent(options: {
   recursively?: boolean;
   locales: {
     moveFromWaitingListToParticipants: {
-      subject: string;
+      subject: { de: string; en: string };
     };
     removeFromParticipants: {
-      subject: string;
+      subject: { de: string; en: string };
     };
-    guestRemoved: {
-      subject: string;
+    removeFromWaitingList: {
+      subject: { de: string; en: string };
     };
   };
 }) {
@@ -354,6 +364,7 @@ export async function removeParticipantFromEvent(options: {
             guests: {
               some: {
                 email: identifier.email,
+                confirmed: true,
               },
             },
           },
@@ -367,22 +378,39 @@ export async function removeParticipantFromEvent(options: {
       slug: true,
       name: true,
       startTime: true,
+      endTime: true,
       venueName: true,
       venueStreet: true,
       venueStreetNumber: true,
       venueZipCode: true,
       venueCity: true,
       conferenceLink: true,
+      conferenceCode: true,
       parentParticipationRequired: true,
+      participationToken: true,
+      _count: {
+        select: {
+          childEvents: {
+            where: {
+              published: true,
+            },
+          },
+        },
+      },
       childEvents: {
         where: {
-          // Include child events where parent participation is required
+          // Include sub-events where parent participation is required
           // AND
           // participant participates, is on waiting list, or is a guest
           AND: [
             {
               OR: [
-                { parentParticipationRequired: null },
+                {
+                  AND: [
+                    { parentParticipationRequired: null },
+                    { parentEvent: { parentParticipationRequired: true } },
+                  ],
+                },
                 { parentParticipationRequired: true },
               ],
             },
@@ -396,12 +424,15 @@ export async function removeParticipantFromEvent(options: {
           slug: true,
           name: true,
           startTime: true,
+          endTime: true,
           venueName: true,
           venueStreet: true,
           venueStreetNumber: true,
           venueZipCode: true,
           venueCity: true,
           conferenceLink: true,
+          conferenceCode: true,
+          participationToken: true,
           participants: {
             select: {
               profileId: true,
@@ -413,23 +444,40 @@ export async function removeParticipantFromEvent(options: {
             },
           },
           // Unconfirmed guest registrations are included on purpose - a pending
-          // registration on a child event has to be removed as well
+          // registration on a sub-event has to be removed as well
           guests: {
             select: {
               email: true,
               onWaitingList: true,
             },
+            where: {
+              confirmed: true,
+            },
           },
-          // For legacy reasons we need to check child events of child events
+          _count: {
+            select: {
+              childEvents: {
+                where: {
+                  published: true,
+                },
+              },
+            },
+          },
+          // For legacy reasons we need to check sub-events of sub-events
           childEvents: {
             where: {
               AND: [
-                // Include child events where parent participation is required
+                // Include sub-events where parent participation is required
                 // AND
                 // participant participates, is on waiting list, or is a guest
                 {
                   OR: [
-                    { parentParticipationRequired: null },
+                    {
+                      AND: [
+                        { parentParticipationRequired: null },
+                        { parentEvent: { parentParticipationRequired: true } },
+                      ],
+                    },
                     { parentParticipationRequired: true },
                   ],
                 },
@@ -441,14 +489,26 @@ export async function removeParticipantFromEvent(options: {
             select: {
               id: true,
               slug: true,
+              participationToken: true,
               name: true,
               startTime: true,
+              endTime: true,
               venueName: true,
               venueStreet: true,
               venueStreetNumber: true,
               venueZipCode: true,
               venueCity: true,
               conferenceLink: true,
+              conferenceCode: true,
+              _count: {
+                select: {
+                  childEvents: {
+                    where: {
+                      published: true,
+                    },
+                  },
+                },
+              },
               participants: {
                 select: {
                   profileId: true,
@@ -463,6 +523,9 @@ export async function removeParticipantFromEvent(options: {
                 select: {
                   email: true,
                   onWaitingList: true,
+                },
+                where: {
+                  confirmed: true,
                 },
               },
             },
@@ -484,13 +547,19 @@ export async function removeParticipantFromEvent(options: {
       slug: event.slug,
       name: event.name,
       startTime: event.startTime,
+      endTime: event.endTime,
       venueName: event.venueName,
       venueStreet: event.venueStreet,
       venueStreetNumber: event.venueStreetNumber,
       venueZipCode: event.venueZipCode,
       venueCity: event.venueCity,
       conferenceLink: event.conferenceLink,
+      conferenceCode: event.conferenceCode,
       removedFromWaitingList: false,
+      participationToken: event.participationToken,
+      _count: {
+        childEvents: event._count.childEvents,
+      },
     },
   ];
 
@@ -504,12 +573,18 @@ export async function removeParticipantFromEvent(options: {
     slug: string;
     name: string;
     startTime: Date;
+    endTime: Date;
     venueName: string | null;
     venueStreet: string | null;
     venueStreetNumber: string | null;
     venueZipCode: string | null;
     venueCity: string | null;
     conferenceLink: string | null;
+    conferenceCode: string | null;
+    participationToken: string | null;
+    _count: {
+      childEvents: number;
+    };
     participants: {
       profileId: string;
     }[];
@@ -529,7 +604,7 @@ export async function removeParticipantFromEvent(options: {
         ...rest,
       };
     });
-    // For legacy reasons we need to check child events of child events
+    // For legacy reasons we need to check sub-events of sub-events
     for (const childEvent of event.childEvents) {
       if (childEvent.childEvents.length > 0) {
         childEvents.push(...childEvent.childEvents);
@@ -537,7 +612,7 @@ export async function removeParticipantFromEvent(options: {
     }
   }
 
-  // Iterate over child events and remove the participant from them as well
+  // Iterate over sub-events and remove the participant from them as well
   for (const childEvent of childEvents) {
     const isParticipant = isParticipantOnEvent({
       identifier,
@@ -580,17 +655,14 @@ export async function removeParticipantFromEvent(options: {
       eventsParticipantHasBeenRemovedFrom.map(async (event) => {
         try {
           let recipient;
-          let subject;
           let firstName;
+
           if (type === "guest") {
             if (guest === null) {
               // This should never happen, but makes TypeScript happy
               return;
             }
             recipient = guest.email;
-            subject = insertParametersIntoLocale(locales.guestRemoved.subject, {
-              eventName: event.name,
-            });
             firstName = guest.firstName;
           } else {
             if (user === null) {
@@ -598,12 +670,6 @@ export async function removeParticipantFromEvent(options: {
               return;
             }
             recipient = user.email;
-            subject = insertParametersIntoLocale(
-              locales.removeFromParticipants.subject,
-              {
-                eventName: event.name,
-              }
-            );
             firstName = user.firstName;
           }
           const textTemplatePath =
@@ -611,25 +677,43 @@ export async function removeParticipantFromEvent(options: {
           const htmlTemplatePath =
             "mail-templates/event/profile-or-guest-removed-from-participants-or-waiting-list-html.hbs";
 
-          const data = {
-            headline: subject,
+          const content = {
+            headline: {
+              de: insertParametersIntoLocale(
+                event.removedFromWaitingList
+                  ? locales.removeFromWaitingList.subject.de
+                  : locales.removeFromParticipants.subject.de,
+                { eventName: event.name }
+              ),
+              en: insertParametersIntoLocale(
+                event.removedFromWaitingList
+                  ? locales.removeFromWaitingList.subject.en
+                  : locales.removeFromParticipants.subject.en,
+                { eventName: event.name }
+              ),
+            },
             profile: {
               firstName,
               isOnWaitingList: event.removedFromWaitingList,
             },
-            event: { name: event.name },
+            event: {
+              name: event.name,
+              url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail/about`,
+            },
           };
 
           const text = getCompiledMailTemplate<typeof textTemplatePath>(
             textTemplatePath,
-            data,
+            content,
             "text"
           );
           const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
             htmlTemplatePath,
-            data,
+            content,
             "html"
           );
+
+          const subject = `${content.headline.de} | ${content.headline.en}`;
 
           await scheduleMail({
             recipient,
@@ -673,7 +757,6 @@ export async function removeParticipantFromEvent(options: {
                 orderBy: {
                   createdAt: "asc",
                 },
-                take: 1,
               },
               guests: {
                 where: {
@@ -687,7 +770,6 @@ export async function removeParticipantFromEvent(options: {
                 orderBy: {
                   confirmedAt: "asc",
                 },
-                take: 1,
               },
             },
           });
@@ -698,8 +780,9 @@ export async function removeParticipantFromEvent(options: {
           const participatingGuestCount = eventData.guests.filter((guest) => {
             return guest.onWaitingList === false;
           }).length;
-          const guestsOnWaitingListCount =
-            eventData.guests.length - participatingGuestCount;
+          const guestsOnWaitingListCount = eventData.guests.filter((guest) => {
+            return guest.onWaitingList;
+          }).length;
 
           if (
             shouldMoveUpToParticipants({
@@ -713,10 +796,9 @@ export async function removeParticipantFromEvent(options: {
           ) {
             const nextOnWaitingList = getNextOnWaitingList({
               usersOnWaitingList: eventData.waitingList,
-              guestsOnWaitingList: eventData.guests as {
-                id: string;
-                confirmedAt: Date;
-              }[], // Type assertion because we know that confirmedAt is not null due to the where clause
+              guestsOnWaitingList: eventData.guests.filter(
+                (guest) => guest.onWaitingList
+              ),
             });
             if (nextOnWaitingList === null) {
               return null;
@@ -768,17 +850,30 @@ export async function removeParticipantFromEvent(options: {
           return;
         }
         const recipient = result.email;
-        const subject = insertParametersIntoLocale(
-          options.locales.moveFromWaitingListToParticipants.subject,
-          {
-            eventName: event.name,
-          }
-        );
 
         const zonedStartTime = utcToZonedTime(event.startTime, "Europe/Berlin");
+        const zonedEndTime = utcToZonedTime(event.endTime, "Europe/Berlin");
+
+        const date = {
+          de: getDuration(zonedStartTime, zonedEndTime, "de"),
+          en: getDuration(zonedStartTime, zonedEndTime, "en"),
+        };
 
         const content = {
-          headline: subject,
+          headline: {
+            de: insertParametersIntoLocale(
+              options.locales.moveFromWaitingListToParticipants.subject.de,
+              {
+                eventName: event.name,
+              }
+            ),
+            en: insertParametersIntoLocale(
+              options.locales.moveFromWaitingListToParticipants.subject.en,
+              {
+                eventName: event.name,
+              }
+            ),
+          },
           profile: {
             firstName: result.firstName,
             isGuest: result.type === "guest",
@@ -786,25 +881,19 @@ export async function removeParticipantFromEvent(options: {
           },
           event: {
             name: event.name,
-            url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail`,
-            startDate: zonedStartTime.toLocaleDateString("de-DE", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-            }),
-            startTime: zonedStartTime.toLocaleTimeString("de-DE", {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-            timezone: "MEZ",
+            url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail/about${result.type === "guest" ? `?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${event.participationToken}` : ""}`,
+            date,
             location: getVenueString(event),
             conferenceLink: event.conferenceLink,
+            conferenceCode: event.conferenceCode,
+            icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/ics-download`,
             revocationLink: null as string | null,
+            isParent: event._count?.childEvents > 0,
           },
         };
 
         if (result.type === "guest") {
-          const revocationLink = `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?type=revoke&confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?type=revoke&token_hash=${result.revocationToken}&confirmation_redirect=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail`)}`)}`;
+          const revocationLink = `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?type=revoke&confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?type=revoke&token_hash=${result.revocationToken}&confirmation_redirect=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail/about`)}`)}`;
           content.event.revocationLink = revocationLink;
         }
 
@@ -823,6 +912,9 @@ export async function removeParticipantFromEvent(options: {
           content,
           "html"
         );
+
+        const subject = `${content.headline.de} | ${content.headline.en}`;
+
         await scheduleMail({
           eventId: event.id,
           recipient,

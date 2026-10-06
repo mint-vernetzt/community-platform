@@ -15,7 +15,7 @@ export function CreateOrganization(props: {
     <div className="flex flex-col gap-4 group">
       <div className="flex-col @sm:flex-row gap-4 p-4 border border-neutral-200 rounded-2xl justify-between items-center flex">
         <div className="flex gap-2 @sm:gap-4 items-center w-full @sm:w-fit">
-          <div className="h-[72px] w-[72px] min-h-[72px] min-w-[72px]">
+          <div className="h-18 w-18 min-h-18 min-w-18">
             <Avatar size="full" name={props.name} />
           </div>
           <p className="text-primary text-sm font-bold line-clamp-2">

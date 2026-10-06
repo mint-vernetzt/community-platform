@@ -12,6 +12,8 @@ export const locale = {
       errorDetails: {
         headline: "Details zur Fehlermeldung",
       },
+      networkErrors:
+        "Du hast Netzwerkprobleme. Bitte versuche es später erneut.",
     },
     toLandingPage: "Zur Startseite",
     toDashboard: "Zum Dashboard",
@@ -60,6 +62,9 @@ export const locale = {
       },
       resources: {
         label: "Ressourcen",
+      },
+      getInvolved: {
+        label: "Mitmachen",
       },
       explore: {
         label: "Entdecken",
@@ -122,4 +127,5 @@ export const locale = {
       },
     },
   },
+  timezone: "MEZ",
 } as const;

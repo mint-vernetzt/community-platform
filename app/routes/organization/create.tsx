@@ -346,6 +346,7 @@ function CreateOrganization() {
         type="submit"
         hidden
         disabled={isSubmitting}
+        aria-label={locales.route.form.submit}
       />
       <TextButton
         as="link"

@@ -70,8 +70,9 @@ function SelectAdd(props: SelectAddProps) {
               name={`remove${uppercaseSingularName}`}
               value={entry.value}
               className="ml-auto bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-transparent text-neutral-600"
-              title="entfernen"
               disabled={isSubmitting}
+              // TODO: i18n with locales
+              aria-label="Remove entry"
             >
               <svg
                 fill="none"

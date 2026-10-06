@@ -68,6 +68,7 @@ import {
   updateNetworkRequest,
   updateOrganizationMemberInvite,
 } from "./organizations.server";
+import { safeStringify } from "~/lib/utils/json";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -1051,13 +1052,13 @@ export default function MyOrganizations() {
               searchForm.dirty &&
               typeof currentSearchQuery !== "undefined" ? (
               <CreateOrganization
-                name={String(currentSearchQuery)}
+                name={safeStringify(currentSearchQuery)}
                 locales={locales}
               />
             ) : typeof currentSearchQuery !== "undefined" &&
               searchForm.status !== "error" ? (
               <CreateOrganization
-                name={String(currentSearchQuery)}
+                name={safeStringify(currentSearchQuery)}
                 locales={locales}
               />
             ) : null}

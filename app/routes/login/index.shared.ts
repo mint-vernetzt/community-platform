@@ -1,11 +1,14 @@
 import { z } from "zod";
-import { type LandingPageLocales } from "../index.server";
-import { type NextLandingPageLocales } from "../next/index.server";
-import { type LoginLocales } from "./index.server";
 
-export const createLoginSchema = (
-  locales: LoginLocales | LandingPageLocales["route"] | NextLandingPageLocales
-) => {
+export const createLoginSchema = (locales: {
+  validation: {
+    email: string;
+    password: {
+      required: string;
+      min: string;
+    };
+  };
+}) => {
   return z.object({
     email: z
       .string({

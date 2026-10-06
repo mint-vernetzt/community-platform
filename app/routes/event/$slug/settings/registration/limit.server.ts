@@ -1,6 +1,8 @@
 import { captureException } from "@sentry/node";
 import { utcToZonedTime } from "date-fns-tz";
+import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "~/events.shared";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { getDuration } from "~/lib/utils/time";
 import { scheduleMail } from "~/mailer-queue.server";
 import { getCompiledMailTemplate } from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
@@ -16,6 +18,15 @@ export async function getEventBySlug(slug: string) {
       external: true,
       openForRegistration: true,
       parentParticipationRequired: true,
+      guests: {
+        where: {
+          confirmed: true,
+          onWaitingList: false,
+        },
+        select: {
+          id: true,
+        },
+      },
       _count: {
         select: {
           participants: true,
@@ -54,12 +65,15 @@ export async function updateEventById(options: {
   locales: {
     mail: {
       moveUpToParticipants: {
-        subject: string;
+        subject: {
+          de: string;
+          en: string;
+        };
       };
     };
   };
 }) {
-  const { eventId, data, moveUpToParticipantsAutomatically } = options;
+  const { eventId, data, moveUpToParticipantsAutomatically, locales } = options;
 
   const updatedEvent = await prismaClient.event.update({
     where: { id: eventId },
@@ -73,17 +87,31 @@ export async function updateEventById(options: {
         slug: true,
         name: true,
         startTime: true,
+        endTime: true,
         venueName: true,
         venueStreet: true,
         venueStreetNumber: true,
         venueZipCode: true,
         venueCity: true,
         conferenceLink: true,
+        conferenceCode: true,
         participantLimit: true,
+        participationToken: true,
         _count: {
           select: {
             participants: true,
+            guests: {
+              where: {
+                confirmed: true,
+                onWaitingList: false,
+              },
+            },
             waitingList: true,
+            childEvents: {
+              where: {
+                published: true,
+              },
+            },
           },
         },
         waitingList: {
@@ -118,8 +146,10 @@ export async function updateEventById(options: {
     }
     const participantsOffset =
       event.participantLimit !== null
-        ? event.participantLimit - event._count.participants
-        : event._count.waitingList;
+        ? event.participantLimit -
+          event._count.participants -
+          event._count.guests
+        : event._count.waitingList + event.guests.length;
 
     if (participantsOffset > 0) {
       const profilesToMoveUp = [
@@ -189,35 +219,40 @@ export async function updateEventById(options: {
       }
       await prismaClient.$transaction(transactions);
 
-      const subject = insertParametersIntoLocale(
-        options.locales.mail.moveUpToParticipants.subject,
-        {
-          eventName: event.name,
-        }
-      );
+      const zonedStartTime = utcToZonedTime(event.startTime, "Europe/Berlin");
+      const zonedEndTime = utcToZonedTime(event.endTime, "Europe/Berlin");
+
+      const date = {
+        de: getDuration(zonedStartTime, zonedEndTime, "de"),
+        en: getDuration(zonedStartTime, zonedEndTime, "en"),
+      };
+
       const textTemplatePath =
         "mail-templates/event/profile-or-guest-moved-up-to-participants-text.hbs";
       const htmlTemplatePath =
         "mail-templates/event/profile-or-guest-moved-up-to-participants-html.hbs";
 
-      const url = `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail`;
-      const zonedStartTime = utcToZonedTime(event.startTime, "Europe/Berlin");
-      const startDate = zonedStartTime.toLocaleDateString("de-DE", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      });
-      const startTime = zonedStartTime.toLocaleTimeString("de-DE", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
       const location = getVenueString(event);
 
       void Promise.all(
         profilesToMoveUp.map(async (profile) => {
+          const url = `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail/about${profile.type === "guest" ? `?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${event.participationToken}` : ""}`;
           try {
             const content = {
-              headline: subject,
+              headline: {
+                de: insertParametersIntoLocale(
+                  locales.mail.moveUpToParticipants.subject.de,
+                  {
+                    eventName: event.name,
+                  }
+                ),
+                en: insertParametersIntoLocale(
+                  locales.mail.moveUpToParticipants.subject.en,
+                  {
+                    eventName: event.name,
+                  }
+                ),
+              },
               profile: {
                 firstName: profile.firstName,
                 isGuest: profile.type === "guest",
@@ -225,12 +260,13 @@ export async function updateEventById(options: {
               event: {
                 name: event.name,
                 url,
-                startDate,
-                startTime,
-                timezone: "MEZ",
+                date,
                 location,
                 conferenceLink: event.conferenceLink,
+                conferenceCode: event.conferenceCode,
+                icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/ics-download`,
                 revocationLink: null as string | null,
+                isParent: event._count.childEvents > 0,
               },
             };
 
@@ -250,6 +286,9 @@ export async function updateEventById(options: {
               content,
               "html"
             );
+
+            const subject = `${content.headline.de} | ${content.headline.en}`;
+
             await scheduleMail({
               eventId,
               recipient,

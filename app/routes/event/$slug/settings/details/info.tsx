@@ -139,7 +139,7 @@ export async function action(args: ActionFunctionArgs) {
   const formData = await request.formData();
 
   const schema = createEventDetailsSchema(locales.route.form.validation);
-  const submission = await parseWithZod(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
   if (submission.status !== "success") {
     return submission.reply();
@@ -149,7 +149,7 @@ export async function action(args: ActionFunctionArgs) {
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   try {
-    const { experienceLevelList: ignored, ...rest } = submission.value;
+    const { experienceLevelList: _ignored, ...rest } = submission.value;
     await updateEventBySlug(params.slug, event.id, rest);
   } catch (error) {
     captureException(error);

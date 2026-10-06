@@ -20,16 +20,13 @@ export function hasContent(
 export function getVenueString(options: {
   venueName: string | null;
   venueStreet: string | null;
-  venueStreetNumber: string | null;
   venueZipCode: string | null;
   venueCity: string | null;
 }): string | undefined {
-  const { venueName, venueStreet, venueStreetNumber, venueZipCode, venueCity } =
-    options;
+  const { venueName, venueStreet, venueZipCode, venueCity } = options;
   if (
     hasContent(venueName) === false &&
     hasContent(venueStreet) === false &&
-    hasContent(venueStreetNumber) === false &&
     hasContent(venueZipCode) === false &&
     hasContent(venueCity) === false
   ) {
@@ -40,16 +37,14 @@ export function getVenueString(options: {
     parts.push(venueName);
   }
   if (hasContent(venueStreet)) {
-    if (hasContent(venueStreetNumber)) {
-      parts.push(`${venueStreet} ${venueStreetNumber}`);
-    }
     parts.push(venueStreet);
   }
   if (hasContent(venueCity)) {
     if (hasContent(venueZipCode)) {
       parts.push(`${venueZipCode} ${venueCity}`);
+    } else {
+      parts.push(venueCity);
     }
-    parts.push(venueCity);
   }
   return parts.join(", ");
 }

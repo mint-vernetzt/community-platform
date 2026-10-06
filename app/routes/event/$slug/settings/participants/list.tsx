@@ -1,7 +1,7 @@
 import { parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { captureException } from "@sentry/node";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Form,
   Link,
@@ -78,8 +78,7 @@ export async function loader(args: LoaderFunctionArgs) {
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   if (event.published === false || event.external) {
-    const deep = searchParams.get(Deep);
-    return redirect(`../../time-period?${Deep}=${deep}`);
+    return redirect(`../../time-period`);
   }
 
   const result = await getParticipantsOfEvent({
@@ -92,7 +91,9 @@ export async function loader(args: LoaderFunctionArgs) {
   const hasNoParticipants =
     participants.length === 0 &&
     event.childEvents.every((childEvent) => {
-      return childEvent.participants.length === 0;
+      return (
+        childEvent.participants.length === 0 && childEvent.guests.length === 0
+      );
     });
 
   if (hasNoParticipants) {
@@ -103,13 +104,28 @@ export async function loader(args: LoaderFunctionArgs) {
     .flatMap((childEvent) =>
       childEvent.participants.map((relation) => relation.profileId)
     )
-    .concat(participants.map((participant) => participant.id));
+    .concat(
+      participants
+        .filter((participant) => participant.type === "user")
+        .map((participant) => participant.id)
+    );
 
   const uniqueParticipantIds = Array.from(
     new Set(flatAggregatedParticipantIds)
   );
 
-  const fullDepthParticipantsCount = uniqueParticipantIds.length;
+  const flatAggregatedGuestEmails = event.childEvents
+    .flatMap((childEvent) => childEvent.guests.map((guest) => guest.email))
+    .concat(
+      participants
+        .filter((participant) => participant.type === "guest")
+        .map((participant) => participant.email)
+    );
+
+  const uniqueGuestEmails = Array.from(new Set(flatAggregatedGuestEmails));
+
+  const fullDepthParticipantsCount =
+    uniqueParticipantIds.length + uniqueGuestEmails.length;
 
   return {
     locales,
@@ -156,7 +172,7 @@ export async function action(args: ActionFunctionArgs) {
   }
 
   const formData = await request.formData();
-  const submission = await parseWithZod(formData, {
+  const submission = parseWithZod(formData, {
     schema: createRemoveParticipantSchema(),
   });
 
@@ -176,9 +192,36 @@ export async function action(args: ActionFunctionArgs) {
       type: submission.value.participationType,
       locales: {
         mail: {
-          removeFromParticipants: locales.route.mail.removeParticipant,
-          moveFromWaitingListToParticipants:
-            locales.route.mail.moveFromWaitingListToParticipants,
+          removeFromParticipants: {
+            subject: {
+              de: languageModuleMap["de"][
+                "event/$slug/settings/participants/list"
+              ].route.mail.removeFromParticipants.subject,
+              en: languageModuleMap["en"][
+                "event/$slug/settings/participants/list"
+              ].route.mail.removeFromParticipants.subject,
+            },
+          },
+          moveFromWaitingListToParticipants: {
+            subject: {
+              de: languageModuleMap["de"][
+                "event/$slug/settings/participants/list"
+              ].route.mail.moveFromWaitingListToParticipants.subject,
+              en: languageModuleMap["en"][
+                "event/$slug/settings/participants/list"
+              ].route.mail.moveFromWaitingListToParticipants.subject,
+            },
+          },
+          removeFromWaitingList: {
+            subject: {
+              de: languageModuleMap["de"][
+                "event/$slug/settings/participants/list"
+              ].route.mail.removeFromWaitingList.subject,
+              en: languageModuleMap["en"][
+                "event/$slug/settings/participants/list"
+              ].route.mail.removeFromWaitingList.subject,
+            },
+          },
         },
       },
     });
@@ -203,15 +246,18 @@ export async function action(args: ActionFunctionArgs) {
 function ParticipantsList() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales, language, event, fullDepthParticipantsCount } = loaderData;
-
-  const [participants, setParticipants] = useState(loaderData.participants);
-
-  useEffect(() => {
-    setParticipants(loaderData.participants);
-  }, [loaderData.participants]);
-
   const location = useLocation();
   const [searchParams] = useSearchParams();
+
+  const [participants, setParticipants] = useState(loaderData.participants);
+  const [syncedParticipants, setSyncedParticipants] = useState(
+    loaderData.participants
+  );
+
+  if (syncedParticipants !== loaderData.participants) {
+    setParticipants(loaderData.participants);
+    setSyncedParticipants(loaderData.participants);
+  }
 
   return (
     <>

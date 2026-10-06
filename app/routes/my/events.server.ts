@@ -12,6 +12,7 @@ import {
   mailerOptions,
 } from "~/mailer.server";
 import { captureException } from "@sentry/node";
+import { updateFilterVectorOfEvent } from "../event/$slug/settings/utils.server";
 
 export type MyEventsLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES
@@ -50,6 +51,15 @@ export async function getEvents(options: {
     stage: {
       select: {
         slug: true,
+      },
+    },
+    guests: {
+      where: {
+        confirmed: true,
+      },
+      select: {
+        id: true,
+        onWaitingList: true,
       },
     },
     _count: {
@@ -178,6 +188,8 @@ export async function getEvents(options: {
       ...event,
       background,
       blurredBackground,
+      participatingGuests: event.guests.filter((guest) => !guest.onWaitingList),
+      waitingGuests: event.guests.filter((guest) => guest.onWaitingList),
     };
   });
   const enhancedTeamMemberEvents = teamMemberEvents.map((event) => {
@@ -207,6 +219,8 @@ export async function getEvents(options: {
       ...event,
       background,
       blurredBackground,
+      participatingGuests: event.guests.filter((guest) => !guest.onWaitingList),
+      waitingGuests: event.guests.filter((guest) => guest.onWaitingList),
     };
   });
   const enhancedSpeakerEvents = speakerEvents.map((event) => {
@@ -236,6 +250,8 @@ export async function getEvents(options: {
       ...event,
       background,
       blurredBackground,
+      participatingGuests: event.guests.filter((guest) => !guest.onWaitingList),
+      waitingGuests: event.guests.filter((guest) => guest.onWaitingList),
     };
   });
   const enhancedParticipantEvents = participantEvents.map((event) => {
@@ -265,6 +281,8 @@ export async function getEvents(options: {
       ...event,
       background,
       blurredBackground,
+      participatingGuests: event.guests.filter((guest) => !guest.onWaitingList),
+      waitingGuests: event.guests.filter((guest) => guest.onWaitingList),
     };
   });
   const enhancedWaitingListEvents = waitingListEvents.map((event) => {
@@ -294,6 +312,8 @@ export async function getEvents(options: {
       ...event,
       background,
       blurredBackground,
+      participatingGuests: event.guests.filter((guest) => !guest.onWaitingList),
+      waitingGuests: event.guests.filter((guest) => guest.onWaitingList),
     };
   });
   const enhancedResponsibleOrganizationEvents =
@@ -324,6 +344,10 @@ export async function getEvents(options: {
         ...event,
         background,
         blurredBackground,
+        participatingGuests: event.guests.filter(
+          (guest) => !guest.onWaitingList
+        ),
+        waitingGuests: event.guests.filter((guest) => guest.onWaitingList),
       };
     });
 
@@ -384,6 +408,12 @@ export async function getEventInvites(options: {
             _count: {
               select: {
                 participants: true,
+                guests: {
+                  where: {
+                    confirmed: true,
+                    onWaitingList: false,
+                  },
+                },
                 waitingList: true,
               },
             },
@@ -429,6 +459,12 @@ export async function getEventInvites(options: {
             _count: {
               select: {
                 participants: true,
+                guests: {
+                  where: {
+                    confirmed: true,
+                    onWaitingList: false,
+                  },
+                },
                 waitingList: true,
               },
             },
@@ -479,6 +515,12 @@ export async function getEventInvites(options: {
             _count: {
               select: {
                 participants: true,
+                guests: {
+                  where: {
+                    confirmed: true,
+                    onWaitingList: false,
+                  },
+                },
                 waitingList: true,
               },
             },
@@ -542,7 +584,8 @@ export async function getEventInvites(options: {
       ...invite.event,
       background,
       blurredBackground,
-      participantCount: invite.event._count.participants,
+      participantCount:
+        invite.event._count.participants + invite.event._count.guests,
     };
 
     return {
@@ -620,6 +663,12 @@ export async function getEventsWithPendingRequests(
               _count: {
                 select: {
                   participants: true,
+                  guests: {
+                    where: {
+                      confirmed: true,
+                      onWaitingList: false,
+                    },
+                  },
                 },
               },
             },
@@ -704,7 +753,10 @@ export async function acceptInviteAsAdmin(options: {
   eventId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -778,7 +830,7 @@ export async function acceptInviteAsAdmin(options: {
   });
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/invites/profile-to-join-event/as-admin-accepted-text.hbs";
   const htmlTemplatePath =
@@ -831,7 +883,10 @@ export async function rejectInviteAsAdmin(options: {
   eventId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -890,7 +945,7 @@ export async function rejectInviteAsAdmin(options: {
   });
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/invites/profile-to-join-event/as-admin-rejected-text.hbs";
   const htmlTemplatePath =
@@ -939,7 +994,10 @@ export async function acceptInviteAsTeamMember(options: {
   eventId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -1013,7 +1071,7 @@ export async function acceptInviteAsTeamMember(options: {
   });
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/invites/profile-to-join-event/as-member-accepted-text.hbs";
   const htmlTemplatePath =
@@ -1066,7 +1124,10 @@ export async function rejectInviteAsTeamMember(options: {
   eventId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -1125,7 +1186,7 @@ export async function rejectInviteAsTeamMember(options: {
   });
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/invites/profile-to-join-event/as-member-rejected-text.hbs";
   const htmlTemplatePath =
@@ -1174,7 +1235,10 @@ export async function acceptInviteAsSpeaker(options: {
   eventId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -1248,7 +1312,7 @@ export async function acceptInviteAsSpeaker(options: {
   });
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/invites/profile-to-join-event/as-speaker-accepted-text.hbs";
   const htmlTemplatePath =
@@ -1301,7 +1365,10 @@ export async function rejectInviteAsSpeaker(options: {
   eventId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -1360,7 +1427,7 @@ export async function rejectInviteAsSpeaker(options: {
   });
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/invites/profile-to-join-event/as-speaker-rejected-text.hbs";
   const htmlTemplatePath =
@@ -1409,7 +1476,10 @@ export async function acceptInviteAsParticipant(options: {
   eventId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -1523,7 +1593,7 @@ export async function acceptInviteAsParticipant(options: {
   );
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/invites/profile-to-join-event/as-participant-accepted-text.hbs";
   const htmlTemplatePath =
@@ -1576,7 +1646,10 @@ export async function rejectInviteAsParticipant(options: {
   eventId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -1635,7 +1708,7 @@ export async function rejectInviteAsParticipant(options: {
   );
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/invites/profile-to-join-event/as-participant-rejected-text.hbs";
   const htmlTemplatePath =
@@ -1685,7 +1758,10 @@ export async function acceptInviteAsResponsibleOrganization(options: {
   eventId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -1728,6 +1804,10 @@ export async function acceptInviteAsResponsibleOrganization(options: {
     },
   });
 
+  updateFilterVectorOfEvent(eventId).catch((error) => {
+    captureException(error);
+  });
+
   const result =
     await prismaClient.inviteForOrganizationToBeResponsibleForEvent.update({
       where: {
@@ -1765,7 +1845,7 @@ export async function acceptInviteAsResponsibleOrganization(options: {
     });
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/invites/organization-to-join-event/accepted-text.hbs";
   const htmlTemplatePath =
@@ -1817,7 +1897,10 @@ export async function rejectInviteAsResponsibleOrganization(options: {
   eventId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -1883,7 +1966,7 @@ export async function rejectInviteAsResponsibleOrganization(options: {
     });
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/invites/organization-to-join-event/rejected-text.hbs";
   const htmlTemplatePath =

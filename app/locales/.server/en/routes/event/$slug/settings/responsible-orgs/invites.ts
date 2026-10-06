@@ -20,7 +20,7 @@ export const locale = {
   },
   mail: {
     cancelledInvitation: {
-      subject: "Die Einladung wurde zurückgezogen",
+      subject: "Invitation Cancelled",
     },
   },
   errors: {

@@ -162,7 +162,7 @@ export async function action(args: ActionFunctionArgs) {
     "invalid intent",
     { status: 400 }
   );
-  const submission = await parseWithZod(formData, {
+  const submission = parseWithZod(formData, {
     schema: createAcceptOrRejectInviteOrRequestSchema(),
   });
 
@@ -178,7 +178,14 @@ export async function action(args: ActionFunctionArgs) {
         userId: sessionUser.id,
         eventId: submission.value[EVENT_ID],
         locales: {
-          mail: locales.route.mail.inviteAsAdminAccepted,
+          mail: {
+            subject: {
+              de: languageModuleMap.de["my/events"].route.mail
+                .inviteAsAdminAccepted.subject,
+              en: languageModuleMap.en["my/events"].route.mail
+                .inviteAsAdminAccepted.subject,
+            },
+          },
         },
       });
       toastMessage = locales.route.success.acceptInviteAsAdmin;
@@ -197,7 +204,14 @@ export async function action(args: ActionFunctionArgs) {
         userId: sessionUser.id,
         eventId: submission.value[EVENT_ID],
         locales: {
-          mail: locales.route.mail.inviteAsAdminRejected,
+          mail: {
+            subject: {
+              de: languageModuleMap.de["my/events"].route.mail
+                .inviteAsAdminRejected.subject,
+              en: languageModuleMap.en["my/events"].route.mail
+                .inviteAsAdminRejected.subject,
+            },
+          },
         },
       });
       toastMessage = locales.route.success.rejectInviteAsAdmin;
@@ -216,7 +230,14 @@ export async function action(args: ActionFunctionArgs) {
         userId: sessionUser.id,
         eventId: submission.value[EVENT_ID],
         locales: {
-          mail: locales.route.mail.inviteAsTeamMemberAccepted,
+          mail: {
+            subject: {
+              de: languageModuleMap.de["my/events"].route.mail
+                .inviteAsTeamMemberAccepted.subject,
+              en: languageModuleMap.en["my/events"].route.mail
+                .inviteAsTeamMemberAccepted.subject,
+            },
+          },
         },
       });
       toastMessage = locales.route.success.acceptInviteAsTeamMember;
@@ -236,7 +257,14 @@ export async function action(args: ActionFunctionArgs) {
         userId: sessionUser.id,
         eventId: submission.value[EVENT_ID],
         locales: {
-          mail: locales.route.mail.inviteAsTeamMemberRejected,
+          mail: {
+            subject: {
+              de: languageModuleMap.de["my/events"].route.mail
+                .inviteAsTeamMemberRejected.subject,
+              en: languageModuleMap.en["my/events"].route.mail
+                .inviteAsTeamMemberRejected.subject,
+            },
+          },
         },
       });
       toastMessage = locales.route.success.rejectInviteAsTeamMember;
@@ -255,7 +283,14 @@ export async function action(args: ActionFunctionArgs) {
         userId: sessionUser.id,
         eventId: submission.value[EVENT_ID],
         locales: {
-          mail: locales.route.mail.inviteAsSpeakerAccepted,
+          mail: {
+            subject: {
+              de: languageModuleMap.de["my/events"].route.mail
+                .inviteAsSpeakerAccepted.subject,
+              en: languageModuleMap.en["my/events"].route.mail
+                .inviteAsSpeakerAccepted.subject,
+            },
+          },
         },
       });
       toastMessage = locales.route.success.acceptInviteAsSpeaker;
@@ -274,7 +309,14 @@ export async function action(args: ActionFunctionArgs) {
         userId: sessionUser.id,
         eventId: submission.value[EVENT_ID],
         locales: {
-          mail: locales.route.mail.inviteAsSpeakerRejected,
+          mail: {
+            subject: {
+              de: languageModuleMap.de["my/events"].route.mail
+                .inviteAsSpeakerRejected.subject,
+              en: languageModuleMap.en["my/events"].route.mail
+                .inviteAsSpeakerRejected.subject,
+            },
+          },
         },
       });
       toastMessage = locales.route.success.rejectInviteAsSpeaker;
@@ -293,7 +335,14 @@ export async function action(args: ActionFunctionArgs) {
         userId: sessionUser.id,
         eventId: submission.value[EVENT_ID],
         locales: {
-          mail: locales.route.mail.inviteAsParticipantAccepted,
+          mail: {
+            subject: {
+              de: languageModuleMap.de["my/events"].route.mail
+                .inviteAsParticipantAccepted.subject,
+              en: languageModuleMap.en["my/events"].route.mail
+                .inviteAsParticipantAccepted.subject,
+            },
+          },
         },
       });
       toastMessage = locales.route.success.acceptInviteAsParticipant;
@@ -312,7 +361,14 @@ export async function action(args: ActionFunctionArgs) {
         userId: sessionUser.id,
         eventId: submission.value[EVENT_ID],
         locales: {
-          mail: locales.route.mail.inviteAsParticipantRejected,
+          mail: {
+            subject: {
+              de: languageModuleMap.de["my/events"].route.mail
+                .inviteAsParticipantRejected.subject,
+              en: languageModuleMap.en["my/events"].route.mail
+                .inviteAsParticipantRejected.subject,
+            },
+          },
         },
       });
       toastMessage = locales.route.success.rejectInviteAsParticipant;
@@ -335,7 +391,14 @@ export async function action(args: ActionFunctionArgs) {
         organizationId: submission.value[ORGANIZATION_ID],
         eventId: submission.value[EVENT_ID],
         locales: {
-          mail: locales.route.mail.inviteAsResponsibleOrganizationAccepted,
+          mail: {
+            subject: {
+              de: languageModuleMap.de["my/events"].route.mail
+                .inviteAsResponsibleOrganizationAccepted.subject,
+              en: languageModuleMap.en["my/events"].route.mail
+                .inviteAsResponsibleOrganizationAccepted.subject,
+            },
+          },
         },
       });
       toastMessage =
@@ -359,7 +422,14 @@ export async function action(args: ActionFunctionArgs) {
         organizationId: submission.value[ORGANIZATION_ID],
         eventId: submission.value[EVENT_ID],
         locales: {
-          mail: locales.route.mail.inviteAsResponsibleOrganizationRejected,
+          mail: {
+            subject: {
+              de: languageModuleMap.de["my/events"].route.mail
+                .inviteAsResponsibleOrganizationRejected.subject,
+              en: languageModuleMap.en["my/events"].route.mail
+                .inviteAsResponsibleOrganizationRejected.subject,
+            },
+          },
         },
       });
       toastMessage =
@@ -825,7 +895,10 @@ function MyEvents() {
                     />
                     <ListItemEvent.Info
                       {...event.childEvent}
-                      participantCount={event.childEvent._count.participants}
+                      participantCount={
+                        event.childEvent._count.participants +
+                        event.childEvent._count.guests
+                      }
                       stage={event.childEvent.stage}
                       locales={{
                         stages: loaderData.locales.stages,

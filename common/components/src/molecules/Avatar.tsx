@@ -30,12 +30,12 @@ function Avatar(props: AvatarProps) {
   const classes = classNames(
     {
       "w-full aspect-[1]": size === "full",
-      "h-[136px] w-[136px]": size === "xl",
-      "h-[44px] w-[44px]": size === "lg",
-      "h-[40px] w-[40px]": size === "md",
-      "h-[36px] w-[36px]": size === "sm",
-      "h-[24px] w-[24px]": size === "xs",
-      "h-[20px] w-[20px]": size === "xxs",
+      "h-34 w-34": size === "xl",
+      "h-11 w-11": size === "lg",
+      "h-10 w-10": size === "md",
+      "h-9 w-9": size === "sm",
+      "h-6 w-6": size === "xs",
+      "h-5 w-5": size === "xxs",
     },
     {
       "text-[70px]": size === "xl" || textSize === "xl",
@@ -120,7 +120,7 @@ function MoreIndicator(props: MoreIndicatorProps) {
       "text-sm": props.amount < 100,
       "text-xs": props.amount >= 100,
     },
-    "w-[36px] h-[36px] bg-gray-200 text-gray-700 font-semibold rounded-full flex items-center justify-center",
+    "w-9 h-9 bg-gray-200 text-gray-700 font-semibold rounded-full flex items-center justify-center",
     props.to && "hover:shadow-md active:shadow-md focus:shadow-md"
   );
   return props.to ? (

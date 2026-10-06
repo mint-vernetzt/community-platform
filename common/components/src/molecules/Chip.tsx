@@ -180,7 +180,7 @@ export function ChipContainer(props: ChipContainerProps) {
   });
   const classes = classNames(
     {
-      "h-[72px]": props.maxRows === 2,
+      "h-18": props.maxRows === 2,
       "overflow-hidden": props.maxRows !== undefined,
     },
     "flex flex-wrap gap-2"

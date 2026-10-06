@@ -5,7 +5,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
   const url = new URL(request.url);
   const cookieHeader = request.headers.get("Cookie");
-  const cookie = (await viewCookie.parse(cookieHeader)) as null | any;
+  const cookie = await viewCookie.parse(cookieHeader);
   if (cookie === null) {
     return redirect(`./list?${url.searchParams.toString()}`);
   }

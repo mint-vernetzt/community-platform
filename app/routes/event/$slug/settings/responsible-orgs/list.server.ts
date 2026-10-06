@@ -14,6 +14,7 @@ import {
 } from "~/mailer.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { captureException } from "@sentry/node";
+import { updateFilterVectorOfEvent } from "../utils.server";
 
 export async function getResponsibleOrgsOfEvent(options: {
   slug: string;
@@ -156,10 +157,15 @@ export async function removeResponsibleOrgFromEvent(options: {
       },
       event: {
         select: {
+          id: true,
           name: true,
         },
       },
     },
+  });
+
+  updateFilterVectorOfEvent(result.event.id).catch((error) => {
+    captureException(error);
   });
 
   const sender = process.env.SYSTEM_MAIL_SENDER;

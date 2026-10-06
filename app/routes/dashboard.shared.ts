@@ -3,6 +3,15 @@ import { type loader } from "./dashboard";
 import { type TeaserIconType } from "~/components-next/TeaserCard";
 import { type AtLeastOne } from "~/lib/utils/types";
 
+export const HIDE_NEWS_COOKIE_NAME = "mv-hide-news" as const;
+export const HIDE_UPDATES_COOKIE_NAME = "mv-hide-updates" as const;
+export const HIDE_NOTIFICATIONS_COOKIE_NAME = "mv-hide-notifications" as const;
+
+export const DASHBOARD_PREFERENCES_COOKIE_VALUES = {
+  true: "true",
+  false: "false",
+} as const;
+
 export function getDataForUpdateTeasers() {
   type UpdateTeaserKey = keyof Awaited<
     ReturnType<typeof useLoaderData<typeof loader>>

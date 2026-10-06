@@ -1,3 +1,4 @@
+import { captureException } from "@sentry/node";
 import { redirect, type LoaderFunctionArgs } from "react-router";
 import {
   createAuthClient,
@@ -5,12 +6,10 @@ import {
   resetInactivityReminderState,
 } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
-import { prismaClient } from "~/prisma.server";
-import { createProfile, sendWelcomeMail } from "../register/utils.server";
-import { generateValidSlug, isBotRequest } from "~/utils.server";
-import { captureException } from "@sentry/node";
-import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
+import { prismaClient } from "~/prisma.server";
+import { generateValidSlug, isBotRequest } from "~/utils.server";
+import { createProfile, sendWelcomeMail } from "../register/utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -29,8 +28,6 @@ export async function loader(args: LoaderFunctionArgs) {
   if (sessionUser !== null) {
     return redirect("/dashboard");
   }
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["auth/keycloak.callback"];
   const url = new URL(request.url);
   const urlSearchParams = new URLSearchParams(url.searchParams);
   const code = urlSearchParams.get("code");
@@ -69,7 +66,19 @@ export async function loader(args: LoaderFunctionArgs) {
       "Did not provide necessary user meta data to create a corresponding profile after sign up.",
       { status: 400 }
     );
-    sendWelcomeMail({ profile, locales }).catch((error) => {
+    sendWelcomeMail({
+      profile,
+      locales: {
+        mail: {
+          subject: {
+            de: languageModuleMap["de"]["auth/keycloak.callback"].welcomeEmail
+              .subject,
+            en: languageModuleMap["en"]["auth/keycloak.callback"].welcomeEmail
+              .subject,
+          },
+        },
+      },
+    }).catch((error) => {
       captureException(error);
     });
     return redirect(loginRedirect || `/profile/${profile.username}`, {

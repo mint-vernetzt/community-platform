@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { createElement } from "react";
+import { createElement, type ElementType } from "react";
 import {
   Link as ReactRouterLink,
   type LinkProps as ReactRouterLinkProps,
@@ -10,7 +10,7 @@ interface LinkProps {
   variant?: "primary";
   active?: boolean;
   className?: string;
-  as?: string | React.ElementType;
+  as?: ElementType;
   isExternal?: boolean;
   prefetch?: ReactRouterLinkProps["prefetch"];
 }

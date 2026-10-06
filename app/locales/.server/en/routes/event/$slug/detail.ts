@@ -7,8 +7,8 @@ export const locale = {
       label: "Closed event",
       subline: "Participation only for invited guests",
     },
-    registrationOnChildEvents: "Registration via child events",
-    parentParticipationRequired: "Please register for the parent event first",
+    registrationOnChildEvents: "Registration via sub-events",
+    parentParticipationRequired: "Please register for the main event first",
     unlimitedSeats: "Unlimited seats",
     seatsFree: "seats free",
     waitingListAvailable: "Seats on waiting list available",
@@ -19,7 +19,7 @@ export const locale = {
     hybrid: "Hybrid Event",
     details: "Event details",
     participants: "Participants",
-    childEvents: "Child events",
+    childEvents: "Sub-events",
     inPast: "Event has already taken place",
     beforeParticipationPeriod:
       "Registration period starts on {{date}} at {{time}} (CET)",
@@ -81,7 +81,7 @@ export const locale = {
           waitingList:
             "People on the waiting list would move up if you withdraw your participation. You can then only join the waiting list.",
           childEvents:
-            "By withdrawing your participation in the parent event, your participation and waiting list spots in the following child events would also be withdrawn:",
+            "By withdrawing your participation in the main event, your participation and waiting list spots in the following sub-events would also be withdrawn:",
         },
         submit: "Withdraw participation",
         abort: "Cancel",
@@ -108,6 +108,8 @@ export const locale = {
       close: "Close",
     },
     contactPerson: "Contact person",
+    copyEmail: "Copy email",
+    copyPhone: "Copy phone number",
     participateOnEventIntentModal: {
       title: "Do you want to participate in this event?",
       description: {
@@ -202,36 +204,33 @@ export const locale = {
   },
   mail: {
     participate: {
-      subject: "Deine Anmeldung zum Event {{eventName}}",
+      subject: "Your registration for the event {{eventName}}",
     },
     waitingList: {
-      subject: "Du wurdest auf die Warteliste des Events {{eventName}} gesetzt",
+      subject:
+        "You have been added to the waiting list for the event {{eventName}}",
     },
     moveFromWaitingListToParticipants: {
       subject:
-        "Du wurdest von der Warteliste zu den Teilnehmenden eines Events hinzugefügt",
+        "You have been moved from the waiting list to the participants of the event {{eventName}}",
     },
     removeFromParticipants: {
       subject:
-        "Du wurdest von den Teilnehmenden des Events {{eventName}} entfernt",
+        "You have been removed from the participants of the event {{eventName}}",
     },
     removeFromWaitingList: {
       subject:
-        "Du wurdest von der Warteliste des Events {{eventName}} entfernt",
-    },
-    guestRemoved: {
-      subject:
-        "Du wurdest von den Teilnehmenden des Events {{eventName}} entfernt",
+        "You have been removed from the waiting list for the event {{eventName}}",
     },
     profileAlreadyExists: {
-      subject:
-        "Deine E-Mail-Adresse wurde benutzt, um sich als Gast an einem Event anzumelden.",
+      subject: "Your email was used to register as a guest",
     },
     guestAlreadyExists: {
-      subject: "Du bist bereits als Gast für das Event angemeldet.",
+      subject:
+        "You are already registered as a guest for the event {{eventName}}",
     },
     confirmRegistration: {
-      subject: "Bitte bestätige Deine Anmeldung für das Event",
+      subject: "Please confirm your registration for the event {{eventName}}",
     },
   },
 } as const;

@@ -1,6 +1,7 @@
 import { parseWithZod } from "@conform-to/zod";
 import { captureException } from "@sentry/node";
 import { type SupabaseClient, type User } from "@supabase/supabase-js";
+import { utcToZonedTime } from "date-fns-tz";
 import { z } from "zod";
 import {
   getReporter,
@@ -14,6 +15,8 @@ import { removeParticipantFromEvent } from "~/events.server";
 import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "~/events.shared";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { getDuration } from "~/lib/utils/time";
+import { scheduleMail } from "~/mailer-queue.server";
 import {
   getCompiledMailTemplate,
   mailer,
@@ -24,10 +27,8 @@ import { filterProfileByVisibility } from "~/public-fields-filtering.server";
 import { getPublicURL, uploadFileToStorage } from "~/storage.server";
 import { FILE_FIELD_NAME } from "~/storage.shared";
 import { generateValidationToken } from "~/utils.server";
-import { PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM } from "./details.shared";
-import { scheduleMail } from "~/mailer-queue.server";
 import { getVenueString } from "~/utils.shared";
-import { utcToZonedTime } from "date-fns-tz";
+import { PARTICIPATE_ON_EVENT_INTENT_SEARCH_PARAM } from "./details.shared";
 
 export async function getEventBySlug(
   sessionUser: { id: string } | null,
@@ -149,16 +150,18 @@ export async function getEventBySlug(
           },
         },
       },
+      guests: {
+        where: {
+          confirmed: true,
+        },
+        select: {
+          onWaitingList: true,
+        },
+      },
       _count: {
         select: {
           participants: true,
           waitingList: true,
-          guests: {
-            where: {
-              confirmed: true,
-              onWaitingList: false,
-            },
-          },
           childEvents: {
             where: {
               OR: [
@@ -240,13 +243,15 @@ function getIsAnyoneAbleToParticipateInEvent(event: {
   afterParticipationPeriod: boolean;
   canceled: boolean;
   external: boolean;
+  published: boolean;
 }) {
   if (
     event.inPast === false &&
     event.beforeParticipationPeriod === false &&
     event.afterParticipationPeriod === false &&
     event.canceled === false &&
-    event.external === false
+    event.external === false &&
+    event.published === true
   ) {
     return true;
   }
@@ -269,7 +274,7 @@ export async function deriveModeForEvent(options: {
     parentParticipationRequired: boolean | null;
     hasChildEvents: boolean;
     participationToken?: string | null;
-
+    published: boolean;
     parentEvent: {
       parentParticipationRequired: boolean | null;
       participationToken?: string | null;
@@ -289,7 +294,7 @@ export async function deriveModeForEvent(options: {
     if (isAnyoneAbleToParticipate === false) {
       return null;
     }
-    // Check if user should participate on child event
+    // Check if user should participate on sub-event
     if (
       eventInfo.hasChildEvents &&
       eventInfo.parentParticipationRequired === false
@@ -306,19 +311,20 @@ export async function deriveModeForEvent(options: {
       return null;
     }
 
-    // Check if user on child event
+    // Check if user on sub-event
     if (eventInfo.parentEvent !== null) {
-      // Check if user can participate on child event
+      // Check if user can participate on sub-event
       if (
         eventInfo.parentEvent.parentParticipationRequired === false ||
+        eventInfo.parentParticipationRequired === false ||
         eventInfo.parentEvent.external
       ) {
         return "anon" as const;
       }
-      // Check if user should first participate on parent event
-      // Therefore, user can only participate via participation link from parent event
+      // Check if user should first participate on main event
+      // Therefore, user can only participate via participation link from main event
       if (
-        eventInfo.parentParticipationRequired !== false &&
+        eventInfo.parentEvent.parentParticipationRequired === true &&
         tokenHash !== null &&
         tokenHash === eventInfo.parentEvent.participationToken
       ) {
@@ -378,15 +384,15 @@ export async function deriveModeForEvent(options: {
     return null;
   }
 
-  // Check if user is on parent event and should participate on child event
+  // Check if user is on main event and should participate on sub-event
   if (
-    eventInfo.parentEvent === null &&
+    eventInfo.hasChildEvents &&
     eventInfo.parentParticipationRequired === false
   ) {
     return null;
   }
 
-  // Check if user is on child event and should first participate on parent event and isn't already participating on parent event
+  // Check if user is on sub-event and should first participate on main event and isn't already participating on main event
   if (
     eventInfo.parentEvent !== null &&
     eventInfo.parentParticipationRequired !== false &&
@@ -429,11 +435,31 @@ export async function getIsMember(
             },
           },
         },
+        // is potential team member
+        {
+          joinEventInvites: {
+            some: {
+              eventId: event.id,
+              role: "member",
+              status: "pending",
+            },
+          },
+        },
         // is speaker
         {
           contributedEvents: {
             some: {
               eventId: event.id,
+            },
+          },
+        },
+        // is potential speaker
+        {
+          joinEventInvites: {
+            some: {
+              eventId: event.id,
+              role: "speaker",
+              status: "pending",
             },
           },
         },
@@ -445,7 +471,17 @@ export async function getIsMember(
             },
           },
         },
-        // is admin of the parent event
+        // is potential admin
+        {
+          joinEventInvites: {
+            some: {
+              eventId: event.id,
+              role: "admin",
+              status: "pending",
+            },
+          },
+        },
+        // is admin of the main event
         {
           administeredEvents: {
             some: {
@@ -455,7 +491,7 @@ export async function getIsMember(
             },
           },
         },
-        // is admin of a potential parent event
+        // is admin of a potential main event
         {
           administeredEvents: {
             some: {
@@ -463,6 +499,7 @@ export async function getIsMember(
                 receivedParentEventJoinRequests: {
                   some: {
                     childEventId: event.id,
+                    status: "pending",
                   },
                 },
               },
@@ -496,6 +533,7 @@ export async function getIsMember(
                 responsibleForEventInvites: {
                   some: {
                     eventId: event.id,
+                    status: "pending",
                   },
                 },
               },
@@ -512,12 +550,118 @@ export async function getIsMember(
   return member !== null;
 }
 
+export async function getFullDepthParticipantsCount(slug: string) {
+  const event = await prismaClient.event.findUnique({
+    where: { slug },
+    select: {
+      participants: {
+        select: {
+          profile: {
+            select: {
+              id: true,
+              email: true,
+            },
+          },
+        },
+      },
+      guests: {
+        select: {
+          id: true,
+          email: true,
+        },
+        where: {
+          onWaitingList: false,
+          confirmed: true,
+        },
+      },
+      childEvents: {
+        select: {
+          participants: {
+            select: {
+              profile: {
+                select: {
+                  id: true,
+                  email: true,
+                },
+              },
+            },
+          },
+          guests: {
+            select: {
+              id: true,
+              email: true,
+            },
+            where: {
+              onWaitingList: false,
+              confirmed: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (event === null) {
+    return 0;
+  }
+
+  const participantsOfEvent = event.participants.map((participant) => ({
+    ...participant.profile,
+  }));
+
+  const participantsOfChildEvents = event.childEvents.flatMap((childEvent) => [
+    ...childEvent.participants.map((participant) => ({
+      ...participant.profile,
+    })),
+  ]);
+
+  const aggregatedParticipants = [
+    ...participantsOfEvent,
+    ...participantsOfChildEvents,
+  ];
+
+  const uniqueParticipants = aggregatedParticipants.filter(
+    (participant, index, array) => {
+      const firstIndex = array.findIndex((item) => {
+        return item.id === participant.id;
+      });
+      return index === firstIndex;
+    }
+  );
+
+  const guestsOfEvent = event.guests.map((guest) => ({
+    ...guest,
+  }));
+
+  const guestsOfChildEvents = event.childEvents.flatMap((childEvent) => [
+    ...childEvent.guests.map((guest) => ({
+      ...guest,
+    })),
+  ]);
+
+  const aggregatedGuests = [...guestsOfEvent, ...guestsOfChildEvents];
+
+  const uniqueGuests = aggregatedGuests.filter((guest, index, array) => {
+    const firstIndex = array.findIndex((item) => {
+      return item.email === guest.email;
+    });
+    return index === firstIndex;
+  });
+
+  const aggregatedParticipantsAndGuests = [
+    ...uniqueParticipants,
+    ...uniqueGuests,
+  ];
+
+  return aggregatedParticipantsAndGuests.length;
+}
+
 export async function addProfileToParticipants(options: {
   profileId: string;
   eventId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: { de: string; en: string };
     };
   };
 }) {
@@ -542,12 +686,24 @@ export async function addProfileToParticipants(options: {
             name: true,
             slug: true,
             startTime: true,
+            endTime: true,
             venueName: true,
             venueStreet: true,
             venueStreetNumber: true,
             venueZipCode: true,
             venueCity: true,
             conferenceLink: true,
+            conferenceCode: true,
+            participationToken: true,
+            _count: {
+              select: {
+                childEvents: {
+                  where: {
+                    published: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -572,14 +728,28 @@ export async function addProfileToParticipants(options: {
         }
 
         const recipient = data.profile.email;
-        const subject = insertParametersIntoLocale(locales.mail.subject, {
-          eventName: data.event.name,
-        });
+        const subject = {
+          de: insertParametersIntoLocale(locales.mail.subject.de, {
+            eventName: data.event.name,
+          }),
+          en: insertParametersIntoLocale(locales.mail.subject.en, {
+            eventName: data.event.name,
+          }),
+        };
 
         const zonedStartTime = utcToZonedTime(
           data.event.startTime,
           "Europe/Berlin"
         );
+        const zonedEndTime = utcToZonedTime(
+          data.event.endTime,
+          "Europe/Berlin"
+        );
+
+        const date = {
+          de: getDuration(zonedStartTime, zonedEndTime, "de"),
+          en: getDuration(zonedStartTime, zonedEndTime, "en"),
+        };
 
         const content = {
           headline: subject,
@@ -590,20 +760,13 @@ export async function addProfileToParticipants(options: {
           },
           event: {
             name: data.event.name,
-            url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail`,
-            startDate: zonedStartTime.toLocaleDateString("de-DE", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-            }),
-            startTime: zonedStartTime.toLocaleTimeString("de-DE", {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-            timezone: "MEZ",
+            url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail/about`,
+            date,
             location: getVenueString(data.event),
             icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/ics-download`,
             conferenceLink: data.event.conferenceLink,
+            conferenceCode: data.event.conferenceCode,
+            isParent: data.event._count.childEvents > 0,
           },
         };
         const textTemplatePath =
@@ -624,7 +787,7 @@ export async function addProfileToParticipants(options: {
         await scheduleMail({
           eventId,
           recipient,
-          subject,
+          subject: `${subject.de} | ${subject.en}`,
           plainText: text,
           html,
         });
@@ -645,13 +808,13 @@ export async function removeProfileFromParticipants(options: {
   locales: {
     mail: {
       moveFromWaitingListToParticipants: {
-        subject: string;
+        subject: { de: string; en: string };
       };
       removeFromParticipants: {
-        subject: string;
+        subject: { de: string; en: string };
       };
-      guestRemoved: {
-        subject: string;
+      removeFromWaitingList: {
+        subject: { de: string; en: string };
       };
     };
   };
@@ -675,7 +838,7 @@ export async function addProfileToWaitingList(options: {
   eventId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: { de: string; en: string };
     };
   };
 }) {
@@ -700,12 +863,24 @@ export async function addProfileToWaitingList(options: {
             name: true,
             slug: true,
             startTime: true,
+            endTime: true,
             venueName: true,
             venueStreet: true,
             venueStreetNumber: true,
             venueZipCode: true,
             venueCity: true,
             conferenceLink: true,
+            conferenceCode: true,
+            participationToken: true,
+            _count: {
+              select: {
+                childEvents: {
+                  where: {
+                    published: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -732,14 +907,28 @@ export async function addProfileToWaitingList(options: {
         }
 
         const recipient = data.profile.email;
-        const subject = insertParametersIntoLocale(locales.mail.subject, {
-          eventName: data.event.name,
-        });
+        const subject = {
+          de: insertParametersIntoLocale(locales.mail.subject.de, {
+            eventName: data.event.name,
+          }),
+          en: insertParametersIntoLocale(locales.mail.subject.en, {
+            eventName: data.event.name,
+          }),
+        };
 
         const zonedStartTime = utcToZonedTime(
           data.event.startTime,
           "Europe/Berlin"
         );
+        const zonedEndTime = utcToZonedTime(
+          data.event.endTime,
+          "Europe/Berlin"
+        );
+
+        const date = {
+          de: getDuration(zonedStartTime, zonedEndTime, "de"),
+          en: getDuration(zonedStartTime, zonedEndTime, "en"),
+        };
 
         const content = {
           headline: subject,
@@ -750,19 +939,13 @@ export async function addProfileToWaitingList(options: {
           },
           event: {
             name: data.event.name,
-            url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail`,
-            startDate: zonedStartTime.toLocaleDateString("de-DE", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-            }),
-            startTime: zonedStartTime.toLocaleTimeString("de-DE", {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-            timezone: "MEZ",
+            url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail/about`,
+            date,
             location: getVenueString(data.event),
             icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/ics-download`,
+            conferenceLink: data.event.conferenceLink,
+            conferenceCode: data.event.conferenceCode,
+            isParent: data.event._count.childEvents > 0,
           },
         };
         const textTemplatePath =
@@ -783,7 +966,7 @@ export async function addProfileToWaitingList(options: {
         await scheduleMail({
           eventId,
           recipient,
-          subject,
+          subject: `${subject.de} | ${subject.en}`,
           plainText: text,
           html,
         });
@@ -804,7 +987,7 @@ export async function removeProfileFromWaitingList(options: {
   locales: {
     mail: {
       removeFromWaitingList: {
-        subject: string;
+        subject: { de: string; en: string };
       };
     };
   };
@@ -829,6 +1012,7 @@ export async function removeProfileFromWaitingList(options: {
         event: {
           select: {
             name: true,
+            slug: true,
           },
         },
       },
@@ -852,21 +1036,29 @@ export async function removeProfileFromWaitingList(options: {
       }
 
       const recipient = data.profile.email;
-      const subject = insertParametersIntoLocale(
-        locales.mail.removeFromWaitingList.subject,
-        {
-          eventName: data.event.name,
-        }
-      );
 
       const content = {
-        headline: subject,
+        headline: {
+          de: insertParametersIntoLocale(
+            locales.mail.removeFromWaitingList.subject.de,
+            {
+              eventName: data.event.name,
+            }
+          ),
+          en: insertParametersIntoLocale(
+            locales.mail.removeFromWaitingList.subject.en,
+            {
+              eventName: data.event.name,
+            }
+          ),
+        },
         profile: {
           firstName: data.profile.firstName,
           isOnWaitingList: true,
         },
         event: {
           name: data.event.name,
+          url: `${process.env.COMMUNITY_BASE_URL}/event/${data.event.slug}/detail/about`,
         },
       };
 
@@ -884,6 +1076,8 @@ export async function removeProfileFromWaitingList(options: {
         content,
         "html"
       );
+
+      const subject = `${content.headline.de} | ${content.headline.en}`;
 
       await scheduleMail({
         eventId,
@@ -1331,57 +1525,6 @@ export async function getContactPersonsOfEvent(options: {
   return enhancedContactPersons;
 }
 
-export async function getParticipantsCount(
-  slug: string,
-  sessionUser: User | null
-) {
-  const participants = await prismaClient.participantOfEvent.findMany({
-    where: {
-      OR: [
-        {
-          event: {
-            slug,
-          },
-        },
-        {
-          event: {
-            AND: [
-              {
-                parentEvent: {
-                  slug,
-                  external: false,
-                  openForRegistration: true,
-                },
-              },
-              {
-                OR: [
-                  { published: true },
-                  sessionUser !== null
-                    ? {
-                        teamMembers: {
-                          some: { profileId: sessionUser?.id },
-                        },
-                        admins: {
-                          some: { profileId: sessionUser?.id },
-                        },
-                        speakers: {
-                          some: { profileId: sessionUser?.id },
-                        },
-                      }
-                    : {},
-                ],
-              },
-            ],
-          },
-        },
-      ],
-    },
-    distinct: ["profileId"],
-  });
-
-  return participants.length;
-}
-
 export async function addGuestToEvent(options: {
   eventId: string;
   guest: {
@@ -1394,19 +1537,19 @@ export async function addGuestToEvent(options: {
   locales: {
     mail: {
       profileAlreadyExists: {
-        subject: string;
+        subject: { de: string; en: string };
       };
       guestAlreadyExists: {
-        subject: string;
+        subject: { de: string; en: string };
       };
       confirmRegistration: {
-        subject: string;
+        subject: { de: string; en: string };
       };
     };
   };
   redirectUrl: string;
 }) {
-  const { eventId, guest } = options;
+  const { eventId, guest, locales } = options;
 
   const event = await prismaClient.event.findUnique({
     where: {
@@ -1440,28 +1583,30 @@ export async function addGuestToEvent(options: {
     try {
       const sender = process.env.SYSTEM_MAIL_SENDER;
       const recipient = guest.email;
-      const subject = options.locales.mail.profileAlreadyExists.subject;
       const textTemplatePath =
         "mail-templates/guests/profile-already-exists-text.hbs";
       const htmlTemplatePath =
         "mail-templates/guests/profile-already-exists-html.hbs";
 
-      const data = {
+      const content = {
+        headline: locales.mail.profileAlreadyExists.subject,
         firstName: existingProfile.firstName,
         eventName: event.name,
-        buttonUrl: `${process.env.COMMUNITY_BASE_URL}/login?login_redirect=${encodeURIComponent(options.redirectUrl)}`,
+        url: `${process.env.COMMUNITY_BASE_URL}/login?login_redirect=${encodeURIComponent(options.redirectUrl)}`,
       };
 
       const text = getCompiledMailTemplate<typeof textTemplatePath>(
         textTemplatePath,
-        data,
+        content,
         "text"
       );
       const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
         htmlTemplatePath,
-        data,
+        content,
         "html"
       );
+
+      const subject = `${locales.mail.profileAlreadyExists.subject.de} | ${locales.mail.profileAlreadyExists.subject.en}`;
 
       await mailer(mailerOptions, sender, recipient, subject, text, html);
     } catch (error) {
@@ -1486,7 +1631,6 @@ export async function addGuestToEvent(options: {
     try {
       const sender = process.env.SYSTEM_MAIL_SENDER;
       const recipient = guest.email;
-      const subject = options.locales.mail.guestAlreadyExists.subject;
       const textTemplatePath =
         "mail-templates/guests/guest-already-exists-text.hbs";
       const htmlTemplatePath =
@@ -1498,42 +1642,43 @@ export async function addGuestToEvent(options: {
       );
       const confirmationRedirectWithoutParams = `${confirmationRedirectUrl.origin}${confirmationRedirectUrl.pathname}`;
 
-      const data = {
+      const content = {
+        headline: {
+          de: insertParametersIntoLocale(
+            locales.mail.guestAlreadyExists.subject.de,
+            { eventName: event.name }
+          ),
+          en: insertParametersIntoLocale(
+            locales.mail.guestAlreadyExists.subject.en,
+            { eventName: event.name }
+          ),
+        },
         firstName: existingGuest.firstName,
         eventName: event.name,
-        buttonUrl: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?type=revoke&confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?type=revoke&token_hash=${existingGuest.revocationToken}&confirmation_redirect=${encodeURIComponent(confirmationRedirectWithoutParams)}`)}`,
+        url: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?type=revoke&confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?type=revoke&token_hash=${existingGuest.revocationToken}&confirmation_redirect=${encodeURIComponent(confirmationRedirectWithoutParams)}`)}`,
       };
 
       const text = getCompiledMailTemplate<typeof textTemplatePath>(
         textTemplatePath,
-        data,
+        content,
         "text"
       );
       const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
         htmlTemplatePath,
-        data,
+        content,
         "html"
       );
 
+      const subject = `${content.headline.de} | ${content.headline.en}`;
+
       await mailer(mailerOptions, sender, recipient, subject, text, html);
     } catch (error) {
-      console.log(error);
       captureException(error);
     }
     return null;
   }
 
-  const data = JSON.stringify({
-    eventId,
-    email: guest.email,
-    now: Date.now(),
-  });
-
-  const token = generateValidationToken({
-    data,
-    secret: process.env.GUEST_SECRET,
-    salt: process.env.GUEST_SALT,
-  });
+  const token = generateValidationToken();
 
   let result;
   if (existingGuest !== null && existingGuest.confirmed === false) {
@@ -1570,7 +1715,6 @@ export async function addGuestToEvent(options: {
   try {
     const sender = process.env.SYSTEM_MAIL_SENDER;
     const recipient = result.email;
-    const subject = options.locales.mail.confirmRegistration.subject;
     const textTemplatePath =
       "mail-templates/guests/confirm-registration-text.hbs";
     const htmlTemplatePath =
@@ -1609,22 +1753,34 @@ export async function addGuestToEvent(options: {
     }
     redirectUrl.search = searchParams.toString();
 
-    const data = {
+    const content = {
+      headline: {
+        de: insertParametersIntoLocale(
+          locales.mail.confirmRegistration.subject.de,
+          { eventName: event.name }
+        ),
+        en: insertParametersIntoLocale(
+          locales.mail.confirmRegistration.subject.en,
+          { eventName: event.name }
+        ),
+      },
       firstName: result.firstName,
       eventName: event.name,
-      buttonUrl: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?token_hash=${token}&confirmation_redirect=${redirectUrl.toString()}`)}`,
+      url: `${process.env.COMMUNITY_BASE_URL}/auth/guest/confirm?confirmation_link=${encodeURIComponent(`${process.env.COMMUNITY_BASE_URL}/auth/guest/verify?token_hash=${token}&confirmation_redirect=${redirectUrl.toString()}`)}`,
     };
 
     const text = getCompiledMailTemplate<typeof textTemplatePath>(
       textTemplatePath,
-      data,
+      content,
       "text"
     );
     const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
       htmlTemplatePath,
-      data,
+      content,
       "html"
     );
+
+    const subject = `${content.headline.de} | ${content.headline.en}`;
 
     await mailer(mailerOptions, sender, recipient, subject, text, html);
   } catch (error) {

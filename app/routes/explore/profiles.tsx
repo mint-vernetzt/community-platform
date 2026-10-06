@@ -55,7 +55,8 @@ import {
 } from "./profiles.server";
 import { PROFILE_SORT_VALUES } from "./profiles.shared";
 import { getAllAreas, getAreaNameBySlug } from "./utils.server";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { createHashFromObject } from "~/utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -347,6 +348,7 @@ export async function loader(args: LoaderFunctionArgs) {
     filteredByVisibilityCount,
     profilesCount: profileCount,
     locales: routeLocales,
+    submissionHash: createHashFromObject(submission.value),
   };
 }
 
@@ -358,7 +360,7 @@ export default function ExploreProfiles() {
   const isHydrated = useHydrated();
 
   const [form, fields] = useForm<FilterSchemes>({
-    id: "filter-profiles",
+    id: `filter-profiles-${loaderData.submissionHash}`,
     defaultValue: {
       ...loaderData.submission.value,
       search: [loaderData.submission.value.search.join(" ")],
@@ -371,7 +373,7 @@ export default function ExploreProfiles() {
   const prfFilterFieldset = fields.prfFilter.getFieldset();
 
   const [loadMoreForm, loadMoreFields] = useForm<FilterSchemes>({
-    id: "load-more-profiles",
+    id: `load-more-profiles-${loaderData.submissionHash}`,
     defaultValue: {
       ...loaderData.submission.value,
       prfPage: loaderData.submission.value.prfPage + 1,
@@ -383,7 +385,7 @@ export default function ExploreProfiles() {
   });
 
   const [resetForm, resetFields] = useForm<FilterSchemes>({
-    id: "reset-profile-filters",
+    id: `reset-profile-filters-${loaderData.submissionHash}`,
     defaultValue: {
       ...loaderData.submission.value,
       prfFilter: {
@@ -414,6 +416,13 @@ export default function ExploreProfiles() {
   const [visibleAreas, setVisibleAreas] = useState<typeof loaderData.areas>(
     loaderData.areas
   );
+  const [syncedAreas, setSyncedAreas] = useState(loaderData.areas);
+
+  if (syncedAreas !== loaderData.areas) {
+    setSyncedAreas(loaderData.areas);
+    setVisibleAreas(loaderData.areas);
+  }
+
   const handleAreaSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
     const value = event.target.value.trim().toLowerCase();
@@ -448,10 +457,6 @@ export default function ExploreProfiles() {
       setVisibleAreas(loaderData.areas);
     }
   };
-
-  useEffect(() => {
-    setVisibleAreas(loaderData.areas);
-  }, [loaderData.areas]);
 
   return (
     <>
@@ -831,7 +836,7 @@ export default function ExploreProfiles() {
                     <ConformForm
                       key={selectedOffer}
                       useFormOptions={{
-                        id: `delete-filter-${selectedOffer}`,
+                        id: `delete-filter-${selectedOffer}-${loaderData.submissionHash}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           prfFilter: {
@@ -882,7 +887,7 @@ export default function ExploreProfiles() {
                     <ConformForm
                       key={selectedArea.slug}
                       useFormOptions={{
-                        id: `delete-filter-${selectedArea.slug}`,
+                        id: `delete-filter-${selectedArea.slug}-${loaderData.submissionHash}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           prfFilter: {

@@ -1,5 +1,4 @@
 import { init } from "@sentry/node";
-import { nodeProfilingIntegration } from "@sentry/profiling-node";
 
 // TODO: Implement server side sentry when sentry supports rr7
 // Currently this is only possible with a complicated custom integration
@@ -12,8 +11,6 @@ export function initSentry() {
   init({
     dsn: process.env.SENTRY_DSN,
     environment: process.env.COMMUNITY_BASE_URL.replace(/https?:\/\//, ""),
-    integrations: [nodeProfilingIntegration()],
-    tracesSampleRate: 0.5,
-    profilesSampleRate: 0.5,
+    tracesSampleRate: 1,
   });
 }

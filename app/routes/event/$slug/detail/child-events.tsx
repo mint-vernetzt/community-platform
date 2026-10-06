@@ -33,6 +33,7 @@ import {
   hasSubline,
 } from "./child-events.shared";
 import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "~/events.shared";
+import { safeStringify } from "~/lib/utils/json";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -112,7 +113,7 @@ export async function action(args: ActionFunctionArgs) {
     tokenHash,
     eventInfo: {
       ...event,
-      participantCount: event._count.participants,
+      participantCount: event._count.participants + event._count.guests,
       beforeParticipationPeriod,
       afterParticipationPeriod,
       inPast,
@@ -145,7 +146,14 @@ export async function action(args: ActionFunctionArgs) {
           profileId: sessionUser.id,
           eventId,
           locales: {
-            mail: { subject: locales.route.mail.participate.subject },
+            mail: {
+              subject: {
+                de: languageModuleMap["de"]["event/$slug/detail/child-events"]
+                  .route.mail.participate.subject,
+                en: languageModuleMap["en"]["event/$slug/detail/child-events"]
+                  .route.mail.participate.subject,
+              },
+            },
           },
         });
       } else if (intent === "withdrawParticipation") {
@@ -153,7 +161,32 @@ export async function action(args: ActionFunctionArgs) {
           profileId: sessionUser.id,
           eventId: data.eventId,
           locales: {
-            mail: locales.route.mail,
+            mail: {
+              moveFromWaitingListToParticipants: {
+                subject: {
+                  de: languageModuleMap["de"]["event/$slug/detail/child-events"]
+                    .route.mail.moveFromWaitingListToParticipants.subject,
+                  en: languageModuleMap["en"]["event/$slug/detail/child-events"]
+                    .route.mail.moveFromWaitingListToParticipants.subject,
+                },
+              },
+              removeFromParticipants: {
+                subject: {
+                  de: languageModuleMap["de"]["event/$slug/detail/child-events"]
+                    .route.mail.removeFromParticipants.subject,
+                  en: languageModuleMap["en"]["event/$slug/detail/child-events"]
+                    .route.mail.removeFromParticipants.subject,
+                },
+              },
+              removeFromWaitingList: {
+                subject: {
+                  de: languageModuleMap["de"]["event/$slug/detail/child-events"]
+                    .route.mail.removeFromWaitingList.subject,
+                  en: languageModuleMap["en"]["event/$slug/detail/child-events"]
+                    .route.mail.removeFromWaitingList.subject,
+                },
+              },
+            },
           },
         });
       } else if (intent === "joinWaitingList") {
@@ -162,7 +195,12 @@ export async function action(args: ActionFunctionArgs) {
           eventId: data.eventId,
           locales: {
             mail: {
-              subject: locales.route.mail.waitingList.subject,
+              subject: {
+                de: languageModuleMap["de"]["event/$slug/detail/child-events"]
+                  .route.mail.waitingList.subject,
+                en: languageModuleMap["en"]["event/$slug/detail/child-events"]
+                  .route.mail.waitingList.subject,
+              },
             },
           },
         });
@@ -171,7 +209,16 @@ export async function action(args: ActionFunctionArgs) {
           profileId: sessionUser.id,
           eventId: data.eventId,
           locales: {
-            mail: locales.route.mail,
+            mail: {
+              removeFromWaitingList: {
+                subject: {
+                  de: languageModuleMap["de"]["event/$slug/detail/child-events"]
+                    .route.mail.removeFromWaitingList.subject,
+                  en: languageModuleMap["en"]["event/$slug/detail/child-events"]
+                    .route.mail.removeFromWaitingList.subject,
+                },
+              },
+            },
           },
         });
       }
@@ -189,7 +236,7 @@ export async function action(args: ActionFunctionArgs) {
 
   if (submission.status !== "success") {
     return redirectWithToast(request.url, {
-      id: `update-participation-error-toast-${submission.payload.eventId}`,
+      id: `update-participation-error-toast-${safeStringify(submission.payload.eventId)}`,
       key: `${new Date().getTime()}`,
       message: locales.route.errors[intent],
       level: "negative",

@@ -64,7 +64,7 @@ function SelectField(
               selectProps.className ?? ""
             }`}
           >
-            <option></option>
+            <option aria-hidden="true"></option>
             {options.map((option, index) => (
               <Fragment key={index}>
                 {"value" in option && (

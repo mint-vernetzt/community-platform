@@ -61,6 +61,7 @@ test("Create profile abuse report", async () => {
     locales: languageModuleMap.en["profile/$username/index"],
   });
 
+  // oxlint-disable-next-line unbound-method
   expect(prismaClient.profile.update).toHaveBeenCalledWith({
     data: {
       abuseReports: {
@@ -113,6 +114,7 @@ test("Create organization abuse report", async () => {
     locales: languageModuleMap.en["organization/$slug/detail"],
   });
 
+  // oxlint-disable-next-line unbound-method
   expect(prismaClient.organization.update).toHaveBeenCalledWith({
     data: {
       abuseReports: {
@@ -165,6 +167,7 @@ test("Create event abuse report", async () => {
     locales: languageModuleMap.en["event/$slug/detail"].route.abuseReport,
   });
 
+  // oxlint-disable-next-line unbound-method
   expect(prismaClient.event.update).toHaveBeenCalledWith({
     data: {
       abuseReports: {
@@ -217,6 +220,7 @@ test("Create project abuse report", async () => {
     locales: languageModuleMap.en["project/$slug/detail"],
   });
 
+  // oxlint-disable-next-line unbound-method
   expect(prismaClient.project.update).toHaveBeenCalledWith({
     data: {
       abuseReports: {

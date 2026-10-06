@@ -12,6 +12,8 @@ import {
   SEARCH_WAITING_LIST_SEARCH_PARAM,
 } from "./waiting-list.shared";
 import { utcToZonedTime } from "date-fns-tz";
+import { getDuration } from "~/lib/utils/time";
+import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "~/events.shared";
 
 export async function getEventBySlug(slug: string) {
   const event = await prismaClient.event.findUnique({
@@ -81,6 +83,7 @@ export async function getWaitingListOfEvent(options: {
       where: {
         eventId,
         onWaitingList: true,
+        confirmed: true,
       },
       select: guestWaitingListSelect,
     });
@@ -108,6 +111,7 @@ export async function getWaitingListOfEvent(options: {
       where: {
         eventId,
         onWaitingList: true,
+        confirmed: true,
         OR: query.map((term) => {
           return {
             OR: [
@@ -178,11 +182,11 @@ export async function moveToParticipants(options: {
   type: "participant" | "guest";
   locales: {
     mail: {
-      subject: string;
+      subject: { de: string; en: string };
     };
   };
 }) {
-  const { profileId, eventId, type } = options;
+  const { profileId, eventId, type, locales } = options;
 
   let result;
   if (type === "guest") {
@@ -202,12 +206,24 @@ export async function moveToParticipants(options: {
             slug: true,
             name: true,
             startTime: true,
+            endTime: true,
             venueName: true,
             venueStreet: true,
             venueStreetNumber: true,
             venueZipCode: true,
             venueCity: true,
             conferenceLink: true,
+            conferenceCode: true,
+            participationToken: true,
+            _count: {
+              select: {
+                childEvents: {
+                  where: {
+                    published: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -235,12 +251,24 @@ export async function moveToParticipants(options: {
               slug: true,
               name: true,
               startTime: true,
+              endTime: true,
               venueName: true,
               venueStreet: true,
               venueStreetNumber: true,
               venueZipCode: true,
               venueCity: true,
               conferenceLink: true,
+              conferenceCode: true,
+              participationToken: true,
+              _count: {
+                select: {
+                  childEvents: {
+                    where: {
+                      published: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },
@@ -262,37 +290,41 @@ export async function moveToParticipants(options: {
   }
 
   const recipient = result.email;
-  const subject = insertParametersIntoLocale(options.locales.mail.subject, {
-    eventName: result.event.name,
-  });
 
   const zonedStartTime = utcToZonedTime(
     result.event.startTime,
     "Europe/Berlin"
   );
+  const zonedEndTime = utcToZonedTime(result.event.endTime, "Europe/Berlin");
+
+  const date = {
+    de: getDuration(zonedStartTime, zonedEndTime, "de"),
+    en: getDuration(zonedStartTime, zonedEndTime, "en"),
+  };
 
   const content = {
-    headline: subject,
+    headline: {
+      de: insertParametersIntoLocale(locales.mail.subject.de, {
+        eventName: result.event.name,
+      }),
+      en: insertParametersIntoLocale(locales.mail.subject.en, {
+        eventName: result.event.name,
+      }),
+    },
     profile: {
       firstName: result.firstName,
       isGuest: type === "guest",
     },
     event: {
       name: result.event.name,
-      url: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/detail`,
-      startDate: zonedStartTime.toLocaleDateString("de-DE", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      }),
-      startTime: zonedStartTime.toLocaleTimeString("de-DE", {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-      timezone: "MEZ",
+      url: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/detail/about${type === "guest" ? `?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${result.event.participationToken}` : ""}`,
+      date,
       location: getVenueString(result.event),
       conferenceLink: result.event.conferenceLink,
+      conferenceCode: result.event.conferenceCode,
+      icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/ics-download`,
       revocationLink: null as string | null,
+      isParent: result.event._count.childEvents > 0,
     },
   };
 
@@ -316,6 +348,8 @@ export async function moveToParticipants(options: {
     content,
     "html"
   );
+
+  const subject = `${content.headline.de} | ${content.headline.en}`;
 
   await scheduleMail({
     eventId,

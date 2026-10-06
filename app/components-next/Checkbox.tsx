@@ -13,7 +13,7 @@ export function Checkbox(props: React.InputHTMLAttributes<HTMLInputElement>) {
           height="20"
           fill="none"
           viewBox="0 0 20 20"
-          className="block group-has-[:checked]:hidden"
+          className="block group-has-checked:hidden"
         >
           <path
             fill="currentColor"
@@ -26,7 +26,7 @@ export function Checkbox(props: React.InputHTMLAttributes<HTMLInputElement>) {
           height="20"
           fill="none"
           viewBox="0 0 20 20"
-          className="hidden group-has-[:checked]:block"
+          className="hidden group-has-checked:block"
         >
           <path
             fill="currentColor"

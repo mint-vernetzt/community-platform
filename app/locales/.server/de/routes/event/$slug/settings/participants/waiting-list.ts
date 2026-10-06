@@ -31,7 +31,8 @@ export const locale = {
   },
   mail: {
     moveToParticipants: {
-      subject: "Deine Teilnahme am Event {{eventName}}",
+      subject:
+        "Du wurdest von der Warteliste zu den Teilnehmenden des Events {{eventName}} hinzugefügt",
     },
   },
 } as const;

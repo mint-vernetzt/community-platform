@@ -136,6 +136,9 @@ export async function action(args: ActionFunctionArgs) {
       const searchParams = extendSearchParams(url.searchParams, {
         addOrReplace: { [PUBLISH_EVENT_MODAL_SEARCH_PARAM]: "true" },
       });
+      if (typeof location !== "string") {
+        return redirect(`/event/${params.slug}/settings/details/info`);
+      }
       return redirect(`${location}?${searchParams.toString()}`);
     } else if (intent === PUBLISH_EVENT_INTENT) {
       await publishEvent(event);
@@ -277,6 +280,8 @@ export default function Settings() {
     {
       to: `notifications/list?${Deep}=true`,
       label: locales.route.menu.notifications,
+      disabled: event.external,
+      hint: event.external ? locales.route.menuHints.externalEvent : undefined,
     },
     {
       to: `danger-zone/change-url?${Deep}=true`,
@@ -344,7 +349,7 @@ export default function Settings() {
                 }`.trim()}
               </p>
               {event.publishIntended === false ? (
-                <Form method="post" action={location.pathname}>
+                <Form method="post">
                   <input
                     type="hidden"
                     name="location"
@@ -551,6 +556,15 @@ export default function Settings() {
             >
               {locales.route.modal.publishEventModal.withIssues.cancel}
             </Button>
+            <Button
+              as="link"
+              to={`/event/${event.slug}/detail/about`}
+              variant="outline"
+              fullSize
+              prefetch="intent"
+            >
+              {locales.route.modal.publishEventModal.withIssues.view}
+            </Button>
             <Form method="post" className="w-full">
               <Button
                 type="submit"
@@ -589,6 +603,15 @@ export default function Settings() {
                 {locales.route.modal.publishEventModal.noIssues.submit}
               </Button>
             </Form>
+            <Button
+              as="link"
+              to={`/event/${event.slug}/detail/about`}
+              variant="outline"
+              fullSize
+              prefetch="intent"
+            >
+              {locales.route.modal.publishEventModal.noIssues.view}
+            </Button>
             <Button
               as="link"
               to={`${location.pathname}?${extendSearchParams(searchParams, { remove: [PUBLISH_EVENT_MODAL_SEARCH_PARAM] })}`}

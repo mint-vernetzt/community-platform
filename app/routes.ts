@@ -2,14 +2,18 @@ import { index, route, type RouteConfig } from "@react-router/dev/routes";
 
 export default [
   index("./routes/index.tsx"),
-  route("/next", "./routes/next/index.tsx"),
-  route("/next/get-involved", "./routes/next/get-involved.tsx"),
+  route("/get-involved", "./routes/get-involved.tsx"),
   route("*", "./routes/$.tsx"),
   route("/robots.txt", "./routes/robots.txt.tsx"),
   route("/status", "./routes/status.tsx"),
   route("/resources", "./routes/resources.tsx"),
   route("/imprint", "./routes/imprint.tsx"),
   route("/privacy-policy", "./routes/privacy-policy.tsx"),
+  route("/switch-locale", "./routes/switch-locale.ts"),
+  route(
+    "/hide-login-or-register-cta",
+    "./routes/hide-login-or-register-cta.ts"
+  ),
   route("/terms-of-use", "./routes/terms-of-use.tsx"),
   route("/help", "./routes/help.tsx"),
   route("/goodbye", "./routes/goodbye.tsx"),
@@ -458,7 +462,6 @@ export default [
   route("/auth/verify", "./routes/auth/verify.tsx"),
   route("/auth/guest/confirm", "./routes/auth/guest/confirm.tsx"),
   route("/auth/guest/verify", "./routes/auth/guest/verify.tsx"),
-  route("/auth/guest/revoke", "./routes/auth/guest/revoke.tsx"),
   route(
     "/auth/guest/request-confirmation",
     "./routes/auth/guest/request-confirmation.tsx"

@@ -4,8 +4,12 @@ import { type RootLocales } from "~/root.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { type Mode } from "~/utils.server";
 
-export function Footer(props: { locales?: RootLocales; mode: Mode }) {
-  const currentYear = new Date().getFullYear();
+export function Footer(props: {
+  locales?: RootLocales;
+  mode: Mode;
+  currentYear: number;
+}) {
+  const currentYear = props.currentYear;
   return (
     <footer className="flex flex-col gap-5 px-8 pt-6 pb-2 w-full">
       {/* CP logo and description */}
@@ -38,7 +42,7 @@ export function Footer(props: { locales?: RootLocales; mode: Mode }) {
               width="42"
               height="42"
               viewBox="0 0 56 56"
-              className="w-[42px] h-[42px] @md:w-auto @md:h-auto"
+              className="w-10.5 h-10.5 @md:w-auto @md:h-auto"
               aria-hidden="true"
             >
               <g fill="none">
@@ -189,8 +193,8 @@ export function Footer(props: { locales?: RootLocales; mode: Mode }) {
                 year: currentYear,
               })
             : DEFAULT_LANGUAGE === "de"
-              ? `© 2021-${currentYear} matrix gGmbH`
-              : `© 2021-${currentYear} matrix gGmbH`}
+              ? `© 2021–${currentYear} matrix gGmbH`
+              : `© 2021–${currentYear} matrix gGmbH`}
         </div>
         {/* SoMe icons */}
         <ul className="flex items-center gap-6">

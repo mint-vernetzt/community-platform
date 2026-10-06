@@ -1,12 +1,11 @@
 import { captureException } from "@sentry/node";
 import { utcToZonedTime } from "date-fns-tz";
+import { removeParticipantFromEvent } from "~/events.server";
+import { PARTICIPATION_TOKEN_HASH_SEARCH_PARAM } from "~/events.shared";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { getDuration } from "~/lib/utils/time";
 import { scheduleMail } from "~/mailer-queue.server";
-import {
-  getCompiledMailTemplate,
-  mailer,
-  mailerOptions,
-} from "~/mailer.server";
+import { getCompiledMailTemplate } from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
 import { generateValidationToken } from "~/utils.server";
 import { getVenueString } from "~/utils.shared";
@@ -27,6 +26,11 @@ export async function verifyConfirmationToken(options: {
         id: true,
         eventId: true,
         confirmationSentAt: true,
+        event: {
+          select: {
+            endTime: true,
+          },
+        },
       },
     });
   } else {
@@ -38,6 +42,11 @@ export async function verifyConfirmationToken(options: {
         id: true,
         eventId: true,
         confirmationSentAt: true,
+        event: {
+          select: {
+            endTime: true,
+          },
+        },
       },
     });
   }
@@ -62,6 +71,16 @@ export async function verifyConfirmationToken(options: {
     };
   }
 
+  if (type === "revoke" && guest.event.endTime < new Date()) {
+    return {
+      error: {
+        message: "Revocation token expired",
+        code: "expired",
+      } as const,
+      data: null,
+    };
+  }
+
   return {
     error: null,
     data: guest,
@@ -74,8 +93,8 @@ export async function confirmGuest(options: {
   confirmationRedirect: string;
   locales: {
     mail: {
-      addedToWaitingList: { subject: string };
-      addedToParticipants: { subject: string };
+      addedToWaitingList: { subject: { de: string; en: string } };
+      addedToParticipants: { subject: { de: string; en: string } };
     };
   };
 }) {
@@ -88,6 +107,15 @@ export async function confirmGuest(options: {
     select: {
       id: true,
       participantLimit: true,
+      guests: {
+        where: {
+          onWaitingList: false,
+          confirmed: true,
+        },
+        select: {
+          id: true,
+        },
+      },
       _count: {
         select: {
           participants: true,
@@ -103,17 +131,9 @@ export async function confirmGuest(options: {
   const now = new Date();
   const isOnWaitingList =
     event.participantLimit !== null &&
-    event._count.participants >= event.participantLimit;
+    event._count.participants + event.guests.length >= event.participantLimit;
 
-  const revocationToken = generateValidationToken({
-    data: JSON.stringify({
-      guestId,
-      eventId,
-      now: now.getTime(),
-    }),
-    secret: process.env.GUEST_SECRET,
-    salt: process.env.GUEST_SALT,
-  });
+  const revocationToken = generateValidationToken();
 
   const result = await prismaClient.guest.update({
     where: {
@@ -139,12 +159,24 @@ export async function confirmGuest(options: {
           name: true,
           slug: true,
           startTime: true,
+          endTime: true,
           venueName: true,
           venueStreet: true,
           venueStreetNumber: true,
           venueZipCode: true,
           venueCity: true,
           conferenceLink: true,
+          conferenceCode: true,
+          participationToken: true,
+          _count: {
+            select: {
+              childEvents: {
+                where: {
+                  published: true,
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -162,14 +194,25 @@ export async function confirmGuest(options: {
       ? locales.mail.addedToWaitingList.subject
       : locales.mail.addedToParticipants.subject;
 
-    const subject = insertParametersIntoLocale(subjectSource, {
-      eventName: result.event.name,
-    });
+    const subject = {
+      de: insertParametersIntoLocale(subjectSource.de, {
+        eventName: result.event.name,
+      }),
+      en: insertParametersIntoLocale(subjectSource.en, {
+        eventName: result.event.name,
+      }),
+    };
 
     const zonedStartTime = utcToZonedTime(
       result.event.startTime,
       "Europe/Berlin"
     );
+    const zonedEndTime = utcToZonedTime(result.event.endTime, "Europe/Berlin");
+
+    const date = {
+      de: getDuration(zonedStartTime, zonedEndTime, "de"),
+      en: getDuration(zonedStartTime, zonedEndTime, "en"),
+    };
 
     const content = {
       headline: subject,
@@ -180,23 +223,14 @@ export async function confirmGuest(options: {
       },
       event: {
         name: result.event.name,
-        url: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/detail`,
-        startDate: zonedStartTime.toLocaleDateString("de-DE", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        }),
-        startTime: zonedStartTime.toLocaleTimeString("de-DE", {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        timezone: "MEZ",
+        url: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/detail/about${result.onWaitingList === false ? `?${PARTICIPATION_TOKEN_HASH_SEARCH_PARAM}=${result.event.participationToken}` : ""}`, // Add participation token to ensure that guests can participate on sub-events
+        date,
         location: getVenueString(result.event),
         icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${result.event.slug}/ics-download`,
-        conferenceLink: result.onWaitingList
-          ? null
-          : result.event.conferenceLink, // If the guest is on the waiting list, we don't provide the conference link yet
+        conferenceLink: result.event.conferenceLink,
+        conferenceCode: result.event.conferenceCode,
         revocationLink,
+        isParent: result.event._count.childEvents > 0,
       },
     };
     const textTemplatePath =
@@ -217,7 +251,7 @@ export async function confirmGuest(options: {
     await scheduleMail({
       eventId,
       recipient,
-      subject,
+      subject: `${subject.de} | ${subject.en}`,
       plainText: text,
       html,
     });
@@ -231,56 +265,30 @@ export async function confirmGuest(options: {
 export async function revokeGuest(options: {
   guestId: string;
   eventId: string;
-  locales: { mail: { subject: string } };
+  locales: {
+    mail: {
+      moveFromWaitingListToParticipants: {
+        subject: { de: string; en: string };
+      };
+      removeFromParticipants: {
+        subject: { de: string; en: string };
+      };
+      removeFromWaitingList: {
+        subject: { de: string; en: string };
+      };
+    };
+  };
 }) {
   const { guestId, eventId, locales } = options;
 
-  const result = await prismaClient.guest.delete({
-    where: {
-      id: guestId,
-      eventId: eventId,
-    },
-    select: {
-      firstName: true,
-      email: true,
-      event: {
-        select: {
-          name: true,
-        },
-      },
-      onWaitingList: true,
+  const result = await removeParticipantFromEvent({
+    id: guestId,
+    eventId,
+    type: "guest",
+    locales: {
+      ...locales.mail,
     },
   });
-
-  try {
-    const sender = process.env.SYSTEM_MAIL_SENDER;
-    const recipient = result.email;
-    const subject = locales.mail.subject;
-    const textTemplatePath =
-      "mail-templates/general-notification/remove-participant-from-event-text.hbs";
-    const htmlTemplatePath =
-      "mail-templates/general-notification/remove-participant-from-event-html.hbs";
-
-    const data = {
-      firstName: result.firstName,
-      event: { name: result.event.name },
-    };
-
-    const text = getCompiledMailTemplate<typeof textTemplatePath>(
-      textTemplatePath,
-      data,
-      "text"
-    );
-    const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
-      htmlTemplatePath,
-      data,
-      "html"
-    );
-
-    await mailer(mailerOptions, sender, recipient, subject, text, html);
-  } catch (error) {
-    captureException(error);
-  }
 
   return result;
 }

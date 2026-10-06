@@ -17,8 +17,8 @@ import {
   useSubmit,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
-import eventDefaultBackgroundBlurred from "~/assets/default-event-background-blurred.jpg";
-import eventDefaultBackground from "~/assets/default-event-background.jpg";
+import eventDefaultBackgroundBlurred from "~/assets/default-event-background-blurred.webp";
+import eventDefaultBackground from "~/assets/default-event-background.webp";
 import {
   createAuthClient,
   getSessionUser,

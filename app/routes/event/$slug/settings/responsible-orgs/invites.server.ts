@@ -158,7 +158,10 @@ export async function revokeOrganizationInvite(options: {
   userId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -215,7 +218,7 @@ export async function revokeOrganizationInvite(options: {
     });
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/invites/organization-to-join-event/canceled-text.hbs";
   const htmlTemplatePath =

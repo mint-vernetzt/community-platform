@@ -4,7 +4,16 @@ import {
 } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { type Organization } from "@prisma/client";
-import maplibreGL from "maplibre-gl";
+import {
+  setWorkerUrl,
+  type MapGeoJSONFeature,
+  Map as MaplibreGLMap,
+  Popup as MaplibreGLPopup,
+  MapMouseEvent,
+  NavigationControl,
+  type GeoJSONSource,
+} from "maplibre-gl";
+import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { Link, useSearchParams, useSubmit } from "react-router";
@@ -18,6 +27,7 @@ import { ListItem, type ListOrganization } from "./ListItem";
 import { BurgerMenuClosed } from "./icons/BurgerMenuClosed";
 import { BurgerMenuOpen } from "./icons/BurgerMenuOpen";
 import { MapPopupClose } from "./icons/MapPopupClose";
+import { safeStringify } from "~/lib/utils/json";
 
 function isWebglSupported(locales: { error: string }) {
   if (window.WebGLRenderingContext) {
@@ -27,7 +37,7 @@ function isWebglSupported(locales: { error: string }) {
       // to canvas.getContext(), causing the check to fail if hardware rendering is not available. See
       // https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext
       // for more details.
-      const context = canvas.getContext("webgl2") || canvas.getContext("webgl");
+      const context = canvas.getContext("webgl2");
       if (context && typeof context.getParameter == "function") {
         return { error: null };
       }
@@ -63,6 +73,8 @@ export function MapView(props: {
   embeddable?: boolean;
 }) {
   const { organizations, locales, language, embeddable = false } = props;
+  setWorkerUrl(workerUrl);
+
   const submit = useSubmit();
   const [searchParams] = useSearchParams();
   const openMenuSearchParams = extendSearchParams(searchParams, {
@@ -78,7 +90,7 @@ export function MapView(props: {
   const [mapMenuIsOpen, setMapMenuIsOpen] = useState(true);
 
   const mapContainer = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<maplibreGL.Map | null>(null);
+  const mapRef = useRef<MaplibreGLMap | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [visibleOrganizationsOnMap, setVisibleOrganizationsOnMap] =
     useState(organizations);
@@ -86,8 +98,8 @@ export function MapView(props: {
   const lastLanguageRef = useRef<ArrayElement<
     typeof SUPPORTED_COOKIE_LANGUAGES
   > | null>(null);
-  const activePopupsRef = useRef<maplibreGL.Popup[]>([]);
-  const hoverPopupsRef = useRef<maplibreGL.Popup[]>([]);
+  const activePopupsRef = useRef<MaplibreGLPopup[]>([]);
+  const hoverPopupsRef = useRef<MaplibreGLPopup[]>([]);
   const [highlightedOrganizations, setHighlightedOrganizations] = useState<
     string[]
   >([]);
@@ -132,7 +144,7 @@ export function MapView(props: {
       const minZoom = 2;
       const maxZoom = 18;
 
-      mapRef.current = new maplibreGL.Map({
+      mapRef.current = new MaplibreGLMap({
         container: mapContainer.current,
         style: `${ENV.COMMUNITY_BASE_URL}/map-style`,
         center,
@@ -153,7 +165,7 @@ export function MapView(props: {
         },
       });
       mapRef.current.addControl(
-        new maplibreGL.NavigationControl({
+        new NavigationControl({
           visualizePitch: true,
           visualizeRoll: true,
           showZoom: true,
@@ -183,41 +195,16 @@ export function MapView(props: {
     }
   }, [mapLoaded, embeddable]);
 
-  const unclusteredClickHandler = useCallback(
-    (
-      event: maplibreGL.MapMouseEvent & {
-        features?: maplibreGL.MapGeoJSONFeature[];
-      } & {
-        slug?: string;
-        duplicate_count?: number;
-      }
-    ) => {
+  const showOrganizationsPopup = useCallback(
+    (commaSeperatedSlugs: any, duplicateCount: any) => {
       if (mapRef.current === null) {
         return;
       }
-      const commaSeparatedSlugs =
-        "slug" in event
-          ? event.slug
-          : typeof event.features !== "undefined"
-            ? (event.features[0].properties.id as string | null | undefined)
-            : null;
-      if (
-        typeof commaSeparatedSlugs === "undefined" ||
-        commaSeparatedSlugs === null
-      ) {
+      if (typeof commaSeperatedSlugs !== "string") {
         return;
       }
-      const slugs = commaSeparatedSlugs.split(",");
-      const duplicateCount =
-        "slug" in event
-          ? event.duplicate_count
-          : typeof event.features !== "undefined"
-            ? (event.features[0].properties.duplicate_count as
-                | number
-                | null
-                | undefined)
-            : null;
-      if (typeof duplicateCount === "undefined" || duplicateCount === null) {
+      const slugs = commaSeperatedSlugs.split(",");
+      if (typeof duplicateCount !== "number") {
         return;
       }
 
@@ -256,7 +243,7 @@ export function MapView(props: {
       }
       popupClosedByHandlerRef.current = false;
 
-      const popup = new maplibreGL.Popup()
+      const popup = new MaplibreGLPopup()
         .setLngLat([
           parseFloat(organizationsOnFeature[0].longitude),
           parseFloat(organizationsOnFeature[0].latitude),
@@ -325,15 +312,34 @@ export function MapView(props: {
     [locales, organizations, popupClosedByHandlerRef, embeddable]
   );
 
+  const unclusteredClickHandler = useCallback(
+    (
+      event: MapMouseEvent & {
+        features?: MapGeoJSONFeature[];
+      } & {
+        slug?: string;
+        duplicate_count?: number;
+      }
+    ) => {
+      const feature = event.features?.[0];
+      if (typeof feature === "undefined") return;
+      showOrganizationsPopup(
+        feature.properties.id,
+        feature.properties.duplicate_count
+      );
+    },
+    [showOrganizationsPopup]
+  );
+
   useEffect(() => {
     if (
       mapLoaded &&
       mapRef.current !== null &&
-      JSON.stringify(lastOrgsRef.current) !== JSON.stringify(organizations)
+      safeStringify(lastOrgsRef.current) !== safeStringify(organizations)
     ) {
       lastOrgsRef.current = organizations;
 
-      const geoJSON: GeoJSON.FeatureCollection = {
+      const geoJSON: GeoJSONSource["_data"]["geojson"] = {
         type: "FeatureCollection",
         features: [],
       };
@@ -392,8 +398,8 @@ export function MapView(props: {
       }
 
       const clusterClickHandler = async (
-        event: maplibreGL.MapMouseEvent & {
-          features?: maplibreGL.MapGeoJSONFeature[];
+        event: MapMouseEvent & {
+          features?: MapGeoJSONFeature[];
         }
       ) => {
         if (mapRef.current !== null) {
@@ -403,15 +409,12 @@ export function MapView(props: {
           const clusterId = features[0].properties.cluster_id;
           const source = mapRef.current.getSource("organizations");
           if (typeof source !== "undefined") {
-            const geoJsonSource = source as maplibreGL.GeoJSONSource;
+            const geoJsonSource = source as GeoJSONSource;
             const zoom = await geoJsonSource.getClusterExpansionZoom(clusterId);
             const currentZoom = mapRef.current.getZoom();
             const duration = ((zoom - currentZoom) * 4000) / zoom;
             mapRef.current.flyTo({
-              center: (features[0].geometry as GeoJSON.Point).coordinates as [
-                number,
-                number,
-              ],
+              center: features[0].geometry.coordinates as [number, number],
               zoom,
               duration,
             });
@@ -420,8 +423,8 @@ export function MapView(props: {
       };
 
       const unclusteredMouseEnterHandler = (
-        event: maplibreGL.MapMouseEvent & {
-          features?: maplibreGL.MapGeoJSONFeature[];
+        event: MapMouseEvent & {
+          features?: MapGeoJSONFeature[];
         }
       ) => {
         if (mapRef.current !== null) {
@@ -434,9 +437,7 @@ export function MapView(props: {
           }
           const feature = event.features[0];
           const commaSeparatedSlugs = feature.properties.id as
-            | string
-            | null
-            | undefined;
+            string | null | undefined;
           if (
             typeof commaSeparatedSlugs === "undefined" ||
             commaSeparatedSlugs === null
@@ -445,9 +446,7 @@ export function MapView(props: {
           }
           const slugs = commaSeparatedSlugs.split(",");
           const duplicateCount = feature.properties.duplicate_count as
-            | number
-            | null
-            | undefined;
+            number | null | undefined;
           if (
             typeof duplicateCount === "undefined" ||
             duplicateCount === null
@@ -475,7 +474,7 @@ export function MapView(props: {
           for (const popup of hoverPopupsRef.current) {
             popup.remove();
           }
-          const popup = new maplibreGL.Popup()
+          const popup = new MaplibreGLPopup()
             .setLngLat([
               parseFloat(organizationsOnFeature[0].longitude),
               parseFloat(organizationsOnFeature[0].latitude),
@@ -952,21 +951,12 @@ export function MapView(props: {
                         ) {
                           return;
                         }
-                        const mapEvent = new maplibreGL.MapMouseEvent(
-                          "click",
-                          mapRef.current,
-                          event.nativeEvent
-                        );
-                        unclusteredClickHandler({
-                          ...mapEvent,
-                          preventDefault: () => event.preventDefault(),
-                          defaultPrevented: false,
-                          slug: existingOrganizationsAtAddress
+                        showOrganizationsPopup(
+                          existingOrganizationsAtAddress
                             .map((org) => org.slug)
                             .join(","),
-                          duplicate_count:
-                            existingOrganizationsAtAddress.length,
-                        });
+                          existingOrganizationsAtAddress.length
+                        );
                       }}
                       id={organization.slug}
                       key={`organization-${organization.slug}`}

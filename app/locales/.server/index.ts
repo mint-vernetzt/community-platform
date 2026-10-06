@@ -164,9 +164,8 @@ import { locale as deGoodbye } from "./de/routes/goodbye";
 import { locale as deImprint } from "./de/routes/imprint";
 // landing route
 import { locale as deLanding } from "./de/routes/index";
-// next landing routes
-import { locale as deNextLanding } from "./de/routes/next/index";
-import { locale as deNextGetInvolved } from "./de/routes/next/get-involved";
+// get-involved route
+import { locale as deGetInvolved } from "./de/routes/get-involved";
 // map route
 import { locale as deMap } from "./de/routes/map";
 // privacy-policy route
@@ -357,9 +356,8 @@ import { locale as enGoodbye } from "./en/routes/goodbye";
 import { locale as enImprint } from "./en/routes/imprint";
 // landing route
 import { locale as enLanding } from "./en/routes/index";
-// next landing routes
-import { locale as enNextLanding } from "./en/routes/next/index";
-import { locale as enNextGetInvolved } from "./en/routes/next/get-involved";
+// get-involved route
+import { locale as enGetInvolved } from "./en/routes/get-involved";
 // map route
 import { locale as enMap } from "./en/routes/map";
 // privacy-policy route
@@ -403,6 +401,7 @@ import { locale as enMeta } from "./en/meta";
  */
 
 const de = {
+  meta: deMeta,
   // root
   root: { route: deMeta, footer: deFooter },
   // auth routes
@@ -865,11 +864,16 @@ const de = {
   help: deHelp,
   // imprint route
   imprint: deImprint,
-  // landing route
-  index: { route: deLanding, faq: deHelp.faq, roadmap: deRoadmap },
-  // next landing routes
-  "next/index": deNextLanding,
-  "next/get-involved": deNextGetInvolved,
+  // landing routes
+  index: {
+    route: deLanding,
+    stages: deStages,
+  },
+  // get-involved route
+  "get-involved": {
+    route: deGetInvolved,
+    roadmap: deRoadmap,
+  },
   // map route
   map: {
     route: deMap,
@@ -904,6 +908,7 @@ const de = {
 } as const;
 
 const en = {
+  meta: enMeta,
   // root
   root: { route: enMeta, footer: enFooter },
   // auth routes
@@ -1367,10 +1372,15 @@ const en = {
   // imprint route
   imprint: enImprint,
   // landing route
-  index: { route: enLanding, faq: enHelp.faq, roadmap: enRoadmap },
-  // next landing routes
-  "next/index": enNextLanding,
-  "next/get-involved": enNextGetInvolved,
+  index: {
+    route: enLanding,
+    stages: enStages,
+  },
+  // get-involved route
+  "get-involved": {
+    route: enGetInvolved,
+    roadmap: enRoadmap,
+  },
   // map route
   map: {
     route: enMap,

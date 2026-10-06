@@ -391,8 +391,8 @@ function LoadingToolbar(props: { locales: RTELocales }) {
           <LinkIcon />
         </button>
         <div className="absolute left-0 max-w-1/2 mt-1">
-          <div className="group-has-[:checked]:block hidden bg-white border-x border-b border-gray-200 px-2 pb-2 rounded-br-lg">
-            <div className="flex gap-1 items-center abolute top-0">
+          <div className="group-has-checked:block hidden bg-white border-x border-b border-gray-200 px-2 pb-2 rounded-br-lg">
+            <div className="flex gap-1 items-center absolute top-0">
               <Input id="linkInput" disabled={true} defaultValue="https://">
                 <Input.Label htmlFor="linkInput">
                   {locales.rte.toolbar.link.cta}

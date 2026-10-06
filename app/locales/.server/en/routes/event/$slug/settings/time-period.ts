@@ -6,7 +6,7 @@ export const locale = {
     more: "Show {{count}} more",
     less: "Show {{count}} less",
     parentEvent: {
-      hint: "Your event belongs to this parent event.",
+      hint: "Your event belongs to this main event.",
     },
     childEvents: {
       hint_singular: "Your event has a sub-event.",
@@ -58,9 +58,9 @@ export const locale = {
       startTimeRequired: "Please enter the start time.",
       endTimeRequired: "Please enter the end time.",
       eventNotInParentEventBoundaries:
-        "Your event is not within the timeframe of the parent event.",
+        "Your event is not within the timeframe of the main event.",
       childEventsNotInEventBoundaries:
-        "Your event does not cover the period of the associated event(s).",
+        "Your event does not cover the period of the associated sub-event(s).",
       multiDaySameDay:
         "For multi-day events, the start and end dates must be different.",
     },

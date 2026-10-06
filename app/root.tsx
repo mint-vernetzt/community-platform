@@ -12,9 +12,12 @@ import {
   type ActionFunctionArgs,
   data,
   Form,
+  type HeadersArgs,
   isRouteErrorResponse,
   Links,
+  type LoaderFunctionArgs,
   Meta,
+  type MetaFunction,
   Outlet,
   redirect,
   Scripts,
@@ -25,10 +28,10 @@ import {
   useRouteError,
   useRouteLoaderData,
   useSearchParams,
-  type HeadersArgs,
-  type LoaderFunctionArgs,
-  type MetaFunction,
+  useSubmit,
 } from "react-router";
+import { HoneypotProvider } from "remix-utils/honeypot/react";
+import defaultEventBackground from "~/assets/default-event-background.webp";
 import { Footer } from "~/components-next/Footer";
 import { NavBar } from "~/components-next/NavBar";
 import { getAlert } from "./alert.server";
@@ -41,20 +44,25 @@ import {
 } from "./auth.server";
 import { LoginOrRegisterCTA } from "./components-next/LoginOrRegisterCTA";
 import { MainMenu } from "./components-next/MainMenu";
+import { Modal } from "./components-next/Modal";
 import { ModalRoot } from "./components-next/ModalRoot";
 import { ScrollToTopButton } from "./components-next/ScrollToTopButton";
 import { ToastContainer } from "./components-next/ToastContainer";
 import { RichText } from "./components/legacy/Richtext/RichText";
 import { PreviousLocationContext } from "./components/next/PreviousLocationContext";
 import { getEnv } from "./env.server";
-import { detectLanguage, localeCookie } from "./i18n.server";
+import { INTENT_FIELD_NAME } from "./form-helpers";
+import { honeypot } from "./honeypot.server";
+import { detectLanguage } from "./i18n.server";
 import { DEFAULT_LANGUAGE } from "./i18n.shared";
 import { BlurFactor, getImageURL, ImageSizes } from "./images.server";
 import {
   insertComponentsIntoLocale,
   insertParametersIntoLocale,
 } from "./lib/utils/i18n";
+import { safeStringify } from "./lib/utils/json";
 import { invariantResponse } from "./lib/utils/response";
+import { extendSearchParams } from "./lib/utils/searchParams";
 import { languageModuleMap } from "./locales/.server";
 import { useNonce } from "./nonce-provider";
 import {
@@ -62,9 +70,17 @@ import {
   getEntitiesBySearchQuery,
   getProfileByUserId,
   getTagsBySearchQuery,
+  hideLoginOrRegisterCtaCookie,
+  hideLoginOrRegisterCtaCookieSchema,
   linkGuestDataToUser,
   removeGuestData,
 } from "./root.server";
+import {
+  CURRENT_LOCATION,
+  HIDE_LOGIN_OR_REGISTER_CTA_COOKIE_VALUES,
+  LINK_GUEST_DATA_INTENT,
+  SKIP_LINK_GUEST_DATA_INTENT,
+} from "./root.shared";
 import {
   viewCookie,
   viewCookieSchema,
@@ -72,16 +88,7 @@ import {
 import { getPublicURL } from "./storage.server";
 import { getToast, redirectWithToast } from "./toast.server";
 import { combineHeaders, deriveMode } from "./utils.server";
-import { honeypot } from "./honeypot.server";
-import { HoneypotProvider } from "remix-utils/honeypot/react";
-import { Modal } from "./components-next/Modal";
-import { INTENT_FIELD_NAME } from "./form-helpers";
-import {
-  CURRENT_LOCATION,
-  LINK_GUEST_DATA_INTENT,
-  SKIP_LINK_GUEST_DATA_INTENT,
-} from "./root.shared";
-import { extendSearchParams } from "./lib/utils/searchParams";
+import { VIEW_COOKIE_VALUES } from "./routes/explore/organizations.shared";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { loaderData } = args;
@@ -114,11 +121,11 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     {
       name: "image",
       property: "og:image",
-      content: loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+      content: `${loaderData.meta.baseUrl}${defaultEventBackground}`,
     },
     {
       property: "og:image:secure_url",
-      content: loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+      content: `${loaderData.meta.baseUrl}${defaultEventBackground}`,
     },
     {
       property: "og:url",
@@ -137,9 +144,6 @@ export async function loader(args: LoaderFunctionArgs) {
   const honeyProps = await honeypot.getInputProps();
 
   const language = await detectLanguage(request);
-  const languageCookieHeaders = {
-    "Set-Cookie": await localeCookie.serialize(language),
-  };
   const locales = languageModuleMap[language].root;
 
   const { authClient, headers } = createAuthClient(request);
@@ -246,13 +250,30 @@ export async function loader(args: LoaderFunctionArgs) {
     };
   });
 
-  let preferredExploreOrganizationsView: "map" | "list" = "list";
+  let preferredExploreOrganizationsView: keyof typeof VIEW_COOKIE_VALUES =
+    VIEW_COOKIE_VALUES.list;
 
   const cookieHeader = request.headers.get("Cookie");
-  const cookie = (await viewCookie.parse(cookieHeader)) as null | any;
-  if (cookie !== null) {
+  const viewCookieValue = await viewCookie.parse(cookieHeader);
+  if (viewCookieValue !== null) {
     try {
-      preferredExploreOrganizationsView = viewCookieSchema.parse(cookie);
+      preferredExploreOrganizationsView =
+        viewCookieSchema.parse(viewCookieValue);
+    } catch {
+      // ignore invalid cookie
+    }
+  }
+
+  let hideLoginOrRegisterCta: keyof typeof HIDE_LOGIN_OR_REGISTER_CTA_COOKIE_VALUES =
+    HIDE_LOGIN_OR_REGISTER_CTA_COOKIE_VALUES.false;
+
+  const hideLoginOrRegisterCtaCookieValue =
+    await hideLoginOrRegisterCtaCookie.parse(cookieHeader);
+  if (hideLoginOrRegisterCtaCookieValue !== null) {
+    try {
+      hideLoginOrRegisterCta = hideLoginOrRegisterCtaCookieSchema.parse(
+        hideLoginOrRegisterCtaCookieValue
+      );
     } catch {
       // ignore invalid cookie
     }
@@ -260,12 +281,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   // Make prefetching work with a short lived cache header only on requests that have a prefetch purpose
   // see https://sergiodxa.com/tutorials/fix-double-data-request-when-prefetching-in-remix
-  const combinedHeaders = combineHeaders(
-    headers,
-    alertHeaders,
-    toastHeaders,
-    languageCookieHeaders
-  );
+  const combinedHeaders = combineHeaders(headers, alertHeaders, toastHeaders);
   const isGet = request.method.toLowerCase() === "get";
   const purpose =
     request.headers.get("Purpose") ||
@@ -279,6 +295,23 @@ export async function loader(args: LoaderFunctionArgs) {
   if (isGet && isPrefetch && !combinedHeaders.has("Cache-Control")) {
     // we will cache for 10 seconds only on the browser
     combinedHeaders.set("Cache-Control", "private, max-age=10");
+  }
+
+  const url = new URL(request.url);
+  const sanitizedPathname = url.pathname.endsWith("/")
+    ? url.pathname.slice(0, -1)
+    : `${url.pathname}`;
+  const authRoutesNotMeantToIndex = [
+    "/auth/confirm",
+    "/auth/verify",
+    "/auth/guest/confirm",
+    "/auth/guest/verify",
+  ];
+  if (
+    process.env.ALLOW_INDEXING === "false" ||
+    authRoutesNotMeantToIndex.includes(sanitizedPathname)
+  ) {
+    combinedHeaders.set("X-Robots-Tag", "noindex, nofollow");
   }
 
   return data(
@@ -300,6 +333,9 @@ export async function loader(args: LoaderFunctionArgs) {
       tags,
       entities: enhancedEntities,
       preferredExploreOrganizationsView,
+      authRoutesNotMeantToIndex,
+      sanitizedPathname,
+      hideLoginOrRegisterCta,
     },
     {
       headers: combinedHeaders,
@@ -320,7 +356,7 @@ export async function action(args: ActionFunctionArgs) {
 
   const currentLocation = formData.get(CURRENT_LOCATION);
   let redirectUrl;
-  if (currentLocation !== null) {
+  if (currentLocation !== null && typeof currentLocation === "string") {
     redirectUrl = `${process.env.COMMUNITY_BASE_URL}${currentLocation.toString()}`;
   } else {
     redirectUrl = request.url;
@@ -387,6 +423,8 @@ export const ErrorBoundary = () => {
   const isResponse = isRouteErrorResponse(error);
   const nonce = useNonce();
   const location = useLocation();
+  const submit = useSubmit();
+  const [searchParams] = useSearchParams();
 
   if (typeof document !== "undefined") {
     console.error(error);
@@ -399,15 +437,12 @@ export const ErrorBoundary = () => {
     //   return;
     // }
     try {
-      // When client side error occurs and sentry is not working, we send the error to the server
       captureException(error);
     } catch (error) {
+      // When client side error occurs and sentry is not working, we send the error to the server
       console.warn("Sentry Sentry.captureException failed");
       const formData = new FormData();
-      formData.append(
-        "error",
-        JSON.stringify(error, Object.getOwnPropertyNames(error))
-      );
+      formData.append("error", safeStringify(error));
       void fetch("/error", {
         method: "POST",
         body: formData,
@@ -419,7 +454,6 @@ export const ErrorBoundary = () => {
   const hasRootLoaderData =
     typeof rootLoaderData !== "undefined" && rootLoaderData !== null;
 
-  const [searchParams] = useSearchParams();
   const openMainMenuKey = "mainMenu";
   const mainMenuIsOpen = searchParams.get(openMainMenuKey);
 
@@ -431,7 +465,7 @@ export const ErrorBoundary = () => {
   );
 
   let errorTitle;
-  let errorText;
+  let errorText: string | undefined;
   let errorData;
 
   if (isResponse) {
@@ -446,6 +480,28 @@ export const ErrorBoundary = () => {
     errorTitle = "Unknown error";
   }
 
+  const browserNetworkErrors = [
+    "Load failed",
+    "Failed to fetch",
+    "NetworkError when attempting to fetch resource",
+    "Unable to decode turbo-stream response",
+  ];
+
+  const hasNetworkIssues = browserNetworkErrors.some(
+    (e) => typeof errorText !== "undefined" && errorText.includes(e)
+  );
+  const currentRetry = searchParams.get("retry");
+  useEffect(() => {
+    if (hasNetworkIssues && currentRetry === null) {
+      submit(
+        {
+          retry: 1,
+        },
+        { method: "GET", replace: true }
+      ).catch(() => {});
+    }
+  }, [hasNetworkIssues, currentRetry, submit]);
+
   return (
     <HoneypotProvider {...rootLoaderData?.honeyProps}>
       <html
@@ -456,7 +512,12 @@ export const ErrorBoundary = () => {
           <Meta />
           <meta charSet="utf-8" />
           <meta name="viewport" content="width=device-width,initial-scale=1" />
-          {ENV.ALLOW_INDEXING === "false" ? (
+          {ENV.ALLOW_INDEXING === "false" ||
+          (rootLoaderData !== null &&
+            typeof rootLoaderData !== "undefined" &&
+            rootLoaderData.authRoutesNotMeantToIndex.includes(
+              rootLoaderData.sanitizedPathname
+            )) ? (
             <meta name="robots" content="noindex, nofollow" />
           ) : null}
           <Links nonce={nonce} />
@@ -583,13 +644,26 @@ export const ErrorBoundary = () => {
                             ? "Details zur Fehlermeldung"
                             : "Error Details"}
                       </h2>
-                      <p>{errorTitle}</p>
-                      {typeof errorText !== "undefined" && errorText !== "" ? (
-                        <p>{errorText}</p>
-                      ) : null}
-                      {typeof errorData !== "undefined" && errorData !== "" ? (
-                        <p>{errorData}</p>
-                      ) : null}
+                      {hasNetworkIssues === false ? (
+                        <>
+                          <p>{errorTitle}</p>
+                          {typeof errorText !== "undefined" &&
+                          errorText !== "" ? (
+                            <p>{errorText}</p>
+                          ) : null}
+                          {typeof errorData !== "undefined" &&
+                          errorData !== "" ? (
+                            <p>{errorData}</p>
+                          ) : null}
+                        </>
+                      ) : (
+                        <p>
+                          {hasRootLoaderData
+                            ? rootLoaderData.locales.route.root.errorBoundary
+                                .networkErrors
+                            : "You have network issues. Please try again later."}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </section>
@@ -598,8 +672,9 @@ export const ErrorBoundary = () => {
           </PreviousLocationContext>
           <script
             nonce={nonce}
+            suppressHydrationWarning
             dangerouslySetInnerHTML={{
-              __html: `window.ENV = ${JSON.stringify(ENV)}`,
+              __html: `window.ENV = ${safeStringify(ENV)}`,
             }}
           />
           <ScrollRestoration nonce={nonce} />
@@ -623,6 +698,9 @@ export default function App() {
     mode,
     ENV,
     honeyProps,
+    authRoutesNotMeantToIndex,
+    sanitizedPathname,
+    hideLoginOrRegisterCta,
   } = useLoaderData<typeof loader>();
   const location = useLocation();
   const nonce = useNonce();
@@ -655,10 +733,7 @@ export default function App() {
       } catch (error) {
         console.warn(`Matomo initialization failed.`);
         const formData = new FormData();
-        formData.append(
-          "error",
-          JSON.stringify(error, Object.getOwnPropertyNames(error))
-        );
+        formData.append("error", safeStringify(error));
         void fetch("/error", {
           method: "POST",
           body: formData,
@@ -677,10 +752,7 @@ export default function App() {
       } catch (error) {
         console.warn(`Matomo tracking failed.`);
         const formData = new FormData();
-        formData.append(
-          "error",
-          JSON.stringify(error, Object.getOwnPropertyNames(error))
-        );
+        formData.append("error", safeStringify(error));
         void fetch("/error", {
           method: "POST",
           body: formData,
@@ -700,6 +772,7 @@ export default function App() {
     location.pathname.startsWith(baseRoute)
   );
   const isIndexRoute = location.pathname === "/";
+  const isGetInvolvedRoute = location.pathname === "/get-involved";
   const isMapOnExplore = location.pathname === "/explore/organizations/map";
 
   const matches = useMatches();
@@ -748,7 +821,7 @@ export default function App() {
   const mainMenuIsOpen = searchParams.get(openMainMenuKey);
 
   const bodyClasses = classNames(
-    "font-sans flex min-h-dvh break-words antialiased overflow-x-hidden",
+    "font-sans flex min-h-dvh wrap-break-word antialiased overflow-x-hidden",
     modal && "overflow-y-hidden",
     overlayMenu && "overflow-y-hidden container-lg:overflow-y-visible",
     showFilters !== null &&
@@ -766,10 +839,12 @@ export default function App() {
           <Meta />
           <meta charSet="utf-8" />
           <meta name="viewport" content="width=device-width,initial-scale=1" />
-          {ENV.ALLOW_INDEXING === "false" ? (
+          {ENV.ALLOW_INDEXING === "false" ||
+          authRoutesNotMeantToIndex.includes(sanitizedPathname) ? (
             <meta name="robots" content="noindex, nofollow" />
           ) : null}
-          <Links nonce={nonce} />
+          {/* This fixes a hydration error on dev introduced by react 19.3.0. React Router does not yet provide a suppressHydrationWarning attribute on <Links/> */}
+          <Links nonce={ENV.MODE === "production" ? nonce : ""} />
         </head>
 
         <body id="top" className={bodyClasses}>
@@ -829,14 +904,22 @@ export default function App() {
                       }
                     />
                   </div>
-                  {isIndexRoute === false && isNonAppBaseRoute === false && (
-                    <div className={`${showFilters ? "hidden @lg:block" : ""}`}>
-                      <LoginOrRegisterCTA
-                        isAnon={mode === "anon"}
-                        locales={locales}
-                      />
-                    </div>
-                  )}
+                  {isIndexRoute === false &&
+                    isGetInvolvedRoute === false &&
+                    isNonAppBaseRoute === false && (
+                      <div
+                        className={`${showFilters ? "hidden @lg:block" : ""}`}
+                      >
+                        <LoginOrRegisterCTA
+                          isAnon={mode === "anon"}
+                          locales={locales}
+                          hideLoginOrRegisterCta={
+                            hideLoginOrRegisterCta ===
+                            HIDE_LOGIN_OR_REGISTER_CTA_COOKIE_VALUES.true
+                          }
+                        />
+                      </div>
+                    )}
                   <div className="flex flex-nowrap w-full">
                     <main className="w-full @md:bg-neutral-50">
                       <Outlet />
@@ -851,8 +934,12 @@ export default function App() {
                       <ScrollToTopButton locales={locales} />
                     </div>
                   </div>
-                  {isIndexRoute ? (
-                    <Footer locales={locales} mode={mode} />
+                  {isIndexRoute || isGetInvolvedRoute ? (
+                    <Footer
+                      locales={locales}
+                      mode={mode}
+                      currentYear={new Date().getFullYear()}
+                    />
                   ) : null}
                   {alert !== null ? (
                     <Alert level={alert.level}>
@@ -914,8 +1001,9 @@ export default function App() {
           </PreviousLocationContext>
           <script
             nonce={nonce}
+            suppressHydrationWarning
             dangerouslySetInnerHTML={{
-              __html: `window.ENV = ${JSON.stringify(ENV)}`,
+              __html: `window.ENV = ${safeStringify(ENV)}`,
             }}
           />
           <ScrollRestoration nonce={nonce} />

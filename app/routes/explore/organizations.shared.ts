@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+export const VIEW_COOKIE_VALUES = {
+  list: "list",
+  map: "map",
+} as const;
+
 export const ORGANIZATION_SORT_VALUES = [
   "name-asc",
   "name-desc",

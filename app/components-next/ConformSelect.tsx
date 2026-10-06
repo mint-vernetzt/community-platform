@@ -25,6 +25,7 @@ function ConformSelectInput(props: {
 }) {
   const { id, disabled = false, cta, listItems, closeOnSelect } = props;
 
+  const [syncedListItems, setSyncedListItems] = useState(listItems);
   const [isOpen, setIsOpen] = useState(false);
   const [isDisabled, setIsDisabled] = useState(disabled);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -59,15 +60,15 @@ function ConformSelectInput(props: {
     };
   });
 
-  useEffect(() => {
-    if (listItems.length === 0) {
-      setIsOpen(false);
-      setIsDisabled(true);
-    }
-    if (listItems.length > 0) {
-      setIsDisabled(disabled);
-    }
-  }, [listItems, disabled]);
+  if (syncedListItems !== listItems && listItems.length === 0) {
+    setIsOpen(false);
+    setIsDisabled(true);
+    setSyncedListItems(listItems);
+  }
+  if (syncedListItems !== listItems && listItems.length > 0) {
+    setIsDisabled(disabled);
+    setSyncedListItems(listItems);
+  }
 
   const labelClasses = classNames(
     "relative flex gap-2.5 justify-between bg-white rounded-lg border border-neutral-300 w-full pl-3 py-2 pr-2 text-base leading-5 font-normal peer-focus:border-primary-200 peer-focus:ring-1 peer-focus:ring-primary-200 peer-checked:rounded-b-none",

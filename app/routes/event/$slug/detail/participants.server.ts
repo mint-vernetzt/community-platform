@@ -31,33 +31,9 @@ export async function getParticipantsOfEvent(options: {
           { event: { slug } },
           {
             event: {
-              AND: [
-                {
-                  parentEvent: {
-                    slug,
-                    external: false,
-                    openForRegistration: true,
-                  },
-                },
-                {
-                  OR: [
-                    { published: true },
-                    sessionUser !== null
-                      ? {
-                          teamMembers: {
-                            some: { profileId: sessionUser?.id },
-                          },
-                          admins: {
-                            some: { profileId: sessionUser?.id },
-                          },
-                          speakers: {
-                            some: { profileId: sessionUser?.id },
-                          },
-                        }
-                      : {},
-                  ],
-                },
-              ],
+              parentEvent: {
+                slug,
+              },
             },
           },
         ],
@@ -66,11 +42,20 @@ export async function getParticipantsOfEvent(options: {
   };
 
   const guestWhere = {
-    event: {
-      slug,
-      external: false,
-      openForRegistration: true,
-    },
+    OR: [
+      {
+        event: {
+          slug,
+        },
+      },
+      {
+        event: {
+          parentEvent: {
+            slug,
+          },
+        },
+      },
+    ],
     confirmed: true,
     onWaitingList: false,
   };
@@ -120,6 +105,7 @@ export async function getParticipantsOfEvent(options: {
       prismaClient.guest.findMany({
         where: guestWhere,
         select: guestSelect,
+        distinct: ["email"],
       }),
     ]);
     profiles = transactionResult[0];
@@ -157,6 +143,7 @@ export async function getParticipantsOfEvent(options: {
           }),
         },
         select: guestSelect,
+        distinct: ["email"],
       }),
     ]);
     profiles = transactionResult[0];
@@ -236,6 +223,7 @@ export async function getEventBySlug(slug: string) {
       participationUntil: true,
       endTime: true,
       external: true,
+      published: true,
       openForRegistration: true,
       parentParticipationRequired: true,
       parentEvent: {
@@ -252,6 +240,12 @@ export async function getEventBySlug(slug: string) {
       _count: {
         select: {
           participants: true,
+          guests: {
+            where: {
+              confirmed: true,
+              onWaitingList: false,
+            },
+          },
           childEvents: true,
         },
       },

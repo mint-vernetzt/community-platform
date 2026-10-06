@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef } from "react";
+import { createContext, useContext, useState } from "react";
 import {
   useLocation,
   useNavigation,
@@ -15,19 +15,20 @@ export function PreviousLocationContext({
   children: React.ReactNode;
 }) {
   const location = useLocation();
-  const prevLocationRef = useRef<ReactRouterLocation | null>(null);
+  const [syncedLocation, setSyncedLocation] = useState(location);
+  const [previousLocation, setPreviousLocation] =
+    useState<ReactRouterLocation | null>(null);
   const navigation = useNavigation();
 
-  useEffect(() => {
-    if (navigation.state === "loading") {
-      prevLocationRef.current = location;
-    }
-  }, [navigation, location]);
+  if (syncedLocation !== location && navigation.state === "loading") {
+    setPreviousLocation(location);
+    setSyncedLocation(location);
+  }
 
   return (
     <Context
       value={{
-        previousLocation: prevLocationRef.current,
+        previousLocation,
       }}
     >
       {children}

@@ -9,12 +9,15 @@ import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
+  ActionFunctionArgs,
+  data,
   Form,
   NavLink,
   Outlet,
   redirect,
+  useFetcher,
   useLoaderData,
   useNavigation,
   useSearchParams,
@@ -43,6 +46,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import { languageModuleMap } from "~/locales/.server";
 import { getPublicURL } from "~/storage.server";
+import { createHashFromObject } from "~/utils.server";
 import { getFilterSchemes, type FilterSchemes } from "./all.shared";
 import {
   getAllFocuses,
@@ -52,8 +56,12 @@ import {
   getFilterCountForSlug,
   getOrganizationFilterVectorForAttribute,
   getOrganizationIds,
+  viewCookie,
 } from "./organizations.server";
-import { ORGANIZATION_SORT_VALUES } from "./organizations.shared";
+import {
+  ORGANIZATION_SORT_VALUES,
+  VIEW_COOKIE_VALUES,
+} from "./organizations.shared";
 import { getAllAreas, getAreaNameBySlug } from "./utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -333,7 +341,25 @@ export async function loader(args: LoaderFunctionArgs) {
     networks: enhancedNetworks,
     selectedNetworks,
     currentView,
+    submissionHash: createHashFromObject(submission.value),
   };
+}
+
+export async function action(args: ActionFunctionArgs) {
+  const { request } = args;
+  const formData = await request.formData();
+  const view = formData.get("view");
+  invariantResponse(
+    view === VIEW_COOKIE_VALUES.list || view === VIEW_COOKIE_VALUES.map,
+    "Invalid view value",
+    {
+      status: 400,
+    }
+  );
+  const viewCookieHeader = {
+    "Set-Cookie": await viewCookie.serialize(view),
+  };
+  return data(null, { headers: viewCookieHeader });
 }
 
 export default function ExploreOrganizations() {
@@ -343,9 +369,10 @@ export default function ExploreOrganizations() {
   const navigation = useNavigation();
   const submit = useSubmit();
   const isHydrated = useHydrated();
+  const fetcher = useFetcher();
 
   const [form, fields] = useForm<FilterSchemes>({
-    id: "filter-organizations",
+    id: `filter-organizations-${loaderData.submissionHash}`,
     defaultValue: {
       ...loaderData.submission.value,
       search: [loaderData.submission.value.search.join(" ")],
@@ -358,7 +385,7 @@ export default function ExploreOrganizations() {
   const orgFilterFieldset = fields.orgFilter.getFieldset();
 
   const [resetForm, resetFields] = useForm<FilterSchemes>({
-    id: "reset-organization-filters",
+    id: `reset-organization-filters-${loaderData.submissionHash}`,
     defaultValue: {
       ...loaderData.submission.value,
       orgFilter: {
@@ -381,9 +408,14 @@ export default function ExploreOrganizations() {
     return value === `${loaderData.submission.value.orgSortBy}`;
   });
 
-  const [visibleNetworks, setVisibleNetworks] = useState<
-    typeof loaderData.networks
-  >(loaderData.networks);
+  const [visibleNetworks, setVisibleNetworks] = useState(loaderData.networks);
+  const [syncedNetworks, setSyncedNetworks] = useState(loaderData.networks);
+
+  if (syncedNetworks !== loaderData.networks) {
+    setSyncedNetworks(loaderData.networks);
+    setVisibleNetworks(loaderData.networks);
+  }
+
   const handleNetworkSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
     const value = event.target.value;
@@ -401,13 +433,14 @@ export default function ExploreOrganizations() {
     }
   };
 
-  useEffect(() => {
-    setVisibleNetworks(loaderData.networks);
-  }, [loaderData.networks]);
+  const [visibleAreas, setVisibleAreas] = useState(loaderData.areas);
+  const [syncedAreas, setSyncedAreas] = useState(loaderData.areas);
 
-  const [visibleAreas, setVisibleAreas] = useState<typeof loaderData.areas>(
-    loaderData.areas
-  );
+  if (syncedAreas !== loaderData.areas) {
+    setSyncedAreas(loaderData.areas);
+    setVisibleAreas(loaderData.areas);
+  }
+
   const handleAreaSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
     const value = event.target.value.trim().toLowerCase();
@@ -442,10 +475,6 @@ export default function ExploreOrganizations() {
       setVisibleAreas(loaderData.areas);
     }
   };
-
-  useEffect(() => {
-    setVisibleAreas(loaderData.areas);
-  }, [loaderData.areas]);
 
   return (
     <>
@@ -488,6 +517,7 @@ export default function ExploreOrganizations() {
               className="flex flex-wrap @lg:gap-4"
               showMore={locales.route.filter.showMore}
               showLess={locales.route.filter.showLess}
+              hideAfter={5}
             >
               {/* Organization Types Filter */}
               <Dropdown>
@@ -1050,6 +1080,11 @@ export default function ExploreOrganizations() {
                   }
                   preventScrollReset
                   prefetch="intent"
+                  onClick={() => {
+                    const formData = new FormData();
+                    formData.set("view", VIEW_COOKIE_VALUES.list);
+                    void fetcher.submit(formData, { method: "post" });
+                  }}
                 >
                   <List aria-hidden="true" />
                   <span>{locales.route.view.list}</span>
@@ -1067,6 +1102,11 @@ export default function ExploreOrganizations() {
                   }
                   preventScrollReset
                   prefetch="intent"
+                  onClick={() => {
+                    const formData = new FormData();
+                    formData.set("view", VIEW_COOKIE_VALUES.map);
+                    void fetcher.submit(formData, { method: "post" });
+                  }}
                 >
                   <MapIcon aria-hidden="true" />
                   <span>{locales.route.view.map}</span>
@@ -1105,7 +1145,7 @@ export default function ExploreOrganizations() {
                     <ConformForm
                       key={selectedType}
                       useFormOptions={{
-                        id: `delete-filter-${selectedType}`,
+                        id: `delete-filter-${selectedType}-${loaderData.submissionHash}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           orgFilter: {
@@ -1168,7 +1208,7 @@ export default function ExploreOrganizations() {
                     <ConformForm
                       key={selectedNetworkType}
                       useFormOptions={{
-                        id: `delete-filter-${selectedNetworkType}`,
+                        id: `delete-filter-${selectedNetworkType}-${loaderData.submissionHash}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           orgFilter: {
@@ -1231,7 +1271,7 @@ export default function ExploreOrganizations() {
                     <ConformForm
                       key={selectedFocus}
                       useFormOptions={{
-                        id: `delete-filter-${selectedFocus}`,
+                        id: `delete-filter-${selectedFocus}-${loaderData.submissionHash}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           orgFilter: {
@@ -1283,7 +1323,7 @@ export default function ExploreOrganizations() {
                     <ConformForm
                       key={selectedArea.slug}
                       useFormOptions={{
-                        id: `delete-filter-${selectedArea.slug}`,
+                        id: `delete-filter-${selectedArea.slug}-${loaderData.submissionHash}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           orgFilter: {
@@ -1334,7 +1374,7 @@ export default function ExploreOrganizations() {
                     <ConformForm
                       key={selectedNetwork.slug}
                       useFormOptions={{
-                        id: `delete-filter-${selectedNetwork.slug}`,
+                        id: `delete-filter-${selectedNetwork.slug}-${loaderData.submissionHash}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           orgFilter: {

@@ -48,8 +48,8 @@ export const locale = {
       "Your own organization was successfully added as a responsible organization.",
   },
   mail: {
-    buttonText: "Zur Community Plattform",
+    buttonText: "Go to the Community Platform",
     subject:
-      "Deine Organisation wurde als verantwortliche Organisation zu einem Event eingeladen",
+      "Your organization has been invited as a responsible organization to an event",
   },
 } as const;

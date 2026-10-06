@@ -62,6 +62,8 @@ import {
   hasTeamData,
 } from "./detail.shared";
 import ShadowOrganizationHint from "~/components/next/ShadowOrganizationHint";
+import defaultOrganizationBackground from "~/assets/default-organization-background.webp";
+import { VIEW_COOKIE_VALUES } from "~/routes/explore/organizations.shared";
 
 export function links() {
   return [
@@ -101,13 +103,11 @@ export const meta: MetaFunction<typeof loader> = (args) => {
       {
         name: "image",
         property: "og:image",
-        content:
-          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+        content: `${loaderData.meta.baseUrl}${defaultOrganizationBackground}`,
       },
       {
         property: "og:image:secure_url",
-        content:
-          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+        content: `${loaderData.meta.baseUrl}${defaultOrganizationBackground}`,
       },
       {
         property: "og:url",
@@ -154,13 +154,11 @@ export const meta: MetaFunction<typeof loader> = (args) => {
       {
         name: "image",
         property: "og:image",
-        content:
-          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+        content: `${loaderData.meta.baseUrl}${defaultOrganizationBackground}`,
       },
       {
         property: "og:image:secure_url",
-        content:
-          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+        content: `${loaderData.meta.baseUrl}${defaultOrganizationBackground}`,
       },
       {
         property: "og:url",
@@ -221,10 +219,11 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const enhancedOrganization = addImgUrls(authClient, filteredOrganization);
 
-  let preferredExploreOrganizationsView: "map" | "list" = "map";
+  let preferredExploreOrganizationsView: keyof typeof VIEW_COOKIE_VALUES =
+    VIEW_COOKIE_VALUES.map;
 
   const cookieHeader = request.headers.get("Cookie");
-  const cookie = (await viewCookie.parse(cookieHeader)) as null | any;
+  const cookie = await viewCookie.parse(cookieHeader);
   if (cookie !== null) {
     try {
       preferredExploreOrganizationsView = viewCookieSchema.parse(cookie);
@@ -625,6 +624,7 @@ function OrganizationDetail() {
                 form="modal-logo-form"
                 className="hidden @lg:grid absolute top-0 w-full h-full rounded-full opacity-0 hover:opacity-100 focus-within:opacity-100 hover:bg-neutral-700/70 focus-within:bg-neutral-700/70 transition-all bg-neutral-700/0 grid-rows-1 grid-cols-1 place-items-center cursor-pointer"
                 disabled={isSubmitting}
+                aria-label={locales.route.header.controls.edit}
               >
                 <div className="flex flex-col items-center gap-1">
                   <div className="w-8 h-8 rounded-full bg-neutral-50 flex items-center justify-center border border-primary">
@@ -649,9 +649,9 @@ function OrganizationDetail() {
                       />
                     </svg>
                   </div>
-                  <p className="text-white text-sm font-semibold leading-4">
+                  <span className="text-white text-sm font-semibold leading-4">
                     {locales.route.header.controls.edit}
-                  </p>
+                  </span>
                 </div>
               </button>
             ) : null}

@@ -12,6 +12,7 @@ export const locale = {
       errorDetails: {
         headline: "Error Details",
       },
+      networkErrors: "You have network issues. Please try again later.",
     },
     toLandingPage: "To the landing page",
     toDashboard: "To the dashboard",
@@ -60,6 +61,9 @@ export const locale = {
       },
       resources: {
         label: "Resources",
+      },
+      getInvolved: {
+        label: "Get Involved",
       },
       explore: {
         index: "All content",
@@ -112,14 +116,16 @@ export const locale = {
   event: {
     reminder: {
       oneDayBefore: {
-        subject: "Erinnerung: Das Event {{eventName}} findet morgen statt",
+        subject: "Reminder: The event {{eventName}} is happening tomorrow",
       },
       oneHourBefore: {
-        subject: "Erinnerung: Das Event {{eventName}} findet bald statt",
+        subject: "Reminder: The event {{eventName}} is happening soon",
       },
       fifteenMinutesBefore: {
-        subject: "Erinnerung: Das Event {{eventName}} findet gleich statt",
+        subject:
+          "Reminder: The event {{eventName}} is happening in fifteen minutes",
       },
     },
   },
+  timezone: "CET",
 } as const;
