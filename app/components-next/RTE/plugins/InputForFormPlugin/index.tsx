@@ -81,10 +81,7 @@ function InputForFormPlugin(
       }
       editor.read(() => {
         const editorState = editor.getEditorState();
-        const editorStateJSON = safeStringify(editorState.toJSON()).replace(
-          /^"|"$/g,
-          ""
-        );
+        const editorStateJSON = safeStringify(editorState.toJSON());
         setEditorStateValue(String(editorStateJSON));
       });
     };

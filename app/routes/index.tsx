@@ -159,10 +159,7 @@ export const action = async (args: ActionFunctionArgs) => {
     const replyWithoutPassword = {
       ...reply,
       initialValue: {
-        loginRedirect: safeStringify(submission.payload.loginRedirect).replace(
-          /^"|"$/g,
-          ""
-        ),
+        loginRedirect: safeStringify(submission.payload.loginRedirect),
         email: safeStringify(submission.payload.email),
         password: "", // Don't return password to client
       },
