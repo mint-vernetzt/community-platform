@@ -295,7 +295,37 @@ export async function action(args: ActionFunctionArgs) {
       organization,
       organizationTypeNetwork,
       intent: "inviteNetworkMember",
-      locales,
+      locales: {
+        error: locales.route.error,
+        // locales.route.content.networkMembers.invite.email.button.text
+        mail: {
+          invite: {
+            buttonText: {
+              de: languageModuleMap.de["organization/$slug/settings/manage"]
+                .route.content.networkMembers.invite.email.button.text,
+              en: languageModuleMap.en["organization/$slug/settings/manage"]
+                .route.content.networkMembers.invite.email.button.text,
+            },
+            subject: {
+              de: languageModuleMap.de["organization/$slug/settings/manage"]
+                .route.content.networkMembers.invite.email.subject.invited,
+              en: languageModuleMap.en["organization/$slug/settings/manage"]
+                .route.content.networkMembers.invite.email.subject.invited,
+            },
+          },
+          cancelInvite: {
+            subject: {
+              de: languageModuleMap.de["organization/$slug/settings/manage"]
+                .route.content.networkMembers.invite.email.subject.canceled,
+              en: languageModuleMap.en["organization/$slug/settings/manage"]
+                .route.content.networkMembers.invite.email.subject.canceled,
+            },
+          },
+        },
+        success: locales.route.content.networkMembers.invite.success,
+        cancelSuccess:
+          locales.route.content.networkMembers.invite.cancelSuccess,
+      },
     });
   } else if (intent.startsWith("cancel-network-member-invitation-")) {
     const cancelNetworkMemberInvitationFormData = new FormData();
@@ -308,7 +338,37 @@ export async function action(args: ActionFunctionArgs) {
       organization,
       organizationTypeNetwork,
       intent: "cancelNetworkMemberInvitation",
-      locales,
+      locales: {
+        error: locales.route.error,
+        // locales.route.content.networkMembers.invite.email.button.text
+        mail: {
+          invite: {
+            buttonText: {
+              de: languageModuleMap.de["organization/$slug/settings/manage"]
+                .route.content.networkMembers.invite.email.button.text,
+              en: languageModuleMap.en["organization/$slug/settings/manage"]
+                .route.content.networkMembers.invite.email.button.text,
+            },
+            subject: {
+              de: languageModuleMap.de["organization/$slug/settings/manage"]
+                .route.content.networkMembers.invite.email.subject.invited,
+              en: languageModuleMap.en["organization/$slug/settings/manage"]
+                .route.content.networkMembers.invite.email.subject.invited,
+            },
+          },
+          cancelInvite: {
+            subject: {
+              de: languageModuleMap.de["organization/$slug/settings/manage"]
+                .route.content.networkMembers.invite.email.subject.canceled,
+              en: languageModuleMap.en["organization/$slug/settings/manage"]
+                .route.content.networkMembers.invite.email.subject.canceled,
+            },
+          },
+        },
+        success: locales.route.content.networkMembers.invite.success,
+        cancelSuccess:
+          locales.route.content.networkMembers.invite.cancelSuccess,
+      },
     });
   } else if (intent.startsWith("remove-network-member-")) {
     const removeNetworkMemberFormData = new FormData();
