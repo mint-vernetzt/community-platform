@@ -176,10 +176,7 @@ async function main() {
     throw new Error(`No profile found with ID ${options.id}`);
   }
 
-  const profileBackupJson = safeStringify(profileBackup, null, 2).replace(
-    /^"|"$/g,
-    ""
-  );
+  const profileBackupJson = safeStringify(profileBackup, null, 2);
 
   await prismaClient.$transaction([
     prismaClient.bannedProfile.create({

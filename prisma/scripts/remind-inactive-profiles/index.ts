@@ -193,10 +193,7 @@ async function main() {
         );
       }
 
-      const profileBackupJson = safeStringify(profileBackup, null, 2).replace(
-        /^"|"$/g,
-        ""
-      );
+      const profileBackupJson = safeStringify(profileBackup, null, 2);
 
       console.log(`  -> Backup anlegen (${profileBackupJson.length} Zeichen)`);
 
