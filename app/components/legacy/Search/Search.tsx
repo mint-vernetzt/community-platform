@@ -1,7 +1,6 @@
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { useEffect, useRef, useState } from "react";
 import { Link, useFetcher, useSearchParams } from "react-router";
-import { useHydrated } from "remix-utils/use-hydrated";
 import {
   DEFAULT_LANGUAGE,
   type SUPPORTED_COOKIE_LANGUAGES,
@@ -33,7 +32,7 @@ function Search(props: SearchProps) {
   const {
     locales,
     children,
-    inputProps: { placeholder, minLength = 3, ...otherInputProps },
+    inputProps: { minLength = 3, ...otherInputProps },
   } = props;
   const [searchParams] = useSearchParams();
   const query = searchParams.get("search") || "";
@@ -141,8 +140,6 @@ function Search(props: SearchProps) {
     setLastFetcherResult(fetcher.data);
   }
 
-  const isHydrated = useHydrated();
-
   return (
     <>
       <div
@@ -199,19 +196,15 @@ function Search(props: SearchProps) {
                     />
                   </svg>
                 </div>
-                {isHydrated && (
-                  <div className="font-base font-semibold text-neutral-500 -mt-3">
-                    {children}
-                  </div>
-                )}
+                <div className="font-base font-semibold text-neutral-500 -mt-3">
+                  {children}
+                </div>
               </>
             )}
           </div>
 
           <input
-            className="w-full h-10 xl:h-12 outline-hidden bg-neutral-100 xl:bg-neutral-50 min-w-57.5 rounded-lg border border-neutral-100 xl:border-neutral-200 py-2 pl-9 xl:pl-4 pr-4 text-base placeholder:font-normal placeholder:text-neutral-700 font-semibold text-neutral-700 appearance-none leading-6 focus:border-primary-200 focus:border-2"
-            aria-placeholder={placeholder}
-            placeholder={isHydrated === false ? placeholder : undefined}
+            className="w-full h-10 xl:h-12 outline-hidden bg-neutral-100 xl:bg-neutral-50 min-w-57.5 rounded-lg border border-neutral-100 xl:border-neutral-200 py-2 pl-9 xl:pl-4 pr-4 text-base font-semibold text-neutral-700 appearance-none leading-6 focus:border-primary-200 focus:border-2"
             minLength={minLength || 3}
             value={value}
             onChange={handleChange}
