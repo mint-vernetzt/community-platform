@@ -429,7 +429,29 @@ export async function action(args: ActionFunctionArgs) {
     result = await updateNetworkRequest({
       formData: acceptNetworkRequestFormData,
       intent: "acceptNetworkRequest",
-      locales,
+      locales: {
+        error: locales.route.error,
+        mail: {
+          accept: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route.networkRequests
+                .email.subject.accepted,
+              en: languageModuleMap.en["my/organizations"].route.networkRequests
+                .email.subject.accepted,
+            },
+          },
+          reject: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route.networkRequests
+                .email.subject.rejected,
+              en: languageModuleMap.en["my/organizations"].route.networkRequests
+                .email.subject.rejected,
+            },
+          },
+        },
+        acceptSuccess: locales.route.networkRequests.acceptNetworkRequest,
+        rejectSuccess: locales.route.networkRequests.rejectNetworkRequest,
+      },
       sessionUser,
     });
   } else if (intent.startsWith("reject-network-request-")) {
@@ -440,7 +462,29 @@ export async function action(args: ActionFunctionArgs) {
     result = await updateNetworkRequest({
       formData: rejectNetworkRequestFormData,
       intent: "rejectNetworkRequest",
-      locales,
+      locales: {
+        error: locales.route.error,
+        mail: {
+          accept: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route.networkRequests
+                .email.subject.accepted,
+              en: languageModuleMap.en["my/organizations"].route.networkRequests
+                .email.subject.accepted,
+            },
+          },
+          reject: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route.networkRequests
+                .email.subject.rejected,
+              en: languageModuleMap.en["my/organizations"].route.networkRequests
+                .email.subject.rejected,
+            },
+          },
+        },
+        acceptSuccess: locales.route.networkRequests.acceptNetworkRequest,
+        rejectSuccess: locales.route.networkRequests.rejectNetworkRequest,
+      },
       sessionUser,
     });
   } else if (intent.startsWith("quit-organization-admin-")) {

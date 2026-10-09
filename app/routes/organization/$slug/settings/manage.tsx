@@ -259,7 +259,36 @@ export async function action(args: ActionFunctionArgs) {
       formData: requestToJoinNetworkFormData,
       organization,
       intent: "requestToJoinNetwork",
-      locales,
+      locales: {
+        error: locales.route.error,
+        mail: {
+          requested: {
+            subject: {
+              de: languageModuleMap.de["organization/$slug/settings/manage"]
+                .route.content.networks.requestToJoin.email.subject.requested,
+              en: languageModuleMap.en["organization/$slug/settings/manage"]
+                .route.content.networks.requestToJoin.email.subject.requested,
+            },
+            buttonText: {
+              de: languageModuleMap.de["organization/$slug/settings/manage"]
+                .route.content.networks.requestToJoin.email.button.text,
+              en: languageModuleMap.en["organization/$slug/settings/manage"]
+                .route.content.networks.requestToJoin.email.button.text,
+            },
+          },
+          canceled: {
+            subject: {
+              de: languageModuleMap.de["organization/$slug/settings/manage"]
+                .route.content.networks.requestToJoin.email.subject.canceled,
+              en: languageModuleMap.en["organization/$slug/settings/manage"]
+                .route.content.networks.requestToJoin.email.subject.canceled,
+            },
+          },
+        },
+        success: locales.route.content.networks.requestToJoin.success,
+        cancelSuccess:
+          locales.route.content.networks.requestToJoin.cancelSuccess,
+      },
     });
   } else if (intent.startsWith("cancel-network-join-request-")) {
     const cancelNetworkJoinRequestFormData = new FormData();
@@ -271,7 +300,36 @@ export async function action(args: ActionFunctionArgs) {
       formData: cancelNetworkJoinRequestFormData,
       organization,
       intent: "cancelNetworkJoinRequest",
-      locales,
+      locales: {
+        error: locales.route.error,
+        mail: {
+          requested: {
+            subject: {
+              de: languageModuleMap.de["organization/$slug/settings/manage"]
+                .route.content.networks.requestToJoin.email.subject.requested,
+              en: languageModuleMap.en["organization/$slug/settings/manage"]
+                .route.content.networks.requestToJoin.email.subject.requested,
+            },
+            buttonText: {
+              de: languageModuleMap.de["organization/$slug/settings/manage"]
+                .route.content.networks.requestToJoin.email.button.text,
+              en: languageModuleMap.en["organization/$slug/settings/manage"]
+                .route.content.networks.requestToJoin.email.button.text,
+            },
+          },
+          canceled: {
+            subject: {
+              de: languageModuleMap.de["organization/$slug/settings/manage"]
+                .route.content.networks.requestToJoin.email.subject.canceled,
+              en: languageModuleMap.en["organization/$slug/settings/manage"]
+                .route.content.networks.requestToJoin.email.subject.canceled,
+            },
+          },
+        },
+        success: locales.route.content.networks.requestToJoin.success,
+        cancelSuccess:
+          locales.route.content.networks.requestToJoin.cancelSuccess,
+      },
     });
   } else if (intent.startsWith("leave-network-")) {
     const leaveNetworkFormData = new FormData();

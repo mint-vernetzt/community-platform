@@ -2247,7 +2247,30 @@ export async function acceptOrRejectOrganizationMemberRequest(options: {
 export async function updateNetworkRequest(options: {
   formData: FormData;
   intent: "acceptNetworkRequest" | "rejectNetworkRequest";
-  locales: MyOrganizationsLocales;
+  locales: {
+    error: {
+      notFound: string;
+      notAdmin: string;
+      acceptRequestFailed: string;
+      rejectRequestFailed: string;
+    };
+    mail: {
+      accept: {
+        subject: {
+          de: string;
+          en: string;
+        };
+      };
+      reject: {
+        subject: {
+          de: string;
+          en: string;
+        };
+      };
+    };
+    acceptSuccess: string;
+    rejectSuccess: string;
+  };
   sessionUser: User;
 }) {
   const { formData, intent, locales, sessionUser } = options;
@@ -2297,14 +2320,14 @@ export async function updateNetworkRequest(options: {
               status: "pending",
             },
           });
-        invariantResponse(request !== null, locales.route.error.notFound, {
+        invariantResponse(request !== null, locales.error.notFound, {
           status: 404,
         });
         invariantResponse(
           request.network.admins.some((relation) => {
             return relation.profileId === sessionUser.id;
           }),
-          locales.route.error.notAdmin,
+          locales.error.notAdmin,
           {
             status: 403,
           }
@@ -2375,8 +2398,8 @@ export async function updateNetworkRequest(options: {
               const sender = process.env.SYSTEM_MAIL_SENDER;
               const subject =
                 intent === "acceptNetworkRequest"
-                  ? locales.route.networkRequests.email.subject.accepted
-                  : locales.route.networkRequests.email.subject.rejected;
+                  ? `${locales.mail.accept.subject.de} | ${locales.mail.accept.subject.en}`
+                  : `${locales.mail.reject.subject.de} | ${locales.mail.reject.subject.en}`;
               const recipient = admin.profile.email;
 
               const text =
@@ -2392,7 +2415,7 @@ export async function updateNetworkRequest(options: {
                       "text"
                     )
                   : getCompiledMailTemplate<"mail-templates/requests/network-to-add-organization/rejected-text.hbs">(
-                      "mail-templates/requests/network-to-add-organization/accepted-text.hbs",
+                      "mail-templates/requests/network-to-add-organization/rejected-text.hbs",
                       {
                         firstName: admin.profile.firstName,
                         network: {
@@ -2439,8 +2462,8 @@ export async function updateNetworkRequest(options: {
                   code: "custom",
                   message:
                     intent === "acceptNetworkRequest"
-                      ? locales.route.error.acceptRequestFailed
-                      : locales.route.error.rejectRequestFailed,
+                      ? locales.error.acceptRequestFailed
+                      : locales.error.rejectRequestFailed,
                 });
                 return z.NEVER;
               }
@@ -2452,8 +2475,8 @@ export async function updateNetworkRequest(options: {
             code: "custom",
             message:
               intent === "acceptNetworkRequest"
-                ? locales.route.error.acceptRequestFailed
-                : locales.route.error.rejectRequestFailed,
+                ? locales.error.acceptRequestFailed
+                : locales.error.rejectRequestFailed,
           });
           return z.NEVER;
         }
@@ -2477,8 +2500,8 @@ export async function updateNetworkRequest(options: {
       key: `${new Date().getTime()}`,
       message: insertParametersIntoLocale(
         intent === "acceptNetworkRequest"
-          ? locales.route.networkRequests.acceptNetworkRequest
-          : locales.route.networkRequests.rejectNetworkRequest,
+          ? locales.acceptSuccess
+          : locales.rejectSuccess,
         {
           organizationName: submission.value.organizationName,
           networkName: submission.value.networkName,

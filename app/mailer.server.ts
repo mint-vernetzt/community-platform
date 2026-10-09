@@ -180,7 +180,10 @@ type RequestNetworkContent = {
   network: { name: string };
   button: {
     url: string;
-    text: string;
+    text: {
+      de: string;
+      en: string;
+    };
   };
 };
 
