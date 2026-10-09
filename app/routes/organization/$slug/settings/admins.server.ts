@@ -169,9 +169,15 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
   slug: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
       button: {
-        text: string;
+        text: {
+          de: string;
+          en: string;
+        };
       };
     };
     error: {
@@ -253,7 +259,7 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
   });
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = locales.mail.subject;
+  const subject = `${locales.mail.subject.de} | ${locales.mail.subject.en}`;
   const recipient = profile.email;
   const textTemplatePath =
     "mail-templates/invites/profile-to-join-organization/as-admin-text.hbs";
@@ -308,7 +314,10 @@ export async function cancelOrganizationAdminInvitation(options: {
   slug: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
     error: {
       invariant: {
@@ -380,7 +389,7 @@ export async function cancelOrganizationAdminInvitation(options: {
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
   const recipient = profile.email;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/invites/profile-to-join-organization/as-admin-canceled-text.hbs";
   const htmlTemplatePath =
