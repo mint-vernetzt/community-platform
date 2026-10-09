@@ -132,9 +132,19 @@ export async function action(args: ActionFunctionArgs) {
       locales: {
         ...locales.route,
         mail: {
-          subject: locales.route.email.inviteAsTeamMember.subject,
+          subject: {
+            de: languageModuleMap.de["organization/$slug/settings/team"].route
+              .email.inviteAsTeamMember.subject,
+            en: languageModuleMap.en["organization/$slug/settings/team"].route
+              .email.inviteAsTeamMember.subject,
+          },
           button: {
-            text: locales.route.email.inviteAsTeamMember.button.text,
+            text: {
+              de: languageModuleMap.de["organization/$slug/settings/team"].route
+                .email.inviteAsTeamMember.button.text,
+              en: languageModuleMap.en["organization/$slug/settings/team"].route
+                .email.inviteAsTeamMember.button.text,
+            },
           },
         },
       },
@@ -151,7 +161,12 @@ export async function action(args: ActionFunctionArgs) {
       locales: {
         ...locales.route,
         mail: {
-          subject: locales.route.email.cancelledInvitation.subject,
+          subject: {
+            de: languageModuleMap.de["organization/$slug/settings/team"].route
+              .email.cancelledInvitation.subject,
+            en: languageModuleMap.en["organization/$slug/settings/team"].route
+              .email.cancelledInvitation.subject,
+          },
         },
       },
     });

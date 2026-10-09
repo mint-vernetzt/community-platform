@@ -242,7 +242,30 @@ export async function action(args: ActionFunctionArgs) {
     result = await updateOrganizationMemberInvite({
       formData: acceptOrganizationMemberInviteFormData,
       intent: "acceptOrganizationMemberInvite",
-      locales,
+      locales: {
+        error: locales.route.error,
+        mail: {
+          acceptInvite: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route
+                .organizationMemberInvites.email.subject.accepted,
+              en: languageModuleMap.en["my/organizations"].route
+                .organizationMemberInvites.email.subject.accepted,
+            },
+          },
+          rejectInvite: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route
+                .organizationMemberInvites.email.subject.rejected,
+              en: languageModuleMap.en["my/organizations"].route
+                .organizationMemberInvites.email.subject.rejected,
+            },
+          },
+        },
+        adminAccepted: locales.route.organizationMemberInvites.adminAccepted,
+        memberAccepted: locales.route.organizationMemberInvites.memberAccepted,
+        rejected: locales.route.organizationMemberInvites.rejected,
+      },
       sessionUser,
     });
   } else if (intent.startsWith("reject-organization-invite-")) {
@@ -268,7 +291,30 @@ export async function action(args: ActionFunctionArgs) {
     result = await updateOrganizationMemberInvite({
       formData: rejectOrganizationMemberInviteFormData,
       intent: "rejectOrganizationMemberInvite",
-      locales,
+      locales: {
+        error: locales.route.error,
+        mail: {
+          acceptInvite: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route
+                .organizationMemberInvites.email.subject.accepted,
+              en: languageModuleMap.en["my/organizations"].route
+                .organizationMemberInvites.email.subject.accepted,
+            },
+          },
+          rejectInvite: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route
+                .organizationMemberInvites.email.subject.rejected,
+              en: languageModuleMap.en["my/organizations"].route
+                .organizationMemberInvites.email.subject.rejected,
+            },
+          },
+        },
+        adminAccepted: locales.route.organizationMemberInvites.adminAccepted,
+        memberAccepted: locales.route.organizationMemberInvites.memberAccepted,
+        rejected: locales.route.organizationMemberInvites.rejected,
+      },
       sessionUser,
     });
   } else if (intent.startsWith("accept-network-invite-")) {

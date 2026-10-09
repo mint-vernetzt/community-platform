@@ -131,9 +131,19 @@ export async function action(args: ActionFunctionArgs) {
       locales: {
         ...locales.route,
         mail: {
-          subject: locales.route.email.inviteAsAdmin.subject,
+          subject: {
+            de: languageModuleMap.de["organization/$slug/settings/admins"].route
+              .email.inviteAsAdmin.subject,
+            en: languageModuleMap.en["organization/$slug/settings/admins"].route
+              .email.inviteAsAdmin.subject,
+          },
           button: {
-            text: locales.route.email.inviteAsAdmin.button.text,
+            text: {
+              de: languageModuleMap.de["organization/$slug/settings/admins"]
+                .route.email.inviteAsAdmin.button.text,
+              en: languageModuleMap.en["organization/$slug/settings/admins"]
+                .route.email.inviteAsAdmin.button.text,
+            },
           },
         },
       },
@@ -150,7 +160,12 @@ export async function action(args: ActionFunctionArgs) {
       locales: {
         ...locales.route,
         mail: {
-          subject: locales.route.email.cancelledInvitation.subject,
+          subject: {
+            de: languageModuleMap.de["organization/$slug/settings/admins"].route
+              .email.cancelledInvitation.subject,
+            en: languageModuleMap.en["organization/$slug/settings/admins"].route
+              .email.cancelledInvitation.subject,
+          },
         },
       },
     });
