@@ -529,7 +529,35 @@ export async function updateJoinNetworkRequest(options: {
     name: string;
   };
   intent: "requestToJoinNetwork" | "cancelNetworkJoinRequest";
-  locales: ManageOrganizationSettingsLocales;
+  locales: {
+    error: {
+      notFound: string;
+      alreadyMember: string;
+      thisOrganization: string;
+      requestFailed: string;
+      cancelRequestFailed: string;
+    };
+    mail: {
+      requested: {
+        subject: {
+          de: string;
+          en: string;
+        };
+        buttonText: {
+          de: string;
+          en: string;
+        };
+      };
+      canceled: {
+        subject: {
+          de: string;
+          en: string;
+        };
+      };
+    };
+    success: string;
+    cancelSuccess: string;
+  };
 }) {
   const { formData, organization, intent, locales } = options;
   const { id: organizationId } = organization;
@@ -581,19 +609,19 @@ export async function updateJoinNetworkRequest(options: {
             },
           },
         });
-        invariantResponse(network !== null, locales.route.error.notFound, {
+        invariantResponse(network !== null, locales.error.notFound, {
           status: 404,
         });
         invariantResponse(
           network.networkMembers.some((relation) => {
             return relation.networkMember.id === organizationId;
           }) === false,
-          locales.route.error.alreadyMember,
+          locales.error.alreadyMember,
           { status: 400 }
         );
         invariantResponse(
           networkId !== organizationId,
-          locales.route.error.thisOrganization,
+          locales.error.thisOrganization,
           {
             status: 400,
           }
@@ -623,10 +651,8 @@ export async function updateJoinNetworkRequest(options: {
               const sender = process.env.SYSTEM_MAIL_SENDER;
               const subject =
                 intent === "requestToJoinNetwork"
-                  ? locales.route.content.networks.requestToJoin.email.subject
-                      .requested
-                  : locales.route.content.networks.requestToJoin.email.subject
-                      .canceled;
+                  ? `${locales.mail.requested.subject.de} | ${locales.mail.requested.subject.en}`
+                  : `${locales.mail.canceled.subject.de} | ${locales.mail.canceled.subject.en}`;
               const recipient = admin.profile.email;
 
               const text =
@@ -643,8 +669,7 @@ export async function updateJoinNetworkRequest(options: {
                         },
                         button: {
                           url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
-                          text: locales.route.content.networks.requestToJoin
-                            .email.button.text,
+                          text: locales.mail.requested.buttonText,
                         },
                       },
                       "text"
@@ -676,8 +701,7 @@ export async function updateJoinNetworkRequest(options: {
                         },
                         button: {
                           url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
-                          text: locales.route.content.networks.requestToJoin
-                            .email.button.text,
+                          text: locales.mail.requested.buttonText,
                         },
                       },
                       "html"
@@ -711,8 +735,8 @@ export async function updateJoinNetworkRequest(options: {
                   code: "custom",
                   message:
                     intent === "requestToJoinNetwork"
-                      ? locales.route.error.requestFailed
-                      : locales.route.error.cancelRequestFailed,
+                      ? locales.error.requestFailed
+                      : locales.error.cancelRequestFailed,
                 });
                 return z.NEVER;
               }
@@ -724,8 +748,8 @@ export async function updateJoinNetworkRequest(options: {
             code: "custom",
             message:
               intent === "requestToJoinNetwork"
-                ? locales.route.error.requestFailed
-                : locales.route.error.cancelRequestFailed,
+                ? locales.error.requestFailed
+                : locales.error.cancelRequestFailed,
           });
           return z.NEVER;
         }
@@ -747,8 +771,8 @@ export async function updateJoinNetworkRequest(options: {
       key: `${new Date().getTime()}`,
       message: insertParametersIntoLocale(
         intent === "requestToJoinNetwork"
-          ? locales.route.content.networks.requestToJoin.success
-          : locales.route.content.networks.requestToJoin.cancelSuccess,
+          ? locales.success
+          : locales.cancelSuccess,
         { organization: submission.value.name }
       ),
     },
