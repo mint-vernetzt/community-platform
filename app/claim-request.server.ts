@@ -117,13 +117,17 @@ export async function handleClaimRequest(options: {
             } else {
               const sender = process.env.SYSTEM_MAIL_SENDER;
               const recipient = process.env.SUPPORT_MAIL;
-              const subject = "Anfrage zur Übernahme einer Organisation";
+              const subject =
+                "Anfrage zur Übernahme einer Organisation | Request to Claim an Organization";
               const textTemplatePath =
                 "mail-templates/claim-organization/created-text.hbs";
               const htmlTemplatePath =
                 "mail-templates/claim-organization/created-html.hbs";
               const content = {
-                headline: "Anfrage zur Übernahme einer Organisation",
+                headline: {
+                  de: "Anfrage zur Übernahme einer Organisation",
+                  en: "Request to Claim an Organization",
+                },
                 claimer: {
                   firstName: claimer.firstName,
                   lastName: claimer.lastName,
@@ -132,9 +136,15 @@ export async function handleClaimRequest(options: {
                   name: organization.name,
                 },
                 supportMail: process.env.SUPPORT_MAIL,
-                profileButtonText: "Zum Personenprofil",
+                profileButtonText: {
+                  de: "Zum Personenprofil",
+                  en: "To the Person Profile",
+                },
                 profileButtonUrl: `${process.env.COMMUNITY_BASE_URL}/profile/${claimer.username}`,
-                organizationButtonText: "Zum Organisationsprofil",
+                organizationButtonText: {
+                  de: "Zum Organisationsprofil",
+                  en: "To the Organization Profile",
+                },
                 organizationButtonUrl: `${process.env.COMMUNITY_BASE_URL}/organization/${organization.slug}/detail/about`,
               };
 
@@ -227,14 +237,16 @@ export async function handleClaimRequest(options: {
             const sender = process.env.SYSTEM_MAIL_SENDER;
             const recipient = process.env.SUPPORT_MAIL;
             const subject =
-              "Anfrage zur Übernahme einer Organisation zurückgezogen";
+              "Anfrage zur Übernahme einer Organisation zurückgezogen | Request to Claim an Organization Withdrawn";
             const textTemplatePath =
               "mail-templates/claim-organization/withdrawn-text.hbs";
             const htmlTemplatePath =
               "mail-templates/claim-organization/withdrawn-html.hbs";
             const content = {
-              headline:
-                "Anfrage zur Übernahme einer Organisation zurückgezogen",
+              headline: {
+                de: "Anfrage zur Übernahme einer Organisation zurückgezogen",
+                en: "Request to Claim an Organization Withdrawn",
+              },
               claimer: {
                 firstName: claimer.firstName,
                 lastName: claimer.lastName,
