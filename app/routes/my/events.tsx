@@ -453,7 +453,14 @@ export async function action(args: ActionFunctionArgs) {
         childEventId: submission.value[CHILD_EVENT_ID],
         eventId: submission.value[EVENT_ID],
         locales: {
-          mail: locales.route.mail.requestAsParentEventAccepted,
+          mail: {
+            subject: {
+              de: languageModuleMap.de["my/events"].route.mail
+                .requestAsParentEventAccepted.subject,
+              en: languageModuleMap.en["my/events"].route.mail
+                .requestAsParentEventAccepted.subject,
+            },
+          },
         },
       });
       toastMessage = locales.route.success.acceptRequestAsParentEvent;
@@ -476,7 +483,14 @@ export async function action(args: ActionFunctionArgs) {
         childEventId: submission.value[CHILD_EVENT_ID],
         eventId: submission.value[EVENT_ID],
         locales: {
-          mail: locales.route.mail.requestAsParentEventRejected,
+          mail: {
+            subject: {
+              de: languageModuleMap.de["my/events"].route.mail
+                .requestAsParentEventRejected.subject,
+              en: languageModuleMap.en["my/events"].route.mail
+                .requestAsParentEventRejected.subject,
+            },
+          },
         },
       });
       toastMessage = locales.route.success.rejectRequestAsParentEvent;

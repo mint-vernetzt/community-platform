@@ -183,8 +183,22 @@ export async function action(args: ActionFunctionArgs) {
         parentEventId: submission.value[PARENT_EVENT_ID],
         locales: {
           mail: {
-            buttonText: locales.route.mail.request.buttonText,
-            subject: locales.route.mail.request.subject,
+            buttonText: {
+              de: languageModuleMap.de[
+                "event/$slug/settings/related-events/parent-event"
+              ].route.mail.request.buttonText,
+              en: languageModuleMap.en[
+                "event/$slug/settings/related-events/parent-event"
+              ].route.mail.request.buttonText,
+            },
+            subject: {
+              de: languageModuleMap.de[
+                "event/$slug/settings/related-events/parent-event"
+              ].route.mail.request.subject,
+              en: languageModuleMap.en[
+                "event/$slug/settings/related-events/parent-event"
+              ].route.mail.request.subject,
+            },
           },
         },
       });
@@ -221,8 +235,22 @@ export async function action(args: ActionFunctionArgs) {
         parentEventId: submission.value[PARENT_EVENT_ID],
         locales: {
           mail: {
-            buttonText: locales.route.mail.cancel.buttonText,
-            subject: locales.route.mail.cancel.subject,
+            buttonText: {
+              de: languageModuleMap.de[
+                "event/$slug/settings/related-events/parent-event"
+              ].route.mail.cancel.buttonText,
+              en: languageModuleMap.en[
+                "event/$slug/settings/related-events/parent-event"
+              ].route.mail.cancel.buttonText,
+            },
+            subject: {
+              de: languageModuleMap.de[
+                "event/$slug/settings/related-events/parent-event"
+              ].route.mail.cancel.subject,
+              en: languageModuleMap.en[
+                "event/$slug/settings/related-events/parent-event"
+              ].route.mail.cancel.subject,
+            },
           },
         },
       });
