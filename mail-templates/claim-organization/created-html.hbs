@@ -30,7 +30,7 @@
                           padding: 0;
                           font-size: 24px;
                           color: #154194;">
-                        {{headline}}
+                        {{headline.de}}
                       </h2>
                     </div>
                   </td>
@@ -96,7 +96,7 @@
                                 padding: 10px 25px;
                                 mso-padding-alt: 0px;
                                 border-radius: 8px;" href="{{profileButtonUrl}}">
-                              {{profileButtonText}}
+                              {{profileButtonText.de}}
                             </a>
                           </td>
                         </tr>
@@ -130,7 +130,192 @@
                                 padding: 10px 25px;
                                 mso-padding-alt: 0px;
                                 border-radius: 8px;" href="{{organizationButtonUrl}}">
-                              {{organizationButtonText}}
+                              {{organizationButtonText.de}}
+                            </a>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!--[if mso | IE]></td></tr></table><![endif]-->
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<table style="background: #e6e8ec; background-color: #e6e8ec; width: 100%" role="presentation" cellspacing="0"
+  cellpadding="0" border="0" align="center">
+  <tbody>
+    <tr>
+      <td>
+        <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:800px;" width="600" bgcolor="#E6E8EC" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+        <div style="margin: 0px auto; max-width: 800px">
+          <table style="width: 100%" role="presentation" cellspacing="0" cellpadding="0" border="0" align="center">
+            <tbody>
+              <tr>
+                <td style="
+                      direction: ltr;
+                      font-size: 0px;
+                      padding: 1px 0;
+                      text-align: center;
+                    ">
+                  <!--[if mso | IE
+                      ]><table
+                        role="presentation"
+                        border="0"
+                        cellpadding="0"
+                        cellspacing="0"
+                      ></table
+                    ><![endif]-->
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!--[if mso | IE]></td></tr></table><![endif]-->
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div style="margin: 0px auto; max-width: 800px;">
+  <table style="width: 100%;" role="presentation" cellspacing="0" cellpadding="0" border="0" align="center">
+    <tbody>
+      <tr>
+        <td style="direction: ltr;
+            font-size: 0px;
+            padding: 50px 0;
+            text-align: center;">
+          <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:800px;" ><![endif]-->
+          <div style="font-size: 0px;
+              text-align: left;
+              direction: ltr;
+              display: inline-block;
+              vertical-align: top;
+              width: 100%;" class="mj-column-per-100 mj-outlook-group-fix">
+            <table width="100%" style="vertical-align: top;" role="presentation" cellspacing="0" cellpadding="0"
+              border="0">
+              <tbody>
+                <tr>
+                  <td style="font-size: 0px;
+                      padding: 10px 25px;
+                      word-break: break-word;" align="left">
+                    <div style="font-family: Source Sans Pro, Arial;
+                        font-size: 13px;
+                        line-height: 1.6;
+                        text-align: left;
+                        color: #154194;">
+                      <h2 style="font-weight: 600;
+                          margin: 0;
+                          padding: 0;
+                          font-size: 24px;
+                          color: #154194;">
+                        {{headline.en}}
+                      </h2>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="font-size: 0px;
+                      padding: 10px 25px;
+                      padding-bottom: 32px;
+                      word-break: break-word;" align="left">
+                    <div style="font-family: Source Sans Pro, Arial;
+                        font-size: 18px;
+                        line-height: 1.6;
+                        text-align: left;
+                        color: #333333;">
+                      <a style="color: #154194; font-weight: 600; text-decoration-line: underline;"
+                        href="{{profileButtonUrl}}">{{claimer.firstName}}
+                        {{claimer.lastName}}</a> has requested to claim the organization <a
+                        style="color: #154194; font-weight: 600; text-decoration-line: underline;"
+                        href="{{organizationButtonUrl}}">{{organization.name}}</a>.<br><br>
+
+                      What to do:<br>
+                      <ul>
+                        <li>Check if the person is affiliated with the organization.</li>
+                        <li>If yes, make the person an administrator and a team member of the organization and set the
+                          status of the request
+                          to "accepted" (organization_claim_requests) and the organization to shadow=false.
+                        </li>
+                        <li>Send the person an email indicating that they are now an administrator of the requested
+                          organization (Mail template in the {{supportMail}} inbox).</li>
+                        <li>If no, send the person an email requesting further information (Mail template in the
+                          {{supportMail}} inbox).</li>
+                        <li>If no response is received or the proof cannot be provided, set the status of the request to
+                          "rejected" (organization_claim_requests) and inform the person via email.
+                        </li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="font-size: 0px;
+                      padding: 0 20px;
+                      padding-bottom: 8px;
+                      word-break: break-word;" align="left">
+                    <table style="border-collapse: separate;
+                        line-height: 100%;" role="presentation" cellspacing="0" cellpadding="0" border="0">
+                      <tbody>
+                        <tr>
+                          <td valign="middle" style="border: none;
+                              border-radius: 8px;
+                              cursor: auto;
+                              mso-padding-alt: 10px 25px;
+                              background: #154194;" role="presentation" bgcolor="#154194" align="center">
+                            <a style="display: inline-block;
+                                background: #154194;
+                                color: white;
+                                font-family: Source Sans Pro, Arial;
+                                font-size: 18px;
+                                font-weight: normal;
+                                line-height: 1.6;
+                                margin: 0;
+                                text-decoration: none;
+                                text-transform: none;
+                                padding: 10px 25px;
+                                mso-padding-alt: 0px;
+                                border-radius: 8px;" href="{{profileButtonUrl}}">
+                              {{profileButtonText.en}}
+                            </a>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="font-size: 0px;
+                      padding: 0 20px;
+                      word-break: break-word;" align="left">
+                    <table style="border-collapse: separate;
+                        line-height: 100%;" role="presentation" cellspacing="0" cellpadding="0" border="0">
+                      <tbody>
+                        <tr>
+                          <td valign="middle" style="border: none;
+                              border-radius: 8px;
+                              cursor: auto;
+                              mso-padding-alt: 10px 25px;
+                              background: #154194;" role="presentation" bgcolor="#154194" align="center">
+                            <a style="display: inline-block;
+                                background: #154194;
+                                color: white;
+                                font-family: Source Sans Pro, Arial;
+                                font-size: 18px;
+                                font-weight: normal;
+                                line-height: 1.6;
+                                margin: 0;
+                                text-decoration: none;
+                                text-transform: none;
+                                padding: 10px 25px;
+                                mso-padding-alt: 0px;
+                                border-radius: 8px;" href="{{organizationButtonUrl}}">
+                              {{organizationButtonText.en}}
                             </a>
                           </td>
                         </tr>

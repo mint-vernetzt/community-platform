@@ -62,7 +62,7 @@ export async function mailer(
 }
 
 type ClaimOrganizationRequestCreatedContent = {
-  headline: string;
+  headline: { de: string; en: string };
   claimer: {
     firstName: string;
     lastName: string;
@@ -71,14 +71,14 @@ type ClaimOrganizationRequestCreatedContent = {
     name: string;
   };
   supportMail: string;
-  profileButtonText: string;
+  profileButtonText: { de: string; en: string };
   profileButtonUrl: string;
-  organizationButtonText: string;
+  organizationButtonText: { de: string; en: string };
   organizationButtonUrl: string;
 };
 
 type ClaimOrganizationRequestWithdrawnContent = {
-  headline: string;
+  headline: { de: string; en: string };
   claimer: {
     firstName: string;
     lastName: string;

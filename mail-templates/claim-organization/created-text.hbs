@@ -1,4 +1,4 @@
-{{headline}}
+{{headline.de}}
 
 {{claimer.firstName}} {{claimer.lastName}} ({{profileButtonUrl}}) hat angefragt, die Organisation {{organization.name}}
 ({{organizationButtonUrl}}) zu übernehmen.
@@ -15,6 +15,26 @@ auf "accepted"
 - Wenn keine Antwort kommt oder der Nachweis nicht erbracht werden kann, setze den Status der Anfrage auf "rejected"
 (organization_claim_requests) und informiere die Person per E-Mail.
 
-{{profileButtonText}}: {{profileButtonUrl}}
+{{profileButtonText.de}}: {{profileButtonUrl}}
 
-{{organizationButtonText}}: {{organizationButtonUrl}}
+{{organizationButtonText.de}}: {{organizationButtonUrl}}
+
+---
+
+{{headline.en}}
+
+{{claimer.firstName}} {{claimer.lastName}} ({{profileButtonUrl}}) has requested to claim the organization
+{{organization.name}} ({{organizationButtonUrl}}).
+
+What to do:
+- Check if the person is affiliated with the organization.
+- If yes, make the person an administrator and a team member of the organization and set the status of the request
+to "accepted" (organization_claim_requests) and the organization to shadow=false.
+- Send the person an email indicating that they are now an administrator of the requested organization (Mail template in
+the {{supportMail}} inbox).
+- If no, send the person an email requesting further information (Mail template in the {{supportMail}} inbox).
+- If no response is received or the proof cannot be provided, set the status of the request to "rejected"
+(organization_claim_requests) and inform the person via email.
+
+{{profileButtonText.en}}: {{profileButtonUrl}}
+{{organizationButtonText.en}}: {{organizationButtonUrl}}
