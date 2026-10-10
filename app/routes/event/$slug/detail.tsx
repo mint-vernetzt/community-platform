@@ -677,7 +677,16 @@ export async function action(args: ActionFunctionArgs) {
             event,
             reasons,
             otherReason,
-            locales: locales.route.abuseReport,
+            locales: {
+              email: {
+                subject: {
+                  de: languageModuleMap.de["event/$slug/detail"].route
+                    .abuseReport.email.subject,
+                  en: languageModuleMap.en["event/$slug/detail"].route
+                    .abuseReport.email.subject,
+                },
+              },
+            },
           });
           if (typeof error !== "undefined") {
             ctx.addIssue({
