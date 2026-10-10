@@ -103,11 +103,11 @@ type WelcomeContent = {
 };
 
 type InactivityContent = {
-  headline: string;
+  headline: { de: string; en: string };
   firstName: string;
   button: {
     url: string;
-    text: string;
+    text: { de: string; en: string };
   };
 };
 
