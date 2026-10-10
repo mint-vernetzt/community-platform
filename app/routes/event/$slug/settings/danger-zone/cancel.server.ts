@@ -56,7 +56,10 @@ export async function cancelEventBySlug(options: {
   cancelChildEvents?: boolean;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -194,7 +197,7 @@ export async function cancelEventBySlug(options: {
       try {
         const sender = process.env.SYSTEM_MAIL_SENDER;
         const recipient = profile.email;
-        const subject = options.locales.mail.subject;
+        const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
         const textTemplatePath =
           "mail-templates/general-notification/event-canceled-text.hbs";
         const htmlTemplatePath =

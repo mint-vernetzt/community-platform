@@ -123,7 +123,12 @@ export async function action(args: ActionFunctionArgs) {
         CANCEL_ALL,
       locales: {
         mail: {
-          subject: locales.route.mail.subject,
+          subject: {
+            de: languageModuleMap.de["event/$slug/settings/danger-zone/cancel"]
+              .route.mail.subject,
+            en: languageModuleMap.en["event/$slug/settings/danger-zone/cancel"]
+              .route.mail.subject,
+          },
         },
       },
     });

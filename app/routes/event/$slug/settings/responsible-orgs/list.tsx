@@ -113,7 +113,18 @@ export async function action(args: ActionFunctionArgs) {
       responsibleOrgId: submission.value.responsibleOrgId,
       eventId: event.id,
       userId: sessionUser.id,
-      locales: locales.route,
+      locales: {
+        mail: {
+          subject: {
+            de: languageModuleMap.de[
+              "event/$slug/settings/responsible-orgs/list"
+            ].route.mail.subject,
+            en: languageModuleMap.en[
+              "event/$slug/settings/responsible-orgs/list"
+            ].route.mail.subject,
+          },
+        },
+      },
     });
   } catch (error) {
     captureException(error);
