@@ -738,7 +738,10 @@ export async function removeParentEvent(options: {
   slug: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -803,7 +806,7 @@ export async function removeParentEvent(options: {
 
   if (isAdminOfParentEvent === false) {
     const sender = process.env.SYSTEM_MAIL_SENDER;
-    const subject = locales.mail.subject;
+    const subject = `${locales.mail.subject.de} | ${locales.mail.subject.en}`;
     const textTemplatePath =
       "mail-templates/general-notification/disconnect-from-parent-event-text.hbs";
     const htmlTemplatePath =

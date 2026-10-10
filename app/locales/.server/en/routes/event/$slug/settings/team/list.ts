@@ -31,10 +31,10 @@ export const locale = {
   },
   mail: {
     removeTeamMemberSubject:
-      "Du wurdest als Teammitglied eines Events entfernt",
+      "You have been removed as a team member of an event.",
     removeContactPersonSubject:
-      "Du wurdest als Ansprechpartner:in eines Events entfernt",
+      "You have been removed as a contact person of an event.",
     addContactPersonSubject:
-      "Du wurdest als Ansprechpartner:in eines Events hinzugefügt",
+      "You have been added as a contact person of an event.",
   },
 } as const;

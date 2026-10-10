@@ -142,7 +142,10 @@ export async function removeSpeakerFromEvent(options: {
   speakerId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -172,9 +175,14 @@ export async function removeSpeakerFromEvent(options: {
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
   const recipient = result.profile.email;
-  const subject = insertParametersIntoLocale(options.locales.mail.subject, {
+  const subject = `${insertParametersIntoLocale(
+    options.locales.mail.subject.de,
+    {
+      eventName: result.event.name,
+    }
+  )} | ${insertParametersIntoLocale(options.locales.mail.subject.en, {
     eventName: result.event.name,
-  });
+  })}`;
   const textTemplatePath =
     "mail-templates/general-notification/remove-speaker-from-event-text.hbs";
   const htmlTemplatePath =

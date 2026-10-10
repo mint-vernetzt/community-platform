@@ -13,6 +13,6 @@ export const locale = {
     removeSpeaker: "Speaker successfully removed.",
   },
   mail: {
-    subject: "Deine Rolle als Speaker:in beim Event {{eventName}}",
+    subject: "Your role as a speaker at the event {{eventName}}",
   },
 } as const;

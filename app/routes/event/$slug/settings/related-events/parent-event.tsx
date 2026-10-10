@@ -276,7 +276,14 @@ export async function action(args: ActionFunctionArgs) {
         slug,
         locales: {
           mail: {
-            subject: locales.route.mail.remove.subject,
+            subject: {
+              de: languageModuleMap.de[
+                "event/$slug/settings/related-events/parent-event"
+              ].route.mail.remove.subject,
+              en: languageModuleMap.en[
+                "event/$slug/settings/related-events/parent-event"
+              ].route.mail.remove.subject,
+            },
           },
         },
       });

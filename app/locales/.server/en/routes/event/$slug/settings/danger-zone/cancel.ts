@@ -51,6 +51,6 @@ export const locale = {
     },
   },
   mail: {
-    subject: "Ein Event wurde abgesagt",
+    subject: "An event has been canceled",
   },
 } as const;
