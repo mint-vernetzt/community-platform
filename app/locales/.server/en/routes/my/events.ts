@@ -133,11 +133,11 @@ export const locale = {
     },
     requestAsParentEventAccepted: {
       subject:
-        "Die Verknüpfungsanfrage Deines Events zur Rahmenveranstaltung wurde angenommen",
+        "Your request to link your event to the main event has been accepted",
     },
     requestAsParentEventRejected: {
       subject:
-        "Die Verknüpfungsanfrage Deines Events zur Rahmenveranstaltung wurde abgelehnt",
+        "Your request to link your event to the main event has been rejected",
     },
   },
 } as const;
