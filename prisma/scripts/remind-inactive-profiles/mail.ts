@@ -13,12 +13,18 @@ export async function sendFirstMail(profile: Recipient) {
   const textTemplatePath = "mail-templates/inactivity/first-text.hbs";
   const htmlTemplatePath = "mail-templates/inactivity/first-html.hbs";
 
+  const subject =
+    "Wir vermissen Dich in der Community | We miss you in the community";
+
   const content = {
-    headline: "Wir vermissen Dich in der Community",
+    headline: {
+      de: "Wir vermissen Dich in der Community",
+      en: "We miss you in the community",
+    },
     firstName: profile.firstName,
     button: {
       url: process.env.COMMUNITY_BASE_URL,
-      text: "Zur Community-Plattform",
+      text: { de: "Zur Community-Plattform", en: "To the community platform" },
     },
   };
 
@@ -38,7 +44,7 @@ export async function sendFirstMail(profile: Recipient) {
       mailerOptions,
       process.env.SYSTEM_MAIL_SENDER,
       profile.email,
-      content.headline,
+      subject,
       text,
       html
     );
@@ -54,12 +60,18 @@ export async function sendSecondMail(profile: Recipient) {
   const textTemplatePath = "mail-templates/inactivity/second-text.hbs";
   const htmlTemplatePath = "mail-templates/inactivity/second-html.hbs";
 
+  const subject =
+    "Möchtest Du Dein Profil behalten? | Do you want to keep your profile?";
+
   const content = {
-    headline: "Möchtest Du Dein Profil behalten?",
+    headline: {
+      de: "Möchtest Du Dein Profil behalten?",
+      en: "Do you want to keep your profile?",
+    },
     firstName: profile.firstName,
     button: {
       url: process.env.COMMUNITY_BASE_URL,
-      text: "Zur Community-Plattform",
+      text: { de: "Zur Community-Plattform", en: "To the community platform" },
     },
   };
 
@@ -79,7 +91,7 @@ export async function sendSecondMail(profile: Recipient) {
       mailerOptions,
       process.env.SYSTEM_MAIL_SENDER,
       profile.email,
-      content.headline,
+      subject,
       text,
       html
     );
@@ -95,12 +107,18 @@ export async function sendLastMail(profile: Recipient, deletionDate: Date) {
   const textTemplatePath = "mail-templates/inactivity/last-text.hbs";
   const htmlTemplatePath = "mail-templates/inactivity/last-html.hbs";
 
+  const subject =
+    "Letzte Errinnerung zu Deinem Profil | Last reminder about your profile";
+
   const content = {
-    headline: "Letzte Errinnerung zu Deinem Profil",
+    headline: {
+      de: "Letzte Errinnerung zu Deinem Profil",
+      en: "Last reminder about your profile",
+    },
     firstName: profile.firstName,
     button: {
       url: process.env.COMMUNITY_BASE_URL,
-      text: "Zur Community-Plattform",
+      text: { de: "Zur Community-Plattform", en: "To the community platform" },
     },
     deletionDate: deletionDate.toLocaleDateString("de-DE"),
   };
@@ -121,7 +139,7 @@ export async function sendLastMail(profile: Recipient, deletionDate: Date) {
       mailerOptions,
       process.env.SYSTEM_MAIL_SENDER,
       profile.email,
-      content.headline,
+      subject,
       text,
       html
     );
@@ -137,12 +155,17 @@ export async function sendDeletedMail(profile: Recipient) {
   const textTemplatePath = "mail-templates/inactivity/deleted-text.hbs";
   const htmlTemplatePath = "mail-templates/inactivity/deleted-html.hbs";
 
+  const subject = "Dein Account wurde gelöscht | Your account has been deleted";
+
   const content = {
-    headline: "Dein Account wurde gelöscht",
+    headline: {
+      de: "Dein Account wurde gelöscht",
+      en: "Your account has been deleted",
+    },
     firstName: profile.firstName,
     button: {
       url: `${process.env.COMMUNITY_BASE_URL}/register`,
-      text: "Neu registrieren",
+      text: { de: "Neu registrieren", en: "Register again" },
     },
   };
 
@@ -162,7 +185,7 @@ export async function sendDeletedMail(profile: Recipient) {
       mailerOptions,
       process.env.SYSTEM_MAIL_SENDER,
       profile.email,
-      content.headline,
+      subject,
       text,
       html
     );
