@@ -127,15 +127,11 @@ export const locale = {
       },
     },
     confirmation: {
-      subject:
-        "Bestätigung: Deine Anmeldung zum Event {{eventName}} war erfolgreich",
+      subject: "Deine Anmeldung zum Event {{eventName}}",
     },
     moveUpToParticipants: {
       subject:
-        "Benachrichtigung: Du wurdest auf die Teilnehmerliste für das Event {{eventName}} gesetzt",
-    },
-    cancellation: {
-      subject: "Benachrichtigung: Das Event {{eventName}} wurde abgesagt",
+        "Du wurdest von der Warteliste zu den Teilnehmenden des Events {{eventName}} hinzugefügt",
     },
   },
   timezone: "MEZ",

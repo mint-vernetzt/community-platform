@@ -127,15 +127,11 @@ export const locale = {
       },
     },
     confirmation: {
-      subject:
-        "Confirmation: Your registration for the event {{eventName}} was successful",
+      subject: "Your registration for the event {{eventName}}",
     },
     moveUpToParticipants: {
       subject:
-        "Notification: You have been moved to the participant list for the event {{eventName}}",
-    },
-    cancellation: {
-      subject: "Notification: The event {{eventName}} has been cancelled",
+        "You have been added to the waiting list for the event {{eventName}}",
     },
   },
   timezone: "CET",

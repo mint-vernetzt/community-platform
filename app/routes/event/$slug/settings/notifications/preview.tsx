@@ -1,25 +1,23 @@
+import { utcToZonedTime } from "date-fns-tz";
 import { redirect, useLoaderData, type LoaderFunctionArgs } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { detectLanguage } from "~/i18n.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { languageModuleMap } from "~/locales/.server";
-import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
-import { getCompiledHtmlString, getEventBySlug } from "./preview.server";
-import { utcToZonedTime } from "date-fns-tz";
-import { getVenueString } from "~/utils.shared";
-import { RTE } from "~/components-next/RTE/RTE";
-import { TextArea } from "~/components-next/TextArea";
-import {
-  NOTIFICATION_TYPE_CONFIRMATION,
-  NOTIFICATION_TYPE_ONE_DAY_BEFORE,
-  NOTIFICATION_TYPE_FIFTEEN_MINUTES_BEFORE,
-  NOTIFICATION_TYPE_ONE_HOUR_BEFORE,
-  NOTIFICATION_TYPE_MOVE_UP_TO_PARTICIPANTS,
-  NOTIFICATION_TYPE_CANCELLATION,
-} from "./list.shared";
-import { getCompiledMailTemplate } from "~/mailer.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { invariantResponse } from "~/lib/utils/response";
 import { getDuration } from "~/lib/utils/time";
+import { languageModuleMap } from "~/locales/.server";
+import { getCompiledMailTemplate } from "~/mailer.server";
+import { getVenueString } from "~/utils.shared";
+import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
+import {
+  NOTIFICATION_TYPE_CANCELLATION,
+  NOTIFICATION_TYPE_CONFIRMATION,
+  NOTIFICATION_TYPE_FIFTEEN_MINUTES_BEFORE,
+  NOTIFICATION_TYPE_MOVE_UP_TO_PARTICIPANTS,
+  NOTIFICATION_TYPE_ONE_DAY_BEFORE,
+  NOTIFICATION_TYPE_ONE_HOUR_BEFORE,
+} from "./list.shared";
+import { getEventBySlug } from "./preview.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -70,7 +68,88 @@ export async function loader(args: LoaderFunctionArgs) {
   const englishMailLocales = languageModuleMap["en"]["root"];
   let text;
 
-  if (notification === NOTIFICATION_TYPE_ONE_DAY_BEFORE) {
+  if (notification === NOTIFICATION_TYPE_CONFIRMATION) {
+    const textTemplatePath =
+      "mail-templates/event/profile-or-guest-added-to-participants-or-waiting-list-text.hbs";
+    text = getCompiledMailTemplate(
+      textTemplatePath,
+      {
+        headline: {
+          de: insertParametersIntoLocale(
+            germanMailLocales.route.event.confirmation.subject,
+            {
+              eventName: event.name,
+            }
+          ),
+          en: insertParametersIntoLocale(
+            englishMailLocales.route.event.confirmation.subject,
+            {
+              eventName: event.name,
+            }
+          ),
+        },
+        profile: {
+          firstName: "Name",
+          isGuest: false,
+          isOnWaitingList: false,
+        },
+        event: {
+          name: event.name,
+          url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}`,
+          date: {
+            de: getDuration(zonedStartTime, zonedEndTime, "de"),
+            en: getDuration(zonedStartTime, zonedEndTime, "en"),
+          },
+          location: getVenueString(event),
+          conferenceLink: event.conferenceLink,
+          conferenceCode: event.conferenceCode,
+          icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/ics-download`,
+          isParent: event._count?.childEvents > 0,
+        },
+      },
+      "text"
+    );
+  } else if (notification === NOTIFICATION_TYPE_MOVE_UP_TO_PARTICIPANTS) {
+    const textTemplatePath =
+      "mail-templates/event/profile-or-guest-moved-up-to-participants-text.hbs";
+    text = getCompiledMailTemplate(
+      textTemplatePath,
+      {
+        headline: {
+          de: insertParametersIntoLocale(
+            germanMailLocales.route.event.moveUpToParticipants.subject,
+            {
+              eventName: event.name,
+            }
+          ),
+          en: insertParametersIntoLocale(
+            englishMailLocales.route.event.moveUpToParticipants.subject,
+            {
+              eventName: event.name,
+            }
+          ),
+        },
+        profile: {
+          firstName: "Name",
+          isGuest: false,
+        },
+        event: {
+          name: event.name,
+          url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}`,
+          date: {
+            de: getDuration(zonedStartTime, zonedEndTime, "de"),
+            en: getDuration(zonedStartTime, zonedEndTime, "en"),
+          },
+          location: getVenueString(event),
+          conferenceLink: event.conferenceLink,
+          conferenceCode: event.conferenceCode,
+          icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/ics-download`,
+          isParent: event._count?.childEvents > 0,
+        },
+      },
+      "text"
+    );
+  } else if (notification === NOTIFICATION_TYPE_ONE_DAY_BEFORE) {
     const textTemplatePath =
       "mail-templates/event/reminder-one-day-before-text.hbs";
     text = getCompiledMailTemplate(
@@ -92,7 +171,7 @@ export async function loader(args: LoaderFunctionArgs) {
         },
         profile: {
           firstName: "Name",
-          isGuest: false,
+          isGuest: true,
         },
         event: {
           name: event.name,
@@ -185,107 +264,12 @@ export async function loader(args: LoaderFunctionArgs) {
       },
       "text"
     );
-  } else if (notification === NOTIFICATION_TYPE_CONFIRMATION) {
-    const textTemplatePath =
-      "mail-templates/event/profile-or-guest-added-to-participants-or-waiting-list-text.hbs";
-    text = getCompiledMailTemplate(
-      textTemplatePath,
-      {
-        headline: {
-          de: insertParametersIntoLocale(
-            germanMailLocales.route.event.confirmation.subject,
-            {
-              eventName: event.name,
-            }
-          ),
-          en: insertParametersIntoLocale(
-            englishMailLocales.route.event.confirmation.subject,
-            {
-              eventName: event.name,
-            }
-          ),
-        },
-        profile: {
-          firstName: "Name",
-          isGuest: false,
-        },
-        event: {
-          name: event.name,
-          url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}`,
-          date: {
-            de: getDuration(zonedStartTime, zonedEndTime, "de"),
-            en: getDuration(zonedStartTime, zonedEndTime, "en"),
-          },
-          location: getVenueString(event),
-          conferenceLink: event.conferenceLink,
-          conferenceCode: event.conferenceCode,
-          icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/ics-download`,
-          isParent: event._count?.childEvents > 0,
-        },
-      },
-      "text"
-    );
-  } else if (notification === NOTIFICATION_TYPE_MOVE_UP_TO_PARTICIPANTS) {
-    const textTemplatePath =
-      "mail-templates/event/profile-or-guest-moved-up-to-participants-text.hbs";
-    text = getCompiledMailTemplate(
-      textTemplatePath,
-      {
-        headline: {
-          de: insertParametersIntoLocale(
-            germanMailLocales.route.event.moveUpToParticipants.subject,
-            {
-              eventName: event.name,
-            }
-          ),
-          en: insertParametersIntoLocale(
-            englishMailLocales.route.event.moveUpToParticipants.subject,
-            {
-              eventName: event.name,
-            }
-          ),
-        },
-        profile: {
-          firstName: "Name",
-          isGuest: false,
-          isOnWaitingList: false,
-        },
-        event: {
-          name: event.name,
-          url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}`,
-          date: {
-            de: getDuration(zonedStartTime, zonedEndTime, "de"),
-            en: getDuration(zonedStartTime, zonedEndTime, "en"),
-          },
-          location: getVenueString(event),
-          conferenceLink: event.conferenceLink,
-          conferenceCode: event.conferenceCode,
-          icsLink: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/ics-download`,
-          isParent: event._count?.childEvents > 0,
-        },
-      },
-      "text"
-    );
   } else {
     const templatePath =
       "mail-templates/general-notification/event-canceled-text.hbs";
     text = getCompiledMailTemplate(
       templatePath,
       {
-        headline: {
-          de: insertParametersIntoLocale(
-            germanMailLocales.route.event.cancellation.subject,
-            {
-              eventName: event.name,
-            }
-          ),
-          en: insertParametersIntoLocale(
-            englishMailLocales.route.event.cancellation.subject,
-            {
-              eventName: event.name,
-            }
-          ),
-        },
         firstName: "Name",
         event: {
           name: event.name,
@@ -295,17 +279,26 @@ export async function loader(args: LoaderFunctionArgs) {
     );
   }
 
+  const localizedMailText = text.split("---");
+  let mailText;
+  if (language === "de") {
+    mailText = localizedMailText[0].trim();
+  } else {
+    mailText = localizedMailText[1].trim();
+  }
+
   return {
     locales,
-    content: { text, footer: locales.route.system.footer.html },
+    content: { text: mailText, footer: locales.route.system.footer.html },
   };
 }
 
 function NotificationsPreview() {
   const loaderData = useLoaderData<typeof loader>();
+
   return (
     <>
-      <p className="whitespace-pre">{loaderData.content.text}</p>
+      <p className="whitespace-pre-wrap">{loaderData.content.text}</p>
     </>
   );
 }

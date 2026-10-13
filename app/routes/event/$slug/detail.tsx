@@ -728,10 +728,10 @@ export async function action(args: ActionFunctionArgs) {
             locales: {
               mail: {
                 subject: {
-                  de: languageModuleMap["de"]["event/$slug/detail"].route.mail
-                    .participate.subject,
-                  en: languageModuleMap["en"]["event/$slug/detail"].route.mail
-                    .participate.subject,
+                  de: languageModuleMap["de"]["root"].route.event.confirmation
+                    .subject,
+                  en: languageModuleMap["en"]["root"].route.event.confirmation
+                    .subject,
                 },
               },
             },
@@ -747,10 +747,10 @@ export async function action(args: ActionFunctionArgs) {
               mail: {
                 moveFromWaitingListToParticipants: {
                   subject: {
-                    de: languageModuleMap["de"]["event/$slug/detail"].route.mail
-                      .moveFromWaitingListToParticipants.subject,
-                    en: languageModuleMap["en"]["event/$slug/detail"].route.mail
-                      .moveFromWaitingListToParticipants.subject,
+                    de: languageModuleMap["de"]["root"].route.event
+                      .moveUpToParticipants.subject,
+                    en: languageModuleMap["en"]["root"].route.event
+                      .moveUpToParticipants.subject,
                   },
                 },
                 removeFromParticipants: {

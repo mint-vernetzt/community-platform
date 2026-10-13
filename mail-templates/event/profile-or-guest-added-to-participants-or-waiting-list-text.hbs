@@ -7,16 +7,15 @@ Du bist auf der Warteliste beim Event {{event.name}}.
 {{else}}
 schön, dass Du dabei bist! Du hast Dich erfolgreich für {{event.name}} angemeldet.
 {{/if}}
-
 {{#if profile.isGuest}}
+
 Deine Anmeldung und weitere Veranstaltungen
 {{#unless profile.isOnWaitingList}}
 {{#if event.isParent}}
 Ausschließlich über Deinen persönlichen Link kannst Du Dich für weitere zugehörige Veranstaltungen anmelden.
 {{/if}}
-{{/unless}}Wenn Du Dich für eine weitere Veranstaltung anmeldest, gibst Du Deine Anmeldedaten erneut ein und bestätigst
-anschließend Deine
-E-Mail-Adresse. So stellen wir sicher, dass die Anmeldung wirklich von Dir kommt.
+{{/unless}}
+Wenn Du Dich für eine weitere Veranstaltung anmeldest, gibst Du Deine Anmeldedaten erneut ein und bestätigst anschließend Deine E-Mail-Adresse. So stellen wir sicher, dass die Anmeldung wirklich von Dir kommt.
 {{/if}}
 
 Link zum Event: {{event.url}}
@@ -49,8 +48,8 @@ Falls sich Deine Pläne ändern, dann ziehe bitte auf der Community-Plattform De
 gegebenenfalls an eine andere Person vergeben werden.
 {{/if}}
 {{/if}}
-
 {{#if profile.isGuest}}
+
 Alle wichtigen Infos bekommst Du per E-Mail
 Da Du Dich ohne Profil auf der MINTvernetzt Community-Plattform angemeldet hast, schicken wir Dir alle wichtigen
 Informationen zum Event per E-Mail. Bewahre diese E-Mails daher am besten gut auf.
@@ -75,16 +74,12 @@ you are on the waiting list for the event {{event.name}}.
 {{else}}
 great that you are joining! You have successfully registered for {{event.name}}.
 {{/if}}
-
 {{#if profile.isGuest}}
+
 Your registration and further events
 {{#unless profile.isOnWaitingList}}
 {{#if event.isParent}}
-Only through your personal link can you register for further related events. {{/if}}{{/unless}}When you register for
-another
-event, you
-enter your registration data again and then confirm your email address. This ensures that the registration really comes
-from you.
+Only through your personal link can you register for further related events. {{/if}}{{/unless}}When you register for another event, you enter your registration data again and then confirm your email address. This ensures that the registration really comes from you.
 {{/if}}
 
 Link to the event: {{event.url}}
@@ -103,25 +98,23 @@ Conference access code: {{event.conferenceCode}}
 
 Do you want to save the date directly in your calendar?
 {{event.icsLink}}
-
 {{#if profile.isOnWaitingList}}
+
 As soon as a spot becomes available and you move up from the waiting list, you will be informed by email.
 {{else}}
+
 You can't attend after all?
 {{#if profile.isGuest}}
-If your plans change, please unregister via the revocation link. This way, your spot can be given to another
-person if necessary.
+If your plans change, please unregister via the revocation link. This way, your spot can be given to another person if necessary.
 Revocation link: {{event.revocationLink}}
 {{else}}
-If your plans change, please withdraw your participation on the community platform. This way, your spot can be given to
-another person if necessary.
+If your plans change, please withdraw your participation on the community platform. This way, your spot can be given to another person if necessary.
 {{/if}}
 {{/if}}
-
 {{#if profile.isGuest}}
+
 All important information will be sent to you by email.
-As you registered without a profile on the MINTvernetzt community platform, all important information about the event
-will be sent to you by email. Therefore, it is best to keep these emails safe.
+As you registered without a profile on the MINTvernetzt community platform, all important information about the event will be sent to you by email. Therefore, it is best to keep these emails safe.
 
 Please note: The links in our emails are personal and intended only for you. Please do not share them with others.
 {{/if}}
