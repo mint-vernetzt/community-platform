@@ -9,12 +9,19 @@ export async function getEventBySlug(slug: string) {
       slug: true,
       name: true,
       startTime: true,
+      endTime: true,
       venueName: true,
       venueStreet: true,
       venueStreetNumber: true,
       venueZipCode: true,
       venueCity: true,
       conferenceLink: true,
+      conferenceCode: true,
+      _count: {
+        select: {
+          childEvents: true,
+        },
+      },
     },
   });
   return event;
