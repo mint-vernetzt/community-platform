@@ -157,7 +157,28 @@ export async function action(args: ActionFunctionArgs) {
     );
     result = await createOrganizationMemberRequest({
       formData: requestToJoinOrganizationFormData,
-      locales,
+      locales: {
+        error: locales.route.error,
+        mail: {
+          subject: {
+            de: languageModuleMap.de["organization/create"].route.form
+              .organizationName.requestOrganizationMembership.email.subject
+              .requested,
+            en: languageModuleMap.en["organization/create"].route.form
+              .organizationName.requestOrganizationMembership.email.subject
+              .requested,
+          },
+          buttonText: {
+            de: languageModuleMap.de["organization/create"].route.form
+              .organizationName.requestOrganizationMembership.email.button.text,
+            en: languageModuleMap.en["organization/create"].route.form
+              .organizationName.requestOrganizationMembership.email.button.text,
+          },
+        },
+        requestSuccess:
+          locales.route.form.organizationName.requestOrganizationMembership
+            .createOrganizationMemberRequest,
+      },
       sessionUser,
     });
   } else if (

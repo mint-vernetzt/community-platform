@@ -163,7 +163,10 @@ export async function removeTeamMemberFromEvent(options: {
   teamMemberId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -200,7 +203,7 @@ export async function removeTeamMemberFromEvent(options: {
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
   const recipient = result.profile.email;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/general-notification/remove-team-member-from-event-text.hbs";
   const htmlTemplatePath =
@@ -233,7 +236,10 @@ export async function addContactPersonToEvent(options: {
   teamMemberId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -261,7 +267,7 @@ export async function addContactPersonToEvent(options: {
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
   const recipient = result.profile.email;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/general-notification/add-contact-person-from-event-text.hbs";
   const htmlTemplatePath =
@@ -294,7 +300,10 @@ export async function removeContactPersonFromEvent(options: {
   teamMemberId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -324,7 +333,7 @@ export async function removeContactPersonFromEvent(options: {
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
   const recipient = result.profile.email;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/general-notification/remove-contact-person-from-event-text.hbs";
   const htmlTemplatePath =

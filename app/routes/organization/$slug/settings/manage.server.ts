@@ -529,7 +529,35 @@ export async function updateJoinNetworkRequest(options: {
     name: string;
   };
   intent: "requestToJoinNetwork" | "cancelNetworkJoinRequest";
-  locales: ManageOrganizationSettingsLocales;
+  locales: {
+    error: {
+      notFound: string;
+      alreadyMember: string;
+      thisOrganization: string;
+      requestFailed: string;
+      cancelRequestFailed: string;
+    };
+    mail: {
+      requested: {
+        subject: {
+          de: string;
+          en: string;
+        };
+        buttonText: {
+          de: string;
+          en: string;
+        };
+      };
+      canceled: {
+        subject: {
+          de: string;
+          en: string;
+        };
+      };
+    };
+    success: string;
+    cancelSuccess: string;
+  };
 }) {
   const { formData, organization, intent, locales } = options;
   const { id: organizationId } = organization;
@@ -581,19 +609,19 @@ export async function updateJoinNetworkRequest(options: {
             },
           },
         });
-        invariantResponse(network !== null, locales.route.error.notFound, {
+        invariantResponse(network !== null, locales.error.notFound, {
           status: 404,
         });
         invariantResponse(
           network.networkMembers.some((relation) => {
             return relation.networkMember.id === organizationId;
           }) === false,
-          locales.route.error.alreadyMember,
+          locales.error.alreadyMember,
           { status: 400 }
         );
         invariantResponse(
           networkId !== organizationId,
-          locales.route.error.thisOrganization,
+          locales.error.thisOrganization,
           {
             status: 400,
           }
@@ -623,10 +651,8 @@ export async function updateJoinNetworkRequest(options: {
               const sender = process.env.SYSTEM_MAIL_SENDER;
               const subject =
                 intent === "requestToJoinNetwork"
-                  ? locales.route.content.networks.requestToJoin.email.subject
-                      .requested
-                  : locales.route.content.networks.requestToJoin.email.subject
-                      .canceled;
+                  ? `${locales.mail.requested.subject.de} | ${locales.mail.requested.subject.en}`
+                  : `${locales.mail.canceled.subject.de} | ${locales.mail.canceled.subject.en}`;
               const recipient = admin.profile.email;
 
               const text =
@@ -643,8 +669,7 @@ export async function updateJoinNetworkRequest(options: {
                         },
                         button: {
                           url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
-                          text: locales.route.content.networks.requestToJoin
-                            .email.button.text,
+                          text: locales.mail.requested.buttonText,
                         },
                       },
                       "text"
@@ -676,8 +701,7 @@ export async function updateJoinNetworkRequest(options: {
                         },
                         button: {
                           url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
-                          text: locales.route.content.networks.requestToJoin
-                            .email.button.text,
+                          text: locales.mail.requested.buttonText,
                         },
                       },
                       "html"
@@ -711,8 +735,8 @@ export async function updateJoinNetworkRequest(options: {
                   code: "custom",
                   message:
                     intent === "requestToJoinNetwork"
-                      ? locales.route.error.requestFailed
-                      : locales.route.error.cancelRequestFailed,
+                      ? locales.error.requestFailed
+                      : locales.error.cancelRequestFailed,
                 });
                 return z.NEVER;
               }
@@ -724,8 +748,8 @@ export async function updateJoinNetworkRequest(options: {
             code: "custom",
             message:
               intent === "requestToJoinNetwork"
-                ? locales.route.error.requestFailed
-                : locales.route.error.cancelRequestFailed,
+                ? locales.error.requestFailed
+                : locales.error.cancelRequestFailed,
           });
           return z.NEVER;
         }
@@ -747,8 +771,8 @@ export async function updateJoinNetworkRequest(options: {
       key: `${new Date().getTime()}`,
       message: insertParametersIntoLocale(
         intent === "requestToJoinNetwork"
-          ? locales.route.content.networks.requestToJoin.success
-          : locales.route.content.networks.requestToJoin.cancelSuccess,
+          ? locales.success
+          : locales.cancelSuccess,
         { organization: submission.value.name }
       ),
     },
@@ -843,7 +867,36 @@ export async function updateNetworkMemberInvite(options: {
     id: string;
   };
   intent: "inviteNetworkMember" | "cancelNetworkMemberInvitation";
-  locales: ManageOrganizationSettingsLocales;
+  locales: {
+    error: {
+      notAllowed: string;
+      alreadyMember: string;
+      thisOrganization: string;
+      notFound: string;
+      inviteFailed: string;
+      cancelInviteFailed: string;
+    };
+    success: string;
+    cancelSuccess: string;
+    mail: {
+      invite: {
+        subject: {
+          de: string;
+          en: string;
+        };
+        buttonText: {
+          de: string;
+          en: string;
+        };
+      };
+      cancelInvite: {
+        subject: {
+          de: string;
+          en: string;
+        };
+      };
+    };
+  };
 }) {
   const { formData, organization, organizationTypeNetwork, intent, locales } =
     options;
@@ -855,19 +908,19 @@ export async function updateNetworkMemberInvite(options: {
         const isNetwork = organization.types.some((relation) => {
           return relation.organizationType.id === organizationTypeNetwork.id;
         });
-        invariantResponse(isNetwork !== false, locales.route.error.notAllowed, {
+        invariantResponse(isNetwork !== false, locales.error.notAllowed, {
           status: 400,
         });
         invariantResponse(
           organization.networkMembers.some((relation) => {
             return relation.networkMember.id === networkMemberId;
           }) === false,
-          locales.route.error.alreadyMember,
+          locales.error.alreadyMember,
           { status: 400 }
         );
         invariantResponse(
           networkMemberId !== organizationId,
-          locales.route.error.thisOrganization,
+          locales.error.thisOrganization,
           {
             status: 400,
           }
@@ -891,13 +944,9 @@ export async function updateNetworkMemberInvite(options: {
             id: networkMemberId,
           },
         });
-        invariantResponse(
-          networkMember !== null,
-          locales.route.error.notFound,
-          {
-            status: 404,
-          }
-        );
+        invariantResponse(networkMember !== null, locales.error.notFound, {
+          status: 404,
+        });
         try {
           await prismaClient.inviteForOrganizationToJoinNetwork.upsert({
             where: {
@@ -921,10 +970,8 @@ export async function updateNetworkMemberInvite(options: {
               const sender = process.env.SYSTEM_MAIL_SENDER;
               const subject =
                 intent === "inviteNetworkMember"
-                  ? locales.route.content.networkMembers.invite.email.subject
-                      .invited
-                  : locales.route.content.networkMembers.invite.email.subject
-                      .canceled;
+                  ? `${locales.mail.invite.subject.de} | ${locales.mail.invite.subject.en}`
+                  : `${locales.mail.cancelInvite.subject.de} | ${locales.mail.cancelInvite.subject.en}`;
               const recipient = admin.profile.email;
 
               const text =
@@ -941,8 +988,7 @@ export async function updateNetworkMemberInvite(options: {
                         },
                         button: {
                           url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
-                          text: locales.route.content.networkMembers.invite
-                            .email.button.text,
+                          text: locales.mail.invite.buttonText,
                         },
                       },
                       "text"
@@ -974,8 +1020,7 @@ export async function updateNetworkMemberInvite(options: {
                         },
                         button: {
                           url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
-                          text: locales.route.content.networkMembers.invite
-                            .email.button.text,
+                          text: locales.mail.invite.buttonText,
                         },
                       },
                       "html"
@@ -1009,8 +1054,8 @@ export async function updateNetworkMemberInvite(options: {
                   code: "custom",
                   message:
                     intent === "inviteNetworkMember"
-                      ? locales.route.error.inviteFailed
-                      : locales.route.error.cancelInviteFailed,
+                      ? locales.error.inviteFailed
+                      : locales.error.cancelInviteFailed,
                 });
                 return z.NEVER;
               }
@@ -1022,8 +1067,8 @@ export async function updateNetworkMemberInvite(options: {
             code: "custom",
             message:
               intent === "inviteNetworkMember"
-                ? locales.route.error.inviteFailed
-                : locales.route.error.cancelInviteFailed,
+                ? locales.error.inviteFailed
+                : locales.error.cancelInviteFailed,
           });
           return z.NEVER;
         }
@@ -1045,8 +1090,8 @@ export async function updateNetworkMemberInvite(options: {
       key: `${new Date().getTime()}`,
       message: insertParametersIntoLocale(
         intent === "inviteNetworkMember"
-          ? locales.route.content.networkMembers.invite.success
-          : locales.route.content.networkMembers.invite.cancelSuccess,
+          ? locales.success
+          : locales.cancelSuccess,
         { organization: submission.value.name }
       ),
     },

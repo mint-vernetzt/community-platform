@@ -1131,7 +1131,7 @@ export async function reportEvent(options: {
   };
   reasons: string[];
   otherReason?: string;
-  locales: { email: { subject: string } };
+  locales: { email: { subject: { de: string; en: string } } };
 }) {
   let report: Awaited<ReturnType<typeof createEventAbuseReport>>;
 
@@ -1189,14 +1189,25 @@ async function createEventAbuseReport(options: {
   slug: string;
   reasons: string[];
   locales: {
-    email: { subject: string };
+    email: {
+      subject: {
+        de: string;
+        en: string;
+      };
+    };
   };
 }) {
   const reporter = await getReporter(options.reporterId);
-  const title = insertParametersIntoLocale(options.locales.email.subject, {
+  const title = `${insertParametersIntoLocale(
+    options.locales.email.subject.de,
+    {
+      username: reporter.username,
+      slug: options.slug,
+    }
+  )} | ${insertParametersIntoLocale(options.locales.email.subject.en, {
     username: reporter.username,
     slug: options.slug,
-  });
+  })}`;
 
   await prismaClient.event.update({
     data: {

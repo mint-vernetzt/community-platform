@@ -63,7 +63,6 @@ export function DashboardSearch(props: {
             inputProps={{
               id: "search-bar",
               name: "search",
-              placeholder: props.locales.placeholder.defaultValue,
             }}
             locales={props.locales}
           >

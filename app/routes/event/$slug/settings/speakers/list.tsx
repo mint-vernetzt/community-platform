@@ -112,7 +112,16 @@ export async function action(args: ActionFunctionArgs) {
     await removeSpeakerFromEvent({
       speakerId: submission.value.speakerId,
       eventId: event.id,
-      locales: locales.route,
+      locales: {
+        mail: {
+          subject: {
+            de: languageModuleMap.de["event/$slug/settings/speakers/list"].route
+              .mail.subject,
+            en: languageModuleMap.en["event/$slug/settings/speakers/list"].route
+              .mail.subject,
+          },
+        },
+      },
     });
   } catch (error) {
     captureException(error);

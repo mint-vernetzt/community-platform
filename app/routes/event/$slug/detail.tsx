@@ -78,6 +78,7 @@ import {
 import { formatDateTime } from "./index.shared";
 import { filterEventConferenceLink } from "./utils.server";
 import defaultEventBackground from "~/assets/default-event-background.webp";
+import { redirectWithAlert } from "~/alert.server";
 
 export function links() {
   return [
@@ -265,9 +266,12 @@ export async function loader(args: LoaderFunctionArgs) {
 
   // No right to access unpublished events
   const isMember = await getIsMember(sessionUser, event);
-  invariantResponse(event.published || isMember, "event not found", {
-    status: 404,
-  });
+  if (event.published === false && isMember === false) {
+    return redirectWithAlert(sessionUser === null ? "/" : "/dashboard", {
+      message: locales.route.errors.unpublished,
+      level: "attention",
+    });
+  }
 
   let blurredBackground;
   let background =
@@ -673,7 +677,16 @@ export async function action(args: ActionFunctionArgs) {
             event,
             reasons,
             otherReason,
-            locales: locales.route.abuseReport,
+            locales: {
+              email: {
+                subject: {
+                  de: languageModuleMap.de["event/$slug/detail"].route
+                    .abuseReport.email.subject,
+                  en: languageModuleMap.en["event/$slug/detail"].route
+                    .abuseReport.email.subject,
+                },
+              },
+            },
           });
           if (typeof error !== "undefined") {
             ctx.addIssue({

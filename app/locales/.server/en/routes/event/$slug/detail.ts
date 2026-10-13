@@ -125,6 +125,8 @@ export const locale = {
     },
   },
   errors: {
+    unpublished:
+      "This event is not published. You must be an admin, team member, speaker, or part of a responsible organization to access it.",
     invalidProfileId: "Invalid profile ID",
     participate: "Error adding to participants",
     withdrawParticipation: "Error removing from participants",

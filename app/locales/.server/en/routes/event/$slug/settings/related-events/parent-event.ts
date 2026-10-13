@@ -82,17 +82,16 @@ export const locale = {
   },
   mail: {
     request: {
-      buttonText: "Zur Community Plattform",
-      subject:
-        "Dein Event wurde als Unterveranstaltung zu einem Rahmenevent angefragt",
+      buttonText: "To the community platform",
+      subject: "An event wants to become part of your main event",
     },
     cancel: {
-      buttonText: "Zur Community Plattform",
+      buttonText: "To the community platform",
       subject:
-        "Die Anfrage eines Events, Teil deines Events zu werden, wurde zurückgezogen",
+        "The request for an event to become part of your main event has been withdrawn",
     },
     remove: {
-      subject: "Ein Event wurde aus deinem Rahmenevent entfernt",
+      subject: "An event has been removed from your main event",
     },
   },
 } as const;

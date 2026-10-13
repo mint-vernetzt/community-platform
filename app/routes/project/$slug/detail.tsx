@@ -60,6 +60,7 @@ import {
 import { publishSchema } from "./detail.shared";
 import { getRedirectPathOnProtectedProjectRoute } from "./settings/utils.server";
 import defaultProjectBackground from "~/assets/default-project-background.webp";
+import { redirectWithAlert } from "~/alert.server";
 
 export function links() {
   return [
@@ -253,6 +254,16 @@ export async function loader(args: LoaderFunctionArgs) {
     locales.route.error.invariant.projectNotPublished,
     { status: 403 }
   );
+  if (
+    project.published === false &&
+    mode !== "admin" &&
+    mode !== "teamMember"
+  ) {
+    return redirectWithAlert(sessionUser === null ? "/" : "/dashboard", {
+      message: locales.route.error.invariant.projectNotPublished,
+      level: "attention",
+    });
+  }
 
   let background;
   let blurredBackground;

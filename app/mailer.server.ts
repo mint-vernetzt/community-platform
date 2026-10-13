@@ -62,7 +62,7 @@ export async function mailer(
 }
 
 type ClaimOrganizationRequestCreatedContent = {
-  headline: string;
+  headline: { de: string; en: string };
   claimer: {
     firstName: string;
     lastName: string;
@@ -71,14 +71,14 @@ type ClaimOrganizationRequestCreatedContent = {
     name: string;
   };
   supportMail: string;
-  profileButtonText: string;
+  profileButtonText: { de: string; en: string };
   profileButtonUrl: string;
-  organizationButtonText: string;
+  organizationButtonText: { de: string; en: string };
   organizationButtonUrl: string;
 };
 
 type ClaimOrganizationRequestWithdrawnContent = {
-  headline: string;
+  headline: { de: string; en: string };
   claimer: {
     firstName: string;
     lastName: string;
@@ -103,11 +103,11 @@ type WelcomeContent = {
 };
 
 type InactivityContent = {
-  headline: string;
+  headline: { de: string; en: string };
   firstName: string;
   button: {
     url: string;
-    text: string;
+    text: { de: string; en: string };
   };
 };
 
@@ -156,7 +156,10 @@ type RequestContent = {
   organization: { name: string };
   button: {
     url: string;
-    text: string;
+    text: {
+      de: string;
+      en: string;
+    };
   };
 };
 
@@ -180,7 +183,10 @@ type RequestNetworkContent = {
   network: { name: string };
   button: {
     url: string;
-    text: string;
+    text: {
+      de: string;
+      en: string;
+    };
   };
 };
 
@@ -208,7 +214,10 @@ type InviteNetworkContent = {
   network: { name: string };
   button: {
     url: string;
-    text: string;
+    text: {
+      de: string;
+      en: string;
+    };
   };
 };
 

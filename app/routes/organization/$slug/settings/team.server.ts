@@ -169,9 +169,15 @@ export async function inviteProfileToBeOrganizationTeamMember(options: {
   slug: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
       button: {
-        text: string;
+        text: {
+          de: string;
+          en: string;
+        };
       };
     };
     content: {
@@ -252,7 +258,7 @@ export async function inviteProfileToBeOrganizationTeamMember(options: {
   });
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = locales.mail.subject;
+  const subject = `${locales.mail.subject.de} | ${locales.mail.subject.en}`;
   const recipient = profile.email;
   const textTemplatePath =
     "mail-templates/invites/profile-to-join-organization/text.hbs";
@@ -307,7 +313,10 @@ export async function cancelOrganizationTeamMemberInvitation(options: {
   slug: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
     error: {
       invariant: {
@@ -378,7 +387,7 @@ export async function cancelOrganizationTeamMemberInvitation(options: {
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
   const recipient = profile.email;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/invites/profile-to-join-organization/canceled-text.hbs";
   const htmlTemplatePath =

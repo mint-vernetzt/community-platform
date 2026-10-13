@@ -2014,7 +2014,10 @@ export async function acceptRequestAsParentEvent(options: {
   eventId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -2141,7 +2144,7 @@ export async function acceptRequestAsParentEvent(options: {
   ]);
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/requests/parent-event-to-add-child-event/accepted-text.hbs";
   const htmlTemplatePath =
@@ -2193,7 +2196,10 @@ export async function rejectRequestAsParentEvent(options: {
   eventId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -2263,7 +2269,7 @@ export async function rejectRequestAsParentEvent(options: {
   });
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/requests/parent-event-to-add-child-event/rejected-text.hbs";
   const htmlTemplatePath =

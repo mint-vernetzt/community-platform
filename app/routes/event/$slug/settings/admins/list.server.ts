@@ -146,7 +146,10 @@ export async function removeAdminFromEvent(options: {
   adminId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -176,7 +179,7 @@ export async function removeAdminFromEvent(options: {
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
   const recipient = result.profile.email;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/general-notification/remove-admin-from-event-text.hbs";
   const htmlTemplatePath =

@@ -319,14 +319,6 @@ export default function Explore() {
               <Search
                 inputProps={{
                   id: "search-bar",
-                  placeholder:
-                    typeof loaderData.locales.route.content.search
-                      .placeholder === "undefined"
-                      ? DEFAULT_LANGUAGE === "de"
-                        ? "Suche..."
-                        : "Search..."
-                      : loaderData.locales.route.content.search.placeholder
-                          .default,
                   name: "search",
                 }}
                 locales={loaderData.locales.route.content.search}

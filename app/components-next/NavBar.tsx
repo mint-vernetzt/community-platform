@@ -159,12 +159,6 @@ export function NavBar(props: NavBarProps) {
               <Search
                 inputProps={{
                   id: "search-bar",
-                  placeholder:
-                    typeof props.locales === "undefined"
-                      ? DEFAULT_LANGUAGE === "de"
-                        ? "Suche..."
-                        : "Search..."
-                      : props.locales.route.root.search.placeholder.default,
                   name: "search",
                 }}
                 locales={

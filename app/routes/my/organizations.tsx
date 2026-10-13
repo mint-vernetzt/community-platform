@@ -204,7 +204,39 @@ export async function action(args: ActionFunctionArgs) {
     result = await createOrCancelOrganizationMemberRequest({
       formData: requestToJoinOrganizationFormData,
       intent: "createOrganizationMemberRequest",
-      locales,
+      locales: {
+        error: locales.route.error,
+        mail: {
+          request: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route
+                .requestOrganizationMembership.email.subject.requested,
+              en: languageModuleMap.en["my/organizations"].route
+                .requestOrganizationMembership.email.subject.requested,
+            },
+            buttonText: {
+              de: languageModuleMap.de["my/organizations"].route
+                .requestOrganizationMembership.email.button.text,
+              en: languageModuleMap.en["my/organizations"].route
+                .requestOrganizationMembership.email.button.text,
+            },
+          },
+          cancelRequest: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route
+                .requestOrganizationMembership.email.subject.canceled,
+              en: languageModuleMap.en["my/organizations"].route
+                .requestOrganizationMembership.email.subject.canceled,
+            },
+          },
+        },
+        requestSuccess:
+          locales.route.requestOrganizationMembership
+            .createOrganizationMemberRequest,
+        cancelRequestSuccess:
+          locales.route.requestOrganizationMembership
+            .cancelOrganizationMemberRequest,
+      },
       sessionUser,
     });
   } else if (intent.startsWith("cancel-organization-member-request-")) {
@@ -216,7 +248,39 @@ export async function action(args: ActionFunctionArgs) {
     result = await createOrCancelOrganizationMemberRequest({
       formData: cancelOrganizationJoinRequestFormData,
       intent: "cancelOrganizationMemberRequest",
-      locales,
+      locales: {
+        error: locales.route.error,
+        mail: {
+          request: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route
+                .requestOrganizationMembership.email.subject.requested,
+              en: languageModuleMap.en["my/organizations"].route
+                .requestOrganizationMembership.email.subject.requested,
+            },
+            buttonText: {
+              de: languageModuleMap.de["my/organizations"].route
+                .requestOrganizationMembership.email.button.text,
+              en: languageModuleMap.en["my/organizations"].route
+                .requestOrganizationMembership.email.button.text,
+            },
+          },
+          cancelRequest: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route
+                .requestOrganizationMembership.email.subject.canceled,
+              en: languageModuleMap.en["my/organizations"].route
+                .requestOrganizationMembership.email.subject.canceled,
+            },
+          },
+        },
+        requestSuccess:
+          locales.route.requestOrganizationMembership
+            .createOrganizationMemberRequest,
+        cancelRequestSuccess:
+          locales.route.requestOrganizationMembership
+            .cancelOrganizationMemberRequest,
+      },
       sessionUser,
     });
   } else if (intent.startsWith("accept-organization-invite-")) {
@@ -242,7 +306,30 @@ export async function action(args: ActionFunctionArgs) {
     result = await updateOrganizationMemberInvite({
       formData: acceptOrganizationMemberInviteFormData,
       intent: "acceptOrganizationMemberInvite",
-      locales,
+      locales: {
+        error: locales.route.error,
+        mail: {
+          acceptInvite: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route
+                .organizationMemberInvites.email.subject.accepted,
+              en: languageModuleMap.en["my/organizations"].route
+                .organizationMemberInvites.email.subject.accepted,
+            },
+          },
+          rejectInvite: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route
+                .organizationMemberInvites.email.subject.rejected,
+              en: languageModuleMap.en["my/organizations"].route
+                .organizationMemberInvites.email.subject.rejected,
+            },
+          },
+        },
+        adminAccepted: locales.route.organizationMemberInvites.adminAccepted,
+        memberAccepted: locales.route.organizationMemberInvites.memberAccepted,
+        rejected: locales.route.organizationMemberInvites.rejected,
+      },
       sessionUser,
     });
   } else if (intent.startsWith("reject-organization-invite-")) {
@@ -268,7 +355,30 @@ export async function action(args: ActionFunctionArgs) {
     result = await updateOrganizationMemberInvite({
       formData: rejectOrganizationMemberInviteFormData,
       intent: "rejectOrganizationMemberInvite",
-      locales,
+      locales: {
+        error: locales.route.error,
+        mail: {
+          acceptInvite: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route
+                .organizationMemberInvites.email.subject.accepted,
+              en: languageModuleMap.en["my/organizations"].route
+                .organizationMemberInvites.email.subject.accepted,
+            },
+          },
+          rejectInvite: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route
+                .organizationMemberInvites.email.subject.rejected,
+              en: languageModuleMap.en["my/organizations"].route
+                .organizationMemberInvites.email.subject.rejected,
+            },
+          },
+        },
+        adminAccepted: locales.route.organizationMemberInvites.adminAccepted,
+        memberAccepted: locales.route.organizationMemberInvites.memberAccepted,
+        rejected: locales.route.organizationMemberInvites.rejected,
+      },
       sessionUser,
     });
   } else if (intent.startsWith("accept-network-invite-")) {
@@ -279,7 +389,31 @@ export async function action(args: ActionFunctionArgs) {
     result = await updateNetworkInvite({
       formData: acceptNetworkInviteFormData,
       intent: "acceptNetworkInvite",
-      locales,
+      locales: {
+        error: locales.route.error,
+        mail: {
+          accept: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route.networkInvites
+                .email.subject.accepted,
+              en: languageModuleMap.en["my/organizations"].route.networkInvites
+                .email.subject.accepted,
+            },
+          },
+          reject: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route.networkInvites
+                .email.subject.rejected,
+              en: languageModuleMap.en["my/organizations"].route.networkInvites
+                .email.subject.rejected,
+            },
+          },
+        },
+        success: {
+          accept: locales.route.networkInvites.acceptNetworkInvite,
+          reject: locales.route.networkInvites.rejectNetworkInvite,
+        },
+      },
       sessionUser,
     });
   } else if (intent.startsWith("reject-network-invite-")) {
@@ -290,7 +424,31 @@ export async function action(args: ActionFunctionArgs) {
     result = await updateNetworkInvite({
       formData: rejectNetworkInviteFormData,
       intent: "rejectNetworkInvite",
-      locales,
+      locales: {
+        error: locales.route.error,
+        mail: {
+          accept: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route.networkInvites
+                .email.subject.accepted,
+              en: languageModuleMap.en["my/organizations"].route.networkInvites
+                .email.subject.accepted,
+            },
+          },
+          reject: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route.networkInvites
+                .email.subject.rejected,
+              en: languageModuleMap.en["my/organizations"].route.networkInvites
+                .email.subject.rejected,
+            },
+          },
+        },
+        success: {
+          accept: locales.route.networkInvites.acceptNetworkInvite,
+          reject: locales.route.networkInvites.rejectNetworkInvite,
+        },
+      },
       sessionUser,
     });
   } else if (intent.startsWith("accept-organization-member-request-")) {
@@ -307,7 +465,33 @@ export async function action(args: ActionFunctionArgs) {
     result = await acceptOrRejectOrganizationMemberRequest({
       formData: acceptOrganizationMemberRequestFormData,
       intent: "acceptOrganizationMemberRequest",
-      locales,
+      locales: {
+        error: locales.route.error,
+        mail: {
+          acceptRequest: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route
+                .organizationMemberRequests.email.subject.accepted,
+              en: languageModuleMap.en["my/organizations"].route
+                .organizationMemberRequests.email.subject.accepted,
+            },
+          },
+          rejectRequest: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route
+                .organizationMemberRequests.email.subject.rejected,
+              en: languageModuleMap.en["my/organizations"].route
+                .organizationMemberRequests.email.subject.rejected,
+            },
+          },
+        },
+        acceptSuccess:
+          locales.route.organizationMemberRequests
+            .acceptOrganizationMemberRequest,
+        rejectSuccess:
+          locales.route.organizationMemberRequests
+            .rejectOrganizationMemberRequest,
+      },
       sessionUser,
     });
   } else if (intent.startsWith("reject-organization-member-request-")) {
@@ -324,7 +508,33 @@ export async function action(args: ActionFunctionArgs) {
     result = await acceptOrRejectOrganizationMemberRequest({
       formData: rejectOrganizationMemberRequestFormData,
       intent: "rejectOrganizationMemberRequest",
-      locales,
+      locales: {
+        error: locales.route.error,
+        mail: {
+          acceptRequest: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route
+                .organizationMemberRequests.email.subject.accepted,
+              en: languageModuleMap.en["my/organizations"].route
+                .organizationMemberRequests.email.subject.accepted,
+            },
+          },
+          rejectRequest: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route
+                .organizationMemberRequests.email.subject.rejected,
+              en: languageModuleMap.en["my/organizations"].route
+                .organizationMemberRequests.email.subject.rejected,
+            },
+          },
+        },
+        acceptSuccess:
+          locales.route.organizationMemberRequests
+            .acceptOrganizationMemberRequest,
+        rejectSuccess:
+          locales.route.organizationMemberRequests
+            .rejectOrganizationMemberRequest,
+      },
       sessionUser,
     });
   } else if (intent.startsWith("accept-network-request-")) {
@@ -335,7 +545,29 @@ export async function action(args: ActionFunctionArgs) {
     result = await updateNetworkRequest({
       formData: acceptNetworkRequestFormData,
       intent: "acceptNetworkRequest",
-      locales,
+      locales: {
+        error: locales.route.error,
+        mail: {
+          accept: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route.networkRequests
+                .email.subject.accepted,
+              en: languageModuleMap.en["my/organizations"].route.networkRequests
+                .email.subject.accepted,
+            },
+          },
+          reject: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route.networkRequests
+                .email.subject.rejected,
+              en: languageModuleMap.en["my/organizations"].route.networkRequests
+                .email.subject.rejected,
+            },
+          },
+        },
+        acceptSuccess: locales.route.networkRequests.acceptNetworkRequest,
+        rejectSuccess: locales.route.networkRequests.rejectNetworkRequest,
+      },
       sessionUser,
     });
   } else if (intent.startsWith("reject-network-request-")) {
@@ -346,7 +578,29 @@ export async function action(args: ActionFunctionArgs) {
     result = await updateNetworkRequest({
       formData: rejectNetworkRequestFormData,
       intent: "rejectNetworkRequest",
-      locales,
+      locales: {
+        error: locales.route.error,
+        mail: {
+          accept: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route.networkRequests
+                .email.subject.accepted,
+              en: languageModuleMap.en["my/organizations"].route.networkRequests
+                .email.subject.accepted,
+            },
+          },
+          reject: {
+            subject: {
+              de: languageModuleMap.de["my/organizations"].route.networkRequests
+                .email.subject.rejected,
+              en: languageModuleMap.en["my/organizations"].route.networkRequests
+                .email.subject.rejected,
+            },
+          },
+        },
+        acceptSuccess: locales.route.networkRequests.acceptNetworkRequest,
+        rejectSuccess: locales.route.networkRequests.rejectNetworkRequest,
+      },
       sessionUser,
     });
   } else if (intent.startsWith("quit-organization-admin-")) {

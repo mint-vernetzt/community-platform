@@ -127,6 +127,8 @@ export const locale = {
     },
   },
   errors: {
+    unpublished:
+      "Diese Veranstaltung ist nicht veröffentlicht. Du musst Admin, Teammitglied, Speaker:in oder Teil einer verantwortlichen Organisation sein, um darauf zugreifen zu können.",
     invalidProfileId: "Ungültige Profil-ID",
     participate: "Fehler beim Hinzufügen zu Teilnehmer:innen",
     withdrawParticipation: "Fehler beim Entfernen von Teilnehmer:innen",

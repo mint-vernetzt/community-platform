@@ -224,13 +224,13 @@ export async function revokeOrganizationInvite(options: {
   const htmlTemplatePath =
     "mail-templates/invites/organization-to-join-event/canceled-html.hbs";
 
-  const recipents = result.organization.admins.filter((admin) => {
+  const recipients = result.organization.admins.filter((admin) => {
     return admin.profile.id !== userId;
   });
 
   // Do not block main thread while sending the mail
   void Promise.all(
-    recipents.map(async (admin) => {
+    recipients.map(async (admin) => {
       try {
         const recipient = admin.profile.email;
         const text = getCompiledMailTemplate<typeof textTemplatePath>(

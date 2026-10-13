@@ -139,7 +139,14 @@ export async function action(args: ActionFunctionArgs) {
         teamMemberId: submission.value.teamMemberId,
         eventId: event.id,
         locales: {
-          mail: { subject: locales.route.mail.removeTeamMemberSubject },
+          mail: {
+            subject: {
+              de: languageModuleMap.de["event/$slug/settings/team/list"].route
+                .mail.removeTeamMemberSubject,
+              en: languageModuleMap.en["event/$slug/settings/team/list"].route
+                .mail.removeTeamMemberSubject,
+            },
+          },
         },
       });
     } catch (error) {
@@ -172,7 +179,14 @@ export async function action(args: ActionFunctionArgs) {
         teamMemberId: submission.value.teamMemberId,
         eventId: event.id,
         locales: {
-          mail: { subject: locales.route.mail.addContactPersonSubject },
+          mail: {
+            subject: {
+              de: languageModuleMap.de["event/$slug/settings/team/list"].route
+                .mail.addContactPersonSubject,
+              en: languageModuleMap.en["event/$slug/settings/team/list"].route
+                .mail.addContactPersonSubject,
+            },
+          },
         },
       });
     } catch (error) {
@@ -205,7 +219,14 @@ export async function action(args: ActionFunctionArgs) {
         teamMemberId: submission.value.teamMemberId,
         eventId: event.id,
         locales: {
-          mail: { subject: locales.route.mail.removeContactPersonSubject },
+          mail: {
+            subject: {
+              de: languageModuleMap.de["event/$slug/settings/team/list"].route
+                .mail.removeContactPersonSubject,
+              en: languageModuleMap.en["event/$slug/settings/team/list"].route
+                .mail.removeContactPersonSubject,
+            },
+          },
         },
       });
     } catch (error) {

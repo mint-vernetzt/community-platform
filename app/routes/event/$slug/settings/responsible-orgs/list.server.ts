@@ -126,7 +126,10 @@ export async function removeResponsibleOrgFromEvent(options: {
   userId: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -169,9 +172,14 @@ export async function removeResponsibleOrgFromEvent(options: {
   });
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = insertParametersIntoLocale(options.locales.mail.subject, {
+  const subject = `${insertParametersIntoLocale(
+    options.locales.mail.subject.de,
+    {
+      eventName: result.event.name,
+    }
+  )} | ${insertParametersIntoLocale(options.locales.mail.subject.en, {
     eventName: result.event.name,
-  });
+  })}`;
   const textTemplatePath =
     "mail-templates/general-notification/remove-responsible-org-from-event-text.hbs";
   const htmlTemplatePath =

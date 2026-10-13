@@ -127,7 +127,16 @@ export async function action(args: ActionFunctionArgs) {
     await removeAdminFromEvent({
       adminId: submission.value.adminId,
       eventId: event.id,
-      locales: locales.route,
+      locales: {
+        mail: {
+          subject: {
+            de: languageModuleMap.de["event/$slug/settings/admins/list"].route
+              .mail.subject,
+            en: languageModuleMap.en["event/$slug/settings/admins/list"].route
+              .mail.subject,
+          },
+        },
+      },
     });
   } catch (error) {
     captureException(error);

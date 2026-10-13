@@ -1147,7 +1147,34 @@ export function addImageUrlToNetworkInvites(
 export async function createOrCancelOrganizationMemberRequest(options: {
   formData: FormData;
   intent: "createOrganizationMemberRequest" | "cancelOrganizationMemberRequest";
-  locales: MyOrganizationsLocales;
+  locales: {
+    error: {
+      notFound: string;
+      alreadyMember: string;
+      requestFailed: string;
+      cancelRequestFailed: string;
+    };
+    mail: {
+      request: {
+        subject: {
+          de: string;
+          en: string;
+        };
+        buttonText: {
+          de: string;
+          en: string;
+        };
+      };
+      cancelRequest: {
+        subject: {
+          de: string;
+          en: string;
+        };
+      };
+    };
+    requestSuccess: string;
+    cancelRequestSuccess: string;
+  };
   sessionUser: User;
 }) {
   const { formData, intent, locales, sessionUser } = options;
@@ -1193,21 +1220,17 @@ export async function createOrCancelOrganizationMemberRequest(options: {
             }),
           ]);
 
-          invariantResponse(
-            organization !== null,
-            locales.route.error.notFound,
-            {
-              status: 404,
-            }
-          );
+          invariantResponse(organization !== null, locales.error.notFound, {
+            status: 404,
+          });
           invariantResponse(
             organization.teamMembers.every((relation) => {
               return relation.profileId !== sessionUser.id;
             }),
-            locales.route.error.alreadyMember,
+            locales.error.alreadyMember,
             { status: 403 }
           );
-          invariantResponse(profile !== null, locales.route.error.notFound, {
+          invariantResponse(profile !== null, locales.error.notFound, {
             status: 404,
           });
 
@@ -1240,10 +1263,8 @@ export async function createOrCancelOrganizationMemberRequest(options: {
                 const sender = process.env.SYSTEM_MAIL_SENDER;
                 const subject =
                   intent === "createOrganizationMemberRequest"
-                    ? locales.route.requestOrganizationMembership.email.subject
-                        .requested
-                    : locales.route.requestOrganizationMembership.email.subject
-                        .canceled;
+                    ? `${locales.mail.request.subject.de} | ${locales.mail.request.subject.en}`
+                    : `${locales.mail.cancelRequest.subject.de} | ${locales.mail.cancelRequest.subject.en}`;
                 const recipient = admin.profile.email;
 
                 const text =
@@ -1261,8 +1282,7 @@ export async function createOrCancelOrganizationMemberRequest(options: {
                           },
                           button: {
                             url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
-                            text: locales.route.requestOrganizationMembership
-                              .email.button.text,
+                            text: locales.mail.request.buttonText,
                           },
                         },
                         "text"
@@ -1296,8 +1316,7 @@ export async function createOrCancelOrganizationMemberRequest(options: {
                           },
                           button: {
                             url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
-                            text: locales.route.requestOrganizationMembership
-                              .email.button.text,
+                            text: locales.mail.request.buttonText,
                           },
                         },
                         "html"
@@ -1332,8 +1351,8 @@ export async function createOrCancelOrganizationMemberRequest(options: {
                     code: "custom",
                     message:
                       intent === "createOrganizationMemberRequest"
-                        ? locales.route.error.requestFailed
-                        : locales.route.error.cancelRequestFailed,
+                        ? locales.error.requestFailed
+                        : locales.error.cancelRequestFailed,
                   });
                   return z.NEVER;
                 }
@@ -1345,8 +1364,8 @@ export async function createOrCancelOrganizationMemberRequest(options: {
               code: "custom",
               message:
                 intent === "createOrganizationMemberRequest"
-                  ? locales.route.error.requestFailed
-                  : locales.route.error.cancelRequestFailed,
+                  ? locales.error.requestFailed
+                  : locales.error.cancelRequestFailed,
             });
             return z.NEVER;
           }
@@ -1367,10 +1386,8 @@ export async function createOrCancelOrganizationMemberRequest(options: {
       key: `${new Date().getTime()}`,
       message: insertParametersIntoLocale(
         intent === "createOrganizationMemberRequest"
-          ? locales.route.requestOrganizationMembership
-              .createOrganizationMemberRequest
-          : locales.route.requestOrganizationMembership
-              .cancelOrganizationMemberRequest,
+          ? locales.requestSuccess
+          : locales.cancelRequestSuccess,
         {
           name: submission.value.name,
         }
@@ -1382,7 +1399,30 @@ export async function createOrCancelOrganizationMemberRequest(options: {
 export async function updateOrganizationMemberInvite(options: {
   formData: FormData;
   intent: "acceptOrganizationMemberInvite" | "rejectOrganizationMemberInvite";
-  locales: MyOrganizationsLocales;
+  locales: {
+    error: {
+      notFound: string;
+      acceptInviteFailed: string;
+      rejectInviteFailed: string;
+    };
+    mail: {
+      acceptInvite: {
+        subject: {
+          de: string;
+          en: string;
+        };
+      };
+      rejectInvite: {
+        subject: {
+          de: string;
+          en: string;
+        };
+      };
+    };
+    adminAccepted: string;
+    memberAccepted: string;
+    rejected: string;
+  };
   sessionUser: User;
 }) {
   const { formData, intent, locales, sessionUser } = options;
@@ -1428,7 +1468,7 @@ export async function updateOrganizationMemberInvite(options: {
               status: "pending",
             },
           });
-        invariantResponse(invite !== null, locales.route.error.notFound, {
+        invariantResponse(invite !== null, locales.error.notFound, {
           status: 404,
         });
         try {
@@ -1508,10 +1548,10 @@ export async function updateOrganizationMemberInvite(options: {
               const sender = process.env.SYSTEM_MAIL_SENDER;
               const subject =
                 intent === "acceptOrganizationMemberInvite"
-                  ? locales.route.organizationMemberInvites.email.subject
-                      .accepted
-                  : locales.route.organizationMemberInvites.email.subject
-                      .rejected;
+                  ? `${
+                      locales.mail.acceptInvite.subject.de
+                    } | ${locales.mail.acceptInvite.subject.en}`
+                  : `${locales.mail.rejectInvite.subject.de} | ${locales.mail.rejectInvite.subject.en}`;
               const recipient = admin.profile.email;
 
               const text =
@@ -1650,8 +1690,8 @@ export async function updateOrganizationMemberInvite(options: {
                   code: "custom",
                   message:
                     intent === "acceptOrganizationMemberInvite"
-                      ? locales.route.error.acceptInviteFailed
-                      : locales.route.error.rejectInviteFailed,
+                      ? locales.error.acceptInviteFailed
+                      : locales.error.rejectInviteFailed,
                 });
                 return z.NEVER;
               }
@@ -1663,8 +1703,8 @@ export async function updateOrganizationMemberInvite(options: {
             code: "custom",
             message:
               intent === "acceptOrganizationMemberInvite"
-                ? locales.route.error.acceptInviteFailed
-                : locales.route.error.rejectInviteFailed,
+                ? locales.error.acceptInviteFailed
+                : locales.error.rejectInviteFailed,
           });
           return z.NEVER;
         }
@@ -1686,9 +1726,9 @@ export async function updateOrganizationMemberInvite(options: {
       message: insertParametersIntoLocale(
         intent === "acceptOrganizationMemberInvite"
           ? submission.value.role === "admin"
-            ? locales.route.organizationMemberInvites.adminAccepted
-            : locales.route.organizationMemberInvites.memberAccepted
-          : locales.route.organizationMemberInvites.rejected,
+            ? locales.adminAccepted
+            : locales.memberAccepted
+          : locales.rejected,
         {
           name: submission.value.name,
         }
@@ -1700,7 +1740,32 @@ export async function updateOrganizationMemberInvite(options: {
 export async function updateNetworkInvite(options: {
   formData: FormData;
   intent: "acceptNetworkInvite" | "rejectNetworkInvite";
-  locales: MyOrganizationsLocales;
+  locales: {
+    error: {
+      notFound: string;
+      notAdmin: string;
+      acceptInviteFailed: string;
+      rejectInviteFailed: string;
+    };
+    mail: {
+      accept: {
+        subject: {
+          de: string;
+          en: string;
+        };
+      };
+      reject: {
+        subject: {
+          de: string;
+          en: string;
+        };
+      };
+    };
+    success: {
+      accept: string;
+      reject: string;
+    };
+  };
   sessionUser: User;
 }) {
   const { formData, intent, locales, sessionUser } = options;
@@ -1749,14 +1814,14 @@ export async function updateNetworkInvite(options: {
               status: "pending",
             },
           });
-        invariantResponse(invite !== null, locales.route.error.notFound, {
+        invariantResponse(invite !== null, locales.error.notFound, {
           status: 404,
         });
         invariantResponse(
           invite.organization.admins.some((relation) => {
             return relation.profileId === sessionUser.id;
           }),
-          locales.route.error.notAdmin,
+          locales.error.notAdmin,
           {
             status: 403,
           }
@@ -1826,8 +1891,8 @@ export async function updateNetworkInvite(options: {
               const sender = process.env.SYSTEM_MAIL_SENDER;
               const subject =
                 intent === "acceptNetworkInvite"
-                  ? locales.route.networkInvites.email.subject.accepted
-                  : locales.route.networkInvites.email.subject.rejected;
+                  ? `${locales.mail.accept.subject.de} | ${locales.mail.accept.subject.en}`
+                  : `${locales.mail.reject.subject.de} | ${locales.mail.reject.subject.en}`;
               const recipient = admin.profile.email;
 
               const text =
@@ -1902,8 +1967,8 @@ export async function updateNetworkInvite(options: {
                   code: "custom",
                   message:
                     intent === "acceptNetworkInvite"
-                      ? locales.route.error.acceptInviteFailed
-                      : locales.route.error.rejectInviteFailed,
+                      ? locales.error.acceptInviteFailed
+                      : locales.error.rejectInviteFailed,
                 });
                 return z.NEVER;
               }
@@ -1915,8 +1980,8 @@ export async function updateNetworkInvite(options: {
             code: "custom",
             message:
               intent === "acceptNetworkInvite"
-                ? locales.route.error.acceptInviteFailed
-                : locales.route.error.rejectInviteFailed,
+                ? locales.error.acceptInviteFailed
+                : locales.error.rejectInviteFailed,
           });
           return z.NEVER;
         }
@@ -1941,8 +2006,8 @@ export async function updateNetworkInvite(options: {
       key: `${new Date().getTime()}`,
       message: insertParametersIntoLocale(
         intent === "acceptNetworkInvite"
-          ? locales.route.networkInvites.acceptNetworkInvite
-          : locales.route.networkInvites.rejectNetworkInvite,
+          ? locales.success.accept
+          : locales.success.reject,
         {
           organizationName: submission.value.organizationName,
           networkName: submission.value.networkName,
@@ -1955,7 +2020,30 @@ export async function updateNetworkInvite(options: {
 export async function acceptOrRejectOrganizationMemberRequest(options: {
   formData: FormData;
   intent: "acceptOrganizationMemberRequest" | "rejectOrganizationMemberRequest";
-  locales: MyOrganizationsLocales;
+  locales: {
+    error: {
+      notFound: string;
+      notAdmin: string;
+      acceptRequestFailed: string;
+      rejectRequestFailed: string;
+    };
+    mail: {
+      acceptRequest: {
+        subject: {
+          de: string;
+          en: string;
+        };
+      };
+      rejectRequest: {
+        subject: {
+          de: string;
+          en: string;
+        };
+      };
+    };
+    acceptSuccess: string;
+    rejectSuccess: string;
+  };
   sessionUser: User;
 }) {
   const { formData, intent, locales, sessionUser } = options;
@@ -1998,14 +2086,14 @@ export async function acceptOrRejectOrganizationMemberRequest(options: {
                 status: "pending",
               },
             });
-          invariantResponse(request !== null, locales.route.error.notFound, {
+          invariantResponse(request !== null, locales.error.notFound, {
             status: 404,
           });
           invariantResponse(
             request.organization.admins.some((relation) => {
               return relation.profileId === sessionUser.id;
             }),
-            locales.route.error.notAdmin,
+            locales.error.notAdmin,
             {
               status: 403,
             }
@@ -2075,10 +2163,8 @@ export async function acceptOrRejectOrganizationMemberRequest(options: {
             const sender = process.env.SYSTEM_MAIL_SENDER;
             const subject =
               intent === "acceptOrganizationMemberRequest"
-                ? locales.route.organizationMemberRequests.email.subject
-                    .accepted
-                : locales.route.organizationMemberRequests.email.subject
-                    .rejected;
+                ? `${locales.mail.acceptRequest.subject.de} | ${locales.mail.acceptRequest.subject.en}`
+                : `${locales.mail.rejectRequest.subject.de} | ${locales.mail.rejectRequest.subject.en}`;
             const recipient = request.profile.email;
 
             const text =
@@ -2141,8 +2227,8 @@ export async function acceptOrRejectOrganizationMemberRequest(options: {
                 code: "custom",
                 message:
                   intent === "acceptOrganizationMemberRequest"
-                    ? locales.route.error.acceptRequestFailed
-                    : locales.route.error.rejectRequestFailed,
+                    ? locales.error.acceptRequestFailed
+                    : locales.error.rejectRequestFailed,
               });
               return z.NEVER;
             }
@@ -2152,8 +2238,8 @@ export async function acceptOrRejectOrganizationMemberRequest(options: {
               code: "custom",
               message:
                 intent === "acceptOrganizationMemberRequest"
-                  ? locales.route.error.acceptRequestFailed
-                  : locales.route.error.rejectRequestFailed,
+                  ? locales.error.acceptRequestFailed
+                  : locales.error.rejectRequestFailed,
             });
             return z.NEVER;
           }
@@ -2182,10 +2268,8 @@ export async function acceptOrRejectOrganizationMemberRequest(options: {
       key: `${new Date().getTime()}`,
       message: insertParametersIntoLocale(
         intent === "acceptOrganizationMemberRequest"
-          ? locales.route.organizationMemberRequests
-              .acceptOrganizationMemberRequest
-          : locales.route.organizationMemberRequests
-              .rejectOrganizationMemberRequest,
+          ? locales.acceptSuccess
+          : locales.rejectSuccess,
         {
           academicTitle: submission.value.profile.academicTitle || "",
           firstName: submission.value.profile.firstName,
@@ -2199,7 +2283,30 @@ export async function acceptOrRejectOrganizationMemberRequest(options: {
 export async function updateNetworkRequest(options: {
   formData: FormData;
   intent: "acceptNetworkRequest" | "rejectNetworkRequest";
-  locales: MyOrganizationsLocales;
+  locales: {
+    error: {
+      notFound: string;
+      notAdmin: string;
+      acceptRequestFailed: string;
+      rejectRequestFailed: string;
+    };
+    mail: {
+      accept: {
+        subject: {
+          de: string;
+          en: string;
+        };
+      };
+      reject: {
+        subject: {
+          de: string;
+          en: string;
+        };
+      };
+    };
+    acceptSuccess: string;
+    rejectSuccess: string;
+  };
   sessionUser: User;
 }) {
   const { formData, intent, locales, sessionUser } = options;
@@ -2249,14 +2356,14 @@ export async function updateNetworkRequest(options: {
               status: "pending",
             },
           });
-        invariantResponse(request !== null, locales.route.error.notFound, {
+        invariantResponse(request !== null, locales.error.notFound, {
           status: 404,
         });
         invariantResponse(
           request.network.admins.some((relation) => {
             return relation.profileId === sessionUser.id;
           }),
-          locales.route.error.notAdmin,
+          locales.error.notAdmin,
           {
             status: 403,
           }
@@ -2327,8 +2434,8 @@ export async function updateNetworkRequest(options: {
               const sender = process.env.SYSTEM_MAIL_SENDER;
               const subject =
                 intent === "acceptNetworkRequest"
-                  ? locales.route.networkRequests.email.subject.accepted
-                  : locales.route.networkRequests.email.subject.rejected;
+                  ? `${locales.mail.accept.subject.de} | ${locales.mail.accept.subject.en}`
+                  : `${locales.mail.reject.subject.de} | ${locales.mail.reject.subject.en}`;
               const recipient = admin.profile.email;
 
               const text =
@@ -2344,7 +2451,7 @@ export async function updateNetworkRequest(options: {
                       "text"
                     )
                   : getCompiledMailTemplate<"mail-templates/requests/network-to-add-organization/rejected-text.hbs">(
-                      "mail-templates/requests/network-to-add-organization/accepted-text.hbs",
+                      "mail-templates/requests/network-to-add-organization/rejected-text.hbs",
                       {
                         firstName: admin.profile.firstName,
                         network: {
@@ -2391,8 +2498,8 @@ export async function updateNetworkRequest(options: {
                   code: "custom",
                   message:
                     intent === "acceptNetworkRequest"
-                      ? locales.route.error.acceptRequestFailed
-                      : locales.route.error.rejectRequestFailed,
+                      ? locales.error.acceptRequestFailed
+                      : locales.error.rejectRequestFailed,
                 });
                 return z.NEVER;
               }
@@ -2404,8 +2511,8 @@ export async function updateNetworkRequest(options: {
             code: "custom",
             message:
               intent === "acceptNetworkRequest"
-                ? locales.route.error.acceptRequestFailed
-                : locales.route.error.rejectRequestFailed,
+                ? locales.error.acceptRequestFailed
+                : locales.error.rejectRequestFailed,
           });
           return z.NEVER;
         }
@@ -2429,8 +2536,8 @@ export async function updateNetworkRequest(options: {
       key: `${new Date().getTime()}`,
       message: insertParametersIntoLocale(
         intent === "acceptNetworkRequest"
-          ? locales.route.networkRequests.acceptNetworkRequest
-          : locales.route.networkRequests.rejectNetworkRequest,
+          ? locales.acceptSuccess
+          : locales.rejectSuccess,
         {
           organizationName: submission.value.organizationName,
           networkName: submission.value.networkName,

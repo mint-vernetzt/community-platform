@@ -297,7 +297,24 @@ export async function getAllNetworkTypes() {
 
 export async function createOrganizationMemberRequest(options: {
   formData: FormData;
-  locales: CreateOrganizationLocales;
+  locales: {
+    error: {
+      notFound: string;
+      alreadyMember: string;
+      requestFailed: string;
+    };
+    mail: {
+      subject: {
+        de: string;
+        en: string;
+      };
+      buttonText: {
+        de: string;
+        en: string;
+      };
+    };
+    requestSuccess: string;
+  };
   sessionUser: User;
 }) {
   const { formData, locales, sessionUser } = options;
@@ -342,17 +359,17 @@ export async function createOrganizationMemberRequest(options: {
           }),
         ]);
 
-        invariantResponse(organization !== null, locales.route.error.notFound, {
+        invariantResponse(organization !== null, locales.error.notFound, {
           status: 404,
         });
         invariantResponse(
           organization.teamMembers.every((relation) => {
             return relation.profileId !== sessionUser.id;
           }),
-          locales.route.error.alreadyMember,
+          locales.error.alreadyMember,
           { status: 403 }
         );
-        invariantResponse(profile !== null, locales.route.error.notFound, {
+        invariantResponse(profile !== null, locales.error.notFound, {
           status: 404,
         });
 
@@ -377,9 +394,7 @@ export async function createOrganizationMemberRequest(options: {
           await Promise.all(
             organization.admins.map(async (admin) => {
               const sender = process.env.SYSTEM_MAIL_SENDER;
-              const subject =
-                locales.route.form.organizationName
-                  .requestOrganizationMembership.email.subject.requested;
+              const subject = `${locales.mail.subject.de} | ${locales.mail.subject.en}`;
               const recipient = admin.profile.email;
 
               const text =
@@ -396,8 +411,7 @@ export async function createOrganizationMemberRequest(options: {
                     },
                     button: {
                       url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
-                      text: locales.route.form.organizationName
-                        .requestOrganizationMembership.email.button.text,
+                      text: locales.mail.buttonText,
                     },
                   },
                   "text"
@@ -416,8 +430,7 @@ export async function createOrganizationMemberRequest(options: {
                     },
                     button: {
                       url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
-                      text: locales.route.form.organizationName
-                        .requestOrganizationMembership.email.button.text,
+                      text: locales.mail.buttonText,
                     },
                   },
                   "html"
@@ -435,7 +448,7 @@ export async function createOrganizationMemberRequest(options: {
                 captureException(error);
                 ctx.addIssue({
                   code: "custom",
-                  message: locales.route.error.requestFailed,
+                  message: locales.error.requestFailed,
                 });
                 return z.NEVER;
               }
@@ -445,7 +458,7 @@ export async function createOrganizationMemberRequest(options: {
           captureException(error);
           ctx.addIssue({
             code: "custom",
-            message: locales.route.error.requestFailed,
+            message: locales.error.requestFailed,
           });
           return z.NEVER;
         }
@@ -463,13 +476,9 @@ export async function createOrganizationMemberRequest(options: {
     toast: {
       id: "create-organization-member-request-toast",
       key: `${new Date().getTime()}`,
-      message: insertParametersIntoLocale(
-        locales.route.form.organizationName.requestOrganizationMembership
-          .createOrganizationMemberRequest,
-        {
-          name: submission.value.name,
-        }
-      ),
+      message: insertParametersIntoLocale(locales.requestSuccess, {
+        name: submission.value.name,
+      }),
     },
     alert: undefined,
   };

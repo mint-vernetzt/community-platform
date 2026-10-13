@@ -449,8 +449,14 @@ export async function requestToJoinParentEvent(options: {
   parentEventId: string;
   locales: {
     mail: {
-      buttonText: string;
-      subject: string;
+      buttonText: {
+        de: string;
+        en: string;
+      };
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -558,7 +564,7 @@ export async function requestToJoinParentEvent(options: {
   });
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/requests/parent-event-to-add-child-event/text.hbs";
   const htmlTemplatePath =
@@ -607,8 +613,14 @@ export async function cancelParentEventJoinRequest(options: {
   parentEventId: string;
   locales: {
     mail: {
-      buttonText: string;
-      subject: string;
+      buttonText: {
+        de: string;
+        en: string;
+      };
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -677,7 +689,7 @@ export async function cancelParentEventJoinRequest(options: {
   });
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = options.locales.mail.subject;
+  const subject = `${options.locales.mail.subject.de} | ${options.locales.mail.subject.en}`;
   const textTemplatePath =
     "mail-templates/requests/parent-event-to-add-child-event/canceled-text.hbs";
   const htmlTemplatePath =
@@ -726,7 +738,10 @@ export async function removeParentEvent(options: {
   slug: string;
   locales: {
     mail: {
-      subject: string;
+      subject: {
+        de: string;
+        en: string;
+      };
     };
   };
 }) {
@@ -791,7 +806,7 @@ export async function removeParentEvent(options: {
 
   if (isAdminOfParentEvent === false) {
     const sender = process.env.SYSTEM_MAIL_SENDER;
-    const subject = locales.mail.subject;
+    const subject = `${locales.mail.subject.de} | ${locales.mail.subject.en}`;
     const textTemplatePath =
       "mail-templates/general-notification/disconnect-from-parent-event-text.hbs";
     const htmlTemplatePath =
