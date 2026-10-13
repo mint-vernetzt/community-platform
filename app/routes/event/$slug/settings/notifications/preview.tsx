@@ -67,6 +67,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const germanMailLocales = languageModuleMap["de"]["root"];
   const englishMailLocales = languageModuleMap["en"]["root"];
   let text;
+  let title;
 
   if (notification === NOTIFICATION_TYPE_CONFIRMATION) {
     const textTemplatePath =
@@ -109,6 +110,9 @@ export async function loader(args: LoaderFunctionArgs) {
       },
       "text"
     );
+    title =
+      languageModuleMap[language]["event/$slug/settings/notifications/list"]
+        .route.system.list.confirmation.title;
   } else if (notification === NOTIFICATION_TYPE_MOVE_UP_TO_PARTICIPANTS) {
     const textTemplatePath =
       "mail-templates/event/profile-or-guest-moved-up-to-participants-text.hbs";
@@ -149,6 +153,9 @@ export async function loader(args: LoaderFunctionArgs) {
       },
       "text"
     );
+    title =
+      languageModuleMap[language]["event/$slug/settings/notifications/list"]
+        .route.system.list.moveUpToParticipants.title;
   } else if (notification === NOTIFICATION_TYPE_ONE_DAY_BEFORE) {
     const textTemplatePath =
       "mail-templates/event/reminder-one-day-before-text.hbs";
@@ -187,6 +194,9 @@ export async function loader(args: LoaderFunctionArgs) {
       },
       "text"
     );
+    title =
+      languageModuleMap[language]["event/$slug/settings/notifications/list"]
+        .route.system.list.oneDayBefore.title;
   } else if (notification === NOTIFICATION_TYPE_ONE_HOUR_BEFORE) {
     const textTemplatePath =
       "mail-templates/event/reminder-one-hour-before-text.hbs";
@@ -225,6 +235,9 @@ export async function loader(args: LoaderFunctionArgs) {
       },
       "text"
     );
+    title =
+      languageModuleMap[language]["event/$slug/settings/notifications/list"]
+        .route.system.list.oneHourBefore.title;
   } else if (notification === NOTIFICATION_TYPE_FIFTEEN_MINUTES_BEFORE) {
     const textTemplatePath =
       "mail-templates/event/reminder-fifteen-minutes-before-text.hbs";
@@ -264,6 +277,9 @@ export async function loader(args: LoaderFunctionArgs) {
       },
       "text"
     );
+    title =
+      languageModuleMap[language]["event/$slug/settings/notifications/list"]
+        .route.system.list.fifteenMinutesBefore.title;
   } else {
     const templatePath =
       "mail-templates/general-notification/event-canceled-text.hbs";
@@ -277,6 +293,9 @@ export async function loader(args: LoaderFunctionArgs) {
       },
       "text"
     );
+    title =
+      languageModuleMap[language]["event/$slug/settings/notifications/list"]
+        .route.system.list.cancellation.title;
   }
 
   const localizedMailText = text.split("---");
@@ -289,7 +308,11 @@ export async function loader(args: LoaderFunctionArgs) {
 
   return {
     locales,
-    content: { text: mailText, footer: locales.route.system.footer.html },
+    content: {
+      text: mailText,
+      footer: locales.route.system.footer.html,
+      title,
+    },
   };
 }
 
@@ -298,7 +321,10 @@ function NotificationsPreview() {
 
   return (
     <>
-      <p className="whitespace-pre-wrap">{loaderData.content.text}</p>
+      <p className="font-semibold">{loaderData.content.title}</p>
+      <p className="border rounded-lg border-neutral-200 bg-neutral-100 p-4 whitespace-pre-wrap">
+        {loaderData.content.text}
+      </p>
     </>
   );
 }
