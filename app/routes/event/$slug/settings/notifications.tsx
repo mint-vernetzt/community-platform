@@ -54,7 +54,7 @@ function Notifications() {
   const { locales } = loaderData;
 
   const location = useLocation();
-  const { pathname } = location;
+  const { pathname, search } = location;
   return (
     <div className="w-full flex flex-col p-4 gap-8 lg:p-6 lg:gap-6">
       <BasicStructure.Container
@@ -76,7 +76,7 @@ function Notifications() {
           {pathname.endsWith("/preview") && (
             <TabBar.Item active={pathname.endsWith("/preview")}>
               <Link
-                to={`./preview?${Deep}=true`}
+                to={`./preview${search}`}
                 {...TabBar.getItemElementClasses(pathname.endsWith("/preview"))}
                 preventScrollReset
                 prefetch="intent"
