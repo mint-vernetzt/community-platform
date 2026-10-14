@@ -1,4 +1,3 @@
-import Handlebars from "handlebars";
 import { prismaClient } from "~/prisma.server";
 
 export async function getEventBySlug(slug: string) {
@@ -25,14 +24,4 @@ export async function getEventBySlug(slug: string) {
     },
   });
   return event;
-}
-
-export function getCompiledHtmlString(options: {
-  template: string;
-  data: Record<string, any>;
-}) {
-  const { template, data } = options;
-  const compiledTemplate = Handlebars.compile(template);
-  const htmlString = compiledTemplate(data);
-  return htmlString;
 }
