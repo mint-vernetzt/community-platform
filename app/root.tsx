@@ -87,7 +87,7 @@ import {
 } from "./routes/explore/organizations.server";
 import { getPublicURL } from "./storage.server";
 import { getToast, redirectWithToast } from "./toast.server";
-import { combineHeaders, deriveMode } from "./utils.server";
+import { combineHeaders, deriveMode, isBotRequest } from "./utils.server";
 import { VIEW_COOKIE_VALUES } from "./routes/explore/organizations.shared";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
@@ -141,6 +141,11 @@ export const headers = ({ loaderHeaders }: HeadersArgs) => {
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
 
+  let isBot = false;
+  if (process.env.NODE_ENV !== "test") {
+    isBot = isBotRequest(request.headers.get("user-agent"));
+  }
+
   const honeyProps = await honeypot.getInputProps();
 
   const language = await detectLanguage(request);
@@ -152,6 +157,11 @@ export async function loader(args: LoaderFunctionArgs) {
 
   let sessionUserInfo;
   if (user !== null) {
+    invariantResponse(
+      isBot === false,
+      "Bots are not allowed to be logged in.",
+      { status: 403 }
+    );
     // Check if user is banned but still has a session and sign out if so
     const bannedProfile = await getBannedProfileByUserId(user.id);
     if (bannedProfile !== null) {
@@ -336,6 +346,7 @@ export async function loader(args: LoaderFunctionArgs) {
       authRoutesNotMeantToIndex,
       sanitizedPathname,
       hideLoginOrRegisterCta,
+      isBot,
     },
     {
       headers: combinedHeaders,
@@ -559,6 +570,7 @@ export const ErrorBoundary = () => {
                 }
                 openMainMenuKey={openMainMenuKey}
                 locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
+                isBot={hasRootLoaderData ? rootLoaderData.isBot : false}
               />
               <main className="w-full h-full @md:bg-neutral-50">
                 {/* Content */}
@@ -701,6 +713,7 @@ export default function App() {
     authRoutesNotMeantToIndex,
     sanitizedPathname,
     hideLoginOrRegisterCta,
+    isBot,
   } = useLoaderData<typeof loader>();
   const location = useLocation();
   const nonce = useNonce();
@@ -902,11 +915,13 @@ export default function App() {
                               ? true
                               : undefined
                       }
+                      isBot={isBot}
                     />
                   </div>
                   {isIndexRoute === false &&
                     isGetInvolvedRoute === false &&
-                    isNonAppBaseRoute === false && (
+                    isNonAppBaseRoute === false &&
+                    isBot === false && (
                       <div
                         className={`${showFilters ? "hidden @lg:block" : ""}`}
                       >
