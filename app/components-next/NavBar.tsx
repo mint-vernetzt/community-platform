@@ -19,6 +19,7 @@ type NavBarProps = {
         afterBreakpoint: "@md" | "@lg";
       }
     | boolean;
+  isBot: boolean;
 };
 
 type SessionUserInfo = {
@@ -209,7 +210,7 @@ export function NavBar(props: NavBarProps) {
                 prefetch="intent"
               />
             </div>
-          ) : (
+          ) : props.isBot === false ? (
             <div className="gap-4 items-center hidden xl:flex">
               <div>
                 <Button
@@ -239,7 +240,7 @@ export function NavBar(props: NavBarProps) {
                 </Button>
               </div>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
       <div className="w-0 h-0 focus-within:w-fit focus-within:h-19 focus-within:xl:h-20 focus-within:px-2 overflow-hidden flex items-center">
