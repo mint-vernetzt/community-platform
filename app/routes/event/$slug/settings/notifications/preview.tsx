@@ -96,7 +96,7 @@ export async function loader(args: LoaderFunctionArgs) {
         },
         event: {
           name: event.name,
-          url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}`,
+          url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail/about`,
           date: {
             de: getDuration(zonedStartTime, zonedEndTime, "de"),
             en: getDuration(zonedStartTime, zonedEndTime, "en"),
@@ -139,7 +139,7 @@ export async function loader(args: LoaderFunctionArgs) {
         },
         event: {
           name: event.name,
-          url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}`,
+          url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail/about`,
           date: {
             de: getDuration(zonedStartTime, zonedEndTime, "de"),
             en: getDuration(zonedStartTime, zonedEndTime, "en"),
@@ -182,7 +182,7 @@ export async function loader(args: LoaderFunctionArgs) {
         },
         event: {
           name: event.name,
-          url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}`,
+          url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail/about`,
           date: {
             de: getDuration(zonedStartTime, zonedEndTime, "de"),
             en: getDuration(zonedStartTime, zonedEndTime, "en"),
@@ -223,7 +223,7 @@ export async function loader(args: LoaderFunctionArgs) {
         },
         event: {
           name: event.name,
-          url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}`,
+          url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail/about`,
           date: {
             de: getDuration(zonedStartTime, zonedEndTime, "de"),
             en: getDuration(zonedStartTime, zonedEndTime, "en"),
@@ -265,7 +265,7 @@ export async function loader(args: LoaderFunctionArgs) {
         },
         event: {
           name: event.name,
-          url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}`,
+          url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail/about`,
           date: {
             de: getDuration(zonedStartTime, zonedEndTime, "de"),
             en: getDuration(zonedStartTime, zonedEndTime, "en"),
@@ -298,18 +298,10 @@ export async function loader(args: LoaderFunctionArgs) {
         .route.system.list.cancellation.title;
   }
 
-  const localizedMailText = text.split("---");
-  let mailText;
-  if (language === "de") {
-    mailText = localizedMailText[0].trim();
-  } else {
-    mailText = localizedMailText[1].trim();
-  }
-
   return {
     locales,
     content: {
-      text: mailText,
+      text,
       footer: locales.route.system.footer.html,
       title,
     },
