@@ -126,6 +126,13 @@ export const locale = {
           "Reminder: The event {{eventName}} is happening in fifteen minutes",
       },
     },
+    confirmation: {
+      subject: "Your registration for the event {{eventName}}",
+    },
+    moveUpToParticipants: {
+      subject:
+        "You have been added to the waiting list for the event {{eventName}}",
+    },
   },
   timezone: "CET",
 } as const;

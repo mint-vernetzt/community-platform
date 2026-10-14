@@ -431,6 +431,10 @@ export default [
           "/event/:slug/settings/notifications/list",
           "./routes/event/$slug/settings/notifications/list.tsx"
         ),
+        route(
+          "/event/:slug/settings/notifications/preview",
+          "./routes/event/$slug/settings/notifications/preview.tsx"
+        ),
       ]
     ),
   ]),
