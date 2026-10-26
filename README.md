@@ -37,8 +37,8 @@ Supabase inbucket is a container for all e-mails sent by Supabase. These e-mails
 The easiest way is to copy the `.env.example` file and adjust the important entries accordingly by the values of `supabase status`:
 
 ```dotenv
-SUPABASE_ANON_KEY="xxx-xxx-xxx-xxx-xxx"
-SERVICE_ROLE_KEY="xxx-xxx-xxx-xxx-xxx"
+SUPABASE_PUBLISHABLE_KEY="xxx-xxx-xxx-xxx-xxx"
+SUPABASE_SECRET_KEY="xxx-xxx-xxx-xxx-xxx"
 SUPABASE_URL="http://localhost:54321"
 DATABASE_URL="postgresql://postgres:postgres@localhost:54322/postgres"
 # ...
