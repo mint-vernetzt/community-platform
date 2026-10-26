@@ -4,8 +4,8 @@ import { mockDeep, mockReset } from "vitest-mock-extended";
 
 beforeEach(() => {
   process.env.SUPABASE_URL = "http://mocked.supabase.url";
-  process.env.SUPABASE_ANON_KEY = "123456789";
-  process.env.SERVICE_ROLE_KEY = "987654321";
+  process.env.SUPABASE_PUBLISHABLE_KEY = "123456789";
+  process.env.SUPABASE_SECRET_KEY = "987654321";
   mockReset(createServerClient);
   mockReset(createClient);
 });

@@ -10,11 +10,6 @@ jobs:
   login-and-run-commands:
     name: Build and start on remote
     runs-on: ubuntu-latest
-    env:
-      SUPABASE_ANON_KEY: ${{secrets.SUPABASE_ANON_KEY_STAGE}}
-      SUPABASE_URL: ${{secrets.SUPABASE_URL_STAGE}}
-      SESSION_SECRET: ${{secrets.SESSION_SECRET_STAGE}}
-      DATABASE_URL: ${{secrets.DATABASE_URL_STAGE}}
     steps:
       - name: executing remote ssh commands
         uses: appleboy/ssh-action@master
@@ -24,7 +19,6 @@ jobs:
           passphrase: ${{ secrets.PASSPHRASE_STAGE }}
           key: ${{ secrets.KEY_STAGE }}
           port: ${{ secrets.PORT_STAGE }}
-          envs: SUPABASE_ANON_KEY,SUPABASE_URL,SESSION_SECRET,DATABASE_URL
           script: |
             cd community-platform/
             git fetch --all
@@ -35,6 +29,7 @@ jobs:
             source ~/.nvm/nvm.sh
             nvm use
             rm -rf node_modules
+            npm cache clean --force
             npm install
             npm run build
             pm2 restart community-platform

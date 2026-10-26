@@ -12,12 +12,9 @@ const schema = z.object({
   KEYCLOAK_URL: z.string(),
   COMMUNITY_BASE_URL: z.string(),
   DATABASE_URL: z.string(),
-  // Legacy keys
-  SERVICE_ROLE_KEY: z.string(),
-  SUPABASE_ANON_KEY: z.string(),
   // New asymmetric keys
-  SUPABASE_PUBLISHABLE_KEY: z.string().optional(),
-  SUPABASE_SECRET_KEY: z.string().optional(),
+  SUPABASE_PUBLISHABLE_KEY: z.string(),
+  SUPABASE_SECRET_KEY: z.string(),
   ALLOW_INDEXING: z
     .enum(["true", "false"] as const)
     .optional()

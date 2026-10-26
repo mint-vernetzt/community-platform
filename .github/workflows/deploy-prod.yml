@@ -14,19 +14,20 @@ jobs:
         with:
           host: ${{ secrets.HOST_PROD }}
           username: ${{ secrets.USERNAME_PROD }}
-          passphrase: ${{ secrets.PASSPHRASE_STAGE }}
-          key: ${{ secrets.KEY_STAGE }}
+          passphrase: ${{ secrets.PASSPHRASE_PROD }}
+          key: ${{ secrets.KEY_PROD }}
           port: ${{ secrets.PORT_PROD }}
-          script_stop: true
           script: |
-            eval `ssh-agent`
-            ssh-add ~/.ssh/github-dk
-            cd repository/
-            git pull
+            cd community-platform/
+            git fetch --all
+            git checkout main
+            git reset --hard origin/main
+            git clean -fd
             export NVM_DIR=~/.nvm
             source ~/.nvm/nvm.sh
             nvm use
+            rm -rf node_modules
+            npm cache clean --force
             npm install
             npm run build
-            pm2 restart npm
-
+            pm2 restart community-platform
