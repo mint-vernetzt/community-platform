@@ -31,7 +31,7 @@ import { redirectWithToast } from "~/toast.server";
 import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
 import { deleteEventBySlug, getEventBySlug } from "./delete.server";
 import { createDeleteSchema } from "./delete.shared";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import TitleSection from "~/components/next/TitleSection";
 
 export async function loader(args: LoaderFunctionArgs) {

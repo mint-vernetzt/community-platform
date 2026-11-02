@@ -1,5 +1,5 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { captureException } from "@sentry/node";
@@ -49,6 +49,7 @@ import {
   getRedirectPathOnProtectedEventRoute,
 } from "../settings.server";
 import {
+  createEventLocationConstraintsSchema,
   createEventLocationSchema,
   getStageDefaultValue,
   Stages,
@@ -305,7 +306,7 @@ export default function Location() {
   const [form, fields] = useForm({
     id: "event-location-form",
     constraint: getZodConstraint(
-      createEventLocationSchema(locales.route.validation)
+      createEventLocationConstraintsSchema(locales.route.validation)
     ),
     defaultValue: {
       venueName: loaderData.event.venueName,

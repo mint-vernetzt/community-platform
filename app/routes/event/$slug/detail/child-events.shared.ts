@@ -14,8 +14,8 @@ export function getParticipationSchema(locales: {
   invalidEventId: string;
 }) {
   const schema = z.object({
-    eventId: z.string().uuid(locales.invalidEventId),
-    // profileId: z.string().uuid(locales.invalidProfileId), // Security?
+    eventId: z.uuid(locales.invalidEventId),
+    // profileId: z.uuid(locales.invalidProfileId), // Security?
   });
   return schema;
 }

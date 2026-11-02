@@ -2,6 +2,8 @@ import "@fontsource/source-sans-pro/latin-400.css";
 import "@fontsource/source-sans-pro/latin-600.css";
 import "@fontsource/source-sans-pro/latin-700.css";
 import "@fontsource/source-sans-pro/latin-900.css";
+import "./zod-config.shared";
+import "zod/compile";
 import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";

@@ -12,6 +12,6 @@ export function getSearchAdminsSchema() {
 
 export function getRemoveAdminSchema() {
   return z.object({
-    [ADMIN_ID]: z.string().uuid(),
+    [ADMIN_ID]: z.uuid(),
   });
 }

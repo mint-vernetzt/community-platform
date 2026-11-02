@@ -23,7 +23,7 @@ export function createSearchAdminsSchema(locales: {
 
 export function createInviteProfileToJoinAsTeamMemberSchema() {
   return z.object({
-    [PROFILE_ID_FIELD]: z.string().uuid(),
+    [PROFILE_ID_FIELD]: z.uuid(),
   });
 }
 
@@ -43,6 +43,6 @@ export function createSearchTeamMembersSchema(locales: {
 
 export function createAddAdminAsTeamMemberSchema() {
   return z.object({
-    [PROFILE_ID_FIELD]: z.string().uuid(),
+    [PROFILE_ID_FIELD]: z.uuid(),
   });
 }

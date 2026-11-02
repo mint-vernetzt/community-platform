@@ -12,6 +12,6 @@ export function getSearchResponsibleOrgsSchema() {
 
 export function getRemoveResponsibleOrgSchema() {
   return z.object({
-    [RESPONSIBLE_ORG_ID]: z.string().uuid(),
+    [RESPONSIBLE_ORG_ID]: z.uuid(),
   });
 }

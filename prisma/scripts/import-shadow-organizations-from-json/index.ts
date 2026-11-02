@@ -16,7 +16,7 @@ const options = program.opts();
 
 const schema = z.array(
   z.object({
-    source: z.string().url(),
+    source: z.url(),
     name: z.string(),
     city: z.string().nullable().optional(),
     zipCode: z.string().nullable().optional(),
@@ -41,7 +41,10 @@ async function main() {
   const parsedData = schema.safeParse(data);
 
   if (!parsedData.success) {
-    console.error("Invalid data format:", parsedData.error.format());
+    console.error(
+      "Invalid data format:",
+      z.treeifyError(parsedData.error).errors
+    );
     process.exit(1);
   }
 

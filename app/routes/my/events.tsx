@@ -1,4 +1,4 @@
-import { parseWithZod } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod/v4";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
 import { captureException } from "@sentry/node";

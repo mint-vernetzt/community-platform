@@ -16,8 +16,8 @@ export const VIDEO_SUBLINE_MAX_LENGTH = 80;
 
 export const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
   z.object({
-    disciplines: z.array(z.string().trim().uuid()),
-    additionalDisciplines: z.array(z.string().trim().uuid()),
+    disciplines: z.array(z.uuid().trim()),
+    additionalDisciplines: z.array(z.uuid().trim()),
     furtherDisciplines: z.array(z.string().trim()),
     participantLimit: z
       .string()
@@ -29,8 +29,8 @@ export const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         }
         return value;
       }),
-    projectTargetGroups: z.array(z.string().trim().uuid()),
-    specialTargetGroups: z.array(z.string().trim().uuid()),
+    projectTargetGroups: z.array(z.uuid().trim()),
+    specialTargetGroups: z.array(z.uuid().trim()),
     targetGroupAdditions: z
       .string()
       .trim()

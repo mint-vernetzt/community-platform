@@ -14,7 +14,7 @@ export function createSearchParticipantsSchema() {
 
 export function createRemoveParticipantSchema() {
   return z.object({
-    [PARTICIPANT_ID]: z.string().uuid(),
+    [PARTICIPANT_ID]: z.uuid(),
     [PARTICIPATION_TYPE]: z.enum([
       ParticipationType.User,
       ParticipationType.Guest,

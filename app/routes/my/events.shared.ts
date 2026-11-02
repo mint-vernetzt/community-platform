@@ -22,9 +22,9 @@ export const REJECT_PARENT_EVENT_JOIN_REQUEST_INTENT =
 
 export function createAcceptOrRejectInviteOrRequestSchema() {
   return z.object({
-    [EVENT_ID]: z.string().uuid(),
-    [ORGANIZATION_ID]: z.string().uuid().optional(),
-    [CHILD_EVENT_ID]: z.string().uuid().optional(),
+    [EVENT_ID]: z.uuid(),
+    [ORGANIZATION_ID]: z.uuid().optional(),
+    [CHILD_EVENT_ID]: z.uuid().optional(),
   });
 }
 

@@ -18,9 +18,7 @@ export const createGeneralSchema = (
   const { street, zipCode, city } = organization;
   return z.object({
     name: z
-      .string({
-        required_error: locales.route.validation.name.required,
-      })
+      .string(locales.route.validation.name.required)
       .trim()
       .min(
         NAME_MIN_LENGTH,
@@ -35,9 +33,8 @@ export const createGeneralSchema = (
         })
       ),
     email: z
-      .string()
-      .trim()
       .email(locales.route.validation.email)
+      .trim()
       .optional()
       .transform((value) => {
         if (typeof value === "undefined" || value === "") {
@@ -66,11 +63,7 @@ export const createGeneralSchema = (
               }
               return value;
             })
-        : z
-            .string({
-              required_error: locales.route.validation.street.required,
-            })
-            .trim(),
+        : z.string(locales.route.validation.street.required).trim(),
     zipCode:
       zipCode === null
         ? z
@@ -83,11 +76,7 @@ export const createGeneralSchema = (
               }
               return value;
             })
-        : z
-            .string({
-              required_error: locales.route.validation.zipCode.required,
-            })
-            .trim(),
+        : z.string(locales.route.validation.zipCode.required).trim(),
     city:
       city === null
         ? z
@@ -100,11 +89,7 @@ export const createGeneralSchema = (
               }
               return value;
             })
-        : z
-            .string({
-              required_error: locales.route.validation.city.required,
-            })
-            .trim(),
+        : z.string(locales.route.validation.city.required).trim(),
     addressSupplement: z
       .string()
       .trim()
@@ -156,8 +141,8 @@ export const createGeneralSchema = (
         return value;
       }),
     supportedBy: z.array(z.string().trim()).optional(),
-    areas: z.array(z.string().trim().uuid()),
-    focuses: z.array(z.string().trim().uuid()),
+    areas: z.array(z.uuid().trim()),
+    focuses: z.array(z.uuid().trim()),
     visibilities: z.object({
       email: checkboxSchema,
       phone: checkboxSchema,

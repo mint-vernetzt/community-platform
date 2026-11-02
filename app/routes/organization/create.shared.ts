@@ -6,7 +6,7 @@ export const NAME_MIN_LENGTH = 3;
 export const NAME_MAX_LENGTH = 80;
 
 export const createOrganizationMemberRequestSchema = z.object({
-  organizationId: z.string().trim().uuid(),
+  organizationId: z.uuid().trim(),
 });
 
 export const createOrganizationSchema = (
@@ -14,9 +14,7 @@ export const createOrganizationSchema = (
 ) => {
   return z.object({
     organizationName: z
-      .string({
-        required_error: locales.route.validation.organizationName.required,
-      })
+      .string(locales.route.validation.organizationName.required)
       .trim()
       .min(
         NAME_MIN_LENGTH,
@@ -36,23 +34,11 @@ export const createOrganizationSchema = (
           }
         )
       ),
-    organizationTypes: z.array(z.string().trim().uuid()),
-    networkTypes: z.array(z.string().trim().uuid()),
-    street: z
-      .string({
-        required_error: locales.route.validation.street.required,
-      })
-      .trim(),
-    zipCode: z
-      .string({
-        required_error: locales.route.validation.zipCode.required,
-      })
-      .trim(),
-    city: z
-      .string({
-        required_error: locales.route.validation.city.required,
-      })
-      .trim(),
+    organizationTypes: z.array(z.uuid().trim()),
+    networkTypes: z.array(z.uuid().trim()),
+    street: z.string(locales.route.validation.street.required).trim(),
+    zipCode: z.string(locales.route.validation.zipCode.required).trim(),
+    city: z.string(locales.route.validation.city.required).trim(),
     addressSupplement: z
       .string()
       .trim()

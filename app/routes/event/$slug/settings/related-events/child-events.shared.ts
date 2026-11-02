@@ -7,6 +7,6 @@ export const CONFIRM_REMOVE_MODAL_SEARCH_PARAM = "confirm_remove_child_event";
 
 export function createAddOrRemoveChildEventSchema() {
   return z.object({
-    [EVENT_ID]: z.string().uuid(),
+    [EVENT_ID]: z.uuid(),
   });
 }

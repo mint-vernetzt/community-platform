@@ -1,4 +1,4 @@
-import { parseWithZod } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod/v4";
 import {
   redirect,
   useLoaderData,
@@ -224,7 +224,7 @@ export async function action(args: ActionFunctionArgs) {
       }
       if (typeof result.error !== "undefined") {
         context.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: "custom",
           message: locales.route.errors[intent],
         });
         return z.NEVER;

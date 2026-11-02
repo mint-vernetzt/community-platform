@@ -1,5 +1,5 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { captureException } from "@sentry/node";
 import {
@@ -125,7 +125,7 @@ export default function Index() {
 
   const schema = createSchema(locales);
   const [form, fields] = useForm({
-    id: "change-url-form",
+    id: "delete-form",
     constraint: getZodConstraint(schema),
     shouldValidate: "onInput",
     onValidate: (values) => {

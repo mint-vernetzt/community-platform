@@ -4,7 +4,7 @@ import {
   createSearchInvitedProfilesToParticipateOnEventSchema,
   INVITED_PROFILES_SEARCH_PARAM,
 } from "./invites.shared";
-import { parseWithZod } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod/v4";
 import { getPublicURL } from "~/storage.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { utcToZonedTime } from "date-fns-tz";

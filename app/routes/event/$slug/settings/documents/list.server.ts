@@ -1,5 +1,5 @@
 import { prismaClient } from "~/prisma.server";
-import { parseWithZod } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod/v4";
 import {
   getSearchDocumentsSchema,
   SEARCH_DOCUMENTS_SEARCH_PARAM,

@@ -8,9 +8,7 @@ export const NAME_MAX_LENGTH = 80;
 export const createSchema = (locales: CreateProjectLocales) =>
   z.object({
     projectName: z
-      .string({
-        required_error: locales.validation.projectName.required,
-      })
+      .string(locales.validation.projectName.required)
       .trim()
       .min(
         NAME_MIN_LENGTH,

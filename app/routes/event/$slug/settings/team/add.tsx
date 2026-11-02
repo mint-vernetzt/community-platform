@@ -1,5 +1,5 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
-import { parseWithZod } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod/v4";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { captureException } from "@sentry/node";

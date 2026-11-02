@@ -4,7 +4,7 @@ import {
   type SubmissionResult,
   useForm,
 } from "@conform-to/react";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import classNames from "classnames";
@@ -45,7 +45,7 @@ function Search<
   locales: { placeholder: string; label?: string };
   label: string;
   submission: SubmissionResult<unknown>;
-  schema: z.ZodTypeAny;
+  schema: z.ZodType;
   hideLabel?: boolean; // TODO: refactor: label should be passed as component
 }) {
   const { id = "search-form", submission, schema, hideLabel = true } = props;

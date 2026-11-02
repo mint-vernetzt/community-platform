@@ -14,19 +14,13 @@ export const changeEmailSchema = (locales: {
 }) => {
   return z.object({
     email: z
-      .string({
-        message: locales.validation.email.required,
-      })
+      .email(locales.validation.email.required)
       .trim()
-      .min(1, locales.validation.email.min)
-      .email(locales.validation.email.required),
+      .min(1, locales.validation.email.min),
     confirmEmail: z
-      .string({
-        message: locales.validation.confirmEmail.required,
-      })
+      .email(locales.validation.confirmEmail.required)
       .trim()
-      .min(1, locales.validation.confirmEmail.min)
-      .email(locales.validation.confirmEmail.required),
+      .min(1, locales.validation.confirmEmail.min),
   });
 };
 

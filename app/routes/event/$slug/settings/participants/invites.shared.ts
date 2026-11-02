@@ -19,6 +19,6 @@ export function createSearchInvitedProfilesToParticipateOnEventSchema(locales: {
 
 export function createRevokeInviteOfProfileToParticipateOnEventSchema() {
   return z.object({
-    [PROFILE_ID]: z.string().trim().uuid(),
+    [PROFILE_ID]: z.uuid().trim(),
   });
 }

@@ -17,4 +17,7 @@ export default defineConfig({
   options: {
     typeAware: true,
   },
+  rules: {
+    "typescript/no-deprecated": "warn",
+  },
 });

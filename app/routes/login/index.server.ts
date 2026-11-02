@@ -1,4 +1,4 @@
-import { parseWithZod } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod/v4";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { signIn } from "~/auth.server";

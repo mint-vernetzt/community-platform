@@ -30,7 +30,7 @@ export function createExternalRegistrationUrlSchema(options: {
         }
         return value;
       })
-      .pipe(z.string().url(locales.invalidUrl).optional())
+      .pipe(z.url(locales.invalidUrl).optional())
       .transform(transformEmptyToNull),
   });
   return schema;

@@ -21,6 +21,6 @@ export function createSearchSpeakersSchema(locales: {
 
 export function createInviteProfileToJoinAsSpeakerSchema() {
   return z.object({
-    [PROFILE_ID_FIELD]: z.string().uuid(),
+    [PROFILE_ID_FIELD]: z.uuid(),
   });
 }

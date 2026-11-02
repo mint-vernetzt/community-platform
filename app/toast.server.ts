@@ -117,7 +117,7 @@ export async function getToast(request: Request) {
     if (error instanceof ZodError) {
       console.error(
         "Validation errors while parsing the toast cookie session:",
-        error.errors
+        error.message
       );
     } else {
       console.error(

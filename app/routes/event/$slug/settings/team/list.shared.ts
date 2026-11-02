@@ -16,18 +16,18 @@ export function getSearchTeamMembersSchema() {
 
 export function getRemoveTeamMemberSchema() {
   return z.object({
-    [TEAM_MEMBER_ID]: z.string().uuid(),
+    [TEAM_MEMBER_ID]: z.uuid(),
   });
 }
 
 export function getAddContactPersonSchema() {
   return z.object({
-    [TEAM_MEMBER_ID]: z.string().uuid(),
+    [TEAM_MEMBER_ID]: z.uuid(),
   });
 }
 
 export function getRemoveContactPersonSchema() {
   return z.object({
-    [TEAM_MEMBER_ID]: z.string().uuid(),
+    [TEAM_MEMBER_ID]: z.uuid(),
   });
 }

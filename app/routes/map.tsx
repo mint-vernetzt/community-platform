@@ -1,4 +1,4 @@
-import { parseWithZod } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod/v4";
 import mapStyles from "maplibre-gl/dist/maplibre-gl.css?url";
 import {
   useLoaderData,

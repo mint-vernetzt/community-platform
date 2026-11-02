@@ -10,9 +10,7 @@ export const SUBLINE_MAX_LENGTH = 90;
 export const createGeneralSchema = (locales: GeneralProjectSettingsLocales) =>
   z.object({
     name: z
-      .string({
-        required_error: locales.route.validation.name.required,
-      })
+      .string(locales.route.validation.name.required)
       .trim()
       .min(
         NAME_MIN_LENGTH,
@@ -42,13 +40,12 @@ export const createGeneralSchema = (locales: GeneralProjectSettingsLocales) =>
         }
         return value;
       }),
-    formats: z.array(z.string().trim().uuid()),
+    formats: z.array(z.uuid().trim()),
     furtherFormats: z.array(z.string().trim()),
-    areas: z.array(z.string().trim().uuid()),
+    areas: z.array(z.uuid().trim()),
     email: z
-      .string()
-      .trim()
       .email(locales.route.validation.email.email)
+      .trim()
       .optional()
       .transform((value) => {
         if (typeof value === "undefined" || value === "") {

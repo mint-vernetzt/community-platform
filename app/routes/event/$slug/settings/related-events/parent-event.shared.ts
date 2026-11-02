@@ -12,18 +12,18 @@ export const CONFIRM_REMOVE_MODAL_SEARCH_PARAM = "confirm_remove_parent_event";
 
 export function createAddParentEventSchema() {
   return z.object({
-    [PARENT_EVENT_ID]: z.string().uuid(),
+    [PARENT_EVENT_ID]: z.uuid(),
   });
 }
 
 export function createRequestParentEventSchema() {
   return z.object({
-    [PARENT_EVENT_ID]: z.string().uuid(),
+    [PARENT_EVENT_ID]: z.uuid(),
   });
 }
 
 export function createCancelParentEventJoinRequestSchema() {
   return z.object({
-    [PARENT_EVENT_ID]: z.string().uuid(),
+    [PARENT_EVENT_ID]: z.uuid(),
   });
 }

@@ -1,4 +1,4 @@
-import { parseWithZod } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod/v4";
 import { captureException } from "@sentry/node";
 import { utcToZonedTime } from "date-fns-tz";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
@@ -667,7 +667,7 @@ export async function action(args: ActionFunctionArgs) {
             typeof data.otherReason !== "string"
           ) {
             ctx.addIssue({
-              code: z.ZodIssueCode.custom,
+              code: "custom",
               message: locales.route.errors.abuseReport.reasons.required,
             });
             return z.NEVER;
@@ -690,7 +690,7 @@ export async function action(args: ActionFunctionArgs) {
           });
           if (typeof error !== "undefined") {
             ctx.addIssue({
-              code: z.ZodIssueCode.custom,
+              code: "custom",
               message: locales.route.errors.abuseReport.submit,
             });
             return z.NEVER;
@@ -807,7 +807,7 @@ export async function action(args: ActionFunctionArgs) {
         }
         if (typeof result.error !== "undefined") {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: "custom",
             message: locales.route.errors[intent],
           });
           return z.NEVER;
