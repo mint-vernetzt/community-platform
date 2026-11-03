@@ -1,5 +1,5 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { captureException } from "@sentry/node";
@@ -47,6 +47,7 @@ import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
 import { getEventBySlug, updateEventRegistrationPeriod } from "./period.server";
 import {
   createSetRegistrationPeriodToDefaultSchema,
+  createUpdateRegistrationPeriodConstraintsSchema,
   createUpdateRegistrationPeriodSchema,
   REGISTRATION_PERIOD_CUSTOM,
   REGISTRATION_PERIOD_DEFAULT,
@@ -231,7 +232,7 @@ function RegistrationPeriod() {
   const registrationSearchParamValue = searchParams.get(
     REGISTRATION_PERIOD_SEARCH_PARAM
   );
-  console.log("registrationSearchParamValue:", registrationSearchParamValue);
+
   const [isDefault, setIsDefault] = useState(
     typeof actionData !== "undefined" &&
       actionData.intent === SET_REGISTRATION_PERIOD_TO_DEFAULT_INTENT
@@ -317,12 +318,7 @@ function RegistrationPeriod() {
     useForm({
       id: "udate-registration-period-form",
       constraint: getZodConstraint(
-        createUpdateRegistrationPeriodSchema({
-          startDate: event.startTime,
-          endDate: event.endTime,
-          createdAt: event.createdAt,
-          participationFrom: event.participationFrom,
-          participationUntil: event.participationUntil,
+        createUpdateRegistrationPeriodConstraintsSchema({
           locales: locales.route.custom.form,
         })
       ),

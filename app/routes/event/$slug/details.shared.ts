@@ -44,7 +44,7 @@ export function createParticipationSchema(locales: {
   invalidProfileId: string;
 }) {
   const schema = z.object({
-    profileId: z.string().uuid(locales.invalidProfileId),
+    profileId: z.uuid(locales.invalidProfileId),
     redirectTo: z
       .string()
       .optional()
@@ -102,12 +102,7 @@ export const createRegisterSchema = (locales: {
       })
       .trim(),
     organizationName: z.string().trim().optional(),
-    email: z
-      .string({
-        message: locales.validation.email,
-      })
-      .trim()
-      .email(locales.validation.email),
+    email: z.email(locales.validation.email).trim(),
     redirectTo: z.string(),
   });
 };

@@ -1,5 +1,5 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { captureException } from "@sentry/node";
@@ -53,6 +53,7 @@ import {
   updateEventBySlug,
 } from "./time-period.server";
 import {
+  createTimePeriodConstraintsSchema,
   createTimePeriodSchema,
   getTimePeriodDefaultValue,
 } from "./time-period.shared";
@@ -203,11 +204,9 @@ export default function TimePeriod() {
   const [form, fields] = useForm({
     id: `time-period-form`,
     constraint: getZodConstraint(
-      createTimePeriodSchema({
+      createTimePeriodConstraintsSchema({
         locales: locales.route.form.validation,
         timePeriod,
-        parentEvent: event.parentEvent,
-        childEvents: event.childEvents.metrics,
       })
     ),
     shouldDirtyConsider(name) {

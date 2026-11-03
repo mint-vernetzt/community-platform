@@ -4,7 +4,7 @@ import {
   getSearchResponsibleOrgsSchema,
   SEARCH_RESPONSIBLE_ORGS_SEARCH_PARAM,
 } from "./list.shared";
-import { parseWithZod } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod/v4";
 import { getPublicURL } from "~/storage.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import {

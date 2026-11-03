@@ -153,7 +153,7 @@ export const createRequirementsSchema = (
         }
         return value;
       }),
-    financings: z.array(z.string().trim().uuid()),
+    financings: z.array(z.uuid().trim()),
     furtherFinancings: z
       .string()
       .trim()

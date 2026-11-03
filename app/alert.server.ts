@@ -91,7 +91,7 @@ export async function getAlert(request: Request) {
     if (error instanceof ZodError) {
       console.error(
         "Validation errors while parsing the alert cookie session:",
-        error.errors
+        error.message
       );
     } else {
       console.error(

@@ -20,6 +20,6 @@ export function createSearchParticipantsSchema(locales: {
 
 export function createInviteProfileToParticipateOnEvent() {
   return z.object({
-    [PROFILE_ID]: z.string().uuid(),
+    [PROFILE_ID]: z.uuid(),
   });
 }

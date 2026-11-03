@@ -7,48 +7,53 @@ export const Stages = {
   Hybrid: "hybrid",
 } as const;
 
-export function createEventLocationSchema(locales: {
+export function createEventLocationConstraintsSchema(locales: {
   stageRequired: string;
-  stageInvalid: string;
   invalidUrl: string;
 }) {
-  const schema = z
-    .object({
-      stage: z.enum(Object.values(Stages) as [string, ...string[]], {
-        required_error: locales.stageRequired,
-        invalid_type_error: locales.stageInvalid,
-      }),
-      venueName: z.string().optional().transform(transformEmptyToNull),
-      venueStreet: z.string().optional().transform(transformEmptyToNull),
-      venueZipCode: z.string().optional().transform(transformEmptyToNull),
-      venueCity: z.string().optional().transform(transformEmptyToNull),
-      conferenceLink: z
-        .string()
-        .optional()
-        .transform((value) => {
-          if (typeof value === "string" && value !== "") {
-            return addProtocolToUrl(value);
-          }
-          return value;
-        })
-        .pipe(z.string().url(locales.invalidUrl).optional())
-        .transform(transformEmptyToNull),
-      conferenceCode: z.string().optional().transform(transformEmptyToNull),
-      accessibilityInformation: z
-        .string()
-        .optional()
-        .transform(transformEmptyToNull),
-      accessibilityInformationRTEState: z
-        .string()
-        .optional()
-        .transform(transformEmptyToNull),
-      privacyInformation: z.string().optional().transform(transformEmptyToNull),
-      privacyInformationRTEState: z
-        .string()
-        .optional()
-        .transform(transformEmptyToNull),
-    })
-    .transform((data) => {
+  return z.object({
+    stage: z.enum(
+      [Stages.Online, Stages.OnSite, Stages.Hybrid],
+      locales.stageRequired
+    ),
+    venueName: z.string().optional().transform(transformEmptyToNull),
+    venueStreet: z.string().optional().transform(transformEmptyToNull),
+    venueZipCode: z.string().optional().transform(transformEmptyToNull),
+    venueCity: z.string().optional().transform(transformEmptyToNull),
+    conferenceLink: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (typeof value === "string" && value !== "") {
+          return addProtocolToUrl(value);
+        }
+        return value;
+      })
+      .pipe(z.url(locales.invalidUrl).optional())
+      .transform(transformEmptyToNull),
+    conferenceCode: z.string().optional().transform(transformEmptyToNull),
+    accessibilityInformation: z
+      .string()
+      .optional()
+      .transform(transformEmptyToNull),
+    accessibilityInformationRTEState: z
+      .string()
+      .optional()
+      .transform(transformEmptyToNull),
+    privacyInformation: z.string().optional().transform(transformEmptyToNull),
+    privacyInformationRTEState: z
+      .string()
+      .optional()
+      .transform(transformEmptyToNull),
+  });
+}
+
+export function createEventLocationSchema(locales: {
+  stageRequired: string;
+  invalidUrl: string;
+}) {
+  const schema = createEventLocationConstraintsSchema(locales).transform(
+    (data) => {
       if (data.stage === Stages.Online) {
         return {
           ...data,
@@ -68,7 +73,8 @@ export function createEventLocationSchema(locales: {
         };
       }
       return data;
-    });
+    }
+  );
 
   return schema;
 }

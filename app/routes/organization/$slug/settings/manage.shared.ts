@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 export const manageSchema = z.object({
-  organizationTypes: z.array(z.string().trim().uuid()),
-  networkTypes: z.array(z.string().trim().uuid()),
+  organizationTypes: z.array(z.uuid().trim()),
+  networkTypes: z.array(z.uuid().trim()),
 });
 
 export const updateNetworkSchema = z.object({
-  organizationId: z.string().trim().uuid(),
+  organizationId: z.uuid().trim(),
 });

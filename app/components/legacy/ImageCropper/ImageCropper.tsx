@@ -13,7 +13,7 @@ import {
   useForm,
   type SubmissionResult,
 } from "@conform-to/react";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import Slider from "rc-slider";
 import { useRef, useState } from "react";

@@ -23,11 +23,12 @@ const getSearchSchema = z.object({
 
 export type GetSearchSchema = z.infer<typeof getSearchSchema>;
 
-export const getFilterSchemes = getProfilesSchema
-  .merge(getOrganizationsSchema)
-  .merge(getEventsSchema)
-  .merge(getProjectsSchema)
-  .merge(getFundingsSchema)
-  .merge(getSearchSchema);
+export const getFilterSchemes = getProfilesSchema.safeExtend({
+  ...getOrganizationsSchema.shape,
+  ...getEventsSchema.shape,
+  ...getProjectsSchema.shape,
+  ...getFundingsSchema.shape,
+  ...getSearchSchema.shape,
+});
 
 export type FilterSchemes = z.infer<typeof getFilterSchemes>;

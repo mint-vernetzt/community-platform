@@ -71,77 +71,77 @@ export const searchNetworkMembersSchema = (
 };
 
 export const inviteProfileToBeOrganizationAdminSchema = z.object({
-  profileId: z.string().trim().uuid(),
+  profileId: z.uuid().trim(),
 });
 
 export const cancelOrganizationAdminInvitationSchema = z.object({
-  profileId: z.string().trim().uuid(),
+  profileId: z.uuid().trim(),
 });
 
 export const removeAdminFromOrganizationSchema = z.object({
-  profileId: z.string().trim().uuid(),
+  profileId: z.uuid().trim(),
 });
 
 export const inviteProfileToBeOrganizationTeamMemberSchema = z.object({
-  profileId: z.string().trim().uuid(),
+  profileId: z.uuid().trim(),
 });
 
 export const cancelOrganizationTeamMemberInvitationSchema = z.object({
-  profileId: z.string().trim().uuid(),
+  profileId: z.uuid().trim(),
 });
 
 export const removeTeamMemberFromOrganizationSchema = z.object({
-  profileId: z.string().trim().uuid(),
+  profileId: z.uuid().trim(),
 });
 
 // TODO: Use these when implementing project invites
 export const inviteProfileToBeProjectAdminSchema = z.object({
-  profileId: z.string().trim().uuid(),
+  profileId: z.uuid().trim(),
 });
 
 export const cancelProjectAdminInvitationSchema = z.object({
-  profileId: z.string().trim().uuid(),
+  profileId: z.uuid().trim(),
 });
 
 export const removeAdminFromProjectSchema = z.object({
-  profileId: z.string().trim().uuid(),
+  profileId: z.uuid().trim(),
 });
 
 export const inviteProfileToBeProjectTeamMemberSchema = z.object({
-  profileId: z.string().trim().uuid(),
+  profileId: z.uuid().trim(),
 });
 
 export const cancelProjectTeamMemberInvitationSchema = z.object({
-  profileId: z.string().trim().uuid(),
+  profileId: z.uuid().trim(),
 });
 
 export const removeTeamMemberFromProjectSchema = z.object({
-  profileId: z.string().trim().uuid(),
+  profileId: z.uuid().trim(),
 });
 
 export const inviteOrganizationToBeResponsibleForProjectSchema = z.object({
-  organizationId: z.string().trim().uuid(),
+  organizationId: z.uuid().trim(),
 });
 
 export const cancelResponsibleOrganizationForProjectInvitationSchema = z.object(
   {
-    organizationId: z.string().trim().uuid(),
+    organizationId: z.uuid().trim(),
   }
 );
 
 export const removeResponsibleOrganizationFromProjectSchema = z.object({
-  organizationId: z.string().trim().uuid(),
+  organizationId: z.uuid().trim(),
 });
 
 // TODO: Remove these when implementing project invites
 export const addAdminToProjectSchema = z.object({
-  profileId: z.string().trim().uuid(),
+  profileId: z.uuid().trim(),
 });
 
 export const addTeamMeberToProjectSchema = z.object({
-  profileId: z.string().trim().uuid(),
+  profileId: z.uuid().trim(),
 });
 
 export const addResponsibleOrganizationToProjectSchema = z.object({
-  organizationId: z.string().trim().uuid(),
+  organizationId: z.uuid().trim(),
 });

@@ -17,7 +17,7 @@ const options = program.opts();
 
 const schema = z.array(
   z.object({
-    url: z.string().url(),
+    url: z.url(),
     title: z.string(),
     mapping: z.object({
       funder: z.array(z.string()),
@@ -52,7 +52,7 @@ async function main() {
   let fundings: Funding[];
 
   if (parsedData.success === false) {
-    const issueIndexes = parsedData.error.errors.map((issue) => {
+    const issueIndexes = parsedData.error.issues.map((issue) => {
       console.log(
         `Found issue: "${issue.message}" at "${data[issue.path[0]].title}"`
       );

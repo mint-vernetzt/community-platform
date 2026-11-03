@@ -13,7 +13,7 @@ export const createEditDocumentSchema = (
   locales: ProjectAttachmentSettingsLocales
 ) =>
   z.object({
-    id: z.string().trim().uuid(),
+    id: z.uuid().trim(),
     title: z
       .string()
       .trim()
@@ -46,7 +46,7 @@ export const createEditImageSchema = (
   locales: ProjectAttachmentSettingsLocales
 ) =>
   z.object({
-    id: z.string().trim().uuid(),
+    id: z.uuid().trim(),
     title: z
       .string()
       .trim()
@@ -86,5 +86,5 @@ export const createEditImageSchema = (
   });
 
 export const disconnectAttachmentSchema = z.object({
-  id: z.string().trim().uuid(),
+  id: z.uuid().trim(),
 });

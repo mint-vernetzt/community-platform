@@ -12,6 +12,6 @@ export function getSearchSpeakersSchema() {
 
 export function getRemoveSpeakerSchema() {
   return z.object({
-    [SPEAKER_ID]: z.string().uuid(),
+    [SPEAKER_ID]: z.uuid(),
   });
 }

@@ -14,15 +14,10 @@ export function createEventDetailsSchema(locales: {
   descriptionMaxLength: string;
 }) {
   const schema = z.object({
-    name: z
-      .string({
-        required_error: locales.nameRequired,
-      })
-      .trim()
-      .min(NAME_MIN_LENGTH, {
-        message: locales.nameMinLength,
-      }),
-    types: z.array(z.string().trim().uuid()),
+    name: z.string(locales.nameRequired).trim().min(NAME_MIN_LENGTH, {
+      message: locales.nameMinLength,
+    }),
+    types: z.array(z.uuid().trim()),
     subline: z
       .string()
       .trim()
@@ -53,11 +48,11 @@ export function createEventDetailsSchema(locales: {
       )
       .transform(transformEmptyToNull),
     descriptionRTEState: z.string().optional().transform(transformEmptyToNull),
-    tags: z.array(z.string().trim().uuid()),
-    eventTargetGroups: z.array(z.string().trim().uuid()),
-    experienceLevelList: z.array(z.string().trim().uuid()),
+    tags: z.array(z.uuid().trim()),
+    eventTargetGroups: z.array(z.uuid().trim()),
+    experienceLevelList: z.array(z.uuid().trim()),
     experienceLevel: z.string().optional().transform(transformEmptyToNull),
-    focuses: z.array(z.string().trim().uuid()),
+    focuses: z.array(z.uuid().trim()),
   });
 
   return schema;

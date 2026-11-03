@@ -24,7 +24,7 @@ export function createSearchOwnOrganizationsSchema(locales: {
 
 export function createInviteOrganizationSchema() {
   return z.object({
-    [ORGANIZATION_ID_FIELD]: z.string().uuid(),
+    [ORGANIZATION_ID_FIELD]: z.uuid(),
   });
 }
 
@@ -44,6 +44,6 @@ export function createSearchOrganizationsSchema(locales: {
 
 export function createAddOwnOrganizationSchema() {
   return z.object({
-    [ORGANIZATION_ID_FIELD]: z.string().uuid(),
+    [ORGANIZATION_ID_FIELD]: z.uuid(),
   });
 }

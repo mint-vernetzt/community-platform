@@ -255,13 +255,13 @@ export function nextGetUploadImageSchema(locales: {
 
 export function getRemoveDocumentSchema() {
   return z.object({
-    [DOCUMENT_ID_FIELD_NAME]: z.string().uuid(),
+    [DOCUMENT_ID_FIELD_NAME]: z.uuid(),
   });
 }
 
 export function getEditDocumentSchema(locales: { descriptionTooLong: string }) {
   return z.object({
-    [DOCUMENT_ID_FIELD_NAME]: z.string().uuid(),
+    [DOCUMENT_ID_FIELD_NAME]: z.uuid(),
     [DOCUMENT_TITLE_FIELD_NAME]: z.string().optional(),
     [DOCUMENT_DESCRIPTION_FIELD_NAME]: z
       .string()

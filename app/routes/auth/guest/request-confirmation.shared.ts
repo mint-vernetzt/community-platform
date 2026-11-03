@@ -9,11 +9,7 @@ export function createRequestConfirmationSchema(options: {
   };
 }) {
   const schema = z.object({
-    email: z
-      .string({
-        message: options.locales.validation.email,
-      })
-      .email(options.locales.validation.email),
+    email: z.email(options.locales.validation.email),
     eventId: z.string(),
     confirmationRedirect: z.string().startsWith(options.baseUrl),
   });

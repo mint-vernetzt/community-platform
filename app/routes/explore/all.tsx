@@ -1,4 +1,4 @@
-import { parseWithZod } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod/v4";
 import { EventCard } from "@mint-vernetzt/components/src/organisms/cards/EventCard";
 import { OrganizationCard } from "@mint-vernetzt/components/src/organisms/cards/OrganizationCard";
 import { ProfileCard } from "@mint-vernetzt/components/src/organisms/cards/ProfileCard";

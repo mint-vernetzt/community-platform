@@ -39,7 +39,7 @@ import List from "~/components/next/List";
 import ListItemEvent from "~/components/next/ListItemEvent";
 import { useState } from "react";
 import RadioButtonSettings from "~/components/next/RadioButtonSettings";
-import { parseWithZod } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod/v4";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;

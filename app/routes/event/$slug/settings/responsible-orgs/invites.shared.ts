@@ -20,6 +20,6 @@ export function createSearchInvitedOrganizationsSchema(locales: {
 
 export function createRevokeOrganizationInviteSchema() {
   return z.object({
-    [ORGANIZATION_ID_FIELD]: z.string().trim().uuid(),
+    [ORGANIZATION_ID_FIELD]: z.uuid().trim(),
   });
 }

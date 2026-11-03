@@ -10,12 +10,7 @@ export const createLoginSchema = (locales: {
   };
 }) => {
   return z.object({
-    email: z
-      .string({
-        message: locales.validation.email,
-      })
-      .trim()
-      .email(locales.validation.email),
+    email: z.email(locales.validation.email).trim(),
     password: z
       .string({
         message: locales.validation.password.required,

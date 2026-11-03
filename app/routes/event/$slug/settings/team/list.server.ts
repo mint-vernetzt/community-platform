@@ -11,7 +11,7 @@ import {
   mailer,
   mailerOptions,
 } from "~/mailer.server";
-import { parseWithZod } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod/v4";
 
 export async function getTeamMembersOfEvent(options: {
   slug: string;

@@ -12,7 +12,7 @@ export function createSearchWaitingListSchema() {
 
 export function createMoveToParticipantsSchema() {
   return z.object({
-    [PROFILE_ID]: z.string().uuid(),
+    [PROFILE_ID]: z.uuid(),
     [PARTICIPATION_TYPE]: z.enum(["participant", "guest"]),
   });
 }
