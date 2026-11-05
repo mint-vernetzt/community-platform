@@ -54,7 +54,7 @@ export function init() {
   if (parsed.success === false) {
     console.error(
       "❌ Invalid environment variables:",
-      z.treeifyError(parsed.error).errors
+      z.treeifyError(parsed.error).properties
     );
 
     throw new Error("Invalid environment variables");
