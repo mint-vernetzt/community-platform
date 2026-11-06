@@ -1,3 +1,4 @@
+import "zod/compile";
 import { createReadableStreamFromReadable } from "@react-router/node";
 import { captureException } from "@sentry/node";
 import * as isbotModule from "isbot";

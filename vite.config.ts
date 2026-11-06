@@ -54,6 +54,7 @@ export default defineConfig({
       ".prisma/client/index-browser":
         "./node_modules/.prisma/client/index-browser.js",
     },
+    dedupe: ["zod"],
   },
   ssr: { noExternal: ["maplibre-gl"] },
 });
