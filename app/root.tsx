@@ -538,6 +538,13 @@ export const ErrorBoundary = () => {
         </head>
 
         <body id="top" className={bodyClasses}>
+          <script
+            nonce={nonce}
+            suppressHydrationWarning
+            dangerouslySetInnerHTML={{
+              __html: `globalThis.${ZOD_GLOBAL_CONFIG_KEY} = Object.assign(globalThis.${ZOD_GLOBAL_CONFIG_KEY} ?? {}, ${safeStringify(ZOD_CONFIG)});`,
+            }}
+          />
           <PreviousLocationContext>
             <MainMenu
               mode={hasRootLoaderData ? rootLoaderData.mode : "anon"}
@@ -866,6 +873,7 @@ export default function App() {
         <body id="top" className={bodyClasses}>
           <script
             nonce={nonce}
+            suppressHydrationWarning
             dangerouslySetInnerHTML={{
               __html: `globalThis.${ZOD_GLOBAL_CONFIG_KEY} = Object.assign(globalThis.${ZOD_GLOBAL_CONFIG_KEY} ?? {}, ${safeStringify(ZOD_CONFIG)});`,
             }}
