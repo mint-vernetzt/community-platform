@@ -91,6 +91,7 @@ import { getPublicURL } from "./storage.server";
 import { getToast, redirectWithToast } from "./toast.server";
 import { combineHeaders, deriveMode, isBotRequest } from "./utils.server";
 import { VIEW_COOKIE_VALUES } from "./routes/explore/organizations.shared";
+import { ZOD_CONFIG, ZOD_GLOBAL_CONFIG_KEY } from "./zod-config.shared";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { loaderData } = args;
@@ -863,6 +864,12 @@ export default function App() {
         </head>
 
         <body id="top" className={bodyClasses}>
+          <script
+            nonce={nonce}
+            dangerouslySetInnerHTML={{
+              __html: `globalThis.${ZOD_GLOBAL_CONFIG_KEY} = Object.assign(globalThis.${ZOD_GLOBAL_CONFIG_KEY} ?? {}, ${safeStringify(ZOD_CONFIG)});`,
+            }}
+          />
           <PreviousLocationContext>
             {isMap === false ? (
               <>
