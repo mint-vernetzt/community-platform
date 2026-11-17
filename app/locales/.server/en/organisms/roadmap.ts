@@ -35,6 +35,11 @@ export const locale = {
   },
   inDevelopment: {
     title: "In development",
+    ownOffers: {
+      title: "Create your own offers",
+      description:
+        "You can publish your own educational offers to make them visible to schools and other interested parties and to facilitate school-extracurricular cooperation.",
+    },
     oeb: {
       title: "Integration of Open Educational Badges",
       description:

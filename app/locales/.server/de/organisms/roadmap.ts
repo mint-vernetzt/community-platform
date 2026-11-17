@@ -35,6 +35,11 @@ export const locale = {
   },
   inDevelopment: {
     title: "In der Entwicklung",
+    ownOffers: {
+      title: "Eigene Angebote anlegen",
+      description:
+        "Du kannst eigene Bildungsangebote veröffentlichen, um sie für Schulen und andere Interessierte sichtbar zu machen und schulisch-außerschulische Kooperationen zu erleichtern.",
+    },
     oeb: {
       title: "Einbindung Open Educational Badges",
       description:
