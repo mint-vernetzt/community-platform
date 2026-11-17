@@ -118,6 +118,10 @@ type RoadmapLocales = {
     };
     inDevelopment: {
       title: string;
+      ownOffers: {
+        title: string;
+        description: string;
+      };
       oeb: {
         title: string;
         description: string;
@@ -236,6 +240,10 @@ function Roadmap(props: { locales: RoadmapLocales }) {
           title={locales.roadmap.inDevelopment.title}
           id="2"
         >
+          <RoadmapCard
+            title={locales.roadmap.inDevelopment.ownOffers.title}
+            text={locales.roadmap.inDevelopment.ownOffers.description}
+          />
           <RoadmapCard
             title={locales.roadmap.inDevelopment.oeb.title}
             text={locales.roadmap.inDevelopment.oeb.description}
