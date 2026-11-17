@@ -92,7 +92,7 @@ export async function searchProfiles(options: {
     submission.value[SEARCH_PARTICIPANTS_SEARCH_PARAM].trim().split(" ");
   const profiles = await prismaClient.profile.findMany({
     where: {
-      OR: query.map((term) => {
+      AND: query.map((term) => {
         return {
           OR: [
             { firstName: { contains: term, mode: "insensitive" } },

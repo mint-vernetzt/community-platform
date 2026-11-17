@@ -198,7 +198,7 @@ export async function searchOrganizations(options: {
     submission.value[SEARCH_ORGANIZATIONS_SEARCH_PARAM].trim().split(" ");
   const searchedOrganizations = await prismaClient.organization.findMany({
     where: {
-      OR: query.map((term) => {
+      AND: query.map((term) => {
         return {
           OR: [{ name: { contains: term, mode: "insensitive" } }],
         };
